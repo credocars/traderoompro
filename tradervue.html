@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeRoom PRO — Tradervue</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script>firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339",storageBucket:"traderoom-42339.firebasestorage.app",messagingSenderId:"997045199477",appId:"1:997045199477:web:22c5861bfc0965ec960e3c"});</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f2f7;--white:#fff;--card:#fff;--card2:#f2f2f7;--blue:#0071e3;--green:#34c759;--red:#ff3b30;--orange:#ff9500;--purple:#5e5ce6;--t1:#1d1d1f;--t2:#6e6e73;--t3:#aeaeb2;--border:rgba(0,0,0,.09);--border-hi:rgba(0,0,0,.14);--radius:14px;--sidebar:200px;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:100vh;display:flex;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sb-logo{padding:18px 16px 12px;font-size:15px;font-weight:800;letter-spacing:-.4px;border-bottom:1px solid var(--border);}
+.sb-logo span{color:var(--blue);}
+.sb-live{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;background:#fff0ef;color:var(--red);border:1px solid rgba(255,59,48,.2);padding:2px 7px;border-radius:10px;margin-top:5px;}
+.sb-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--red);animation:rp 1.5s ease-in-out infinite;}
+@keyframes rp{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-section{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.1em;padding:14px 16px 4px;text-transform:uppercase;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 12px;margin:1px 8px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t2);transition:all .12s;}
+.sb-item:hover{background:var(--card2);color:var(--t1);}
+.sb-item.active{background:rgba(0,113,227,.08);color:var(--blue);font-weight:600;}
+.sb-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.sb-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;cursor:default;}
+.sb-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:rgba(0,113,227,.15);color:var(--blue);}
+.sb-name{font-size:12px;font-weight:600;color:var(--t1);}
+.sb-role{font-size:10px;color:var(--t3);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+.header{height:52px;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;}
+.h-title{font-size:16px;font-weight:700;letter-spacing:-.3px;}
+.h-badge{font-size:10px;font-weight:700;background:rgba(94,92,230,.12);color:var(--purple);border:1px solid rgba(94,92,230,.2);padding:2px 9px;border-radius:20px;}
+.h-date{font-size:13px;color:var(--t2);margin-left:auto;}
+.h-refresh{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:5px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--t2);cursor:pointer;transition:all .12s;}
+.h-refresh:hover{border-color:var(--blue);color:var(--blue);}
+.h-datepick{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--t1);cursor:pointer;}
+
+.content{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
+
+/* ── SETUP CARD ── */
+.setup-card{background:var(--white);border:1.5px solid rgba(94,92,230,.25);border-radius:var(--radius);padding:20px 24px;display:flex;flex-direction:column;gap:14px;}
+.setup-title{font-size:14px;font-weight:700;color:var(--purple);display:flex;align-items:center;gap:8px;}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.setup-field label{font-size:11px;font-weight:600;color:var(--t2);display:block;margin-bottom:5px;}
+.setup-field input{width:100%;font-family:'Inter',sans-serif;font-size:13px;padding:8px 12px;border-radius:9px;border:1.5px solid var(--border);outline:none;transition:border-color .15s;background:var(--card2);}
+.setup-field input:focus{border-color:var(--purple);background:var(--white);}
+.setup-actions{display:flex;gap:10px;align-items:center;}
+.btn-save{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:9px 20px;border-radius:10px;border:none;background:var(--purple);color:#fff;cursor:pointer;transition:opacity .15s;}
+.btn-save:hover{opacity:.88;}
+.btn-secondary{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:9px 16px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--t2);cursor:pointer;}
+.setup-note{font-size:11px;color:var(--t3);line-height:1.6;}
+.setup-status{font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;}
+.setup-status.ok{background:rgba(52,199,89,.1);color:var(--green);}
+.setup-status.err{background:rgba(255,59,48,.1);color:var(--red);}
+
+/* ── SUMMARY STATS ── */
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.stat-card{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:16px 18px;}
+.stat-label{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.04em;margin-bottom:6px;}
+.stat-val{font-size:22px;font-weight:700;letter-spacing:-.5px;}
+.stat-val.green{color:var(--green);}
+.stat-val.red{color:var(--red);}
+.stat-val.blue{color:var(--blue);}
+.stat-val.purple{color:var(--purple);}
+.stat-sub{font-size:11px;color:var(--t3);margin-top:3px;}
+
+/* ── STUDENTS TABLE ── */
+.table-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;}
+.table-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.table-title{font-size:14px;font-weight:700;}
+.table-count{font-size:11px;font-weight:600;background:var(--card2);color:var(--t2);padding:2px 8px;border-radius:8px;}
+.tv-table{width:100%;border-collapse:collapse;}
+.tv-table th{font-size:11px;font-weight:600;color:var(--t2);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--card2);text-transform:uppercase;letter-spacing:.06em;}
+.tv-table td{padding:12px 16px;border-bottom:1px solid rgba(0,0,0,.04);font-size:13px;vertical-align:middle;}
+.tv-table tr:last-child td{border-bottom:none;}
+.tv-table tr.student-row{cursor:pointer;transition:background .12s;}
+.tv-table tr.student-row:hover{background:var(--card2);}
+.tv-table tr.detail-row td{padding:0;background:rgba(94,92,230,.025);}
+.student-name{font-weight:600;color:var(--t1);}
+.student-email{font-size:11px;color:var(--t3);margin-top:1px;}
+.pl-pos{color:var(--green);font-weight:700;}
+.pl-neg{color:var(--red);font-weight:700;}
+.pl-zero{color:var(--t2);}
+.win-pill{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+.win-high{background:rgba(52,199,89,.12);color:var(--green);}
+.win-mid{background:rgba(255,149,0,.12);color:var(--orange);}
+.win-low{background:rgba(255,59,48,.12);color:var(--red);}
+.expand-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--t2);cursor:pointer;transition:all .12s;}
+.expand-btn:hover{border-color:var(--purple);color:var(--purple);}
+.trade-row-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;}
+.badge-L{background:rgba(52,199,89,.12);color:var(--green);}
+.badge-S{background:rgba(255,59,48,.12);color:var(--red);}
+
+/* ── TRADES DETAIL ── */
+.detail-inner{padding:12px 20px 16px;}
+.detail-title{font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;}
+.trades-mini{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.trades-mini th{font-size:10px;font-weight:700;color:var(--t2);padding:7px 12px;border-bottom:1px solid var(--border);background:var(--card2);text-align:left;text-transform:uppercase;}
+.trades-mini td{font-size:12px;padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.04);}
+.trades-mini tr:last-child td{border-bottom:none;}
+.no-trades{text-align:center;color:var(--t3);font-size:13px;padding:24px;}
+
+/* ── LOADING ── */
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;gap:12px;color:var(--t2);}
+.spinner{width:28px;height:28px;border:2px solid rgba(94,92,230,.2);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:48px;color:var(--t3);}
+.empty-icon{font-size:32px;margin-bottom:10px;}
+
+/* ── LOGIN MODAL (matches other pages) ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(12px);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.modal-overlay.hidden{display:none;}
+.login-card{background:#fff;border-radius:20px;padding:32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.15);}
+.login-logo{width:44px;height:44px;background:linear-gradient(135deg,#0071e3,#5e5ce6);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.login-title{font-size:20px;font-weight:800;letter-spacing:-.4px;margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--t2);margin-bottom:20px;}
+.tab-row{display:flex;background:var(--card2);border-radius:10px;padding:3px;margin-bottom:18px;}
+.tab-btn{flex:1;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:7px;border:none;background:transparent;border-radius:8px;cursor:pointer;color:var(--t2);transition:all .15s;}
+.tab-btn.active{background:#fff;color:var(--t1);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.form-group{margin-bottom:12px;}
+.form-input{width:100%;font-family:'Inter',sans-serif;font-size:14px;padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);outline:none;transition:border-color .15s;background:var(--card2);}
+.form-input:focus{border-color:var(--blue);background:#fff;}
+.login-btn{width:100%;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;cursor:pointer;margin-top:4px;transition:opacity .15s;}
+.login-btn:hover{opacity:.88;}
+.form-error{font-size:12px;color:var(--red);background:rgba(255,59,48,.08);padding:8px 12px;border-radius:8px;margin-bottom:10px;display:none;}
+.forgot-link{font-size:12px;color:var(--blue);cursor:pointer;text-align:right;margin-top:-6px;margin-bottom:10px;display:block;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="login-card">
+    <div class="login-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="2.5" rx="1.25" fill="white"/><rect x="3" y="10.75" width="18" height="2.5" rx="1.25" fill="white"/><rect x="3" y="17.5" width="11" height="2.5" rx="1.25" fill="white"/></svg></div>
+    <div class="login-title">TradeRoom PRO</div>
+    <div class="login-sub" id="modalSubtitle">Sign in to join the live session</div>
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabLogin" onclick="showTab('login')">Sign In</button>
+      <button class="tab-btn" id="tabRegister" onclick="showTab('register')">Create Account</button>
+    </div>
+    <div id="formError" class="form-error"></div>
+    <div id="formLogin">
+      <div class="form-group"><input class="form-input" id="loginEmail" type="email" placeholder="Email address" autocomplete="email" onkeydown="if(event.key==='Enter')handleAuth()"/></div>
+      <div class="form-group"><input class="form-input" id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleAuth()"/></div>
+      <span class="forgot-link" onclick="forgotPassword()">Forgot password?</span>
+    </div>
+    <div id="formRegister" style="display:none;">
+      <div class="form-group"><input class="form-input" id="regName" type="text" placeholder="Your name" onkeydown="if(event.key==='Enter')handleAuth()"/></div>
+      <div class="form-group"><input class="form-input" id="regEmail" type="email" placeholder="Email address" onkeydown="if(event.key==='Enter')handleAuth()"/></div>
+      <div class="form-group"><input class="form-input" id="regPassword" type="password" placeholder="Password (min 6 characters)" onkeydown="if(event.key==='Enter')handleAuth()"/></div>
+    </div>
+    <button class="login-btn" id="authBtn" onclick="handleAuth()">Sign In</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">TradeRoom<span> PRO</span><br><span class="sb-live">Live Now</span></div>
+  <div class="sb-section">Rooms</div>
+  <div class="sb-item" onclick="window.location.href='trading-dashboard.html'"><div class="sb-icon" style="background:rgba(255,59,48,.08);">⭐</div><span>Pro Mentor</span></div>
+  <div class="sb-section">Tools</div>
+  <div class="sb-item" onclick="window.location.href='trading-dashboard.html'"><div class="sb-icon" style="background:rgba(0,113,227,.08);">⌂</div><span>Dashboard</span></div>
+  <div class="sb-item" onclick="window.location.href='scanners.html'"><div class="sb-icon" style="background:rgba(52,199,89,.08);">🔍</div><span>Scanners</span></div>
+  <div class="sb-item" onclick="window.location.href='chart.html'"><div class="sb-icon" style="background:rgba(94,92,230,.08);">📊</div><span>Charting</span></div>
+  <div class="sb-item" onclick="window.location.href='youtube.html'"><div class="sb-icon" style="background:rgba(255,59,48,.08);">▶</div><span>YouTube</span></div>
+  <div class="sb-item" onclick="window.location.href='zoom.html'"><div class="sb-icon" style="background:rgba(0,113,227,.08);">🎥</div><span>Zoom</span></div>
+  <div class="sb-item" onclick="window.location.href='courses.html'"><div class="sb-icon" style="background:rgba(255,149,0,.08);">🎓</div><span>Courses</span></div>
+  <div class="sb-item" onclick="window.location.href='mentorship.html'"><div class="sb-icon" style="background:rgba(52,199,89,.08);">🤝</div><span>Mentorship</span></div>
+  <div class="sb-item active"><div class="sb-icon" style="background:rgba(94,92,230,.08);">📈</div><span>Tradervue</span></div>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <div><div class="sb-name" id="sbName">Loading…</div><div class="sb-role" id="sbRole">—</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="header">
+    <div class="h-title">Tradervue</div>
+    <div class="h-badge">📈 Performance</div>
+    <div class="h-date" id="headerDate"></div>
+    <input type="date" class="h-datepick" id="datePicker" onchange="loadData()"/>
+    <button class="h-refresh" onclick="loadData()">↻ Refresh</button>
+  </div>
+
+  <div class="content" id="mainContent">
+    <!-- Content rendered by JS -->
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <div>Loading…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const auth = firebase.auth(), db = firebase.database();
+let currentUser = null;
+const TV_PROXY = '/.netlify/functions/tradervue';
+const TV_CONFIG_PATH = 'traderoom/tvConfig';
+let tvConfig = null;
+let expandedUsers = new Set();
+
+/* ── AUTH ── */
+function showTab(t) {
+  const isLogin = t === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('formLogin').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('formRegister').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('authBtn').textContent = isLogin ? 'Sign In' : 'Create Account';
+  document.getElementById('formError').style.display = 'none';
+}
+function handleAuth() {
+  const err = document.getElementById('formError'); err.style.display = 'none';
+  const btn = document.getElementById('authBtn'); btn.textContent = '…'; btn.disabled = true;
+  const isLogin = document.getElementById('tabLogin').classList.contains('active');
+  if (isLogin) {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    if (!email || !pass) { showErr('Please enter email and password.'); return; }
+    auth.signInWithEmailAndPassword(email, pass).catch(e => showErr(friendlyErr(e.code)));
+  } else {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPassword').value;
+    if (!name || !email || !pass) { showErr('Please fill all fields.'); return; }
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then(c => db.ref('traderoom/users/' + c.user.uid).set({ name, role: 'student', email }))
+      .catch(e => showErr(friendlyErr(e.code)));
+  }
+}
+function showErr(msg) {
+  const e = document.getElementById('formError'); e.textContent = '⚠ ' + msg; e.style.display = 'block';
+  const btn = document.getElementById('authBtn'); btn.disabled = false;
+  btn.textContent = document.getElementById('tabLogin').classList.contains('active') ? 'Sign In' : 'Create Account';
+}
+function friendlyErr(code) {
+  const m = { 'auth/user-not-found': 'No account found.', 'auth/wrong-password': 'Incorrect password.', 'auth/invalid-credential': 'Incorrect email or password.', 'auth/email-already-in-use': 'Already registered.', 'auth/weak-password': 'Password too short.' };
+  return m[code] || 'Something went wrong.';
+}
+function forgotPassword() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showErr('Enter your email first.'); return; }
+  auth.sendPasswordResetEmail(email).then(() => {
+    const e = document.getElementById('formError'); e.textContent = '✅ Reset email sent!'; e.style.color = '#34c759'; e.style.display = 'block';
+  }).catch(e => showErr(friendlyErr(e.code)));
+}
+
+auth.onAuthStateChanged(async u => {
+  if (!u) return;
+  const snap = await db.ref('traderoom/users/' + u.uid).get();
+  const p = snap.exists() ? snap.val() : null;
+  const name = p?.name || u.email.split('@')[0];
+  const role = p?.role || 'student';
+  currentUser = { name, role, uid: u.uid, email: u.email };
+  document.getElementById('loginModal').classList.add('hidden');
+  document.getElementById('sbName').textContent = name;
+  document.getElementById('sbRole').textContent = role === 'instructor' ? '⭐ Instructor' : '🎓 Student';
+  document.getElementById('sbAvatar').textContent = name.slice(0, 2).toUpperCase();
+  afterAuth();
+});
+
+/* ── MAIN ── */
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+function afterAuth() {
+  // Set date picker to today
+  const dp = document.getElementById('datePicker');
+  dp.value = todayStr();
+  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  // Only instructors can use this page
+  if (currentUser.role !== 'instructor') {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔒</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Instructor Only</div>
+        <div style="font-size:13px;color:var(--t3);">This page is for instructors to monitor student performance.</div>
+      </div>`;
+    return;
+  }
+
+  // Load Tradervue config from Firebase
+  db.ref(TV_CONFIG_PATH).get().then(snap => {
+    if (snap.exists()) {
+      tvConfig = snap.val();
+      loadData();
+    } else {
+      renderSetup();
+    }
+  });
+}
+
+/* ── SETUP ── */
+function renderSetup(msg) {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="setup-card">
+      <div class="setup-title">⚙️ Tradervue API Setup</div>
+      <div style="font-size:13px;color:var(--t2);margin-top:-4px;">Enter your Tradervue organization admin credentials. Stored securely in Firebase — never shared with students.</div>
+      <div class="setup-grid">
+        <div class="setup-field">
+          <label>Organization URL</label>
+          <input id="tvOrgUrl" type="text" placeholder="e.g. your-org.tradervue.com" value="${tvConfig?.orgUrl || ''}"/>
+        </div>
+        <div class="setup-field">
+          <label>Admin Username</label>
+          <input id="tvUser" type="text" placeholder="Tradervue username" value="${tvConfig?.username || ''}"/>
+        </div>
+        <div class="setup-field">
+          <label>Admin Password</label>
+          <input id="tvPass" type="password" placeholder="Tradervue password" value="${tvConfig?.password || ''}"/>
+        </div>
+      </div>
+      <div class="setup-actions">
+        <button class="btn-save" onclick="saveConfig()">Save & Connect</button>
+        ${tvConfig ? '<button class="btn-secondary" onclick="loadData()">Cancel</button>' : ''}
+        ${msg ? `<span class="setup-status err">⚠ ${msg}</span>` : ''}
+      </div>
+      <div class="setup-note">
+        <strong>Setup required:</strong> You also need to deploy a Netlify serverless function to proxy API calls.<br>
+        1. Add <code>/netlify/functions/tradervue.js</code> to your Netlify repo<br>
+        2. Set <code>TV_USERNAME</code>, <code>TV_PASSWORD</code>, <code>TV_BASE_URL</code> in Netlify → Site Settings → Environment Variables<br>
+        3. Redeploy — then paste your org URL above and save
+      </div>
+    </div>`;
+}
+
+function saveConfig() {
+  const orgUrl  = document.getElementById('tvOrgUrl').value.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  const username = document.getElementById('tvUser').value.trim();
+  const password = document.getElementById('tvPass').value;
+  if (!orgUrl || !username || !password) { alert('Please fill in all fields.'); return; }
+  tvConfig = { orgUrl, username, password };
+  db.ref(TV_CONFIG_PATH).set(tvConfig).then(() => loadData());
+}
+
+/* ── DATA LOADING ── */
+async function loadData() {
+  if (!tvConfig) { renderSetup(); return; }
+  const date = document.getElementById('datePicker').value || todayStr();
+  document.getElementById('mainContent').innerHTML = `
+    <div class="loading-state"><div class="spinner"></div><div>Loading student performance…</div></div>`;
+
+  try {
+    // 1. Fetch all users in org
+    const usersRes = await tvFetch('/users');
+    if (usersRes.error) { renderError(usersRes.error); return; }
+    const users = usersRes.users || [];
+
+    if (users.length === 0) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="empty-state"><div class="empty-icon">👥</div>
+        <div style="font-size:15px;font-weight:700;">No students found</div>
+        <div style="font-size:13px;color:var(--t3);margin-top:6px;">Make sure students are in your Tradervue organization.</div></div>`;
+      return;
+    }
+
+    // 2. Fetch trades for each user on selected date
+    const studentData = await Promise.all(users.map(u => fetchStudentData(u, date)));
+
+    renderDashboard(studentData, date);
+
+  } catch (err) {
+    renderError(err.message);
+  }
+}
+
+async function fetchStudentData(user, date) {
+  try {
+    const data = await tvFetch('/trades', user.id, { startdate: date, enddate: date, max_trades: 100 });
+    const trades = data.trades || [];
+    const totalPL  = trades.reduce((s, t) => s + (parseFloat(t.gross_pl) || 0), 0);
+    const winners  = trades.filter(t => (parseFloat(t.gross_pl) || 0) > 0).length;
+    const winRate  = trades.length > 0 ? Math.round((winners / trades.length) * 100) : null;
+    const best     = trades.reduce((b, t) => (parseFloat(t.gross_pl)||0) > (parseFloat(b?.gross_pl)||0) ? t : b, null);
+    const worst    = trades.reduce((w, t) => (parseFloat(t.gross_pl)||0) < (parseFloat(w?.gross_pl)||0) ? t : w, null);
+    return { user, trades, totalPL, winRate, winners, best, worst };
+  } catch {
+    return { user, trades: [], totalPL: 0, winRate: null, winners: 0, best: null, worst: null, error: true };
+  }
+}
+
+async function tvFetch(endpoint, userId, params = {}) {
+  const qs = new URLSearchParams({ endpoint, ...(userId ? { userId } : {}), ...params }).toString();
+  const res = await fetch(`${TV_PROXY}?${qs}`);
+  return res.json();
+}
+
+/* ── RENDER ── */
+function renderDashboard(students, date) {
+  const totalPL    = students.reduce((s, d) => s + d.totalPL, 0);
+  const totalTrades = students.reduce((s, d) => s + d.trades.length, 0);
+  const winners    = students.filter(d => d.totalPL > 0).length;
+  const bestStudent = students.reduce((b, d) => d.totalPL > (b?.totalPL || -Infinity) ? d : b, null);
+
+  const plClass = totalPL > 0 ? 'green' : totalPL < 0 ? 'red' : '';
+  const plStr   = (totalPL >= 0 ? '+' : '') + '$' + Math.abs(totalPL).toFixed(2);
+
+  let html = `
+    <div class="summary-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-val blue">${students.length}</div>
+        <div class="stat-sub">${totalTrades} trades today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Combined P&amp;L</div>
+        <div class="stat-val ${plClass}">${plStr}</div>
+        <div class="stat-sub">All students combined</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Profitable Students</div>
+        <div class="stat-val green">${winners}</div>
+        <div class="stat-sub">of ${students.length} total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Top Performer</div>
+        <div class="stat-val purple" style="font-size:16px;">${bestStudent?.user?.username || '—'}</div>
+        <div class="stat-sub">${bestStudent && bestStudent.totalPL !== 0 ? (bestStudent.totalPL > 0 ? '+' : '') + '$' + bestStudent.totalPL.toFixed(2) : 'No trades'}</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Student Performance</div>
+        <div class="table-count">${students.length} students — ${new Date(date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+        <button class="btn-secondary" style="margin-left:auto;font-size:11px;padding:5px 12px;" onclick="renderSetup()">⚙ Settings</button>
+      </div>
+      <table class="tv-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Trades</th>
+            <th>P&amp;L</th>
+            <th>Win Rate</th>
+            <th>Best Trade</th>
+            <th>Worst Trade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="studentsTableBody">
+          ${students.map(d => renderStudentRow(d)).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function renderStudentRow(d) {
+  const { user, trades, totalPL, winRate, best, worst } = d;
+  const plStr  = trades.length === 0 ? '—' : (totalPL >= 0 ? '+' : '') + '$' + Math.abs(totalPL).toFixed(2);
+  const plCls  = totalPL > 0 ? 'pl-pos' : totalPL < 0 ? 'pl-neg' : 'pl-zero';
+  const wrStr  = winRate !== null ? winRate + '%' : '—';
+  const wrCls  = winRate === null ? '' : winRate >= 60 ? 'win-high' : winRate >= 40 ? 'win-mid' : 'win-low';
+  const bestStr  = best ? ((parseFloat(best.gross_pl)||0) >= 0 ? '+' : '') + '$' + Math.abs(parseFloat(best.gross_pl)||0).toFixed(2) + ' ' + (best.symbol||'') : '—';
+  const worstStr = worst ? ((parseFloat(worst.gross_pl)||0) >= 0 ? '+' : '') + '$' + Math.abs(parseFloat(worst.gross_pl)||0).toFixed(2) + ' ' + (worst.symbol||'') : '—';
+
+  return `
+    <tr class="student-row" onclick="toggleStudent('${user.id}', this)" id="row-${user.id}">
+      <td><div class="student-name">${user.username}</div><div class="student-email">${user.email || ''}</div></td>
+      <td>${trades.length}</td>
+      <td class="${plCls}">${plStr}</td>
+      <td>${winRate !== null ? `<span class="win-pill ${wrCls}">${wrStr}</span>` : '—'}</td>
+      <td style="color:var(--green);">${bestStr}</td>
+      <td style="color:var(--red);">${worstStr}</td>
+      <td><button class="expand-btn" id="expbtn-${user.id}">${trades.length > 0 ? '▸ Trades' : 'No trades'}</button></td>
+    </tr>
+    <tr class="detail-row" id="detail-${user.id}" style="display:none;">
+      <td colspan="7">${renderTradeDetail(user, trades)}</td>
+    </tr>`;
+}
+
+function renderTradeDetail(user, trades) {
+  if (trades.length === 0) {
+    return `<div class="detail-inner"><div class="no-trades">No trades on this day</div></div>`;
+  }
+  const rows = trades.map(t => {
+    const pl = parseFloat(t.gross_pl) || 0;
+    const plStr = (pl >= 0 ? '+' : '') + '$' + Math.abs(pl).toFixed(2);
+    const plCls = pl > 0 ? 'pl-pos' : pl < 0 ? 'pl-neg' : 'pl-zero';
+    const side  = (t.side || '').toUpperCase();
+    return `
+      <tr>
+        <td><strong>${t.symbol || '—'}</strong></td>
+        <td><span class="trade-row-badge ${side === 'L' ? 'badge-L' : 'badge-S'}">${side === 'L' ? 'LONG' : 'SHORT'}</span></td>
+        <td>${t.quantity || '—'}</td>
+        <td>${t.entry_price != null ? '$' + parseFloat(t.entry_price).toFixed(2) : '—'}</td>
+        <td>${t.exit_price != null ? '$' + parseFloat(t.exit_price).toFixed(2) : '—'}</td>
+        <td class="${plCls}">${plStr}</td>
+        <td style="color:var(--t2);font-size:11px;">${t.tags ? t.tags.join(', ') : ''}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <div class="detail-inner">
+      <div class="detail-title">📋 ${user.username}'s trades</div>
+      <table class="trades-mini">
+        <thead>
+          <tr><th>Symbol</th><th>Side</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Tags</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function toggleStudent(userId, row) {
+  const detail = document.getElementById('detail-' + userId);
+  const btn    = document.getElementById('expbtn-' + userId);
+  if (!detail) return;
+  const isOpen = detail.style.display !== 'none';
+  detail.style.display = isOpen ? 'none' : 'table-row';
+  btn.textContent = isOpen ? '▸ Trades' : '▾ Close';
+}
+
+function renderError(msg) {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="setup-card" style="border-color:rgba(255,59,48,.25);">
+      <div class="setup-title" style="color:var(--red);">⚠ Connection Error</div>
+      <div style="font-size:13px;color:var(--t2);">${msg}</div>
+      <div class="setup-actions">
+        <button class="btn-save" style="background:var(--red);" onclick="loadData()">Retry</button>
+        <button class="btn-secondary" onclick="renderSetup()">Edit Settings</button>
+      </div>
+      <div class="setup-note">
+        <strong>Common issues:</strong><br>
+        • Netlify function not deployed — add <code>/netlify/functions/tradervue.js</code> to your repo<br>
+        • Environment variables missing — set <code>TV_USERNAME</code> and <code>TV_PASSWORD</code> in Netlify<br>
+        • Wrong org URL — check your Tradervue organization URL<br>
+        • Organization API not enabled — contact Tradervue support
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
