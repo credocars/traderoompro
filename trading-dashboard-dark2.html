@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeRoom Pro — Live Trading Dashboard</title>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<!-- Hardcoded Firebase config — students never need to paste keys -->
+<script>
+  const FIREBASE_CONFIG = {
+    apiKey:      "AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",
+    authDomain:  "traderoom-42339.firebaseapp.com",
+    databaseURL: "https://traderoom-42339-default-rtdb.firebaseio.com",
+    projectId:   "traderoom-42339",
+    storageBucket: "traderoom-42339.firebasestorage.app",
+    messagingSenderId: "997045199477",
+    appId:       "1:997045199477:web:22c5861bfc0965ec960e3c"
+  };
+  firebase.initializeApp(FIREBASE_CONFIG);
+</script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #0a0c10;
+    --bg-panel: #0e1117;
+    --bg-card: #131820;
+    --bg-hover: #1a2030;
+    --border: #1e2535;
+    --border-bright: #2a3550;
+    --accent-green: #00d97e;
+    --accent-red: #ff3b5c;
+    --accent-blue: #3b82f6;
+    --accent-yellow: #f59e0b;
+    --accent-cyan: #06b6d4;
+    --text-primary: #e8eaf0;
+    --text-secondary: #8b95a8;
+    --text-dim: #4a5568;
+    --scanner-glow: rgba(0, 217, 126, 0.08);
+    --red-glow: rgba(255, 59, 92, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+  }
+
+  /* ── MAIN CONTENT WRAPPER (everything right of sidebar) ── */
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── TOP TICKER BAR ── */
+  .ticker-bar {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    height: 30px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ticker-track {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    animation: tickerScroll 40s linear infinite;
+    white-space: nowrap;
+    gap: 0;
+  }
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 20px;
+    font-size: 10px;
+    font-weight: 500;
+    border-right: 1px solid var(--border);
+    height: 100%;
+  }
+  .ticker-item .sym { color: var(--text-primary); font-weight: 700; letter-spacing: 0.05em; }
+  .ticker-item .up { color: var(--accent-green); }
+  .ticker-item .dn { color: var(--accent-red); }
+  @keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .logo span { color: var(--text-secondary); -webkit-text-fill-color: var(--text-secondary); font-weight: 400; font-size: 13px; }
+  .header-divider { width: 1px; height: 24px; background: var(--border); }
+  .live-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(255, 59, 92, 0.12);
+    border: 1px solid rgba(255, 59, 92, 0.3);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: var(--accent-red);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .live-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+  .header-stats {
+    display: flex; align-items: center; gap: 16px;
+    margin-left: auto;
+    font-size: 11px;
+  }
+  .hstat { display: flex; flex-direction: column; align-items: flex-end; }
+  .hstat-label { color: var(--text-dim); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .hstat-value { font-weight: 600; }
+  .hstat-value.up { color: var(--accent-green); }
+  .hstat-value.dn { color: var(--accent-red); }
+  .session-time {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    color: var(--accent-cyan);
+    font-weight: 600;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    grid-template-rows: 1fr;
+    gap: 1px;
+    background: var(--border);
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── PANEL BASE ── */
+  .panel {
+    background: var(--bg-panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    height: 36px;
+  }
+  .panel-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .panel-title .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .panel-title .dot.red { background: var(--accent-red); }
+  .panel-title .dot.blue { background: var(--accent-blue); }
+  .panel-body { flex: 1; overflow-y: auto; min-height: 0; }
+  .panel-body::-webkit-scrollbar { width: 3px; }
+  .panel-body::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+  /* ── CHART PANEL ── */
+  .chart-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .chart-sym-input {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    color: var(--text-primary);
+    padding: 3px 8px;
+    border-radius: 4px;
+    width: 80px;
+    text-transform: uppercase;
+  }
+  .chart-sym-input:focus { outline: none; border-color: var(--accent-blue); }
+  .tf-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tf-btn.active, .tf-btn:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+  }
+  .chart-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .chart-body iframe { flex: 1; width: 100%; height: 100%; border: none; display: block; min-height: 0; }
+
+
+  /* ── CHAT ── */
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+  }
+  .chat-messages::-webkit-scrollbar { width: 3px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border-bright); }
+  .chat-msg {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .chat-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .chat-bubble {
+    flex: 1;
+    min-width: 0;
+  }
+  .chat-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+  }
+  .chat-user { font-size: 10px; font-weight: 700; }
+  .chat-user.instructor { color: var(--accent-cyan); }
+  .chat-user.student { color: var(--text-secondary); }
+  .chat-badge {
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .chat-badge.pro { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+  .chat-badge.student { background: var(--bg-card); color: var(--text-dim); border: 1px solid var(--border); }
+  .chat-time-msg { font-size: 8px; color: var(--text-dim); }
+  .chat-text { font-size: 10px; color: var(--text-secondary); line-height: 1.5; word-break: break-word; }
+  .chat-text strong { color: var(--accent-green); }
+  .chat-text.alert-msg { color: var(--accent-yellow); font-weight: 600; }
+  .chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .chat-input {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .chat-input:focus { border-color: var(--accent-blue); }
+  .chat-input::placeholder { color: var(--text-dim); }
+  .send-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    background: var(--accent-blue);
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .send-btn:hover { background: #2563eb; transform: translateY(-1px); }
+
+  /* ── BOTTOM TABS ── */
+  .tab-bar {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    height: 36px;
+    padding: 0 12px;
+    gap: 4px;
+  }
+  .tab {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .tab.active {
+    color: var(--text-primary);
+    background: var(--bg-card);
+    border-color: var(--border-bright);
+  }
+  .tab:hover:not(.active) { color: var(--text-secondary); }
+  .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px; height: 14px;
+    font-size: 8px;
+    background: var(--accent-red);
+    color: white;
+    border-radius: 50%;
+    margin-left: 4px;
+    font-weight: 700;
+  }
+  .tab-pane { display: none; flex: 1; overflow: hidden; flex-direction: column; min-height: 0; }
+  .tab-pane.active { display: flex; }
+  /* LIVE STREAM OVERLAY */
+  .stream-overlay {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(0,0,0,0.85);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    pointer-events: none;
+  }
+  .stream-overlay .live-pulse {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--accent-red);
+    font-weight: 700;
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  .stream-overlay .live-pulse::before {
+    content: '';
+    width: 7px; height: 7px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .viewer-count { color: var(--accent-cyan); font-weight: 600; }
+
+  /* CHART WRAPPER */
+  .chart-wrapper {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* SCROLLBAR GLOBAL */
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+  .chart-panel   { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .chat-panel    { grid-column: 2; grid-row: 1; background: var(--bg-panel); display: flex; flex-direction: column; overflow: hidden; }
+
+  /* RESPONSIVE NOTIFICATION */
+  .notif-dot {
+    width: 6px; height: 6px;
+    background: var(--accent-red);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+    display: inline-block;
+    margin-left: 4px;
+  }
+
+  /* ══════════════════════════════════════════
+     LEFT NAVIGATION SIDEBAR
+  ══════════════════════════════════════════ */
+  .sidebar {
+    width: 148px;
+    flex-shrink: 0;
+    background: #0b0e18;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+  }
+
+  /* Logo block */
+  .sb-logo {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sb-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e3a5f, #2563eb);
+    border: 2px solid var(--border-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .sb-avatar:hover { border-color: var(--accent-blue); }
+  .sb-avatar svg { width: 20px; height: 20px; fill: none; stroke: #60a5fa; stroke-width: 1.5; }
+
+  /* Scrollable nav body */
+  .sb-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 12px;
+  }
+  .sb-scroll::-webkit-scrollbar { width: 2px; }
+  .sb-scroll::-webkit-scrollbar-thumb { background: var(--border-bright); }
+
+  /* Section headers */
+  .sb-section {
+    padding: 14px 12px 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sb-section-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+  .sb-section-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+  }
+
+  /* Nav items */
+  .sb-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: background 0.12s;
+    position: relative;
+    border-radius: 0;
+  }
+  .sb-item:hover { background: rgba(255,255,255,0.04); }
+  .sb-item.active {
+    background: rgba(59, 130, 246, 0.1);
+    border-right: 2px solid var(--accent-blue);
+  }
+  .sb-item-label {
+    flex: 1;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.12s;
+  }
+  .sb-item:hover .sb-item-label { color: var(--text-primary); }
+  .sb-item.active .sb-item-label { color: var(--text-primary); font-weight: 600; }
+
+  /* Status badges */
+  .sb-badge {
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .sb-badge.off {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .sb-badge.live {
+    background: rgba(255, 59, 92, 0.18);
+    color: var(--accent-red);
+    border: 1px solid rgba(255, 59, 92, 0.35);
+    animation: badgePulse 2s ease-in-out infinite;
+  }
+  @keyframes badgePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
+
+  /* Green indicator dot (for Scanners) */
+  .sb-online-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    flex-shrink: 0;
+    box-shadow: 0 0 5px rgba(0, 217, 126, 0.6);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Chevron arrow */
+  .sb-arrow {
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .sb-item:hover .sb-arrow { color: var(--text-secondary); }
+
+
+  /* Divider */
+  .sb-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 0;
+  }
+
+  /* ══ FIREBASE LOGIN MODAL ══ */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(5,7,12,.93);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal-box {
+    background: var(--bg-panel); border: 1px solid var(--border-bright);
+    border-radius: 10px; padding: 28px 28px 24px; width: 420px;
+    display: flex; flex-direction: column; gap: 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  }
+  .modal-logo { display: flex; align-items: center; gap: 10px; }
+  .modal-logo-mark {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: linear-gradient(135deg,#0f3460,#1a1f35);
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-bright);
+  }
+  .modal-logo-mark svg { width: 20px; height: 20px; }
+  .modal-title {
+    font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .modal-sub { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+  .modal-divider { height: 1px; background: var(--border); }
+  .modal-section-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-dim); margin-bottom: 6px;
+  }
+  .modal-input-group { display: flex; flex-direction: column; gap: 8px; }
+  .modal-input {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    background: var(--bg-card); border: 1px solid var(--border-bright);
+    color: var(--text-primary); padding: 8px 12px; border-radius: 5px;
+    outline: none; transition: border-color .15s; width: 100%;
+  }
+  .modal-input:focus { border-color: var(--accent-blue); }
+  .modal-input::placeholder { color: var(--text-dim); }
+  .modal-input.config { font-size: 10px; color: var(--accent-cyan); }
+  .modal-role-row { display: flex; gap: 8px; }
+  .role-btn {
+    flex: 1; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700; padding: 8px;
+    border-radius: 5px; border: 1px solid var(--border-bright);
+    background: var(--bg-card); color: var(--text-dim);
+    cursor: pointer; transition: all .15s; text-align: center;
+  }
+  .role-btn.active { border-color: var(--accent-blue); background: rgba(59,130,246,.12); color: var(--accent-blue); }
+  .role-btn.pro.active { border-color: var(--accent-cyan); background: rgba(6,182,212,.1); color: var(--accent-cyan); }
+  .modal-join-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    padding: 10px; border-radius: 5px; border: none;
+    background: var(--accent-green); color: #000; cursor: pointer;
+    transition: opacity .15s; width: 100%;
+  }
+  .modal-join-btn:hover { opacity: .88; }
+  .modal-hint {
+    font-size: 9px; color: var(--text-dim); line-height: 1.6;
+    background: rgba(59,130,246,.05); border: 1px solid rgba(59,130,246,.15);
+    border-radius: 4px; padding: 8px 10px;
+  }
+  .modal-hint a { color: var(--accent-blue); text-decoration: none; }
+  .modal-hint strong { color: var(--text-secondary); }
+  .modal-error {
+    font-size: 9px; color: var(--accent-red); padding: 5px 8px;
+    background: rgba(255,59,92,.08); border: 1px solid rgba(255,59,92,.2);
+    border-radius: 4px; display: none;
+  }
+  .auth-tab {
+    flex: 1; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; padding: 8px;
+    border: none; background: var(--bg-card);
+    color: var(--text-dim); cursor: pointer;
+    transition: all .15s; text-align: center;
+  }
+  .auth-tab.active {
+    background: var(--accent-blue); color: #fff;
+  }
+  .auth-tab:hover:not(.active) { color: var(--text-primary); }
+  .firebase-status {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 9px; color: var(--text-dim);
+    margin-left: auto;
+  }
+  .firebase-status.connected { color: var(--accent-green); }
+  .firebase-status::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor; animation: pulse 2s ease-in-out infinite;
+  }
+  .chat-msg.own .chat-bubble {
+    background: rgba(59,130,246,.06); border-radius: 4px; padding: 3px 6px;
+  }
+  .typing-indicator {
+    display: none; align-items: center; gap: 6px;
+    padding: 4px 10px; font-size: 9px; color: var(--text-dim);
+  }
+  .typing-dots span {
+    display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--text-dim); margin: 0 1px;
+    animation: typingDot 1.2s ease-in-out infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: .2s; }
+  .typing-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes typingDot {
+    0%,60%,100% { transform: translateY(0); opacity: .4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .chat-msg { animation: msgIn .25s ease-out; }
+
+  /* ── MARKET STATUS PILL ── */
+  .market-status-pill { display:flex; align-items:center; gap:6px; font-size:10px; font-weight:600; color:var(--text-secondary); }
+  .ms-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .ms-dot.open { background:var(--accent-green); box-shadow:0 0 6px rgba(0,217,126,.6); animation:pulse 2s ease-in-out infinite; }
+  .ms-dot.closed { background:var(--text-dim); }
+  .ms-dot.pre { background:var(--accent-yellow); box-shadow:0 0 6px rgba(245,158,11,.5); animation:pulse 2s ease-in-out infinite; }
+
+  /* ── CONTENT ROW ── */
+  .content-row { flex:1; min-height:0; display:flex; flex-direction:row; overflow:hidden; }
+  .dashboard-area { flex:1; min-width:0; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; padding:14px; gap:12px; }
+  .dashboard-area::-webkit-scrollbar { width:3px; }
+  .dashboard-area::-webkit-scrollbar-thumb { background:var(--border-bright); }
+
+  /* ── MARKET PULSE ROW ── */
+  .market-pulse-row { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; flex-shrink:0; }
+  .mp-card { background:var(--bg-panel); border:1px solid var(--border); border-radius:8px; padding:12px 14px; transition:border-color .15s; cursor:default; }
+  .mp-card:hover { border-color:var(--border-bright); }
+  .mp-sym { font-size:10px; font-weight:700; color:var(--text-secondary); margin-bottom:4px; text-transform:uppercase; letter-spacing:.05em; }
+  .mp-price { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; color:var(--text-primary); margin-bottom:3px; }
+  .mp-chg { font-size:9px; font-weight:600; margin-bottom:8px; }
+  .mp-bar { height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+  .mp-fill { height:100%; border-radius:2px; transition:width .4s ease; }
+  .mp-fill.up { background:var(--accent-green); }
+  .mp-fill.dn { background:var(--accent-red); }
+
+  /* ── DASH GRID ── */
+  .dash-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; flex:1; min-height:0; }
+  .dash-panel { background:var(--bg-panel); border:1px solid var(--border); border-radius:10px; display:flex; flex-direction:column; overflow:hidden; min-height:280px; }
+  .dp-header { display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); flex-shrink:0; height:38px; }
+  .dp-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .dp-dot.green { background:var(--accent-green); box-shadow:0 0 5px rgba(0,217,126,.4); animation:pulse 2s ease-in-out infinite; }
+  .dp-dot.blue  { background:var(--accent-blue); }
+  .dp-dot.yellow{ background:var(--accent-yellow); }
+  .dp-title { font-size:11px; font-weight:700; color:var(--text-primary); flex:1; text-transform:uppercase; letter-spacing:.06em; }
+  .dp-badge { font-size:8px; font-weight:700; padding:2px 7px; border-radius:3px; text-transform:uppercase; letter-spacing:.06em; background:rgba(0,217,126,.12); color:var(--accent-green); border:1px solid rgba(0,217,126,.25); }
+  .dp-badge.live { animation:badgePulse 2s ease-in-out infinite; }
+  @keyframes badgePulse { 0%,100%{opacity:1}50%{opacity:.65} }
+  .dp-time { font-size:9px; color:var(--text-dim); margin-left:auto; }
+  .dp-body { flex:1; overflow-y:auto; min-height:0; }
+  .dp-body::-webkit-scrollbar { width:2px; }
+  .dp-body::-webkit-scrollbar-thumb { background:var(--border-bright); }
+
+  /* ── WATCHLIST ── */
+  .wl-item { display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--border); transition:background .1s; cursor:default; }
+  .wl-item:hover { background:var(--bg-hover); }
+  .wl-item.hot { background:rgba(0,217,126,.03); }
+  .wl-item.hot:hover { background:rgba(0,217,126,.07); }
+  .wl-sym { font-size:12px; font-weight:700; width:46px; flex-shrink:0; }
+  .wl-name { flex:1; font-size:9px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wl-right { text-align:right; flex-shrink:0; }
+  .wl-price { font-size:11px; font-weight:700; }
+  .wl-chg { font-size:9px; font-weight:600; }
+  .wl-tag { font-size:7px; font-weight:700; padding:2px 6px; border-radius:3px; text-transform:uppercase; letter-spacing:.05em; flex-shrink:0; }
+  .wl-tag.gap { background:rgba(0,217,126,.12); color:var(--accent-green); border:1px solid rgba(0,217,126,.25); }
+  .wl-tag.momo { background:rgba(59,130,246,.12); color:var(--accent-blue); border:1px solid rgba(59,130,246,.25); }
+  .wl-tag.short { background:rgba(255,59,92,.12); color:var(--accent-red); border:1px solid rgba(255,59,92,.25); }
+  .wl-tag { background:var(--bg-card); color:var(--text-dim); border:1px solid var(--border); }
+
+  /* ── SESSION NOTES ── */
+  .notes-body { flex:1; overflow-y:auto; min-height:0; padding:10px 14px; display:flex; flex-direction:column; gap:8px; }
+  .notes-body::-webkit-scrollbar { width:2px; }
+  .notes-body::-webkit-scrollbar-thumb { background:var(--border-bright); }
+  .note-placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; }
+  .notes-list { display:flex; flex-direction:column; gap:8px; }
+  .note-item { background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:10px 12px; border-left:3px solid var(--accent-blue); }
+  .note-item.alert { border-left-color:var(--accent-yellow); background:rgba(245,158,11,.04); }
+  .note-time { font-size:8px; color:var(--text-dim); margin-bottom:4px; }
+  .note-text { font-size:11px; color:var(--text-secondary); line-height:1.6; }
+  .note-text strong { color:var(--accent-green); }
+  .notes-input-area { border-top:1px solid var(--border); padding:10px 12px; display:flex; gap:8px; flex-shrink:0; }
+  .notes-textarea { flex:1; font-family:'JetBrains Mono',monospace; font-size:11px; background:var(--bg-card); border:1px solid var(--border-bright); color:var(--text-primary); padding:7px 10px; border-radius:5px; outline:none; resize:none; transition:border-color .15s; }
+  .notes-textarea:focus { border-color:var(--accent-blue); }
+  .notes-textarea::placeholder { color:var(--text-dim); }
+  .notes-post-btn { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:6px 14px; border-radius:4px; border:none; background:var(--accent-blue); color:#fff; cursor:pointer; transition:opacity .15s; align-self:flex-end; }
+  .notes-post-btn:hover { opacity:.85; }
+
+  /* ── PRE-MARKET MOVERS ── */
+  .mover-header-row { display:grid; grid-template-columns:52px 44px 1fr 52px 52px; gap:4px; padding:7px 14px; font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-dim); border-bottom:1px solid var(--border); }
+  .mover-row { display:grid; grid-template-columns:52px 44px 1fr 52px 52px; gap:4px; padding:8px 14px; border-bottom:1px solid rgba(30,37,53,.5); font-size:10px; transition:background .1s; align-items:center; cursor:default; }
+  .mover-row:hover { background:var(--bg-hover); }
+  .mover-row.hot { background:rgba(0,217,126,.03); }
+  .mover-sym { font-weight:700; }
+  .mover-float { color:var(--text-dim); font-size:9px; }
+  .mover-price { font-weight:600; }
+  .mover-gap { font-weight:700; }
+  .mover-vol { color:var(--text-dim); font-size:9px; }
+
+  /* ── QUICK NAV TILES ── */
+  .quick-nav-row { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; flex-shrink:0; }
+  .qn-tile { background:var(--bg-panel); border:1px solid var(--border); border-radius:8px; padding:12px 14px; cursor:pointer; transition:all .15s; display:flex; flex-direction:column; gap:4px; position:relative; overflow:hidden; }
+  .qn-tile:hover { border-color:var(--accent-blue); background:rgba(59,130,246,.06); transform:translateY(-1px); }
+  .qn-icon { font-size:18px; margin-bottom:2px; }
+  .qn-label { font-size:11px; font-weight:700; color:var(--text-primary); }
+  .qn-sub { font-size:9px; color:var(--text-dim); }
+  .qn-arrow { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--text-dim); transition:color .15s; }
+  .qn-tile:hover .qn-arrow { color:var(--accent-blue); }
+
+  /* ── CHAT PANEL (right) ── */
+  .chat-panel { width:300px; flex-shrink:0; background:var(--bg-panel); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN MODAL — Email & Password ══ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+
+    <div class="modal-logo">
+      <div class="modal-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M4 6h16M4 12h10M4 18h13" stroke="#00d97e" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="19" cy="18" r="3" fill="#00d97e"/>
+        </svg>
+      </div>
+      <div>
+        <div class="modal-title">TradeRoom PRO</div>
+        <div class="modal-sub" id="modalSubtitle">Sign in to join the live session</div>
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <!-- Tab switcher: Login / Register -->
+    <div style="display:flex;gap:0;border:1px solid var(--border-bright);border-radius:6px;overflow:hidden;flex-shrink:0;">
+      <button id="tabLogin"    class="auth-tab active" onclick="showTab('login')">Sign In</button>
+      <button id="tabRegister" class="auth-tab"        onclick="showTab('register')">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="formLogin" class="modal-input-group">
+      <input class="modal-input" id="loginEmail"    type="email"    placeholder="Email address" autocomplete="email" />
+      <input class="modal-input" id="loginPassword" type="password" placeholder="Password"      autocomplete="current-password" />
+      <div style="text-align:right;margin-top:-4px;">
+        <span style="font-size:9px;color:var(--accent-blue);cursor:pointer;" onclick="forgotPassword()">Forgot password?</span>
+      </div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="formRegister" class="modal-input-group" style="display:none;">
+      <input class="modal-input" id="regName"     type="text"     placeholder="Display name (e.g. TraderKyle)" maxlength="24" autocomplete="name" />
+      <input class="modal-input" id="regEmail"    type="email"    placeholder="Email address" autocomplete="email" />
+      <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 characters)"    autocomplete="new-password" />
+      <div class="modal-role-row">
+        <button class="role-btn active" id="roleStudent"    onclick="setRole('student')">🎓 Student</button>
+        <button class="role-btn pro"    id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      </div>
+    </div>
+
+    <div class="modal-error" id="modalError"></div>
+
+    <button class="modal-join-btn" id="authBtn" onclick="handleAuth()">▶ Sign In</button>
+
+    <div class="modal-hint" id="authHint">
+      Don't have an account? Click <strong>Create Account</strong> above to register with your email. Your instructor will set up your account role.
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ LEFT NAVIGATION SIDEBAR ══ -->
+<nav class="sidebar">
+
+  <div class="sb-logo">
+    <div class="sb-avatar" title="Profile">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </div>
+  </div>
+
+  <div class="sb-scroll">
+
+    <div class="sb-section">
+      <svg class="sb-section-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-dim)"><path d="M2 3h12M2 8h12M2 13h6"/></svg>
+      <span class="sb-section-label">Rooms</span>
+    </div>
+    <div class="sb-item" onclick="setNav(this)">
+      <span class="sb-item-label">Pro Mentor</span>
+      <span class="sb-badge live">Live</span>
+    </div>
+
+    <div class="sb-divider"></div>
+
+        <div class="sb-section">
+      <svg class="sb-section-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-dim)"><path d="M13 2l-3 3 1 1-6 6-1-1-3 3 3 3 3-3-1-1 6-6 1 1 3-3-3-3z"/></svg>
+      <span class="sb-section-label">Tools</span>
+    </div>
+    <div class="sb-item active">
+      <span class="sb-item-label">Dashboard</span>
+    </div>
+    <div class="sb-item" onclick="window.location.href='scanners.html'">
+      <div class="sb-online-dot"></div><span class="sb-item-label">Scanners</span>
+    </div>
+    <div class="sb-item" onclick="window.location.href='chart.html'">
+      <span class="sb-item-label">Charting</span>
+    </div>
+    <div class="sb-item" onclick="window.location.href='youtube.html'">
+      <span class="sb-item-label">YouTube</span>
+    </div>
+    <div class="sb-item" onclick="window.location.href='zoom.html'">
+      <span class="sb-item-label">Zoom</span>
+    </div>
+    <div class="sb-item" onclick="window.location.href='courses.html'">
+      <span class="sb-item-label">Courses</span>
+    </div>
+    <div class="sb-item" onclick="window.location.href='mentorship.html'">
+      <span class="sb-item-label">Mentorship</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ MAIN CONTENT ══ -->
+<div class="main-content">
+<!-- TICKER BAR -->
+<div class="ticker-bar">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">TradeRoom<span> PRO</span></div>
+  <div class="header-divider"></div>
+  <div class="live-badge">LIVE</div>
+  <div class="header-divider"></div>
+  <div class="market-status-pill" id="marketStatusPill">
+    <span class="ms-dot open"></span>
+    <span id="marketStatusText">Market Open</span>
+  </div>
+  <div class="header-stats">
+    <div class="hstat"><div class="hstat-label">Today P&L</div><div class="hstat-value up" id="pnl">+$4,820</div></div>
+    <div class="hstat"><div class="hstat-label">Win Rate</div><div class="hstat-value" style="color:var(--accent-cyan)">78%</div></div>
+    <div class="hstat"><div class="hstat-label">Trades</div><div class="hstat-value">12</div></div>
+    <div class="hstat"><div class="hstat-label">Members</div><div class="hstat-value viewer-count" id="viewerCount" style="color:var(--accent-cyan)">247</div></div>
+    <div class="session-time" id="sessionTime">09:32:14</div>
+  </div>
+</div>
+
+<!-- CONTENT ROW -->
+<div class="content-row">
+<div class="dashboard-area">
+
+  <!-- ROW 1: Market Pulse Cards -->
+  <div class="market-pulse-row">
+    <div class="mp-card" id="mpSPY">
+      <div class="mp-sym">SPY</div>
+      <div class="mp-price">527.40</div>
+      <div class="mp-chg up">+2.18 +0.42%</div>
+      <div class="mp-bar"><div class="mp-fill up" style="width:62%"></div></div>
+    </div>
+    <div class="mp-card" id="mpQQQ">
+      <div class="mp-sym">QQQ</div>
+      <div class="mp-price">446.20</div>
+      <div class="mp-chg up">+2.70 +0.61%</div>
+      <div class="mp-bar"><div class="mp-fill up" style="width:74%"></div></div>
+    </div>
+    <div class="mp-card" id="mpIWM">
+      <div class="mp-sym">IWM</div>
+      <div class="mp-price">206.10</div>
+      <div class="mp-chg up">+2.28 +1.12%</div>
+      <div class="mp-bar"><div class="mp-fill up" style="width:55%"></div></div>
+    </div>
+    <div class="mp-card" id="mpVIX">
+      <div class="mp-sym">VIX</div>
+      <div class="mp-price">15.23</div>
+      <div class="mp-chg dn">-0.54 -3.40%</div>
+      <div class="mp-bar"><div class="mp-fill dn" style="width:30%"></div></div>
+    </div>
+    <div class="mp-card" id="mpBTC">
+      <div class="mp-sym">BTC</div>
+      <div class="mp-price">72,840</div>
+      <div class="mp-chg up">+2,940 +4.20%</div>
+      <div class="mp-bar"><div class="mp-fill up" style="width:88%"></div></div>
+    </div>
+    <div class="mp-card" id="mpGLD">
+      <div class="mp-sym">GLD</div>
+      <div class="mp-price">224.30</div>
+      <div class="mp-chg up">+0.40 +0.18%</div>
+      <div class="mp-bar"><div class="mp-fill up" style="width:45%"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Three column grid -->
+  <div class="dash-grid">
+
+    <!-- WATCHLIST -->
+    <div class="dash-panel">
+      <div class="dp-header">
+        <div class="dp-dot green"></div>
+        <div class="dp-title">Today's Watchlist</div>
+        <div class="dp-badge live">Live</div>
+      </div>
+      <div class="dp-body" id="watchlistBody">
+        <div class="wl-item hot">
+          <div class="wl-sym up">AMC</div>
+          <div class="wl-name">AMC Entertainment</div>
+          <div class="wl-right">
+            <div class="wl-price up">$4.21</div>
+            <div class="wl-chg up">+34.2%</div>
+          </div>
+          <div class="wl-tag gap">Gap</div>
+        </div>
+        <div class="wl-item">
+          <div class="wl-sym up">NVDA</div>
+          <div class="wl-name">NVIDIA Corp</div>
+          <div class="wl-right">
+            <div class="wl-price up">$875.32</div>
+            <div class="wl-chg up">+8.4%</div>
+          </div>
+          <div class="wl-tag momo">Momo</div>
+        </div>
+        <div class="wl-item">
+          <div class="wl-sym up">GME</div>
+          <div class="wl-name">GameStop Corp</div>
+          <div class="wl-right">
+            <div class="wl-price up">$14.80</div>
+            <div class="wl-chg up">+12.4%</div>
+          </div>
+          <div class="wl-tag gap">Gap</div>
+        </div>
+        <div class="wl-item">
+          <div class="wl-sym up">TSLA</div>
+          <div class="wl-name">Tesla Inc</div>
+          <div class="wl-right">
+            <div class="wl-price up">$248.60</div>
+            <div class="wl-chg up">+5.1%</div>
+          </div>
+          <div class="wl-tag">Watch</div>
+        </div>
+        <div class="wl-item">
+          <div class="wl-sym dn">RIVN</div>
+          <div class="wl-name">Rivian Auto</div>
+          <div class="wl-right">
+            <div class="wl-price dn">$10.40</div>
+            <div class="wl-chg dn">-4.1%</div>
+          </div>
+          <div class="wl-tag short">Short</div>
+        </div>
+        <div class="wl-item">
+          <div class="wl-sym up">BBIG</div>
+          <div class="wl-name">Vinco Ventures</div>
+          <div class="wl-right">
+            <div class="wl-price up">$0.32</div>
+            <div class="wl-chg up">+41.0%</div>
+          </div>
+          <div class="wl-tag momo">Momo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSION NOTES — Real-time Firebase -->
+    <div class="dash-panel">
+      <div class="dp-header">
+        <div class="dp-dot blue"></div>
+        <div class="dp-title">Session Notes</div>
+        <div class="dp-badge live" style="background:rgba(59,130,246,.15);color:var(--accent-blue);border-color:rgba(59,130,246,.3);">Instructor</div>
+      </div>
+      <div class="notes-body" id="notesBody">
+        <div class="note-placeholder" id="notesPlaceholder">
+          <div style="font-size:22px;opacity:.15;margin-bottom:8px;">📝</div>
+          <div style="font-size:10px;color:var(--text-dim)">Instructor notes appear here in real time</div>
+        </div>
+        <div class="notes-list" id="notesList"></div>
+      </div>
+      <div class="notes-input-area" id="notesInputArea" style="display:none;">
+        <textarea class="notes-textarea" id="notesInput" placeholder="Type a note for students… (Enter to post)" rows="2"></textarea>
+        <button class="notes-post-btn" onclick="postNote()">Post</button>
+      </div>
+    </div>
+
+    <!-- PRE-MARKET MOVERS -->
+    <div class="dash-panel">
+      <div class="dp-header">
+        <div class="dp-dot yellow"></div>
+        <div class="dp-title">Pre-Market Movers</div>
+        <div class="dp-time" id="preMarketTime">Pre-Market</div>
+      </div>
+      <div class="dp-body">
+        <div class="mover-header-row">
+          <span>Symbol</span><span>Float</span><span>Price</span><span>Gap%</span><span>Vol</span>
+        </div>
+        <div class="mover-row hot" id="m1">
+          <div class="mover-sym up">BBIG</div>
+          <div class="mover-float">12M</div>
+          <div class="mover-price up">$0.32</div>
+          <div class="mover-gap up">+41.0%</div>
+          <div class="mover-vol">92.1M</div>
+        </div>
+        <div class="mover-row" id="m2">
+          <div class="mover-sym up">AMC</div>
+          <div class="mover-float">Small</div>
+          <div class="mover-price up">$4.21</div>
+          <div class="mover-gap up">+34.2%</div>
+          <div class="mover-vol">48.2M</div>
+        </div>
+        <div class="mover-row" id="m3">
+          <div class="mover-sym up">SNDL</div>
+          <div class="mover-float">8M</div>
+          <div class="mover-price up">$1.87</div>
+          <div class="mover-gap up">+28.0%</div>
+          <div class="mover-vol">61.3M</div>
+        </div>
+        <div class="mover-row" id="m4">
+          <div class="mover-sym up">GME</div>
+          <div class="mover-float">Small</div>
+          <div class="mover-price up">$14.80</div>
+          <div class="mover-gap up">+12.4%</div>
+          <div class="mover-vol">22.6M</div>
+        </div>
+        <div class="mover-row" id="m5">
+          <div class="mover-sym up">RILY</div>
+          <div class="mover-float">Small</div>
+          <div class="mover-price up">$8.72</div>
+          <div class="mover-gap up">+22.1%</div>
+          <div class="mover-vol">3.9M</div>
+        </div>
+        <div class="mover-row" id="m6">
+          <div class="mover-sym dn">MULN</div>
+          <div class="mover-float">3M</div>
+          <div class="mover-price dn">$0.54</div>
+          <div class="mover-gap dn">-18.3%</div>
+          <div class="mover-vol">44.6M</div>
+        </div>
+        <div class="mover-row" id="m7">
+          <div class="mover-sym dn">LCID</div>
+          <div class="mover-float">Mid</div>
+          <div class="mover-price dn">$3.14</div>
+          <div class="mover-gap dn">-9.2%</div>
+          <div class="mover-vol">11.2M</div>
+        </div>
+        <div class="mover-row" id="m8">
+          <div class="mover-sym dn">RIVN</div>
+          <div class="mover-float">Large</div>
+          <div class="mover-price dn">$10.40</div>
+          <div class="mover-gap dn">-4.1%</div>
+          <div class="mover-vol">8.7M</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.dash-grid -->
+
+  <!-- ROW 3: Quick Nav tiles -->
+  <div class="quick-nav-row">
+    <div class="qn-tile" onclick="window.location.href='scanners.html'">
+      <div class="qn-icon">🔍</div>
+      <div class="qn-label">Scanners</div>
+      <div class="qn-sub">Live Trade-Ideas</div>
+      <div class="qn-arrow">→</div>
+    </div>
+    <div class="qn-tile" onclick="window.location.href='chart.html'">
+      <div class="qn-icon">📊</div>
+      <div class="qn-label">Charting</div>
+      <div class="qn-sub">TradingView</div>
+      <div class="qn-arrow">→</div>
+    </div>
+    <div class="qn-tile" onclick="window.location.href='youtube.html'">
+      <div class="qn-icon">📡</div>
+      <div class="qn-label">YouTube</div>
+      <div class="qn-sub">Live Stream</div>
+      <div class="qn-arrow">→</div>
+    </div>
+    <div class="qn-tile" onclick="window.location.href='zoom.html'">
+      <div class="qn-icon">🎥</div>
+      <div class="qn-label">Zoom</div>
+      <div class="qn-sub">Live Session</div>
+      <div class="qn-arrow">→</div>
+    </div>
+    <div class="qn-tile" onclick="window.location.href='courses.html'">
+      <div class="qn-icon">🎓</div>
+      <div class="qn-label">Courses</div>
+      <div class="qn-sub">Your Progress</div>
+      <div class="qn-arrow">→</div>
+    </div>
+    <div class="qn-tile" onclick="window.location.href='mentorship.html'">
+      <div class="qn-icon">🤝</div>
+      <div class="qn-label">Mentorship</div>
+      <div class="qn-sub">Book a Session</div>
+      <div class="qn-arrow">→</div>
+    </div>
+  </div>
+
+</div><!-- /.dashboard-area -->
+
+<!-- CHAT PANEL — right column -->
+<div class="chat-panel">
+  <div class="tab-bar">
+    <div class="panel-title" style="margin-right:8px"><div class="dot blue"></div></div>
+    <div class="tab active" onclick="switchTab(this,'chatTab','chatPane')">Live Chat <span class="notif-dot" id="chatNotif" style="display:none"></span></div>
+    <div class="tab" onclick="switchTab(this,'chatTab','studentsPane')">Students</div>
+    <span class="firebase-status" id="fbStatus">Connecting…</span>
+  </div>
+  <div class="tab-pane active" id="chatPane" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="typing-indicator" id="typingIndicator">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+      <span id="typingText">Someone is typing…</span>
+    </div>
+    <div class="chat-input-area">
+      <input class="chat-input" id="chatInput" placeholder="Join the room to chat…" disabled />
+      <button class="send-btn" id="sendBtn" onclick="sendChat()" disabled>Send</button>
+    </div>
+  </div>
+  <div class="tab-pane" id="studentsPane" style="flex:1;min-height:0;overflow:hidden;">
+    <div class="panel-body" id="studentsList" style="padding:10px;height:100%;overflow-y:auto;"></div>
+  </div>
+</div>
+
+</div><!-- /.content-row -->
+</div><!-- /.main-content -->
+
+<script>
+function setNav(el){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ── MARKET STATUS ── */
+function updateMarketStatus() {
+  const now = new Date();
+  const et = new Date(now.toLocaleString('en-US', {timeZone:'America/New_York'}));
+  const h = et.getHours(), m = et.getMinutes(), day = et.getDay();
+  const mins = h * 60 + m;
+  const dot = document.querySelector('.ms-dot');
+  const txt = document.getElementById('marketStatusText');
+  if (day === 0 || day === 6) {
+    dot.className = 'ms-dot closed'; txt.textContent = 'Weekend';
+  } else if (mins >= 240 && mins < 570) {
+    dot.className = 'ms-dot pre'; txt.textContent = 'Pre-Market';
+  } else if (mins >= 570 && mins < 960) {
+    dot.className = 'ms-dot open'; txt.textContent = 'Market Open';
+  } else if (mins >= 960 && mins < 1200) {
+    dot.className = 'ms-dot pre'; txt.textContent = 'After Hours';
+  } else {
+    dot.className = 'ms-dot closed'; txt.textContent = 'Market Closed';
+  }
+}
+setInterval(updateMarketStatus, 30000); updateMarketStatus();
+
+/* ── TICKER ── */
+function buildTicker() {
+  const items=[
+    {sym:'SPY',p:'527.40',c:'+0.42%',up:true},{sym:'QQQ',p:'446.20',c:'+0.61%',up:true},
+    {sym:'IWM',p:'206.10',c:'+1.12%',up:true},{sym:'DIA',p:'392.80',c:'+0.28%',up:true},
+    {sym:'VIX',p:'15.23',c:'-3.40%',up:false},{sym:'GLD',p:'224.30',c:'+0.18%',up:true},
+    {sym:'TLT',p:'88.40',c:'-0.55%',up:false},{sym:'BTC',p:'72,840',c:'+4.20%',up:true},
+  ];
+  const double=[...items,...items];
+  const track=document.getElementById('tickerTrack');
+  track.innerHTML=double.map(i=>`<div class="ticker-item"><span class="sym">${i.sym}</span><span>${i.p}</span><span class="${i.up?'up':'dn'}">${i.c}</span></div>`).join('');
+}
+
+/* ── SESSION NOTES (Firebase real-time) ── */
+let notesRef = null;
+
+function initNotes() {
+  notesRef = db.ref('traderoom/notes');
+  notesRef.limitToLast(30).on('child_added', snap => {
+    const n = snap.val();
+    if (n) renderNote(n, snap.key);
+  });
+}
+
+function renderNote(n, key) {
+  if (document.getElementById('note-' + key)) return;
+  const placeholder = document.getElementById('notesPlaceholder');
+  if (placeholder) placeholder.style.display = 'none';
+  const list = document.getElementById('notesList');
+  const el = document.createElement('div');
+  const isAlert = n.text && (n.text.includes('⚡') || n.text.includes('🚨') || n.text.includes('⚠'));
+  el.className = 'note-item' + (isAlert ? ' alert' : '');
+  el.id = 'note-' + key;
+  el.innerHTML = `<div class="note-time">${n.user} · ${n.time}</div><div class="note-text">${escapeHtmlNotes(n.text)}</div>`;
+  list.appendChild(el);
+  const body = document.getElementById('notesBody');
+  body.scrollTop = body.scrollHeight;
+}
+
+function postNote() {
+  if (!currentUser || currentUser.role !== 'instructor') return;
+  const inp = document.getElementById('notesInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  notesRef.push({
+    user: currentUser.name,
+    text: val,
+    time: new Date().toTimeString().slice(0, 8),
+    timestamp: Date.now(),
+  });
+  inp.value = '';
+}
+
+function escapeHtmlNotes(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── MOVER FLICKER ── */
+setInterval(()=>{
+  const rows=['m1','m2','m3','m4','m5'];
+  const id=rows[Math.floor(Math.random()*rows.length)];
+  const el=document.getElementById(id);
+  if(el){el.style.opacity='.4';setTimeout(()=>el.style.opacity='1',200);}
+},2000);
+
+/* ── CLOCK ── */
+function updateClock(){document.getElementById('sessionTime').textContent=new Date().toTimeString().slice(0,8);}
+setInterval(updateClock,1000);
+
+function updateViewers(){document.getElementById('viewerCount').textContent=247+Math.round((Math.random()-.4)*5);}
+setInterval(updateViewers,4500);
+
+buildTicker(); updateClock();
+
+/* ══════════════════════════════════════════
+   FIREBASE AUTH — Email / Password
+══════════════════════════════════════════ */
+
+const auth = firebase.auth();
+const db   = firebase.database();
+
+let currentUser  = null;
+let selectedRole = 'student';
+let chatRef      = null;
+let presenceRef  = null;
+let typingRef    = null;
+let typingTimer  = null;
+let isTyping     = false;
+
+const AVATAR_COLORS = [
+  '#6366f1','#ec4899','#10b981','#f59e0b',
+  '#8b5cf6','#ef4444','#3b82f6','#06b6d4',
+  '#14b8a6','#f97316','#84cc16','#e879f9',
+];
+function avatarColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+function initials(name) { return name.slice(0, 2).toUpperCase(); }
+
+// ── TAB SWITCHER ──
+function showTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('formLogin').style.display    = isLogin ? 'flex' : 'none';
+  document.getElementById('formRegister').style.display = isLogin ? 'none' : 'flex';
+  document.getElementById('authBtn').textContent = isLogin ? '▶ Sign In' : '▶ Create Account';
+  document.getElementById('modalSubtitle').textContent  = isLogin
+    ? 'Sign in to join the live session'
+    : 'Create your TradeRoom account';
+  document.getElementById('modalError').style.display = 'none';
+}
+
+// ── ROLE PICKER ──
+function setRole(role) {
+  selectedRole = role;
+  document.getElementById('roleStudent').classList.toggle('active', role === 'student');
+  document.getElementById('roleInstructor').classList.toggle('active', role === 'instructor');
+}
+
+// ── MAIN AUTH HANDLER ──
+function handleAuth() {
+  const err = document.getElementById('modalError');
+  err.style.display = 'none';
+  const btn = document.getElementById('authBtn');
+  btn.textContent = '…';
+  btn.disabled = true;
+
+  const isLogin = document.getElementById('tabLogin').classList.contains('active');
+
+  if (isLogin) {
+    // ── SIGN IN ──
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) {
+      showErr('Please enter your email and password.');
+      return;
+    }
+    auth.signInWithEmailAndPassword(email, password)
+      .catch(e => showErr(friendlyError(e.code)));
+
+  } else {
+    // ── REGISTER ──
+    const name     = document.getElementById('regName').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    if (!name || !email || !password) {
+      showErr('Please fill in all fields.');
+      return;
+    }
+    if (password.length < 6) {
+      showErr('Password must be at least 6 characters.');
+      return;
+    }
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(cred => {
+        // Store display name + role in the database under their uid
+        return db.ref('traderoom/users/' + cred.user.uid).set({
+          name,
+          role: selectedRole,
+          email,
+        });
+      })
+      .catch(e => showErr(friendlyError(e.code)));
+  }
+}
+
+function showErr(msg) {
+  const err = document.getElementById('modalError');
+  err.textContent = '⚠ ' + msg;
+  err.style.display = 'block';
+  const btn = document.getElementById('authBtn');
+  btn.disabled = false;
+  btn.textContent = document.getElementById('tabLogin').classList.contains('active')
+    ? '▶ Sign In' : '▶ Create Account';
+}
+
+function friendlyError(code) {
+  const map = {
+    'auth/user-not-found':      'No account found with that email.',
+    'auth/wrong-password':      'Incorrect password. Try again.',
+    'auth/invalid-email':       'Please enter a valid email address.',
+    'auth/email-already-in-use':'That email is already registered. Sign in instead.',
+    'auth/weak-password':       'Password must be at least 6 characters.',
+    'auth/too-many-requests':   'Too many attempts. Please wait a moment.',
+    'auth/network-request-failed': 'Network error. Check your connection.',
+    'auth/invalid-credential':  'Incorrect email or password.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+function forgotPassword() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) {
+    showErr('Enter your email address first, then click Forgot password.');
+    return;
+  }
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      const err = document.getElementById('modalError');
+      err.textContent = '✅ Password reset email sent — check your inbox.';
+      err.style.color = 'var(--accent-green)';
+      err.style.display = 'block';
+    })
+    .catch(e => showErr(friendlyError(e.code)));
+}
+
+// ── AUTH STATE LISTENER — fires on sign-in / sign-out ──
+auth.onAuthStateChanged(async firebaseUser => {
+  if (!firebaseUser) return; // not signed in yet
+
+  // Load user profile from DB (name + role saved at register time)
+  const snap = await db.ref('traderoom/users/' + firebaseUser.uid).get();
+  const profile = snap.exists() ? snap.val() : null;
+
+  const name  = profile?.name  || firebaseUser.email.split('@')[0];
+  const role  = profile?.role  || 'student';
+
+  currentUser = {
+    name,
+    role,
+    badge:       role === 'instructor' ? 'pro' : 'student',
+    avatar:      initials(name),
+    avatarColor: role === 'instructor' ? '#06b6d4' : avatarColor(name),
+    uid:         firebaseUser.uid,
+    email:       firebaseUser.email,
+  };
+
+  // Hide modal, unlock chat
+  document.getElementById('loginModal').classList.add('hidden');
+  document.getElementById('chatInput').placeholder = 'Ask a question or comment…';
+  document.getElementById('chatInput').disabled    = false;
+  document.getElementById('sendBtn').disabled      = false;
+
+  // Update header chip
+  const chip = document.querySelector('.username-chip');
+  if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+
+  initFirebaseChat();
+  initNotes();
+  // Show notes input for instructors
+  if (role === 'instructor') {
+    const area = document.getElementById('notesInputArea');
+    if (area) area.style.display = 'flex';
+    const inp = document.getElementById('notesInput');
+    if (inp) inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postNote(); }
+    });
+  }
+});
+
+// ── INIT FIREBASE LISTENERS ──
+function initFirebaseChat() {
+  chatRef     = db.ref('traderoom/chat/messages');
+  presenceRef = db.ref('traderoom/presence/' + currentUser.name.replace(/\s/g,'_'));
+  typingRef   = db.ref('traderoom/typing/' + currentUser.name.replace(/\s/g,'_'));
+
+  // ── PRESENCE: mark yourself online, remove on disconnect ──
+  presenceRef.set({
+    name:   currentUser.name,
+    role:   currentUser.role,
+    avatar: currentUser.avatar,
+    color:  currentUser.avatarColor,
+    since:  Date.now(),
+  });
+  presenceRef.onDisconnect().remove();
+
+  // ── STATUS INDICATOR ──
+  db.ref('.info/connected').on('value', snap => {
+    const el = document.getElementById('fbStatus');
+    if (snap.val()) {
+      el.textContent = '● Firebase Live';
+      el.className = 'firebase-status connected';
+    } else {
+      el.textContent = '○ Reconnecting…';
+      el.className = 'firebase-status';
+    }
+  });
+
+  // ── LOAD LAST 60 MESSAGES + LISTEN FOR NEW ──
+  chatRef.limitToLast(60).on('child_added', snap => {
+    const m = snap.val();
+    if (m) renderMessage(m, snap.key);
+  });
+
+  // ── PRESENCE LIST (Students Online tab) ──
+  db.ref('traderoom/presence').on('value', snap => {
+    const users = [];
+    snap.forEach(child => { users.push(child.val()); });
+    renderPresenceList(users);
+    document.getElementById('viewerCount').textContent    = users.length;
+    document.getElementById('overlayViewers').textContent = users.length;
+  });
+
+  // ── TYPING INDICATOR ──
+  db.ref('traderoom/typing').on('value', snap => {
+    const typers = [];
+    snap.forEach(child => {
+      const t = child.val();
+      if (t.name !== currentUser.name && t.typing) typers.push(t.name);
+    });
+    const ti = document.getElementById('typingIndicator');
+    const tt = document.getElementById('typingText');
+    if (typers.length > 0) {
+      tt.textContent = typers.join(', ') + (typers.length === 1 ? ' is typing…' : ' are typing…');
+      ti.style.display = 'flex';
+    } else {
+      ti.style.display = 'none';
+    }
+    scrollChat();
+  });
+}
+
+// ── RENDER A SINGLE MESSAGE ──
+function renderMessage(m, key) {
+  const container = document.getElementById('chatMessages');
+
+  // Avoid duplicates (Firebase sometimes re-fires child_added on reconnect)
+  if (document.getElementById('msg-' + key)) return;
+
+  const isOwn = m.user === currentUser?.name;
+  const el = document.createElement('div');
+  el.className = 'chat-msg' + (isOwn ? ' own' : '');
+  el.id = 'msg-' + key;
+  el.innerHTML = `
+    <div class="chat-avatar" style="background:${m.avatarColor}22;color:${m.avatarColor};border:1px solid ${m.avatarColor}44">${m.avatar}</div>
+    <div class="chat-bubble">
+      <div class="chat-meta">
+        <span class="chat-user ${m.badge}">${m.user}</span>
+        <span class="chat-badge ${m.badge}">${m.badge === 'pro' ? '⭐ PRO' : 'Student'}</span>
+        <span class="chat-time-msg">${m.time}</span>
+      </div>
+      <div class="chat-text">${escapeHtml(m.msg)}</div>
+    </div>
+  `;
+  container.appendChild(el);
+  scrollChat();
+
+  // Clear notification dot when viewing chat
+  if (document.getElementById('chatPane').classList.contains('active')) {
+    document.getElementById('chatNotif').style.display = 'none';
+  } else {
+    document.getElementById('chatNotif').style.display = 'inline-block';
+  }
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── SEND MESSAGE ──
+function sendChat() {
+  if (!currentUser || !chatRef) return;
+  const inp = document.getElementById('chatInput');
+  const val = inp.value.trim();
+  if (!val) return;
+
+  chatRef.push({
+    user:        currentUser.name,
+    badge:       currentUser.badge,
+    avatar:      currentUser.avatar,
+    avatarColor: currentUser.avatarColor,
+    msg:         val,
+    time:        new Date().toTimeString().slice(0, 8),
+    timestamp:   Date.now(),
+  });
+
+  inp.value = '';
+  clearTyping();
+}
+
+// ── TYPING DETECTION ──
+function handleTyping() {
+  if (!typingRef || !currentUser) return;
+  if (!isTyping) {
+    isTyping = true;
+    typingRef.set({ name: currentUser.name, typing: true });
+    typingRef.onDisconnect().remove();
+  }
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(clearTyping, 2500);
+}
+function clearTyping() {
+  isTyping = false;
+  if (typingRef) typingRef.remove();
+  clearTimeout(typingTimer);
+}
+
+// ── PRESENCE LIST ──
+function renderPresenceList(users) {
+  const el = document.getElementById('studentsList');
+  const sorted = [...users].sort((a,b) => (a.role==='instructor'?0:1) - (b.role==='instructor'?0:1));
+  el.innerHTML = `
+    <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">
+      ${users.length} online
+    </div>
+  ` + sorted.map(u => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div style="width:22px;height:22px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1px solid ${u.color}44">${u.avatar}</div>
+      <div style="flex:1;font-size:10px;color:var(--text-primary)">${u.name}</div>
+      <div style="font-size:8px;padding:2px 5px;border-radius:3px;background:${u.role==='instructor'?'rgba(6,182,212,.12)':'var(--bg-card)'};color:${u.role==='instructor'?'var(--accent-cyan)':'var(--text-dim)'};border:1px solid ${u.role==='instructor'?'rgba(6,182,212,.3)':'var(--border)'};font-weight:700;text-transform:uppercase">${u.role==='instructor'?'⭐ PRO':'Student'}</div>
+    </div>
+  `).join('');
+}
+
+function scrollChat() {
+  const c = document.getElementById('chatMessages');
+  c.scrollTop = c.scrollHeight;
+}
+
+// Firebase Auth persists session automatically — no localStorage needed.
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('chatInput');
+  if (inp) {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+    inp.addEventListener('input',   () => handleTyping());
+  }
+  // Allow Enter key in auth forms
+  ['loginPassword','regPassword'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') handleAuth(); });
+  });
+});
+
+
+/* ══════════════════════════════════════════
+   TABS
+══════════════════════════════════════════ */
+function switchTab(btn, group, paneId) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const pane = btn.closest('.panel, div').parentElement;
+  pane.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+}
+
+/* ══════════════════════════════════════════
+   CLOCK & LIVE UPDATES
+══════════════════════════════════════════ */
+function updateClock() {
+  const now = new Date();
+  document.getElementById('sessionTime').textContent = now.toTimeString().slice(0, 8);
+}
+setInterval(updateClock, 1000);
+
+function updateViewers() {
+  const base = 247;
+  const v = base + Math.round((Math.random() - 0.4) * 6);
+  document.getElementById('viewerCount').textContent = v;
+  document.getElementById('overlayViewers').textContent = v;
+}
+setInterval(updateViewers, 4500);
+
+function randomPnl() {
+  const vals = ['+$4,820', '+$5,120', '+$4,965', '+$5,340', '+$4,780'];
+  document.getElementById('pnl').textContent = vals[Math.floor(Math.random()*vals.length)];
+}
+setInterval(randomPnl, 8000);
+
+// (scanner flicker removed — scanner is now a live Trade-Ideas iframe)
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+buildTicker();
+updateClock();
+</script>
+
+</body>
+</html>
