@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeRoom PRO — Members Login</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script>
+const FIREBASE_CONFIG={apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339",storageBucket:"traderoom-42339.firebasestorage.app",messagingSenderId:"997045199477",appId:"1:997045199477:web:22c5861bfc0965ec960e3c"};
+firebase.initializeApp(FIREBASE_CONFIG);
+</script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060810;
+  --panel:#0c0f1a;
+  --card:#111827;
+  --border:#1e2d45;
+  --border-hi:#2a3f5f;
+  --green:#00d97e;
+  --blue:#3b82f6;
+  --cyan:#06b6d4;
+  --red:#ff3b5c;
+  --text-1:#f0f2f8;
+  --text-2:#8b95a8;
+  --text-3:#4a5568;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text-1);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
+
+/* ── GRID BACKGROUND ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(59,130,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.04) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0;
+}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:60px;border-bottom:1px solid var(--border);background:rgba(6,8,16,.85);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 40px;gap:12px;z-index:100;}
+.topbar-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.02em;}
+.topbar-logo span{color:var(--blue);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px rgba(255,59,92,.6);animation:pulse 1.5s ease-in-out infinite;}
+.live-label{font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--red);text-transform:uppercase;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.topbar-stat{font-size:10px;color:var(--text-3);}
+.topbar-stat strong{color:var(--text-2);}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 80px;text-align:center;gap:0;}
+
+/* Glow orb */
+.hero::after{content:'';position:absolute;top:10%;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(59,130,246,.12) 0%,transparent 70%);pointer-events:none;z-index:-1;}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(6,182,212,.3);background:rgba(6,182,212,.06);padding:6px 16px;border-radius:100px;margin-bottom:28px;}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 2s ease-in-out infinite;}
+
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px;}
+.hero-title .accent{background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-title .dim{color:var(--text-3);}
+
+.hero-sub{font-size:14px;color:var(--text-2);line-height:1.8;max-width:520px;margin-bottom:48px;}
+
+/* ── STATS ROW ── */
+.stats-row{display:flex;gap:2px;margin-bottom:56px;}
+.stat-card{background:var(--card);border:1px solid var(--border);padding:16px 28px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.stat-card:first-child{border-radius:8px 0 0 8px;}
+.stat-card:last-child{border-radius:0 8px 8px 0;}
+.stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text-1);}
+.stat-num.green{color:var(--green);}
+.stat-num.blue{color:var(--blue);}
+.stat-num.cyan{color:var(--cyan);}
+.stat-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);}
+
+/* ── LOGIN CARD ── */
+.login-card{background:var(--panel);border:1px solid var(--border-hi);border-radius:16px;padding:40px;width:100%;max-width:420px;box-shadow:0 32px 80px rgba(0,0,0,.5);position:relative;overflow:hidden;}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,.5),rgba(0,217,126,.5),transparent);}
+
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.login-logo-mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
+.login-logo-mark svg{width:24px;height:24px;}
+.login-logo-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.login-logo-sub{font-size:10px;color:var(--text-3);margin-top:2px;}
+
+.tab-row{display:flex;border:1px solid var(--border-hi);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+.tab-btn{flex:1;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:9px;border:none;background:var(--card);color:var(--text-3);cursor:pointer;transition:all .15s;}
+.tab-btn.active{background:var(--blue);color:#fff;}
+.tab-btn:hover:not(.active){color:var(--text-1);}
+
+.form-group{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.form-input{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--card);border:1px solid var(--border-hi);color:var(--text-1);padding:11px 14px;border-radius:7px;outline:none;transition:border-color .15s;width:100%;}
+.form-input:focus{border-color:var(--blue);}
+.form-input::placeholder{color:var(--text-3);}
+
+.role-row{display:flex;gap:8px;}
+.role-btn{flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:9px;border-radius:6px;border:1px solid var(--border-hi);background:var(--card);color:var(--text-3);cursor:pointer;transition:all .15s;text-align:center;}
+.role-btn.active{border-color:var(--blue);background:rgba(59,130,246,.12);color:var(--blue);}
+.role-btn.pro.active{border-color:var(--cyan);background:rgba(6,182,212,.1);color:var(--cyan);}
+
+.forgot{text-align:right;margin-top:-6px;margin-bottom:4px;}
+.forgot span{font-size:9px;color:var(--blue);cursor:pointer;}
+.forgot span:hover{text-decoration:underline;}
+
+.login-btn{width:100%;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;padding:13px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--green),var(--cyan));color:#000;cursor:pointer;transition:opacity .15s;letter-spacing:.04em;margin-top:4px;}
+.login-btn:hover{opacity:.88;}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+.form-error{font-size:9px;color:var(--red);padding:7px 10px;background:rgba(255,59,92,.08);border:1px solid rgba(255,59,92,.2);border-radius:5px;display:none;margin-top:-6px;}
+
+.login-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text-3);font-size:9px;}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.features-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+.feature-chip{font-size:9px;color:var(--text-3);border:1px solid var(--border);border-radius:100px;padding:4px 10px;background:var(--card);}
+
+/* ── FEATURES SECTION ── */
+.features{position:relative;z-index:1;padding:80px 24px;background:linear-gradient(180deg,var(--bg),var(--panel));}
+.features-inner{max-width:960px;margin:0 auto;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;text-align:center;}
+.section-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;text-align:center;margin-bottom:48px;letter-spacing:-.02em;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.feature-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;transition:border-color .2s;}
+.feature-card:hover{border-color:var(--border-hi);}
+.feature-icon{font-size:28px;margin-bottom:14px;}
+.feature-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:8px;color:var(--text-1);}
+.feature-desc{font-size:10px;color:var(--text-2);line-height:1.7;}
+
+/* ── FOOTER ── */
+.footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:24px 40px;display:flex;align-items:center;justify-content:space-between;}
+.footer-logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text-2);}
+.footer-logo span{color:var(--blue);}
+.footer-copy{font-size:9px;color:var(--text-3);}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">TradeRoom<span> PRO</span></div>
+  <div class="live-dot"></div>
+  <div class="live-label">Live Now</div>
+  <div class="topbar-right">
+    <div class="topbar-stat">Session: <strong id="topClock">--:--:--</strong></div>
+    <div class="topbar-stat">Members: <strong style="color:var(--green)">248</strong></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+
+  <div class="hero-badge"><span class="hero-badge-dot"></span>Professional Trading Education</div>
+
+  <h1 class="hero-title">
+    Trade Smarter.<br>
+    <span class="accent">Learn Faster.</span><br>
+    <span class="dim">Profit More.</span>
+  </h1>
+
+  <p class="hero-sub">Join our live trading room — watch real trades, learn real strategies, and build the mindset of a professional day trader.</p>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num green">+78%</div>
+      <div class="stat-label">Win Rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num blue">2,400+</div>
+      <div class="stat-label">Students</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num cyan">Live</div>
+      <div class="stat-label">Daily Sessions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--text-1)">5 yrs</div>
+      <div class="stat-label">Experience</div>
+    </div>
+  </div>
+
+  <!-- LOGIN CARD -->
+  <div class="login-card">
+
+    <div class="login-logo">
+      <div class="login-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h13" stroke="#00d97e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#00d97e"/></svg>
+      </div>
+      <div>
+        <div class="login-logo-title">Members Area</div>
+        <div class="login-logo-sub" id="cardSubtitle">Sign in to access your trading room</div>
+      </div>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tabLogin" onclick="showTab('login')">Sign In</button>
+      <button class="tab-btn" id="tabRegister" onclick="showTab('register')">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="formLogin" class="form-group">
+      <input class="form-input" id="loginEmail" type="email" placeholder="Email address" autocomplete="email"/>
+      <input class="form-input" id="loginPassword" type="password" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <div class="forgot"><span onclick="forgotPassword()">Forgot password?</span></div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="formRegister" class="form-group" style="display:none;">
+      <input class="form-input" id="regName" type="text" placeholder="Your display name" maxlength="24" autocomplete="name"/>
+      <input class="form-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
+      <input class="form-input" id="regPassword" type="password" placeholder="Password (min 6 characters)"
+        autocomplete="new-password" onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <div class="role-row">
+        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
+        <button class="role-btn pro" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      </div>
+    </div>
+
+    <div class="form-error" id="formError"></div>
+
+    <button class="login-btn" id="authBtn" onclick="handleAuth()">▶ Enter Trading Room</button>
+
+    <div class="login-divider">included in your membership</div>
+    <div class="features-row">
+      <div class="feature-chip">📡 Live Stream</div>
+      <div class="feature-chip">💬 Real-time Chat</div>
+      <div class="feature-chip">📊 TradingView Charts</div>
+      <div class="feature-chip">🎓 Courses</div>
+      <div class="feature-chip">🤝 Mentorship</div>
+      <div class="feature-chip">🔍 Live Scanners</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features">
+  <div class="features-inner">
+    <div class="section-label">What's inside</div>
+    <div class="section-title">Everything you need to trade professionally</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📡</div>
+        <div class="feature-title">Live Trading Room</div>
+        <div class="feature-desc">Watch the instructor trade live every morning. See real entries, exits, and decision-making in real time — no delays, no filters.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">Live Scanners</div>
+        <div class="feature-desc">Multi-window scanner dashboard powered by Trade-Ideas. Gap & Go, High Relative Volume, Low Float Momentum — all live.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Advanced Charting</div>
+        <div class="feature-desc">Full TradingView charting suite with custom indicators, VWAP, EMAs, and pre-market gap analysis built right into your dashboard.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎓</div>
+        <div class="feature-title">Structured Courses</div>
+        <div class="feature-desc">From market basics to advanced momentum strategies — self-paced video courses designed to build a complete trading system from scratch.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <div class="feature-title">1-on-1 Mentorship</div>
+        <div class="feature-desc">Private coaching sessions with the instructor. Get your charts reviewed, your questions answered, and your trading plan built out properly.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <div class="feature-title">Real-time Chat</div>
+        <div class="feature-desc">Live Firebase-powered chat across every page. Ask questions during the session and get answers from the instructor and the community instantly.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-logo">TradeRoom<span> PRO</span></div>
+  <div class="footer-copy">© 2026 TradeRoom PRO. All rights reserved. Trading involves risk.</div>
+</div>
+
+<script>
+// Clock
+function tick(){const t=new Date().toTimeString().slice(0,8);document.getElementById('topClock').textContent=t;}
+setInterval(tick,1000);tick();
+
+const auth=firebase.auth();
+const db=firebase.database();
+let selectedRole='student';
+
+// Check if already logged in → redirect
+auth.onAuthStateChanged(u=>{if(u)window.location.href='trading-dashboard.html';});
+
+function showTab(tab){
+  const isLogin=tab==='login';
+  document.getElementById('tabLogin').classList.toggle('active',isLogin);
+  document.getElementById('tabRegister').classList.toggle('active',!isLogin);
+  document.getElementById('formLogin').style.display=isLogin?'flex':'none';
+  document.getElementById('formRegister').style.display=isLogin?'none':'flex';
+  document.getElementById('authBtn').textContent=isLogin?'▶ Enter Trading Room':'▶ Create Account';
+  document.getElementById('cardSubtitle').textContent=isLogin?'Sign in to access your trading room':'Join the TradeRoom PRO community';
+  document.getElementById('formError').style.display='none';
+}
+
+function setRole(r){
+  selectedRole=r;
+  document.getElementById('roleStudent').classList.toggle('active',r==='student');
+  document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');
+}
+
+function handleAuth(){
+  const err=document.getElementById('formError');
+  err.style.display='none';
+  const btn=document.getElementById('authBtn');
+  btn.textContent='…'; btn.disabled=true;
+  const isLogin=document.getElementById('tabLogin').classList.contains('active');
+
+  if(isLogin){
+    const email=document.getElementById('loginEmail').value.trim();
+    const pass=document.getElementById('loginPassword').value;
+    if(!email||!pass){showErr('Please enter your email and password.');return;}
+    auth.signInWithEmailAndPassword(email,pass)
+      .then(()=>window.location.href='trading-dashboard.html')
+      .catch(e=>showErr(friendlyErr(e.code)));
+  } else {
+    const name=document.getElementById('regName').value.trim();
+    const email=document.getElementById('regEmail').value.trim();
+    const pass=document.getElementById('regPassword').value;
+    if(!name||!email||!pass){showErr('Please fill in all fields.');return;}
+    if(pass.length<6){showErr('Password must be at least 6 characters.');return;}
+    auth.createUserWithEmailAndPassword(email,pass)
+      .then(c=>{
+        db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email});
+        window.location.href='trading-dashboard.html';
+      })
+      .catch(e=>showErr(friendlyErr(e.code)));
+  }
+}
+
+function showErr(msg){
+  const err=document.getElementById('formError');
+  err.textContent='⚠ '+msg; err.style.display='block';
+  const btn=document.getElementById('authBtn');
+  btn.disabled=false;
+  btn.textContent=document.getElementById('tabLogin').classList.contains('active')?'▶ Enter Trading Room':'▶ Create Account';
+}
+
+function forgotPassword(){
+  const email=document.getElementById('loginEmail').value.trim();
+  if(!email){showErr('Enter your email address first.');return;}
+  auth.sendPasswordResetEmail(email)
+    .then(()=>{const e=document.getElementById('formError');e.textContent='✅ Reset email sent — check your inbox.';e.style.color='var(--green)';e.style.display='block';})
+    .catch(e=>showErr(friendlyErr(e.code)));
+}
+
+function friendlyErr(code){
+  const m={'auth/user-not-found':'No account found with that email.','auth/wrong-password':'Incorrect password. Try again.','auth/invalid-email':'Please enter a valid email address.','auth/email-already-in-use':'That email is already registered. Sign in instead.','auth/weak-password':'Password must be at least 6 characters.','auth/too-many-requests':'Too many attempts. Please wait a moment.','auth/invalid-credential':'Incorrect email or password.'};
+  return m[code]||'Something went wrong. Please try again.';
+}
+</script>
+</body>
+</html>
