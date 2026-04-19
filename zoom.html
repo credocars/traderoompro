@@ -539,7 +539,62 @@ auth.onAuthStateChanged(async function(u) {
 });
 
 
+</script><script>
+/* ── ZOOM LINK MANAGER ── */
+
+function pageInstructorSetup(role) {
+  if (role === 'instructor') {
+    var panel = document.getElementById('zoomSetupPanel');
+    if (panel) panel.style.display = 'block';
+  }
+}
+
+function saveZoomLink() {
+  var inp = document.getElementById('zoomLinkInput');
+  if (!inp || !inp.value.trim()) return;
+  var link = inp.value.trim();
+  firebase.database().ref('traderoom/zoom/link').set(link);
+  var st = document.getElementById('zoomSaveStatus');
+  if (st) { st.textContent = '✅ Link saved — students can now join.'; st.style.color = 'var(--green)'; }
+  showZoomLink(link);
+}
+
+function clearZoomLink() {
+  firebase.database().ref('traderoom/zoom/link').remove();
+  var st = document.getElementById('zoomSaveStatus');
+  if (st) { st.textContent = 'Link cleared.'; st.style.color = 'var(--t3)'; }
+  var inp = document.getElementById('zoomLinkInput'); if (inp) inp.value = '';
+  showZoomEmpty();
+}
+
+function showZoomLink(link) {
+  var wrap = document.getElementById('zoomLinkWrap');
+  var placeholder = document.getElementById('zoomPlaceholder');
+  var anchor = document.getElementById('zoomLink');
+  if (wrap) wrap.style.display = 'block';
+  if (placeholder) placeholder.style.display = 'none';
+  if (anchor) { anchor.href = link; anchor.textContent = '🎥 Join Zoom Session →'; }
+}
+
+function showZoomEmpty() {
+  var wrap = document.getElementById('zoomLinkWrap');
+  var placeholder = document.getElementById('zoomPlaceholder');
+  if (wrap) wrap.style.display = 'none';
+  if (placeholder) placeholder.style.display = 'block';
+}
+
+// Firebase listener — real-time sync
+firebase.database().ref('traderoom/zoom/link').on('value', function(snap) {
+  var link = snap.val();
+  if (link) {
+    var inp = document.getElementById('zoomLinkInput'); if (inp) inp.value = link;
+    showZoomLink(link);
+  } else {
+    showZoomEmpty();
+  }
+});
 </script>
+
 <script>
 function handleLogout() {
   firebase.auth().signOut().then(function() {
