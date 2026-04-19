@@ -482,6 +482,44 @@ function updateClock(){document.getElementById('sessionTime').textContent=new Da
 setInterval(updateClock,1000);updateClock();
 </script>
 <script>
+function setNav(el){document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active');});el.classList.add('active');}
+function updateMarketStatus(){var et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));var mins=et.getHours()*60+et.getMinutes(),day=et.getDay();var dot=document.querySelector('.ms-dot'),txt=document.getElementById('marketStatusText');if(!dot)return;if(day===0||day===6){dot.className='ms-dot closed';txt.textContent='Weekend';}else if(mins>=240&&mins<570){dot.className='ms-dot pre';txt.textContent='Pre-Market';}else if(mins>=570&&mins<960){dot.className='ms-dot open';txt.textContent='Market Open';}else if(mins>=960&&mins<1200){dot.className='ms-dot pre';txt.textContent='After Hours';}else{dot.className='ms-dot closed';txt.textContent='Market Closed';}}
+setInterval(updateMarketStatus,30000);updateMarketStatus();
+function updateClock(){document.getElementById('sessionTime').textContent=new Date().toTimeString().slice(0,8);}
+setInterval(updateClock,1000);updateClock();
+
+var selectedRole='student';
+function showTab(tab){var l=tab==='login';document.getElementById('tabLogin').classList.toggle('active',l);document.getElementById('tabRegister').classList.toggle('active',!l);document.getElementById('formLogin').style.display=l?'flex':'none';document.getElementById('formRegister').style.display=l?'none':'flex';document.getElementById('authBtn').textContent=l?'Sign In':'Create Account';document.getElementById('modalSubtitle').textContent=l?'Sign in to join the live session':'Create your TradeRoom account';document.getElementById('modalError').style.display='none';}
+function setRole(r){selectedRole=r;document.getElementById('roleStudent').classList.toggle('active',r==='student');document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');}
+function handleAuth(){var err=document.getElementById('modalError');err.style.display='none';var btn=document.getElementById('authBtn');btn.textContent='…';btn.disabled=true;var isLogin=document.getElementById('tabLogin').classList.contains('active');var auth=firebase.auth();if(isLogin){var email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value;if(!email||!pass){showErr('Please enter your email and password.');return;}auth.signInWithEmailAndPassword(email,pass).catch(function(e){showErr(friendlyError(e.code));});}else{var name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPassword').value;if(!name||!email||!pass){showErr('Please fill in all fields.');return;}if(pass.length<6){showErr('Password must be at least 6 characters.');return;}auth.createUserWithEmailAndPassword(email,pass).then(function(c){firebase.database().ref('traderoom/users/'+c.user.uid).set({name:name,role:selectedRole,email:email});}).catch(function(e){showErr(friendlyError(e.code));});}}
+function showErr(msg){var err=document.getElementById('modalError');err.textContent='⚠ '+msg;err.style.display='block';var btn=document.getElementById('authBtn');btn.disabled=false;btn.textContent=document.getElementById('tabLogin').classList.contains('active')?'Sign In':'Create Account';}
+function friendlyError(code){var map={'auth/user-not-found':'No account found with that email.','auth/wrong-password':'Incorrect password.','auth/invalid-email':'Please enter a valid email address.','auth/email-already-in-use':'That email is already registered.','auth/weak-password':'Password must be at least 6 characters.','auth/too-many-requests':'Too many attempts. Please wait.','auth/invalid-credential':'Incorrect email or password.'};return map[code]||'Something went wrong. Please try again.';}
+function forgotPassword(){var email=document.getElementById('loginEmail').value.trim();if(!email){showErr('Enter your email address first.');return;}firebase.auth().sendPasswordResetEmail(email).then(function(){var e=document.getElementById('modalError');e.textContent='✅ Reset email sent.';e.style.color='var(--green)';e.style.display='block';}).catch(function(e){showErr(friendlyError(e.code));});}
+
+firebase.auth().onAuthStateChanged(function(u) {
+  if (!u) return;
+  try {
+    firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
+      var p    = snap.exists() ? snap.val() : null;
+      var name = p ? p.name : u.email.split('@')[0];
+      var role = p ? p.role : 'student';
+      var modal = document.getElementById('loginModal');
+      if (modal) modal.classList.add('hidden');
+      var chip = document.getElementById('userChip');
+      if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+      var sbA = document.getElementById('sbAvatar');
+      var sbN = document.getElementById('sbName');
+      var sbR = document.getElementById('sbRole');
+      if (sbN) sbN.textContent = name;
+      if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
+      if (sbA) { sbA.textContent = name.slice(0,2).toUpperCase(); sbA.style.background = role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)'; sbA.style.color = role==='instructor'?'#06b6d4':'#8b5cf6'; }
+    
+    });
+  } catch(e) { console.error('Auth error:', e); }
+});
+</script>
+
+<script>
 const auth = firebase.auth(), db = firebase.database();
 let currentUser = null;
 
