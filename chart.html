@@ -493,7 +493,7 @@ function forgotPassword(){
   auth.sendPasswordResetEmail(email).then(()=>{const e=document.getElementById('modalError');e.textContent='✅ Reset email sent — check your inbox.';e.style.color=window.getComputedStyle(document.documentElement).getPropertyValue('--green');e.style.display='block';}).catch(e=>showErr(friendlyError(e.code)));
 }
 auth.onAuthStateChanged(async function(u) {
-  if (!u) { window.location.href = 'index.html'; return; }
+  if (!u) return; // Show modal, let user log in here
   const snap = await db.ref('traderoom/users/' + u.uid).get();
   const p = snap.exists() ? snap.val() : null;
   const name = p?.name || u.email.split('@')[0];

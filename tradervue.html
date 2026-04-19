@@ -500,7 +500,7 @@ function forgotPassword() {
 }
 
 auth.onAuthStateChanged(async u => {
-  if (!u) { window.location.href = 'index.html'; return; }
+  if (!u) return; // Show modal, let user log in here
   const snap = await db.ref('traderoom/users/' + u.uid).get();
   const p = snap.exists() ? snap.val() : null;
   const name = p?.name || u.email.split('@')[0];
