@@ -430,18 +430,46 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
     <div class="market-pill"><span class="ms-dot open"></span><span id="marketStatusText">Market Open</span></div>
     <span class="username-chip" id="userChip">⭐ Instructor</span>
     <div class="header-right">
-      <span class="firebase-status" id="fbStatus"></span>
-      <input type="date" id="datePicker" onchange="loadData()" style="font-family:Inter,sans-serif;font-size:12px;padding:5px 10px;border-radius:7px;border:1px solid var(--border-hi);background:var(--card);color:var(--t1);outline:none;"/>
-      <button onclick="loadData()" style="font-family:Inter,sans-serif;font-size:12px;font-weight:700;padding:5px 14px;border-radius:7px;border:1px solid var(--border-hi);background:var(--card);color:var(--t2);cursor:pointer;">↻ Refresh</button>
       <div class="session-clock" id="sessionTime">09:32:14</div>
     </div>
   </div>
   <div class="content-row">
     <div class="page-content" id="mainContent">
-      <div class="loading-state" id="loadingState">
-        <div class="spinner"></div>
-        <div style="font-size:13px;">Connecting…</div>
+
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;">
+
+        <div style="text-align:center;">
+          <div style="font-size:48px;margin-bottom:16px;">📊</div>
+          <div style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:8px;">Open Tradervue</div>
+          <div style="font-size:14px;color:var(--t3);max-width:400px;line-height:1.7;">
+            Click below to open Tradervue in a new window — view your trade journal, performance stats and analysis.
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <button onclick="openTradervue()" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:700;padding:16px 48px;border-radius:12px;border:none;background:var(--green);color:#000;cursor:pointer;transition:opacity .15s;letter-spacing:.02em;display:flex;align-items:center;gap:10px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg>
+            Open Tradervue
+          </button>
+          <div style="font-size:11px;color:var(--t3);">Opens in a new tab • Sign in with your Tradervue account</div>
+        </div>
+
+        <!-- Instructor: set custom Tradervue URL -->
+        <div id="tvUrlCard" style="display:none;background:var(--card);border:1px solid var(--border-hi);border-radius:12px;padding:20px;width:100%;max-width:500px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(6,182,212,.4),transparent);"></div>
+          <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">⚙ Instructor — Set Tradervue URL</div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6;">Paste your Tradervue link. All students will open this URL when they click the button.</div>
+          <div style="display:flex;gap:8px;">
+            <input id="tvUrlInput" placeholder="https://app.tradervue.com/..."
+              style="flex:1;font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:8px 12px;border-radius:8px;outline:none;"
+              onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-hi)'"/>
+            <button onclick="saveTvUrl()" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;">Save</button>
+          </div>
+          <div id="tvUrlStatus" style="font-size:11px;color:var(--t3);margin-top:6px;"></div>
+        </div>
+
       </div>
+
     </div>
   </div>
 </div>
@@ -456,348 +484,36 @@ setInterval(updateClock,1000);updateClock();
 <script>
 const auth = firebase.auth(), db = firebase.database();
 let currentUser = null;
-const TV_PROXY = '/.netlify/functions/tradervue';
-const TV_CONFIG_PATH = 'traderoom/tvConfig';
-let tvConfig = null;
-let expandedUsers = new Set();
 
-/* ── AUTH ── */
-function showTab(t) {
-  const isLogin = t === 'login';
-  document.getElementById('tabLogin').classList.toggle('active', isLogin);
-  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
-  document.getElementById('formLogin').style.display = isLogin ? 'block' : 'none';
-  document.getElementById('formRegister').style.display = isLogin ? 'none' : 'block';
-  document.getElementById('authBtn').textContent = isLogin ? 'Sign In' : 'Create Account';
-  document.getElementById('formError').style.display = 'none';
+var tvUrl = "https://app.tradervue.com/";
+
+function openTradervue() {
+  window.open(tvUrl, "_blank");
 }
-function handleAuth() {
-  const err = document.getElementById('formError'); err.style.display = 'none';
-  const btn = document.getElementById('authBtn'); btn.textContent = '…'; btn.disabled = true;
-  const isLogin = document.getElementById('tabLogin').classList.contains('active');
-  if (isLogin) {
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass = document.getElementById('loginPassword').value;
-    if (!email || !pass) { showErr('Please enter email and password.'); return; }
-    auth.signInWithEmailAndPassword(email, pass).catch(e => showErr(friendlyErr(e.code)));
-  } else {
-    const name = document.getElementById('regName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const pass = document.getElementById('regPassword').value;
-    if (!name || !email || !pass) { showErr('Please fill all fields.'); return; }
-    auth.createUserWithEmailAndPassword(email, pass)
-      .then(c => db.ref('traderoom/users/' + c.user.uid).set({ name, role: 'student', email }))
-      .catch(e => showErr(friendlyErr(e.code)));
+
+function saveTvUrl() {
+  var inp = document.getElementById("tvUrlInput");
+  if (!inp || !inp.value.trim()) return;
+  tvUrl = inp.value.trim();
+  firebase.database().ref("traderoom/tradervue/url").set(tvUrl);
+  var st = document.getElementById("tvUrlStatus");
+  if (st) { st.textContent = "✅ Saved — students will open this URL."; st.style.color = "var(--green)"; }
+}
+
+/* Firebase sync */
+firebase.database().ref("traderoom/tradervue/url").on("value", function(snap) {
+  if (snap.val()) {
+    tvUrl = snap.val();
+    var inp = document.getElementById("tvUrlInput");
+    if (inp) inp.value = tvUrl;
   }
-}
-function showErr(msg) {
-  const e = document.getElementById('formError'); e.textContent = '⚠ ' + msg; e.style.display = 'block';
-  const btn = document.getElementById('authBtn'); btn.disabled = false;
-  btn.textContent = document.getElementById('tabLogin').classList.contains('active') ? 'Sign In' : 'Create Account';
-}
-function friendlyErr(code) {
-  const m = { 'auth/user-not-found': 'No account found.', 'auth/wrong-password': 'Incorrect password.', 'auth/invalid-credential': 'Incorrect email or password.', 'auth/email-already-in-use': 'Already registered.', 'auth/weak-password': 'Password too short.' };
-  return m[code] || 'Something went wrong.';
-}
-function forgotPassword() {
-  const email = document.getElementById('loginEmail').value.trim();
-  if (!email) { showErr('Enter your email first.'); return; }
-  auth.sendPasswordResetEmail(email).then(() => {
-    const e = document.getElementById('formError'); e.textContent = '✅ Reset email sent!'; e.style.color = '#34c759'; e.style.display = 'block';
-  }).catch(e => showErr(friendlyErr(e.code)));
-}
-
-auth.onAuthStateChanged(async u => {
-  if (!u) return; // Show modal, let user log in here
-  const snap = await db.ref('traderoom/users/' + u.uid).get();
-  const p = snap.exists() ? snap.val() : null;
-  const name = p?.name || u.email.split('@')[0];
-  const role = p?.role || 'student';
-  currentUser = { name, role, uid: u.uid, email: u.email };
-  const modal=document.getElementById('loginModal');if(modal)modal.classList.add('hidden');
-  const chip=document.getElementById('userChip');if(chip)chip.textContent=(role==='instructor'?'⭐ ':'🎓 ')+name;
-  document.getElementById('sbName').textContent = name;
-  document.getElementById('sbRole').textContent = role === 'instructor' ? 'Instructor' : 'Student';
-  const av=document.getElementById('sbAvatar');
-  av.textContent=name.slice(0,2).toUpperCase();
-  av.style.background=role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)';
-  av.style.color=role==='instructor'?'#06b6d4':'#8b5cf6';
-  afterAuth();
 });
 
-/* ── MAIN ── */
-function todayStr() {
-  const d = new Date();
-  return d.toISOString().split('T')[0];
-}
-
-function afterAuth() {
-  // Set date picker to today
-  const dp = document.getElementById('datePicker');
-  dp.value = todayStr();
-  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-
-  // Only instructors can use this page
-  if (currentUser.role !== 'instructor') {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🔒</div>
-        <div class="empty-title">Instructor Only</div>
-        <div class="empty-sub">This page is for instructors to monitor student performance.</div>
-      </div>`;
-    return;
+function pageInstructorSetup(role) {
+  if (role === "instructor") {
+    var card = document.getElementById("tvUrlCard");
+    if (card) card.style.display = "block";
   }
-
-  // Load Tradervue config from Firebase
-  db.ref(TV_CONFIG_PATH).get().then(snap => {
-    if (snap.exists()) {
-      tvConfig = snap.val();
-      loadData();
-    } else {
-      renderSetup();
-    }
-  });
-}
-
-/* ── SETUP ── */
-function renderSetup(msg) {
-  document.getElementById('mainContent').innerHTML = `
-    <div class="setup-card">
-      <div class="setup-title">⚙️ Tradervue API Setup</div>
-      <div style="font-size:13px;color:var(--t2);margin-top:-4px;">Enter your Tradervue organization admin credentials. Stored securely in Firebase — never shared with students.</div>
-      <div class="setup-grid">
-        <div class="setup-field">
-          <label>Organization URL</label>
-          <input id="tvOrgUrl" type="text" placeholder="e.g. your-org.tradervue.com" value="${tvConfig?.orgUrl || ''}"/>
-        </div>
-        <div class="setup-field">
-          <label>Admin Username</label>
-          <input id="tvUser" type="text" placeholder="Tradervue username" value="${tvConfig?.username || ''}"/>
-        </div>
-        <div class="setup-field">
-          <label>Admin Password</label>
-          <input id="tvPass" type="password" placeholder="Tradervue password" value="${tvConfig?.password || ''}"/>
-        </div>
-      </div>
-      <div class="setup-actions">
-        <button class="btn-save" onclick="saveConfig()">Save & Connect</button>
-        ${tvConfig ? '<button class="btn-secondary" onclick="loadData()">Cancel</button>' : ''}
-        ${msg ? `<span class="setup-status err">⚠ ${msg}</span>` : ''}
-      </div>
-      <div class="setup-note">
-        <strong>Setup required:</strong> You also need to deploy a Netlify serverless function to proxy API calls.<br>
-        1. Add <code>/netlify/functions/tradervue.js</code> to your Netlify repo<br>
-        2. Set <code>TV_USERNAME</code>, <code>TV_PASSWORD</code>, <code>TV_BASE_URL</code> in Netlify → Site Settings → Environment Variables<br>
-        3. Redeploy — then paste your org URL above and save
-      </div>
-    </div>`;
-}
-
-function saveConfig() {
-  const orgUrl  = document.getElementById('tvOrgUrl').value.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
-  const username = document.getElementById('tvUser').value.trim();
-  const password = document.getElementById('tvPass').value;
-  if (!orgUrl || !username || !password) { alert('Please fill in all fields.'); return; }
-  tvConfig = { orgUrl, username, password };
-  db.ref(TV_CONFIG_PATH).set(tvConfig).then(() => loadData());
-}
-
-/* ── DATA LOADING ── */
-async function loadData() {
-  if (!tvConfig) { renderSetup(); return; }
-  const date = document.getElementById('datePicker').value || todayStr();
-  document.getElementById('mainContent').innerHTML = `
-    <div class="loading-state"><div class="spinner"></div><div>Loading student performance…</div></div>`;
-
-  try {
-    // 1. Fetch all users in org
-    const usersRes = await tvFetch('/users');
-    if (usersRes.error) { renderError(usersRes.error); return; }
-    const users = usersRes.users || [];
-
-    if (users.length === 0) {
-      document.getElementById('mainContent').innerHTML = `
-        <div class="empty-state"><div class="empty-icon">👥</div>
-        <div style="font-size:15px;font-weight:700;">No students found</div>
-        <div style="font-size:13px;color:var(--t3);margin-top:6px;">Make sure students are in your Tradervue organization.</div></div>`;
-      return;
-    }
-
-    // 2. Fetch trades for each user on selected date
-    const studentData = await Promise.all(users.map(u => fetchStudentData(u, date)));
-
-    renderDashboard(studentData, date);
-
-  } catch (err) {
-    renderError(err.message);
-  }
-}
-
-async function fetchStudentData(user, date) {
-  try {
-    const data = await tvFetch('/trades', user.id, { startdate: date, enddate: date, max_trades: 100 });
-    const trades = data.trades || [];
-    const totalPL  = trades.reduce((s, t) => s + (parseFloat(t.gross_pl) || 0), 0);
-    const winners  = trades.filter(t => (parseFloat(t.gross_pl) || 0) > 0).length;
-    const winRate  = trades.length > 0 ? Math.round((winners / trades.length) * 100) : null;
-    const best     = trades.reduce((b, t) => (parseFloat(t.gross_pl)||0) > (parseFloat(b?.gross_pl)||0) ? t : b, null);
-    const worst    = trades.reduce((w, t) => (parseFloat(t.gross_pl)||0) < (parseFloat(w?.gross_pl)||0) ? t : w, null);
-    return { user, trades, totalPL, winRate, winners, best, worst };
-  } catch {
-    return { user, trades: [], totalPL: 0, winRate: null, winners: 0, best: null, worst: null, error: true };
-  }
-}
-
-async function tvFetch(endpoint, userId, params = {}) {
-  const qs = new URLSearchParams({ endpoint, ...(userId ? { userId } : {}), ...params }).toString();
-  const res = await fetch(`${TV_PROXY}?${qs}`);
-  return res.json();
-}
-
-/* ── RENDER ── */
-function renderDashboard(students, date) {
-  const totalPL    = students.reduce((s, d) => s + d.totalPL, 0);
-  const totalTrades = students.reduce((s, d) => s + d.trades.length, 0);
-  const winners    = students.filter(d => d.totalPL > 0).length;
-  const bestStudent = students.reduce((b, d) => d.totalPL > (b?.totalPL || -Infinity) ? d : b, null);
-
-  const plClass = totalPL > 0 ? 'green' : totalPL < 0 ? 'red' : '';
-  const plStr   = (totalPL >= 0 ? '+' : '') + '$' + Math.abs(totalPL).toFixed(2);
-
-  let html = `
-    <div class="summary-row">
-      <div class="stat-card">
-        <div class="stat-label">Total Students</div>
-        <div class="stat-val blue">${students.length}</div>
-        <div class="stat-sub">${totalTrades} trades today</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Combined P&amp;L</div>
-        <div class="stat-val ${plClass}">${plStr}</div>
-        <div class="stat-sub">All students combined</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Profitable Students</div>
-        <div class="stat-val green">${winners}</div>
-        <div class="stat-sub">of ${students.length} total</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Top Performer</div>
-        <div class="stat-val purple" style="font-size:16px;">${bestStudent?.user?.username || '—'}</div>
-        <div class="stat-sub">${bestStudent && bestStudent.totalPL !== 0 ? (bestStudent.totalPL > 0 ? '+' : '') + '$' + bestStudent.totalPL.toFixed(2) : 'No trades'}</div>
-      </div>
-    </div>
-
-    <div class="table-card">
-      <div class="table-header">
-        <div class="table-title">Student Performance</div>
-        <div class="table-count">${students.length} students — ${new Date(date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
-        <button class="btn-secondary" style="margin-left:auto;font-size:11px;padding:5px 12px;" onclick="renderSetup()">⚙ Settings</button>
-      </div>
-      <table class="tv-table">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Trades</th>
-            <th>P&amp;L</th>
-            <th>Win Rate</th>
-            <th>Best Trade</th>
-            <th>Worst Trade</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="studentsTableBody">
-          ${students.map(d => renderStudentRow(d)).join('')}
-        </tbody>
-      </table>
-    </div>`;
-
-  document.getElementById('mainContent').innerHTML = html;
-}
-
-function renderStudentRow(d) {
-  const { user, trades, totalPL, winRate, best, worst } = d;
-  const plStr  = trades.length === 0 ? '—' : (totalPL >= 0 ? '+' : '') + '$' + Math.abs(totalPL).toFixed(2);
-  const plCls  = totalPL > 0 ? 'pl-pos' : totalPL < 0 ? 'pl-neg' : 'pl-zero';
-  const wrStr  = winRate !== null ? winRate + '%' : '—';
-  const wrCls  = winRate === null ? '' : winRate >= 60 ? 'win-high' : winRate >= 40 ? 'win-mid' : 'win-low';
-  const bestStr  = best ? ((parseFloat(best.gross_pl)||0) >= 0 ? '+' : '') + '$' + Math.abs(parseFloat(best.gross_pl)||0).toFixed(2) + ' ' + (best.symbol||'') : '—';
-  const worstStr = worst ? ((parseFloat(worst.gross_pl)||0) >= 0 ? '+' : '') + '$' + Math.abs(parseFloat(worst.gross_pl)||0).toFixed(2) + ' ' + (worst.symbol||'') : '—';
-
-  return `
-    <tr class="student-row" onclick="toggleStudent('${user.id}', this)" id="row-${user.id}">
-      <td><div class="student-name">${user.username}</div><div class="student-email">${user.email || ''}</div></td>
-      <td>${trades.length}</td>
-      <td class="${plCls}">${plStr}</td>
-      <td>${winRate !== null ? `<span class="win-pill ${wrCls}">${wrStr}</span>` : '—'}</td>
-      <td style="color:var(--green);">${bestStr}</td>
-      <td style="color:var(--red);">${worstStr}</td>
-      <td><button class="expand-btn" id="expbtn-${user.id}">${trades.length > 0 ? '▸ Trades' : 'No trades'}</button></td>
-    </tr>
-    <tr class="detail-row" id="detail-${user.id}" style="display:none;">
-      <td colspan="7">${renderTradeDetail(user, trades)}</td>
-    </tr>`;
-}
-
-function renderTradeDetail(user, trades) {
-  if (trades.length === 0) {
-    return `<div class="detail-inner"><div class="no-trades">No trades on this day</div></div>`;
-  }
-  const rows = trades.map(t => {
-    const pl = parseFloat(t.gross_pl) || 0;
-    const plStr = (pl >= 0 ? '+' : '') + '$' + Math.abs(pl).toFixed(2);
-    const plCls = pl > 0 ? 'pl-pos' : pl < 0 ? 'pl-neg' : 'pl-zero';
-    const side  = (t.side || '').toUpperCase();
-    return `
-      <tr>
-        <td><strong>${t.symbol || '—'}</strong></td>
-        <td><span class="trade-row-badge ${side === 'L' ? 'badge-L' : 'badge-S'}">${side === 'L' ? 'LONG' : 'SHORT'}</span></td>
-        <td>${t.quantity || '—'}</td>
-        <td>${t.entry_price != null ? '$' + parseFloat(t.entry_price).toFixed(2) : '—'}</td>
-        <td>${t.exit_price != null ? '$' + parseFloat(t.exit_price).toFixed(2) : '—'}</td>
-        <td class="${plCls}">${plStr}</td>
-        <td style="color:var(--t2);font-size:11px;">${t.tags ? t.tags.join(', ') : ''}</td>
-      </tr>`;
-  }).join('');
-
-  return `
-    <div class="detail-inner">
-      <div class="detail-title">📋 ${user.username}'s trades</div>
-      <table class="trades-mini">
-        <thead>
-          <tr><th>Symbol</th><th>Side</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Tags</th></tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-}
-
-function toggleStudent(userId, row) {
-  const detail = document.getElementById('detail-' + userId);
-  const btn    = document.getElementById('expbtn-' + userId);
-  if (!detail) return;
-  const isOpen = detail.style.display !== 'none';
-  detail.style.display = isOpen ? 'none' : 'table-row';
-  btn.textContent = isOpen ? '▸ Trades' : '▾ Close';
-}
-
-function renderError(msg) {
-  document.getElementById('mainContent').innerHTML = `
-    <div class="setup-card" style="border-color:rgba(255,59,48,.25);">
-      <div class="setup-title" style="color:var(--red);">⚠ Connection Error</div>
-      <div style="font-size:13px;color:var(--t2);">${msg}</div>
-      <div class="setup-actions">
-        <button class="btn-save" style="background:var(--red);" onclick="loadData()">Retry</button>
-        <button class="btn-secondary" onclick="renderSetup()">Edit Settings</button>
-      </div>
-      <div class="setup-note">
-        <strong>Common issues:</strong><br>
-        • Netlify function not deployed — add <code>/netlify/functions/tradervue.js</code> to your repo<br>
-        • Environment variables missing — set <code>TV_USERNAME</code> and <code>TV_PASSWORD</code> in Netlify<br>
-        • Wrong org URL — check your Tradervue organization URL<br>
-        • Organization API not enabled — contact Tradervue support
-      </div>
-    </div>`;
 }
 </script>
 <script>
