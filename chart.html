@@ -476,6 +476,7 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
       <span class="ctrl-label">Interval</span>
       <select class="ctrl-select" id="ctrlInterval">
         <option value="1" selected>1 min</option>
+        <option value="2">2 min</option>
         <option value="3">3 min</option>
         <option value="5">5 min</option>
         <option value="15">15 min</option>
@@ -652,10 +653,7 @@ function applyChart() {
   chartSettings.symbol   = sym;
   chartSettings.interval = ivl;
   chartSettings.style    = sty;
-  firebase.database().ref("traderoom/chart/settings").set({
-    symbol: sym, interval: ivl, style: sty,
-    watchlist: chartSettings.watchlist
-  });
+  saveAllSettings();
   buildChart(); renderWlList();
   var st = document.getElementById("ctrlStatus");
   if (st) { st.classList.add("on"); setTimeout(function(){ st.classList.remove("on"); }, 2500); }
@@ -670,30 +668,30 @@ function addWlSym() {
   if (chartSettings.watchlist.indexOf(sym) >= 0) { inp.value = ""; return; }
   chartSettings.watchlist.push(sym);
   inp.value = "";
-  saveWatchlist();
+  saveAllSettings();
   renderWlList(); buildChart();
 }
 
 function removeWlSym(sym) {
   chartSettings.watchlist = chartSettings.watchlist.filter(function(s) { return s !== sym; });
-  saveWatchlist();
+  saveAllSettings();
   renderWlList(); buildChart();
 }
 
-function saveWatchlist() {
-  // Convert array to indexed object — Firebase handles this reliably
-  var wlObj = {};
-  for (var i = 0; i < chartSettings.watchlist.length; i++) {
-    wlObj[i] = chartSettings.watchlist[i];
-  }
-  firebase.database().ref("traderoom/chart/settings/watchlist").set(wlObj);
+function saveAllSettings() {
+  firebase.database().ref("traderoom/chart/settings").set({
+    symbol:   chartSettings.symbol,
+    interval: chartSettings.interval,
+    style:    chartSettings.style,
+    watchlist: chartSettings.watchlist.join(",")
+  });
 }
 
 function quickSwitch(sym) {
   chartSettings.symbol = sym;
   var inp = document.getElementById("ctrlSymbol");
   if (inp) inp.value = sym;
-  firebase.database().ref("traderoom/chart/settings").update({ symbol: sym });
+  saveAllSettings();
   buildChart(); renderWlList();
 }
 
@@ -730,14 +728,14 @@ firebase.database().ref("traderoom/chart/settings").on("value", function(snap) {
   chartSettings.interval = v.interval || "1";
   chartSettings.style    = v.style    || "1";
   if (v.watchlist) {
-    // Firebase stores arrays as numeric-keyed objects — convert back
-    if (Array.isArray(v.watchlist)) {
+    if (typeof v.watchlist === "string" && v.watchlist.length > 0) {
+      // Stored as comma-separated string — split back to array
+      chartSettings.watchlist = v.watchlist.split(",").filter(function(s){ return s.trim(); });
+    } else if (Array.isArray(v.watchlist)) {
       chartSettings.watchlist = v.watchlist;
-    } else if (typeof v.watchlist === 'object') {
-      chartSettings.watchlist = Object.keys(v.watchlist)
-        .sort(function(a,b){ return a - b; })
-        .map(function(k){ return v.watchlist[k]; })
-        .filter(function(s){ return s; });
+    } else if (typeof v.watchlist === "object") {
+      // Legacy format — convert
+      chartSettings.watchlist = Object.keys(v.watchlist).sort(function(a,b){return a-b;}).map(function(k){return v.watchlist[k];}).filter(Boolean);
     }
   }
   var inp = document.getElementById("ctrlSymbol");   if (inp) inp.value = chartSettings.symbol;
