@@ -473,302 +473,34 @@ function forgotPassword(){
   if(!email){showErr('Enter your email address first.');return;}
   auth.sendPasswordResetEmail(email).then(()=>{const e=document.getElementById('modalError');e.textContent='✅ Reset email sent — check your inbox.';e.style.color=window.getComputedStyle(document.documentElement).getPropertyValue('--green');e.style.display='block';}).catch(e=>showErr(friendlyError(e.code)));
 }
-auth.onAuthStateChanged(async u=>{
-  if(!u)return;
-  const snap=await db.ref('traderoom/users/'+u.uid).get();
-  const p=snap.exists()?snap.val():null;
-  const name=p?.name||u.email.split('@')[0],role=p?.role||'student';
-  currentUser={name,role,badge:role==='instructor'?'pro':'student',avatar:initials(name),avatarColor:role==='instructor'?'#0071e3':avatarColor(name),uid:u.uid,email:u.email};
-  document.getElementById('loginModal').classList.add('hidden');
-  document.getElementById('chatInput').placeholder='Ask a question or comment…';
-  document.getElementById('chatInput').disabled=false;
-  document.getElementById('sendBtn').disabled=false;
-  addClearButton();
-  const chip=document.getElementById('userChip');
-  if(chip)chip.textContent=(role==='instructor'?'⭐ ':'🎓 ')+name;
-  const sbA=document.getElementById('sbAvatar');const sbN=document.getElementById('sbName');const sbR=document.getElementById('sbRole');
-  if(sbN)sbN.textContent=name;
-  if(sbR)sbR.textContent=role==='instructor'?'Instructor':'Student';
-  if(sbA){sbA.textContent=initials(name);sbA.style.background=role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)';sbA.style.color=role==='instructor'?'#06b6d4':'#8b5cf6';}
-  initFirebaseChat();
-  initNotes();
-  initWatchlist();
-  initFeed();
-  if(role==='instructor'){
-    const area=document.getElementById('notesInputArea');if(area)area.style.display='flex';
-    const inp=document.getElementById('notesInput');
-    if(inp)inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();postNote();}});
+auth.onAuthStateChanged(async function(u) {
+  if (!u) { window.location.href = 'index.html'; return; }
+  const snap = await db.ref('traderoom/users/' + u.uid).get();
+  const p = snap.exists() ? snap.val() : null;
+  const name = p?.name || u.email.split('@')[0];
+  const role = p?.role || 'student';
+  // Hide modal
+  const modal = document.getElementById('loginModal');
+  if (modal) modal.classList.add('hidden');
+  // Update header chip
+  const chip = document.getElementById('userChip');
+  if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+  // Update sidebar user info
+  const sbA = document.getElementById('sbAvatar');
+  const sbN = document.getElementById('sbName');
+  const sbR = document.getElementById('sbRole');
+  if (sbN) sbN.textContent = name;
+  if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
+  if (sbA) {
+    sbA.textContent = name.slice(0, 2).toUpperCase();
+    sbA.style.background = role === 'instructor' ? 'rgba(6,182,212,.15)' : 'rgba(139,92,246,.15)';
+    sbA.style.color = role === 'instructor' ? '#06b6d4' : '#8b5cf6';
   }
-});
-function initFirebaseChat(){
-  chatRef=db.ref('traderoom/chat/messages');
-  presenceRef=db.ref('traderoom/presence/'+currentUser.name.replace(/\s/g,'_'));
-  typingRef=db.ref('traderoom/typing/'+currentUser.name.replace(/\s/g,'_'));
-  presenceRef.set({name:currentUser.name,role:currentUser.role,avatar:currentUser.avatar,color:currentUser.avatarColor,since:Date.now()});
-  presenceRef.onDisconnect().remove();
-  db.ref('.info/connected').on('value',snap=>{
-    const el=document.getElementById('fbStatus');
-    if(snap.val()){el.textContent='● Live';el.className='firebase-status connected';}
-    else{el.textContent='○ Reconnecting…';el.className='firebase-status';}
-  });
-  chatRef.limitToLast(60).on('child_added',snap=>{const m=snap.val();if(m)renderMessage(m,snap.key);});
-  db.ref('traderoom/presence').on('value',snap=>{
-    const users=[];snap.forEach(c=>users.push(c.val()));
-    renderPresenceList(users);
-  });
-  db.ref('traderoom/typing').on('value',snap=>{
-    const typers=[];
-    snap.forEach(c=>{const t=c.val();if(t.name!==currentUser.name&&t.typing)typers.push(t.name);});
-    const ti=document.getElementById('typingIndicator'),tt=document.getElementById('typingText');
-    if(typers.length>0){tt.textContent=typers.join(', ')+(typers.length===1?' is typing…':' are typing…');ti.style.display='flex';}
-    else ti.style.display='none';
-    scrollChat();
-  });
-}
-function renderMessage(m,key){
-  const c=document.getElementById('chatMessages');
-  if(document.getElementById('msg-'+key))return;
-  const isOwn=m.user===currentUser?.name;
-  const el=document.createElement('div');
-  el.className='chat-msg'+(isOwn?' own':'');el.id='msg-'+key;
-  const isInstructor = currentUser?.role === 'instructor';
-  el.innerHTML=`<div class="chat-avatar" style="background:${m.avatarColor}20;color:${m.avatarColor};">${m.avatar}</div><div class="chat-bubble"><div class="chat-meta"><span class="chat-user ${m.badge}">${m.user}</span><span class="chat-badge ${m.badge}">${m.badge==='pro'?'⭐ PRO':'Student'}</span><span class="chat-time-msg">${m.time}</span></div><div class="chat-text">${escapeHtml(m.msg)}</div></div>${isInstructor ? `<button class="msg-del" onclick="deleteMsg('${key}')" title="Delete message">✕</button>` : ''}`;
-  c.appendChild(el);scrollChat();
-  if(document.getElementById('chatPane').classList.contains('active')){document.getElementById('chatNotif').style.display='none';}
-  else{document.getElementById('chatNotif').style.display='inline-block';}
-}
-function escapeHtml(str){return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function sendChat(){
-  if(!currentUser||!chatRef)return;
-  const inp=document.getElementById('chatInput'),val=inp.value.trim();if(!val)return;
-  chatRef.push({user:currentUser.name,badge:currentUser.badge,avatar:currentUser.avatar,avatarColor:currentUser.avatarColor,msg:val,time:new Date().toTimeString().slice(0,8),timestamp:Date.now()});
-  inp.value='';clearTyping();
-}
-function handleTyping(){
-  if(!typingRef||!currentUser)return;
-  if(!isTyping){isTyping=true;typingRef.set({name:currentUser.name,typing:true});typingRef.onDisconnect().remove();}
-  clearTimeout(typingTimer);typingTimer=setTimeout(clearTyping,2500);
-}
-function clearTyping(){isTyping=false;if(typingRef)typingRef.remove();clearTimeout(typingTimer);}
-function renderPresenceList(users){
-  const el=document.getElementById('studentsList');
-  const sorted=[...users].sort((a,b)=>(a.role==='instructor'?0:1)-(b.role==='instructor'?0:1));
-  el.innerHTML=`<div style="font-size:9px;color:#475569;margin-bottom:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">${users.length} online</div>`+sorted.map(u=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1e293b;"><div style="width:26px;height:26px;border-radius:50%;background:${u.color}22;color:${u.color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${u.avatar}</div><div style="flex:1;font-size:11px;font-weight:600;color:#f1f5f9;">${u.name}</div><div style="font-size:9px;padding:2px 7px;border-radius:5px;background:${u.role==='instructor'?'rgba(6,182,212,.1)':'rgba(255,255,255,.04)'};color:${u.role==='instructor'?'#06b6d4':'#475569'};font-weight:700;border:1px solid ${u.role==='instructor'?'rgba(6,182,212,.2)':'#1e293b'};">${u.role==='instructor'?'⭐ PRO':'Student'}</div></div>`).join('');
-}
-function scrollChat(){const c=document.getElementById('chatMessages');c.scrollTop=c.scrollHeight;}
-function switchTab(btn,group,paneId){
-  btn.parentElement.querySelectorAll('.chat-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-  document.getElementById(paneId).classList.add('active');
-}
-document.addEventListener('DOMContentLoaded',()=>{
-  const inp=document.getElementById('chatInput');
-  if(inp){inp.addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});inp.addEventListener('input',()=>handleTyping());}
-  ['loginPassword','regPassword'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();});});
+  // Page-specific instructor setup
+  if (typeof pageInstructorSetup === 'function') pageInstructorSetup(role, u.uid);
 });
 
-/* ── CHAT MODERATION ── */
-function deleteMsg(key) {
-  const ref = chatRef ? chatRef.child(key) : db.ref('traderoom/chat/messages/' + key);
-  ref.remove();
-  const el = document.getElementById('msg-' + key);
-  if (el) { el.style.opacity='0'; el.style.transition='opacity .2s'; setTimeout(()=>el.remove(),200); }
-}
-function clearAllChat() {
-  if (!chatRef) return;
-  if (!confirm('Clear all chat messages? This cannot be undone.')) return;
-  chatRef.remove().then(() => { document.getElementById('chatMessages').innerHTML=''; });
-}
-function addClearButton() {
-  if (!currentUser || currentUser.role !== 'instructor') return;
-  const header = document.querySelector('.chat-header');
-  const existingBtn = document.getElementById('chatClearBtnHeader');
-  if (existingBtn) { existingBtn.style.display=''; return; }
-  if (!header || header.querySelector('.chat-clear-btn')) return;
-  const btn = document.createElement('button');
-  btn.className = 'chat-clear-btn';
-  btn.textContent = 'Clear Chat';
-  btn.onclick = clearAllChat;
-  header.appendChild(btn);
-}
 
-/* ── COMMUNITY FEED ── */
-let feedRef = null;
-let feedImageData = null;
-
-function initFeed() {
-  feedRef = db.ref('traderoom/feed');
-  feedRef.limitToLast(30).on('child_added', snap => {
-    const p = snap.val(); if (p) renderFeedPost(p, snap.key);
-  });
-  // Show clear btn for instructors
-  if (currentUser?.role === 'instructor') {
-    const btn = document.getElementById('feedClearBtn');
-    if (btn) btn.style.display = '';
-  }
-  // Show composer for all logged-in users
-  const composer = document.getElementById('feedComposer');
-  if (composer) composer.style.display = 'flex';
-  // Enter key posts
-  const ta = document.getElementById('feedText');
-  if (ta) ta.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); postFeed(); }
-  });
-}
-
-function renderFeedPost(p, key) {
-  if (document.getElementById('feed-' + key)) return;
-  const ph = document.getElementById('feedPlaceholder');
-  if (ph) ph.style.display = 'none';
-  const list = document.getElementById('feedList');
-  const isInstructor = currentUser?.role === 'instructor';
-  const isOwn = p.user === currentUser?.name;
-  const canDel = isInstructor || isOwn;
-  const el = document.createElement('div');
-  el.className = 'feed-post'; el.id = 'feed-' + key;
-  el.innerHTML = `
-    <div class="feed-post-header">
-      <div class="feed-avatar" style="background:${p.avatarColor}20;color:${p.avatarColor};">${p.avatar}</div>
-      <span class="feed-user ${p.badge}">${p.user}</span>
-      <span class="feed-badge ${p.badge}">${p.badge === 'pro' ? '⭐ PRO' : 'Student'}</span>
-      <span class="feed-time">${p.time}</span>
-    </div>
-    ${p.text ? `<div class="feed-text">${escHtml(p.text)}</div>` : ''}
-    ${p.image ? `<img class="feed-img" src="${p.image}" onclick="openFeedImg(this.src,'${p.user}')" alt="chart"/>` : ''}
-    ${canDel ? `<button class="item-del" onclick="deleteFeedPost('${key}')" title="Delete">✕</button>` : ''}
-  `;
-  list.appendChild(el);
-  document.getElementById('feedBody').scrollTop = 9999;
-}
-
-function handleFeedImage(input) {
-  const file = input.files[0]; if (!file) return;
-  if (file.size > 10 * 1024 * 1024) { alert('Image too large. Please use under 10MB.'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      // Keep original resolution up to 2560px — charts need to be sharp
-      const max = 2560;
-      let w = img.width, h = img.height;
-      if (w > max) { h = Math.round(h * max / w); w = max; }
-      if (h > max) { w = Math.round(w * max / h); h = max; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      // PNG for lossless quality — charts have sharp lines that JPEG blurs
-      feedImageData = canvas.toDataURL('image/png');
-      document.getElementById('feedPreview').src = feedImageData;
-      document.getElementById('feedPreviewWrap').style.display = '';
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-  input.value = '';
-}
-
-function postFeed() {
-  if (!currentUser || !feedRef) return;
-  const ta = document.getElementById('feedText');
-  const text = ta.value.trim();
-  if (!text && !feedImageData) return;
-  feedRef.push({
-    user: currentUser.name,
-    badge: currentUser.badge,
-    avatar: currentUser.avatar,
-    avatarColor: currentUser.avatarColor,
-    text: text || '',
-    image: feedImageData || null,
-    time: new Date().toTimeString().slice(0,8),
-    timestamp: Date.now(),
-  });
-  ta.value = '';
-  feedImageData = null;
-  document.getElementById('feedPreviewWrap').style.display = 'none';
-}
-
-function deleteFeedPost(key) {
-  db.ref('traderoom/feed/' + key).remove();
-  const el = document.getElementById('feed-' + key);
-  if (el) { el.style.opacity='0'; el.style.transition='opacity .2s'; setTimeout(()=>{el.remove();if(!document.getElementById('feedList').children.length){const ph=document.getElementById('feedPlaceholder');if(ph)ph.style.display='';}},200); }
-}
-
-function clearFeed() {
-  if (!confirm('Clear all community posts?')) return;
-  db.ref('traderoom/feed').remove();
-  document.getElementById('feedList').innerHTML = '';
-  const ph = document.getElementById('feedPlaceholder'); if (ph) ph.style.display = '';
-}
-
-function openFeedImg(src, userName) {
-  const overlay = document.createElement('div');
-  overlay.className = 'feed-img-full';
-  overlay.id = 'feedImgOverlay';
-  overlay.innerHTML = `
-    <div class="fim-bar">
-      <span class="fim-title">📊 Chart${userName ? ' — ' + userName : ''}</span>
-      <button class="fim-close" id="fimCloseBtn" title="Close (Esc)">✕</button>
-    </div>
-    <img class="fim-img" src="${src}" id="fimImg"/>
-    <div class="fim-hint">Press Esc or click ✕ to close</div>
-  `;
-  document.body.appendChild(overlay);
-
-  function closeOverlay() {
-    if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-    overlay.remove();
-    document.removeEventListener('keydown', escHandler);
-    document.removeEventListener('fullscreenchange', fsHandler);
-  }
-
-  document.getElementById('fimCloseBtn').onclick = e => { e.stopPropagation(); closeOverlay(); };
-  overlay.addEventListener('click', e => { if(e.target===overlay) closeOverlay(); });
-
-  const escHandler = e => { if(e.key==='Escape') closeOverlay(); };
-  document.addEventListener('keydown', escHandler);
-
-  // Try native fullscreen — fills 100% of display
-  const fsHandler = () => {
-    if(!document.fullscreenElement) { overlay.remove(); document.removeEventListener('keydown',escHandler); }
-  };
-  document.addEventListener('fullscreenchange', fsHandler);
-
-  overlay.requestFullscreen().catch(() => {
-    // Fallback: stays as fixed overlay (already styled for full coverage)
-  });
-}
-
-
-</script>
-
-
-<script>
-
-
-const db2 = firebase.database();
-function getVideoId(url) {
-  url = url.trim();
-  const patterns = [/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/,/^([\w-]{11})$/];
-  for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
-  return null;
-}
-function loadYT(vid) {
-  const input = document.getElementById('ytUrlInput');
-  const videoId = vid || getVideoId(input.value);
-  if (!videoId) { alert('Invalid YouTube URL'); return; }
-  const c = document.getElementById('ytContainer');
-  c.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" width="100%" height="520" allow="autoplay; encrypted-media" allowfullscreen style="display:block;"></iframe>`;
-  document.getElementById('ytStatus').textContent = 'Live';
-  document.getElementById('ytStatus').className = 'pg-badge red';
-  // Save to Firebase for sync
-  db2.ref('traderoom/stream/url').set(videoId);
-}
-// Listen for instructor-set stream
-db2.ref('traderoom/stream/url').on('value', snap => {
-  const vid = snap.val();
-  if (vid) { loadYT(vid); }
-});
 </script>
 <script>
 /* ── SIDEBAR COLLAPSE ── */

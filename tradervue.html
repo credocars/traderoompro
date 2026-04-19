@@ -500,13 +500,14 @@ function forgotPassword() {
 }
 
 auth.onAuthStateChanged(async u => {
-  if (!u) return;
+  if (!u) { window.location.href = 'index.html'; return; }
   const snap = await db.ref('traderoom/users/' + u.uid).get();
   const p = snap.exists() ? snap.val() : null;
   const name = p?.name || u.email.split('@')[0];
   const role = p?.role || 'student';
   currentUser = { name, role, uid: u.uid, email: u.email };
   document.getElementById('loginModal').classList.add('hidden');
+  const chip=document.getElementById('userChip');if(chip)chip.textContent=(role==='instructor'?'⭐ ':'🎓 ')+name;
   document.getElementById('sbName').textContent = name;
   document.getElementById('sbRole').textContent = role === 'instructor' ? 'Instructor' : 'Student';
   const av=document.getElementById('sbAvatar');
