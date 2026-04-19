@@ -471,30 +471,31 @@ function forgotPassword(){
   auth.sendPasswordResetEmail(email).then(()=>{const e=document.getElementById('modalError');e.textContent='✅ Reset email sent — check your inbox.';e.style.color=window.getComputedStyle(document.documentElement).getPropertyValue('--green');e.style.display='block';}).catch(e=>showErr(friendlyError(e.code)));
 }
 auth.onAuthStateChanged(async function(u) {
-  if (!u) return; // Show modal, let user log in here
-  const snap = await db.ref('traderoom/users/' + u.uid).get();
-  const p = snap.exists() ? snap.val() : null;
-  const name = p?.name || u.email.split('@')[0];
-  const role = p?.role || 'student';
-  // Hide modal
-  const modal = document.getElementById('loginModal');
-  if (modal) modal.classList.add('hidden');
-  // Update header chip
-  const chip = document.getElementById('userChip');
-  if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
-  // Update sidebar user info
-  const sbA = document.getElementById('sbAvatar');
-  const sbN = document.getElementById('sbName');
-  const sbR = document.getElementById('sbRole');
-  if (sbN) sbN.textContent = name;
-  if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
-  if (sbA) {
-    sbA.textContent = name.slice(0, 2).toUpperCase();
-    sbA.style.background = role === 'instructor' ? 'rgba(6,182,212,.15)' : 'rgba(139,92,246,.15)';
-    sbA.style.color = role === 'instructor' ? '#06b6d4' : '#8b5cf6';
-  }
-  // Page-specific instructor setup
-  if (typeof pageInstructorSetup === 'function') pageInstructorSetup(role, u.uid);
+  if (!u) return;
+  try {
+    const snap = await db.ref('traderoom/users/' + u.uid).get();
+    const p = snap.exists() ? snap.val() : null;
+    const name = p ? p.name : u.email.split('@')[0];
+    const role = p ? p.role : 'student';
+    // Hide modal
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.classList.add('hidden');
+    // Header chip
+    const chip = document.getElementById('userChip');
+    if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+    // Sidebar user info
+    const sbA = document.getElementById('sbAvatar');
+    const sbN = document.getElementById('sbName');
+    const sbR = document.getElementById('sbRole');
+    if (sbN) sbN.textContent = name;
+    if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
+    if (sbA) {
+      sbA.textContent = name.slice(0, 2).toUpperCase();
+      sbA.style.background = role === 'instructor' ? 'rgba(6,182,212,.15)' : 'rgba(139,92,246,.15)';
+      sbA.style.color = role === 'instructor' ? '#06b6d4' : '#8b5cf6';
+    }
+    if (typeof pageInstructorSetup === 'function') pageInstructorSetup(role, u.uid);
+  } catch(e) { console.error('Auth setup error:', e); }
 });
 
 
