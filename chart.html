@@ -10,6 +10,7 @@
 <script>
 firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339",storageBucket:"traderoom-42339.firebasestorage.app",messagingSenderId:"997045199477",appId:"1:997045199477:web:22c5861bfc0965ec960e3c"});
 </script>
+<script src="https://s3.tradingview.com/tv.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 
@@ -261,7 +262,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .sb-toggle-btn{transition:transform .25s;}
 
 
-.page-content{flex:1;min-width:0;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px;}
+.page-content{flex:1;min-width:0;overflow:hidden;padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
 .page-content::-webkit-scrollbar{width:3px;}
 .page-content::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
 .page-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;}
@@ -349,13 +350,13 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
     </div>
     <div class="sb-divider"></div>
     <div class="sb-section">Tools</div>
-    <div class="sb-item">
+    <div class="sb-item" onclick="window.location.href='trading-dashboard.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></span><span class="sb-label">Dashboard</span>
     </div>
     <div class="sb-item" onclick="window.location.href='scanners.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Scanners</span>
     </div>
-    <div class="sb-item active" onclick="window.location.href='chart.html'" class_active="true">
+    <div class="sb-item active" onclick="window.location.href='chart.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></span><span class="sb-label">Charting</span>
     </div>
     <div class="sb-item" onclick="window.location.href='youtube.html'">
@@ -401,30 +402,30 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
   </div>
   <div class="content-row">
     <div class="page-content">
-<!-- INSTRUCTOR EMBED TOOL -->
-<div class="page-card" id="embedSetupCard" style="display:none;">
+
+<!-- INSTRUCTOR SYMBOL CONTROL -->
+<div class="page-card" id="symbolSetupCard" style="display:none;">
   <div class="page-card-header">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.7" width="18" height="18"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
-    <div class="page-card-title">Set TradingView Embed</div>
+    <div class="page-card-title">Chart Settings</div>
     <span class="pg-badge cyan">Instructor Only</span>
   </div>
-  <div class="page-card-body">
-    <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.7;">
-      On <strong style="color:var(--t1);">TradingView.com</strong> → open your chart → click <strong style="color:var(--t1);">Share</strong> → <strong style="color:var(--t1);">Embed Chart</strong> → copy the chart URL and paste it below — any TradingView URL works, we'll convert it automatically.
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <input id="embedUrlInput" placeholder="https://www.tradingview.com/chart/nsvzGJu0/ (any TradingView URL works)" 
-        style="flex:1;font-family:Inter,sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:10px 14px;border-radius:9px;outline:none;transition:border-color .15s;"
-        onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-hi)'"
-      />
-      <button onclick="saveEmbedUrl()" style="font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:10px 20px;border-radius:9px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;">
-        Save & Load →
-      </button>
-      <button onclick="clearEmbedUrl()" style="font-family:Inter,sans-serif;font-size:12px;font-weight:600;padding:10px 14px;border-radius:9px;border:1px solid var(--border-hi);background:transparent;color:var(--t3);cursor:pointer;white-space:nowrap;">
-        Reset
-      </button>
-    </div>
-    <div id="embedStatus" style="font-size:11px;color:var(--t3);margin-top:8px;"></div>
+  <div class="page-card-body" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <input id="symbolInput" placeholder="Symbol e.g. NASDAQ:AAPL or AMEX:SPY"
+      style="flex:1;min-width:200px;font-family:Inter,sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:9px 14px;border-radius:9px;outline:none;transition:border-color .15s;"
+      onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-hi)'"
+    />
+    <select id="intervalSelect" style="font-family:Inter,sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:9px 12px;border-radius:9px;outline:none;cursor:pointer;">
+      <option value="1">1 min</option>
+      <option value="5" selected>5 min</option>
+      <option value="15">15 min</option>
+      <option value="30">30 min</option>
+      <option value="60">1 hour</option>
+      <option value="D">Daily</option>
+      <option value="W">Weekly</option>
+    </select>
+    <button onclick="applySymbol()" style="font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:9px 20px;border-radius:9px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;">Apply →</button>
+    <div id="symbolStatus" style="font-size:11px;color:var(--t3);width:100%;margin-top:-4px;"></div>
   </div>
 </div>
 
@@ -432,20 +433,12 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
 <div class="page-card" style="flex:1;min-height:0;">
   <div class="page-card-header">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.7" width="18" height="18"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
-    <div class="page-card-title" id="chartCardTitle">TradingView Chart</div>
-    <span class="pg-badge green" id="chartBadge">Live Data</span>
+    <div class="page-card-title">TradingView Chart</div>
+    <span class="pg-badge green">Live Data</span>
   </div>
-  <div style="flex:1;min-height:0;position:relative;">
-    <!-- Placeholder shown before any embed is set -->
-    <div id="chartPlaceholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center;gap:14px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="opacity:.15;color:var(--t2);"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
-      <div style="font-size:18px;font-weight:700;color:var(--t2);">No Chart Loaded</div>
-      <div style="font-size:13px;color:var(--t3);max-width:360px;line-height:1.7;">The instructor hasn't set a chart embed yet. Sign in as instructor to add your TradingView embed URL.</div>
-    </div>
-    <!-- Iframe loads here -->
-    <iframe id="tvFrame" src="" style="display:none;width:100%;height:680px;border:none;" allowfullscreen allow="fullscreen"></iframe>
-  </div>
-</div></div>
+  <div id="tv_chart_container" style="height:680px;width:100%;"></div>
+</div>
+</div>
   </div>
 </div>
 
@@ -772,96 +765,75 @@ function openFeedImg(src, userName) {
 <script>
 
 
-/* ── TRADINGVIEW EMBED (Firebase-synced) ── */
+/* ── TRADINGVIEW ADVANCED CHART ── */
 const chartDb = firebase.database();
+let currentWidget = null;
 
-function toEmbedUrl(url) {
-  // Accept full iframe code — extract src
-  const srcMatch = url.match(/src="([^"]+)"/);
-  if (srcMatch) url = srcMatch[1];
-  // Convert regular chart URL to correct embed format
-  // https://www.tradingview.com/chart/ID/ → https://www.tradingview.com/embed/ID/
-  const chartMatch = url.match(/tradingview\.com\/chart\/([a-zA-Z0-9]+)/);
-  if (chartMatch) {
-    return 'https://www.tradingview.com/embed/' + chartMatch[1] + '/';
-  }
-  // Convert old widgetbar format if someone pastes it
-  const oldEmbed = url.match(/tradingview\.com\/widgetbar-chart-embed\/([a-zA-Z0-9]+)/);
-  if (oldEmbed) {
-    return 'https://www.tradingview.com/embed/' + oldEmbed[1] + '/';
-  }
-  // Already correct embed URL or unknown — return as is
-  return url;
-}
+function buildChart(symbol, interval) {
+  symbol = symbol || 'NASDAQ:AAPL';
+  interval = interval || '5';
 
-function saveEmbedUrl() {
-  let raw = document.getElementById('embedUrlInput').value.trim();
-  if (!raw) return;
-  const url = toEmbedUrl(raw);
-  if (!url.startsWith('http')) {
-    document.getElementById('embedStatus').textContent = '⚠ Please paste a valid TradingView URL.';
-    document.getElementById('embedStatus').style.color = 'var(--red)';
+  const container = document.getElementById('tv_chart_container');
+  if (!container) return;
+
+  // Clear previous widget
+  container.innerHTML = '';
+
+  if (typeof TradingView === 'undefined') {
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:14px;">Loading chart library…</div>';
+    setTimeout(() => buildChart(symbol, interval), 1000);
     return;
   }
-  // Show what URL we're using
-  document.getElementById('embedUrlInput').value = url;
-  chartDb.ref('traderoom/chart/embedUrl').set(url);
-  document.getElementById('embedStatus').textContent = '✅ Saved — all students will see this chart.';
-  document.getElementById('embedStatus').style.color = 'var(--green)';
-  loadEmbed(url);
+
+  currentWidget = new TradingView.widget({
+    autosize: true,
+    container_id: 'tv_chart_container',
+    symbol: symbol,
+    interval: interval,
+    timezone: 'America/New_York',
+    theme: 'dark',
+    style: '1',
+    locale: 'en',
+    toolbar_bg: '#161b27',
+    allow_symbol_change: true,
+    save_image: true,
+    withdateranges: true,
+    hide_side_toolbar: false,
+  });
 }
 
-function clearEmbedUrl() {
-  if (!confirm('Reset the chart embed? Students will see the placeholder.')) return;
-  chartDb.ref('traderoom/chart/embedUrl').remove();
-  document.getElementById('embedUrlInput').value = '';
-  document.getElementById('embedStatus').textContent = 'Chart embed cleared.';
-  document.getElementById('embedStatus').style.color = 'var(--t3)';
-  showPlaceholder();
+function applySymbol() {
+  const sym = (document.getElementById('symbolInput').value.trim() || 'NASDAQ:AAPL').toUpperCase();
+  const ivl = document.getElementById('intervalSelect').value;
+  chartDb.ref('traderoom/chart/settings').set({ symbol: sym, interval: ivl });
+  const st = document.getElementById('symbolStatus');
+  if (st) { st.textContent = '✅ Chart updated for all students.'; st.style.color = 'var(--green)'; }
+  buildChart(sym, ivl);
 }
 
-function loadEmbed(url) {
-  const frame = document.getElementById('tvFrame');
-  const placeholder = document.getElementById('chartPlaceholder');
-  frame.src = url;
-  frame.style.display = 'block';
-  placeholder.style.display = 'none';
-  document.getElementById('chartBadge').textContent = 'Embedded';
-}
-
-function showPlaceholder() {
-  const frame = document.getElementById('tvFrame');
-  const placeholder = document.getElementById('chartPlaceholder');
-  frame.src = '';
-  frame.style.display = 'none';
-  placeholder.style.display = 'flex';
-}
-
-// Listen to Firebase — all users get chart in real time
-chartDb.ref('traderoom/chart/embedUrl').on('value', snap => {
-  const url = snap.val();
-  if (url) {
-    loadEmbed(url);
-    const inp = document.getElementById('embedUrlInput');
-    if (inp) inp.value = url;
-  } else {
-    // Default fallback to your saved TradingView chart
-    const defaultUrl = 'https://www.tradingview.com/embed/nsvzGJu0/';
-    loadEmbed(defaultUrl);
-    const inp = document.getElementById('embedUrlInput');
-    if (inp) inp.value = defaultUrl;
-  }
+// Firebase sync — fires for all users when instructor changes symbol
+chartDb.ref('traderoom/chart/settings').on('value', snap => {
+  const v = snap.val();
+  const sym = v && v.symbol ? v.symbol : 'NASDAQ:AAPL';
+  const ivl = v && v.interval ? v.interval : '5';
+  const inp = document.getElementById('symbolInput');
+  const sel = document.getElementById('intervalSelect');
+  if (inp) inp.value = sym;
+  if (sel) sel.value = ivl;
+  buildChart(sym, ivl);
 });
 
-// Show embed setup card only to instructors
-auth.onAuthStateChanged(u => {
+// Show instructor panel
+auth.onAuthStateChanged(function(u) {
   if (!u) return;
-  chartDb.ref('traderoom/users/' + u.uid).get().then(s => {
+  firebase.database().ref('traderoom/users/' + u.uid).get().then(function(s) {
     if (s.exists() && s.val().role === 'instructor') {
-      document.getElementById('embedSetupCard').style.display = 'block';
+      const card = document.getElementById('symbolSetupCard');
+      if (card) card.style.display = 'block';
     }
   });
 });
+
 </script>
 <script>
 /* ── SIDEBAR COLLAPSE ── */
