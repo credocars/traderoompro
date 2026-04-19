@@ -519,43 +519,24 @@ var currentVideoId = null;
 function getVideoId(url) {
   if (!url) return null;
   url = url.trim();
-  // Already a raw video ID (11 chars, no spaces)
+  var m;
   if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
-  // youtube.com/watch?v=ID
-  var m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
-  if (m) return m[1];
-  // youtu.be/ID
-  m = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
-  if (m) return m[1];
-  // youtube.com/live/ID
-  m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
-  if (m) return m[1];
-  // youtube.com/embed/ID
-  m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
-  if (m) return m[1];
-  // youtube.com/shorts/ID
-  m = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
-  if (m) return m[1];
+  m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/); if (m) return m[1];
+  m = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/); if (m) return m[1];
+  m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/); if (m) return m[1];
+  m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/); if (m) return m[1];
+  m = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/); if (m) return m[1];
   return null;
 }
 
-function loadYT() {
-  var inp = document.getElementById("ytUrlInput");
-  if (!inp) return;
-  var videoId = getVideoId(inp.value.trim());
-  if (!videoId) {
-    var st = document.getElementById("ytStatus");
-    if (st) { st.textContent = "Invalid URL"; st.className = "pg-badge red"; }
-    return;
-  }
-  // Push to Firebase — students currently on page will see it
-  // Store with timestamp so we know when it went live
-  firebase.database().ref("traderoom/stream").set({
-    url: inp.value.trim(),
-    live: true,
-    startedAt: Date.now()
-  });
-  renderYT(videoId);
+function showPlaceholder(msg) {
+  var container = document.getElementById("ytContainer");
+  if (!container) return;
+  container.innerHTML = "";
+  var d = document.createElement("div");
+  d.style.cssText = "text-align:center;color:var(--t3);display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;font-size:14px;";
+  d.textContent = msg || "No live stream right now";
+  container.appendChild(d);
 }
 
 function renderYT(videoId) {
@@ -575,17 +556,29 @@ function renderYT(videoId) {
   if (st) { st.textContent = "LIVE"; st.className = "pg-badge red"; }
 }
 
+function loadYT() {
+  var inp = document.getElementById("ytUrlInput");
+  if (!inp) return;
+  var videoId = getVideoId(inp.value.trim());
+  if (!videoId) {
+    var st = document.getElementById("ytStatus");
+    if (st) { st.textContent = "Invalid URL"; st.className = "pg-badge red"; }
+    return;
+  }
+  firebase.database().ref("traderoom/stream").set({ url: inp.value.trim(), live: true });
+  renderYT(videoId);
+}
+
 function clearYT() {
   firebase.database().ref("traderoom/stream").remove();
-  var container = document.getElementById("ytContainer");
-  if (container) container.innerHTML = '<div style="text-align:center;color:var(--t3);padding:60px 20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="opacity:.3;margin-bottom:12px;"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16 10,8"/></svg><div style="font-size:14px;">Stream ended</div></div>';
+  currentVideoId = null;
+  showPlaceholder("Stream ended");
   var st = document.getElementById("ytStatus");
   if (st) { st.textContent = "Offline"; st.className = "pg-badge"; }
   var inp = document.getElementById("ytUrlInput"); if (inp) inp.value = "";
 }
 
-// Firebase listener — only load if stream is currently live
-// Page always starts empty; only shows stream if instructor is actively broadcasting
+/* Firebase listener */
 firebase.database().ref("traderoom/stream").on("value", function(snap) {
   var data = snap.val();
   if (data && data.live && data.url) {
@@ -594,25 +587,19 @@ firebase.database().ref("traderoom/stream").on("value", function(snap) {
       var inp = document.getElementById("ytUrlInput"); if (inp) inp.value = data.url;
       renderYT(videoId);
     }
-  } else {
-    // Stream ended or never started — clear the screen
-    var container = document.getElementById("ytContainer");
-    if (container && currentVideoId) {
-      currentVideoId = null;
-      container.innerHTML = '<div style="text-align:center;color:var(--t3);display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;"><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' width='48' height='48' style='opacity:.3;'><circle cx='12' cy='12' r='10'/><polygon points='10,8 16,12 10,16 10,8'/></svg><div style='font-size:14px;'>No live stream right now</div></div>';
-      var st = document.getElementById("ytStatus"); if (st) { st.textContent = "Offline"; st.className = "pg-badge"; }
-      var inp = document.getElementById("ytUrlInput"); if (inp) inp.value = "";
-    }
+  } else if (currentVideoId) {
+    currentVideoId = null;
+    showPlaceholder("No live stream right now");
+    var st = document.getElementById("ytStatus"); if (st) { st.textContent = "Offline"; st.className = "pg-badge"; }
+    var inp = document.getElementById("ytUrlInput"); if (inp) inp.value = "";
   }
 });
-
 
 window.addEventListener("resize", function() {
   var iframe = document.querySelector("#ytContainer iframe");
   if (iframe) iframe.style.height = Math.max(window.innerHeight - 160, 400) + "px";
 });
 
-// Show clear button for instructor
 function pageInstructorSetup(role) {
   if (role === "instructor") {
     var btn = document.getElementById("clearYTBtn");
