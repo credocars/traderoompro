@@ -483,10 +483,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 </div>
 
 <script>
-
-</script>
-
-<script>
 function setNav(el){document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');}
 
 function updateMarketStatus(){
@@ -910,14 +906,10 @@ function openFeedImg(src, userName) {
 
 
 <script>
-
 function handleLogout() {
-  const auth = firebase.auth();
-  auth.signOut().then(() => {
+  firebase.auth().signOut().then(() => {
     window.location.href = 'index.html';
-  }).catch(err => {
-    console.error('Logout error:', err);
-  });
+  }).catch(err => console.error('Logout error:', err));
 }
 </script>
 
