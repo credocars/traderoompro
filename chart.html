@@ -442,11 +442,42 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
   <div class="page-card-header">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.7" width="18" height="18"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
     <div class="page-card-title">TradingView Chart</div>
-    <span class="pg-badge green" id="symBadge" style="display:none;"></span>
   </div>
 
-  <!-- TradingView Chart Container -->
-  <div id="tv_widget_wrap" style="flex:1;min-height:0;width:100%;"></div>
+  <!-- Open in TradingView Button -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;">
+
+    <div style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:16px;">📈</div>
+      <div style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:8px;">Open TradingView Chart</div>
+      <div style="font-size:14px;color:var(--t3);max-width:400px;line-height:1.7;">
+        Click below to open your full TradingView layout in a new window — with all your saved indicators, drawings and watchlist.
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <button id="openChartBtn" onclick="openChart()" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:700;padding:16px 48px;border-radius:12px;border:none;background:var(--green);color:#000;cursor:pointer;transition:opacity .15s;letter-spacing:.02em;display:flex;align-items:center;gap:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+        Open Chart
+      </button>
+      <div style="font-size:11px;color:var(--t3);">Opens in a new tab • All your saved layouts will be there</div>
+    </div>
+
+    <!-- Instructor: set custom chart URL -->
+    <div id="chartUrlCard" style="display:none;background:var(--card);border:1px solid var(--border-hi);border-radius:12px;padding:20px;width:100%;max-width:500px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(6,182,212,.4),transparent);"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">⚙ Instructor — Set Chart URL</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6;">Paste your TradingView chart link. All students will open this URL when they click the button.</div>
+      <div style="display:flex;gap:8px;">
+        <input id="chartUrlInput" placeholder="https://www.tradingview.com/chart/..." 
+          style="flex:1;font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:8px 12px;border-radius:8px;outline:none;"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-hi)'"/>
+        <button onclick="saveChartUrl()" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;">Save</button>
+      </div>
+      <div id="urlSaveStatus" style="font-size:11px;color:var(--t3);margin-top:6px;"></div>
+    </div>
+
+  </div>
 </div>
 
 </div>
@@ -495,107 +526,46 @@ firebase.auth().onAuthStateChanged(function(u) {
 <script>
 
 
-/* ── TRADINGVIEW ADVANCED CHART ── */
-var tvLoaded = false;
-var chartSettings = {
-  symbol:   "NASDAQ:TSLA",
-  interval: "1",
-  style:    "1",
-  watchlist: []
-};
+/* ── CHART LAUNCHER ── */
+var chartUrl = "https://www.tradingview.com/chart/nsvzGJu0/";
 
-/* ── WIDGET ── */
-function doWidget() {
-  var wrap = document.getElementById("tv_widget_wrap");
-  if (!wrap || !window.TradingView) return;
-  var h = Math.max(wrap.clientHeight || 0, window.innerHeight - 140, 500);
-  wrap.style.height = h + "px";
-  wrap.innerHTML = "";
-  var inner = document.createElement("div");
-  inner.id = "tv_inner";
-  inner.style.width  = "100%";
-  inner.style.height = "100%";
-  wrap.appendChild(inner);
-  new TradingView.widget({
-    autosize: true,
-    container_id: "tv_inner",
-    symbol:   chartSettings.symbol,
-    interval: chartSettings.interval,
-    timezone: "America/New_York",
-    theme:    "dark",
-    style:    chartSettings.style,
-    locale:   "en",
-    toolbar_bg:          "#161b27",
-    allow_symbol_change: true,
-    save_image:     true,
-    withdateranges: true,
-    hide_side_toolbar: true,
-    calendar: false,
-    studies: ["VWAP@tv-basicstudies", "MAExp@tv-basicstudies"],
-    studies_overrides: {
-      "moving average exponential.length":    9,
-      "moving average exponential.linewidth": 2,
-      "moving average exponential.plottype":  "line",
-      "VWAP@tv-basicstudies.Plot.color":      "#F0B90B",
-      "VWAP@tv-basicstudies.Plot.linewidth":  2
-    }
-  });
-  var badge = document.getElementById("symBadge");
-  if (badge) { badge.textContent = chartSettings.symbol.split(":").pop(); badge.style.display = ""; }
+function openChart() {
+  window.open(chartUrl, "_blank");
 }
 
-function buildChart() {
-  if (window.TradingView) { doWidget(); } else { loadTV(); }
+function saveChartUrl() {
+  var inp = document.getElementById("chartUrlInput");
+  if (!inp || !inp.value.trim()) return;
+  chartUrl = inp.value.trim();
+  firebase.database().ref("traderoom/chart/url").set(chartUrl);
+  var st = document.getElementById("urlSaveStatus");
+  if (st) { st.textContent = "✅ Saved — students will open this URL."; st.style.color = "var(--green)"; }
+  var btn = document.getElementById("openChartBtn");
+  if (btn) btn.style.opacity = "1";
 }
 
-function loadTV() {
-  if (document.getElementById("tv-lib-script")) return;
-  var s  = document.createElement("script");
-  s.id   = "tv-lib-script";
-  s.src  = "https://s3.tradingview.com/tv.js";
-  s.type = "text/javascript";
-  s.onload = function() { tvLoaded = true; doWidget(); };
-  document.body.appendChild(s);
-}
 
-/* ── FIREBASE SAVE — single source of truth ── */
-function saveSettings() {
-  try {
-    firebase.database().ref("traderoom/chart/settings").set({
-      symbol:   chartSettings.symbol,
-      interval: chartSettings.interval,
-      style:    chartSettings.style,
-    }).catch(function(err) { console.error("Save failed:", err); });
-  } catch(e) { console.error("Save error:", e); }
-}
-
-/* ── FIREBASE LISTENER ── */
-firebase.database().ref("traderoom/chart/settings").on("value", function(snap) {
-  var v = snap.val();
-  if (!v) return;
-  if (v.symbol)   chartSettings.symbol   = v.symbol;
-  if (v.interval) chartSettings.interval = v.interval;
-  if (v.style)    chartSettings.style    = v.style;
-  var inp = document.getElementById("ctrlSymbol");   if (inp) inp.value = chartSettings.symbol;
-  var sel = document.getElementById("ctrlInterval"); if (sel) sel.value = chartSettings.interval;
-  var sty = document.getElementById("ctrlStyle");    if (sty) sty.value = chartSettings.style;
-  if (tvLoaded) doWidget();
+/* ── FIREBASE SYNC ── */
+firebase.database().ref("traderoom/chart/url").on("value", function(snap) {
+  var url = snap.val();
+  if (url) {
+    chartUrl = url;
+    var inp = document.getElementById("chartUrlInput");
+    if (inp) inp.value = url;
+  }
 });
 
-/* ── RESIZE ── */
-window.addEventListener("resize", function() {
-  var c = document.getElementById("tv_widget_wrap"); if (!c) return;
-  c.style.height = Math.max(window.innerHeight - 140, 500) + "px";
-  if (tvLoaded) doWidget();
-});
-
-/* ── INIT — always load TSLA on start ── */
+/* ── INIT ── */
 document.addEventListener("DOMContentLoaded", function() {
-  var wrap = document.getElementById("tv_widget_wrap");
-  if (wrap) wrap.style.height = Math.max(window.innerHeight - 140, 500) + "px";
-  loadTV();
+  // nothing needed — button is always ready
 });
 
+function pageInstructorSetup(role) {
+  if (role === "instructor") {
+    var card = document.getElementById("chartUrlCard");
+    if (card) card.style.display = "block";
+  }
+}
 </script>
 <script>
 function handleLogout() {
