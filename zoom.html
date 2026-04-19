@@ -420,7 +420,16 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
       <div id="zoomInfo" style="display:flex;flex-direction:column;gap:12px;">
         <div style="font-size:13px;color:var(--t2);line-height:1.7;">The instructor will post today's Zoom link below before the session starts. Click to join directly in your browser.</div>
         <div id="zoomLinkWrap" style="display:none;">
-          <a id="zoomLink" href="#" target="_blank" style="display:block;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--blue);padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;text-align:center;">🎥 Join Zoom Session →</a>
+          <div style="display:flex;gap:8px;">
+            <a id="zoomLink" href="#" target="_blank" style="flex:1;display:block;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--blue);padding:12px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;text-align:center;">🎥 Join Session →</a>
+            <a id="zoomLinkNewWin" href="#" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t2);padding:12px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;" title="Open in new window for dual monitor">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="14" height="14"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              New Window
+            </a>
+          </div>
+          <div style="font-size:11px;color:var(--t3);padding:8px 10px;background:var(--card2);border-radius:6px;line-height:1.6;">
+            💡 <strong style="color:var(--t2);">Tip:</strong> Use a <strong style="color:var(--t2);">Recurring meeting</strong> in Zoom — same link every day, students bookmark it once.
+          </div>
         </div>
         <div id="zoomPlaceholder" style="background:var(--card2);border:1px dashed var(--border-hi);border-radius:8px;padding:24px;text-align:center;color:var(--t3);font-size:13px;">No session link posted yet</div>
       </div>
@@ -571,9 +580,11 @@ function showZoomLink(link) {
   var wrap = document.getElementById('zoomLinkWrap');
   var placeholder = document.getElementById('zoomPlaceholder');
   var anchor = document.getElementById('zoomLink');
+  var anchorNew = document.getElementById('zoomLinkNewWin');
   if (wrap) wrap.style.display = 'block';
   if (placeholder) placeholder.style.display = 'none';
-  if (anchor) { anchor.href = link; anchor.textContent = '🎥 Join Zoom Session →'; }
+  if (anchor) anchor.href = link;
+  if (anchorNew) anchorNew.href = link;
 }
 
 function showZoomEmpty() {
