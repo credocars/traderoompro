@@ -321,6 +321,28 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
 .settings-toggle.on{display:block;}
 .settings-toggle:hover{border-color:var(--cyan);color:var(--cyan);}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── CUSTOM WATCHLIST ── */
+.chart-layout{display:flex;gap:0;flex:1;min-height:0;overflow:hidden;}
+.wl-panel{width:200px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.wl-panel-header{padding:10px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.wl-panel-title{font-size:12px;font-weight:700;color:var(--t2);flex:1;letter-spacing:.04em;text-transform:uppercase;}
+.wl-add-row{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.wl-add-input{flex:1;font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:5px 8px;border-radius:6px;outline:none;min-width:0;}
+.wl-add-input:focus{border-color:var(--green);}
+.wl-add-input::placeholder{color:var(--t3);}
+.wl-add-btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.wl-list{flex:1;overflow-y:auto;padding:4px 0;}
+.wl-list::-webkit-scrollbar{width:2px;}
+.wl-list::-webkit-scrollbar-thumb{background:var(--border-hi);}
+.wl-row{display:flex;align-items:center;padding:8px 12px;cursor:pointer;transition:background .1s;border-left:2px solid transparent;gap:6px;}
+.wl-row:hover{background:rgba(255,255,255,.04);}
+.wl-row.active{background:rgba(34,197,94,.06);border-left-color:var(--green);}
+.wl-ticker{font-size:13px;font-weight:700;color:var(--t1);flex:1;}
+.wl-row.active .wl-ticker{color:var(--green);}
+.wl-del{font-size:10px;color:var(--t3);cursor:pointer;padding:2px 4px;border-radius:3px;line-height:1;opacity:0;transition:opacity .1s;}
+.wl-row:hover .wl-del{opacity:1;}
+.wl-del:hover{color:var(--red);background:rgba(239,68,68,.1);}
 </style>
 </head>
 <body>
@@ -436,8 +458,9 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
     <div class="page-content">
 
 
-<!-- CHART — full width, watchlist inside widget -->
-<div class="page-card" style="flex:1;min-height:0;display:flex;flex-direction:column;">
+<!-- CHART + CUSTOM WATCHLIST -->
+<div class="chart-layout">
+<div class="page-card" style="flex:1;min-width:0;display:flex;flex-direction:column;">
   <div class="page-card-header">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.7" width="18" height="18"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
     <div class="page-card-title">TradingView Chart</div>
@@ -472,18 +495,26 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
       <button class="ctrl-btn" onclick="applyChart()">Apply →</button>
       <span class="ctrl-status" id="ctrlStatus">✅ Saved</span>
     </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Watchlist</span>
-      <input class="ctrl-input" id="ctrlAddSym" placeholder="Add symbol e.g. AAPL" style="width:155px;" onkeydown="if(event.key==='Enter')addWlSym()"/>
-      <button class="ctrl-btn secondary" onclick="addWlSym()">+ Add</button>
-      <span class="ctrl-divider"></span>
-      <div class="wl-chips" id="wlChips"></div>
-    </div>
+
   </div>
   <!-- TradingView Chart Container -->
   <div id="tv_widget_wrap" style="flex:1;min-height:0;width:100%;"></div>
-
 </div>
+
+<!-- CUSTOM WATCHLIST PANEL -->
+<div class="wl-panel">
+  <div class="wl-panel-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.7" width="14" height="14"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    <span class="wl-panel-title">Watchlist</span>
+  </div>
+  <div class="wl-add-row">
+    <input class="wl-add-input" id="wlInput" placeholder="Add ticker…" maxlength="12"
+      onkeydown="if(event.key==='Enter')addWlSym()"/>
+    <button class="wl-add-btn" onclick="addWlSym()">+</button>
+  </div>
+  <div class="wl-list" id="wlList"></div>
+</div>
+
 </div>
   </div>
 </div>
@@ -564,10 +595,7 @@ function doWidget() {
     allow_symbol_change: true,
     save_image:    true,
     withdateranges: true,
-    hide_side_toolbar: false,
-    watchlist:  chartSettings.watchlist,
-    details:  true,
-    hotlist:  true,
+    hide_side_toolbar: true,
     calendar: false,
     studies: ["VWAP@tv-basicstudies", "MAExp@tv-basicstudies"],
     studies_overrides: {
@@ -628,13 +656,13 @@ function applyChart() {
     symbol: sym, interval: ivl, style: sty,
     watchlist: chartSettings.watchlist
   });
-  buildChart(); renderChips();
+  buildChart(); renderWlList();
   var st = document.getElementById("ctrlStatus");
   if (st) { st.classList.add("on"); setTimeout(function(){ st.classList.remove("on"); }, 2500); }
 }
 
 function addWlSym() {
-  var inp = document.getElementById("ctrlAddSym");
+  var inp = document.getElementById("wlInput");
   if (!inp) return;
   var sym = inp.value.trim().toUpperCase();
   if (!sym) return;
@@ -643,13 +671,13 @@ function addWlSym() {
   chartSettings.watchlist.push(sym);
   inp.value = "";
   saveWatchlist();
-  renderChips(); buildChart();
+  renderWlList(); buildChart();
 }
 
 function removeWlSym(sym) {
   chartSettings.watchlist = chartSettings.watchlist.filter(function(s) { return s !== sym; });
   saveWatchlist();
-  renderChips(); buildChart();
+  renderWlList(); buildChart();
 }
 
 function saveWatchlist() {
@@ -662,37 +690,33 @@ function quickSwitch(sym) {
   var inp = document.getElementById("ctrlSymbol");
   if (inp) inp.value = sym;
   firebase.database().ref("traderoom/chart/settings").update({ symbol: sym });
-  buildChart(); renderChips();
+  buildChart(); renderWlList();
 }
 
-function renderChips() {
-  var wrap = document.getElementById("wlChips");
-  if (!wrap) return;
-  var parts = [];
+function renderWlList() {
+  var list = document.getElementById("wlList");
+  if (!list) return;
+  list.innerHTML = "";
   for (var i = 0; i < chartSettings.watchlist.length; i++) {
     var sym    = chartSettings.watchlist[i];
     var ticker = sym.split(":").pop();
-    var active = sym === chartSettings.symbol ? " active-sym" : "";
-    var chip   = document.createElement("span");
-    chip.className = "wl-chip" + active;
-    chip.textContent = ticker;
-    chip.setAttribute("data-sym", sym);
-    chip.onclick = (function(s) {
-      return function() { quickSwitch(s); };
-    })(sym);
+    var row    = document.createElement("div");
+    row.className = "wl-row" + (sym === chartSettings.symbol ? " active" : "");
+    row.onclick   = (function(s){ return function(){ quickSwitch(s); }; })(sym);
+    var label = document.createElement("span");
+    label.className   = "wl-ticker";
+    label.textContent = ticker;
     var del = document.createElement("span");
-    del.className   = "wl-chip-del";
+    del.className   = "wl-del";
     del.textContent = "✕";
     del.title       = "Remove";
-    del.onclick = (function(s) {
-      return function(e) { e.stopPropagation(); removeWlSym(s); };
-    })(sym);
-    chip.appendChild(del);
-    parts.push(chip);
+    del.onclick = (function(s){ return function(e){ e.stopPropagation(); removeWlSym(s); }; })(sym);
+    row.appendChild(label);
+    row.appendChild(del);
+    list.appendChild(row);
   }
-  wrap.innerHTML = "";
-  for (var j = 0; j < parts.length; j++) wrap.appendChild(parts[j]);
 }
+function renderChips() { renderWlList(); }
 
 /* ── FIREBASE SYNC ── */
 firebase.database().ref("traderoom/chart/settings").on("value", function(snap) {
@@ -705,7 +729,7 @@ firebase.database().ref("traderoom/chart/settings").on("value", function(snap) {
   var inp = document.getElementById("ctrlSymbol");   if (inp) inp.value = chartSettings.symbol;
   var sel = document.getElementById("ctrlInterval"); if (sel) sel.value = chartSettings.interval;
   var sty = document.getElementById("ctrlStyle");    if (sty) sty.value = chartSettings.style;
-  renderChips();
+  renderWlList();
   if (tvLoaded) buildChart();
 });
 
@@ -721,7 +745,7 @@ window.addEventListener("resize", function() {
 document.addEventListener("DOMContentLoaded", function() {
   var wrap = document.getElementById("tv_widget_wrap");
   if (wrap) wrap.style.height = Math.max(window.innerHeight - 140, 500) + "px";
-  renderChips();
+  renderWlList();
   loadTV();
 });
 
