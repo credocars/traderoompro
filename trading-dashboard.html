@@ -264,6 +264,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .sb-logout-btn:hover{background:rgba(239,68,68,.1);color:var(--red);}
 .sb-logout-btn svg{pointer-events:none;}
 .sidebar.collapsed .sb-logout-btn{margin:0 auto;}
+
+/* ── EMOJI PICKER ── */
+.emoji-btn{width:32px;height:32px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s;}
+.emoji-btn:hover{background:var(--card);}
+.emoji-picker{position:absolute;bottom:52px;right:0;background:var(--panel);border:1px solid var(--border-hi);border-radius:12px;padding:10px;width:280px;display:none;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.5);flex-wrap:wrap;gap:2px;}
+.emoji-picker.open{display:flex;}
+.emoji-picker::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);}
+.ep-category{width:100%;font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;padding:4px 2px 2px;}
+.ep-emoji{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:18px;border:none;background:transparent;transition:background .1s;}
+.ep-emoji:hover{background:var(--card);}
+.chat-input-area{position:relative;}
 </style>
 </head>
 <body>
@@ -460,6 +471,45 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
             <span id="typingText">Someone is typing…</span>
           </div>
           <div class="chat-input-area">
+            <!-- Emoji Picker -->
+            <div class="emoji-picker" id="emojiPicker">
+              <div class="ep-category">Smileys</div>
+              <button class="ep-emoji" onclick="insertEmoji('😀')">😀</button>
+              <button class="ep-emoji" onclick="insertEmoji('😂')">😂</button>
+              <button class="ep-emoji" onclick="insertEmoji('😍')">😍</button>
+              <button class="ep-emoji" onclick="insertEmoji('🤔')">🤔</button>
+              <button class="ep-emoji" onclick="insertEmoji('😎')">😎</button>
+              <button class="ep-emoji" onclick="insertEmoji('🙌')">🙌</button>
+              <button class="ep-emoji" onclick="insertEmoji('👍')">👍</button>
+              <button class="ep-emoji" onclick="insertEmoji('👎')">👎</button>
+              <button class="ep-emoji" onclick="insertEmoji('🔥')">🔥</button>
+              <button class="ep-emoji" onclick="insertEmoji('💯')">💯</button>
+              <button class="ep-emoji" onclick="insertEmoji('🚀')">🚀</button>
+              <button class="ep-emoji" onclick="insertEmoji('💎')">💎</button>
+              <div class="ep-category">Trading</div>
+              <button class="ep-emoji" onclick="insertEmoji('📈')">📈</button>
+              <button class="ep-emoji" onclick="insertEmoji('📉')">📉</button>
+              <button class="ep-emoji" onclick="insertEmoji('💰')">💰</button>
+              <button class="ep-emoji" onclick="insertEmoji('💵')">💵</button>
+              <button class="ep-emoji" onclick="insertEmoji('⚡')">⚡</button>
+              <button class="ep-emoji" onclick="insertEmoji('🎯')">🎯</button>
+              <button class="ep-emoji" onclick="insertEmoji('🏆')">🏆</button>
+              <button class="ep-emoji" onclick="insertEmoji('⚠️')">⚠️</button>
+              <button class="ep-emoji" onclick="insertEmoji('🚨')">🚨</button>
+              <button class="ep-emoji" onclick="insertEmoji('✅')">✅</button>
+              <button class="ep-emoji" onclick="insertEmoji('❌')">❌</button>
+              <button class="ep-emoji" onclick="insertEmoji('💤')">💤</button>
+              <div class="ep-category">Hands</div>
+              <button class="ep-emoji" onclick="insertEmoji('🙏')">🙏</button>
+              <button class="ep-emoji" onclick="insertEmoji('👏')">👏</button>
+              <button class="ep-emoji" onclick="insertEmoji('🤝')">🤝</button>
+              <button class="ep-emoji" onclick="insertEmoji('✌️')">✌️</button>
+              <button class="ep-emoji" onclick="insertEmoji('🤞')">🤞</button>
+              <button class="ep-emoji" onclick="insertEmoji('💪')">💪</button>
+              <button class="ep-emoji" onclick="insertEmoji('👋')">👋</button>
+              <button class="ep-emoji" onclick="insertEmoji('🫡')">🫡</button>
+            </div>
+            <button class="emoji-btn" id="emojiToggle" onclick="toggleEmojiPicker()" title="Emoji">😊</button>
             <input class="chat-input" id="chatInput" placeholder="Sign in to chat…" disabled/>
             <button class="send-btn" id="sendBtn" onclick="sendChat()" disabled>Send</button>
           </div>
@@ -691,6 +741,32 @@ function renderMessage(m,key){
   else{document.getElementById('chatNotif').style.display='inline-block';}
 }
 function escapeHtml(str){return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── EMOJI PICKER ── */
+function toggleEmojiPicker() {
+  var picker = document.getElementById('emojiPicker');
+  if (picker) picker.classList.toggle('open');
+}
+function insertEmoji(emoji) {
+  var inp = document.getElementById('chatInput');
+  if (!inp) return;
+  var start = inp.selectionStart || inp.value.length;
+  inp.value = inp.value.slice(0, start) + emoji + inp.value.slice(start);
+  inp.focus();
+  inp.selectionStart = inp.selectionEnd = start + emoji.length;
+  // Close picker after inserting
+  var picker = document.getElementById('emojiPicker');
+  if (picker) picker.classList.remove('open');
+}
+// Close emoji picker when clicking outside
+document.addEventListener('click', function(e) {
+  var picker = document.getElementById('emojiPicker');
+  var toggle = document.getElementById('emojiToggle');
+  if (picker && toggle && !picker.contains(e.target) && e.target !== toggle) {
+    picker.classList.remove('open');
+  }
+});
+
 function sendChat(){
   if(!currentUser||!chatRef)return;
   const inp=document.getElementById('chatInput'),val=inp.value.trim();if(!val)return;
