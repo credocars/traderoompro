@@ -257,8 +257,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .sidebar-wrap{position:relative;flex-shrink:0;}
 .sb-toggle-btn{position:absolute;top:72px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--border-hi);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--t2);transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.35);}
 .sb-toggle-btn:hover{background:var(--green);border-color:var(--green);color:#000;}
-.sb-toggle-btn svg{transition:transform .25s;pointer-events:none;}
-.sidebar.collapsed .sb-toggle-btn svg{transform:rotate(180deg);}
+.sb-toggle-btn{transition:transform .25s;}
+
 </style>
 </head>
 <body>
@@ -901,23 +901,26 @@ function openFeedImg(src, userName) {
 
 </script>
 
+
+<script>
 /* ── SIDEBAR COLLAPSE ── */
 function toggleSidebar() {
   const sb  = document.getElementById('sidebar');
   const btn = document.getElementById('collapseBtn');
-  sb.classList.toggle('collapsed');
-  btn.textContent = sb.classList.contains('collapsed') ? '›' : '‹';
-  localStorage.setItem('sb_collapsed', sb.classList.contains('collapsed'));
+  const collapsed = sb.classList.toggle('collapsed');
+  btn.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+  localStorage.setItem('sb_collapsed', collapsed);
 }
-// Restore state on load
-document.addEventListener('DOMContentLoaded', () => {
+(function restoreSidebar() {
   if (localStorage.getItem('sb_collapsed') === 'true') {
-    const sb = document.getElementById('sidebar');
-    const btn = document.getElementById('collapseBtn');
-    if (sb) sb.classList.add('collapsed');
-    if (btn) btn.textContent = '›';
+    document.addEventListener('DOMContentLoaded', () => {
+      const sb  = document.getElementById('sidebar');
+      const btn = document.getElementById('collapseBtn');
+      if (sb)  sb.classList.add('collapsed');
+      if (btn) btn.style.transform = 'rotate(180deg)';
+    });
   }
-});
-
+})();
+</script>
 </body>
 </html>
