@@ -507,7 +507,7 @@ firebase.auth().onAuthStateChanged(function(u) {
       var modal = document.getElementById('loginModal');
       if (modal) modal.classList.add('hidden');
       var chip = document.getElementById('userChip');
-      if (chip) chip.textContent = (role === 'instructor' ? '! ' : '') + name;
+      if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
       var sbA = document.getElementById('sbAvatar');
       var sbN = document.getElementById('sbName');
       var sbR = document.getElementById('sbRole');
