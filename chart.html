@@ -574,8 +574,9 @@ function doWidget() {
       "moving average exponential.length":    9,
       "moving average exponential.linewidth": 2,
       "moving average exponential.plottype":  "line",
-      "volume weighted average price.plot.color": "#F0B90B",
-      "volume weighted average price.linewidth":  2
+      "VWAP@tv-basicstudies.Plot.color":      "#F0B90B",
+      "VWAP@tv-basicstudies.Plot.linewidth":  2,
+      "VWAP@tv-basicstudies.Plot.plottype":   "line"
     }
   });
   var badge = document.getElementById("symBadge");
@@ -641,14 +642,19 @@ function addWlSym() {
   if (chartSettings.watchlist.indexOf(sym) >= 0) { inp.value = ""; return; }
   chartSettings.watchlist.push(sym);
   inp.value = "";
-  firebase.database().ref("traderoom/chart/settings").update({ watchlist: chartSettings.watchlist });
+  saveWatchlist();
   renderChips(); buildChart();
 }
 
 function removeWlSym(sym) {
   chartSettings.watchlist = chartSettings.watchlist.filter(function(s) { return s !== sym; });
-  firebase.database().ref("traderoom/chart/settings").update({ watchlist: chartSettings.watchlist });
+  saveWatchlist();
   renderChips(); buildChart();
+}
+
+function saveWatchlist() {
+  // Use set() on the watchlist node directly — update() doesn't reliably overwrite arrays in Firebase
+  firebase.database().ref("traderoom/chart/settings/watchlist").set(chartSettings.watchlist);
 }
 
 function quickSwitch(sym) {
