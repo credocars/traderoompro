@@ -480,41 +480,20 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
       <div class="wl-chips" id="wlChips"></div>
     </div>
   </div>
-  <!-- TradingView Official Embed — always works -->
-  <div id="tv_widget_wrap" style="flex:1;min-height:0;width:100%;height:680px;">
-    <div class="tradingview-widget-container" style="height:100%;width:100%;">
-      <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%;"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-      {
-        "autosize": true,
-        "symbol": "NASDAQ:TSLA",
-        "interval": "1",
-        "timezone": "America/New_York",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "toolbar_bg": "#161b27",
-        "allow_symbol_change": true,
-        "save_image": true,
-        "withdateranges": true,
-        "hide_side_toolbar": false,
-        "watchlist": ["NASDAQ:TSLA","AMEX:ROLR","NASDAQ:AAPL","NASDAQ:NVDA","NASDAQ:AMD","AMEX:SPY","AMEX:QQQ","AMEX:IWM"],
-        "details": true,
-        "hotlist": true,
-        "calendar": false,
-        "studies": ["VWAP@tv-basicstudies","MAExp@tv-basicstudies"],
-        "studies_overrides": {
-          "moving average exponential.length": 9,
-          "moving average exponential.linewidth": 2,
-          "moving average exponential.plottype": "line",
-          "volume weighted average price.plot.color": "#F0B90B",
-          "volume weighted average price.linewidth": 2
-        },
-        "support_host": "https://www.tradingview.com"
-      }
-      </script>
-    </div>
-  </div>
+  <!-- TradingView Chart Container -->
+  <div id="tv_widget_wrap" style="flex:1;min-height:0;width:100%;"></div>
+  <script>
+  // Load tv.js HERE (after container exists in DOM) then build widget
+  (function() {
+    var wrap = document.getElementById('tv_widget_wrap');
+    var h = Math.max(window.innerHeight - 140, 500);
+    wrap.style.height = h + 'px';
+    var s = document.createElement('script');
+    s.src = 'https://s3.tradingview.com/tv.js';
+    s.onload = function() { if(window.__tvBuildPending) window.__tvBuildPending(); };
+    document.head.appendChild(s);
+  })();
+  </script>
 </div>
 </div>
   </div>
@@ -612,24 +591,13 @@ let chartSettings = {
   watchlist: ['NASDAQ:TSLA','AMEX:ROLR','NASDAQ:AAPL','NASDAQ:NVDA','NASDAQ:AMD','AMEX:SPY','AMEX:QQQ','AMEX:IWM']
 };
 
-/* ── REBUILD WIDGET using official embed pattern ── */
-function buildChart(sym, ivl, sty) {
-  sym = sym || chartSettings.symbol;
-  ivl = ivl || chartSettings.interval;
-  sty = sty || chartSettings.style;
-
-  var wrap = document.getElementById('tv_widget_wrap');
-  if (!wrap) return;
-
-  // Clear old widget
-  wrap.innerHTML = '';
-
-  // Config object
-  var config = {
+function getConfig(sym, ivl, sty) {
+  return {
     autosize: true,
+    container_id: 'tv_inner',
     symbol: sym, interval: ivl,
     timezone: 'America/New_York',
-    theme: 'dark', style: sty, locale: 'en',
+    theme: 'dark', style: sty || '1', locale: 'en',
     toolbar_bg: '#161b27',
     allow_symbol_change: true,
     save_image: true, withdateranges: true,
@@ -642,34 +610,43 @@ function buildChart(sym, ivl, sty) {
       'moving average exponential.linewidth': 2,
       'moving average exponential.plottype': 'line',
       'volume weighted average price.plot.color': '#F0B90B',
-      'volume weighted average price.linewidth': 2
+      'volume weighted average price.linewidth': 2,
     },
-    support_host: 'https://www.tradingview.com'
   };
-
-  // Build using official TradingView widget embed structure
-  var outer = document.createElement('div');
-  outer.style.cssText = 'height:100%;width:100%;';
-
-  var inner = document.createElement('div');
-  inner.className = 'tradingview-widget-container__widget';
-  inner.style.cssText = 'height:calc(100% - 32px);width:100%;';
-  outer.appendChild(inner);
-
-  var script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-  script.async = true;
-  // TradingView reads config from script's text content
-  script.text = JSON.stringify(config);
-  outer.appendChild(script);
-
-  wrap.appendChild(outer);
-
-  // Update badge
-  var badge = document.getElementById('symBadge');
-  if (badge) { badge.textContent = sym.split(':').pop(); badge.style.display = ''; }
 }
+
+function doWidget(sym, ivl, sty) {
+  if (!window.TradingView) return;
+  var wrap = document.getElementById('tv_widget_wrap');
+  if (!wrap) return;
+  // Measure height
+  var h = Math.max(wrap.clientHeight, window.innerHeight - 140, 500);
+  wrap.style.height = h + 'px';
+  wrap.innerHTML = '';
+  var inner = document.createElement('div');
+  inner.id = 'tv_inner';
+  inner.style.cssText = 'width:100%;height:100%;';
+  wrap.appendChild(inner);
+  new TradingView.widget(getConfig(sym, ivl, sty));
+  var badge = document.getElementById('symBadge');
+  if (badge) { badge.textContent = (sym||'').split(':').pop(); badge.style.display=''; }
+}
+
+function buildChart(sym, ivl, sty) {
+  sym = sym || chartSettings.symbol;
+  ivl = ivl || chartSettings.interval;
+  sty = sty || chartSettings.style;
+  if (window.TradingView) {
+    doWidget(sym, ivl, sty);
+  } else {
+    window.__tvBuildPending = function() { doWidget(sym, ivl, sty); };
+  }
+}
+
+// Called by inline script once tv.js loads
+window.__tvBuildPending = function() {
+  buildChart(chartSettings.symbol, chartSettings.interval, chartSettings.style);
+};
 
 /* ── CONTROLS ── */
 function toggleControls() {
@@ -681,80 +658,72 @@ function applyChart() {
   var sym = (document.getElementById('ctrlSymbol').value.trim() || chartSettings.symbol).toUpperCase();
   var ivl = document.getElementById('ctrlInterval').value;
   var sty = document.getElementById('ctrlStyle').value;
-  chartSettings.symbol = sym; chartSettings.interval = ivl; chartSettings.style = sty;
+  chartSettings.symbol=sym; chartSettings.interval=ivl; chartSettings.style=sty;
   chartDb.ref('traderoom/chart/settings').set({symbol:sym,interval:ivl,style:sty,watchlist:chartSettings.watchlist});
-  buildChart(sym, ivl, sty); renderChips();
-  var s = document.getElementById('ctrlStatus');
-  if (s) { s.classList.add('on'); setTimeout(function(){ s.classList.remove('on'); }, 2500); }
+  buildChart(sym,ivl,sty); renderChips();
+  var s=document.getElementById('ctrlStatus');
+  if(s){s.classList.add('on');setTimeout(function(){s.classList.remove('on');},2500);}
 }
 
 function addWlSym() {
-  var inp = document.getElementById('ctrlAddSym');
-  var sym = inp.value.trim().toUpperCase(); if (!sym) return;
-  if (!sym.includes(':')) sym = 'NASDAQ:' + sym;
-  if (chartSettings.watchlist.includes(sym)) { inp.value=''; return; }
-  chartSettings.watchlist.push(sym); inp.value = '';
+  var inp=document.getElementById('ctrlAddSym');
+  var sym=inp.value.trim().toUpperCase(); if(!sym) return;
+  if(!sym.includes(':')) sym='NASDAQ:'+sym;
+  if(chartSettings.watchlist.includes(sym)){inp.value='';return;}
+  chartSettings.watchlist.push(sym); inp.value='';
   chartDb.ref('traderoom/chart/settings').update({watchlist:chartSettings.watchlist});
   renderChips(); buildChart();
 }
 
 function removeWlSym(sym) {
-  chartSettings.watchlist = chartSettings.watchlist.filter(function(s){ return s !== sym; });
+  chartSettings.watchlist=chartSettings.watchlist.filter(function(s){return s!==sym;});
   chartDb.ref('traderoom/chart/settings').update({watchlist:chartSettings.watchlist});
   renderChips(); buildChart();
 }
 
 function quickSwitch(sym) {
-  chartSettings.symbol = sym;
-  var inp = document.getElementById('ctrlSymbol'); if (inp) inp.value = sym;
+  chartSettings.symbol=sym;
+  var inp=document.getElementById('ctrlSymbol'); if(inp) inp.value=sym;
   chartDb.ref('traderoom/chart/settings').update({symbol:sym});
-  buildChart(sym, chartSettings.interval, chartSettings.style); renderChips();
+  buildChart(sym,chartSettings.interval,chartSettings.style); renderChips();
 }
 
 function renderChips() {
-  var wrap = document.getElementById('wlChips'); if (!wrap) return;
-  wrap.innerHTML = chartSettings.watchlist.map(function(sym) {
-    var t = sym.split(':').pop();
-    var a = sym === chartSettings.symbol ? ' active-sym' : '';
-    return '<span class="wl-chip'+a+'" onclick="quickSwitch(\''+sym+'\')">'+t
-      +'<span class="wl-chip-del" onclick="event.stopPropagation();removeWlSym(\''+sym+'\')" title="Remove">✕</span></span>';
+  var wrap=document.getElementById('wlChips'); if(!wrap) return;
+  wrap.innerHTML=chartSettings.watchlist.map(function(sym){
+    var t=sym.split(':').pop(), a=sym===chartSettings.symbol?' active-sym':'';
+    return '<span class="wl-chip'+a+'" onclick="quickSwitch(''+sym+'')">'+t
+      +'<span class="wl-chip-del" onclick="event.stopPropagation();removeWlSym(''+sym+'')" title="Remove">✕</span></span>';
   }).join('');
 }
 
 /* ── FIREBASE SYNC ── */
 chartDb.ref('traderoom/chart/settings').on('value', function(snap) {
-  var v = snap.val(); if (!v) return;
+  var v=snap.val(); if(!v) return;
   chartSettings.symbol   = v.symbol   || 'NASDAQ:TSLA';
   chartSettings.interval = v.interval || '1';
   chartSettings.style    = v.style    || '1';
-  if (v.watchlist && Array.isArray(v.watchlist)) chartSettings.watchlist = v.watchlist;
-  var inp = document.getElementById('ctrlSymbol'); if (inp) inp.value = chartSettings.symbol;
-  var sel = document.getElementById('ctrlInterval'); if (sel) sel.value = chartSettings.interval;
-  var sty = document.getElementById('ctrlStyle'); if (sty) sty.value = chartSettings.style;
+  if(v.watchlist && Array.isArray(v.watchlist)) chartSettings.watchlist=v.watchlist;
+  var inp=document.getElementById('ctrlSymbol'); if(inp) inp.value=chartSettings.symbol;
+  var sel=document.getElementById('ctrlInterval'); if(sel) sel.value=chartSettings.interval;
+  var sty=document.getElementById('ctrlStyle'); if(sty) sty.value=chartSettings.style;
   renderChips();
+  if(window.TradingView) buildChart(chartSettings.symbol,chartSettings.interval,chartSettings.style);
 });
 
-/* ── INIT ── */
-document.addEventListener('DOMContentLoaded', function() {
-  renderChips();
-  // Static embed already loaded — no need to call buildChart on init
-  // Only rebuild if Firebase has saved settings different from default
-  chartDb.ref('traderoom/chart/settings').once('value', function(snap) {
-    var v = snap.val();
-    if (v && (v.symbol !== 'NASDAQ:TSLA' || v.interval !== '1' || v.style !== '1')) {
-      chartSettings.symbol   = v.symbol   || 'NASDAQ:TSLA';
-      chartSettings.interval = v.interval || '1';
-      chartSettings.style    = v.style    || '1';
-      if (v.watchlist) chartSettings.watchlist = v.watchlist;
-      buildChart(chartSettings.symbol, chartSettings.interval, chartSettings.style);
-      renderChips();
-    }
-  });
+/* ── RESIZE ── */
+window.addEventListener('resize', function() {
+  var c=document.getElementById('tv_widget_wrap'); if(!c) return;
+  var h=Math.max(window.innerHeight-140,500);
+  c.style.height=h+'px';
+  if(window.TradingView) buildChart(chartSettings.symbol,chartSettings.interval,chartSettings.style);
 });
+
+document.addEventListener('DOMContentLoaded', function() { renderChips(); });
 
 function pageInstructorSetup(role) {
-  if (role === 'instructor') {
-    var t = document.getElementById('settingsToggle'); if (t) t.classList.add('on');
+  if(role==='instructor') {
+    var t=document.getElementById('settingsToggle'); if(t) t.classList.add('on');
   }
 }
 
