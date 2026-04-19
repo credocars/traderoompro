@@ -519,8 +519,7 @@ function renderNote(n,key){
   const el=document.createElement('div');
   el.className='note-item'+(isAlert?' alert':'');el.id='note-'+key;
   el.innerHTML=`<div class="note-time">${n.user} · ${n.time}</div><div class="note-text${isAlert?' alert-text':''}">${escHtml(n.text)}</div>${isInstructor?`<button class="item-del" onclick="deleteNote('${key}')" title="Remove">✕</button>`:''}`;
-  list.appendChild(el);
-  document.getElementById('notesBody').scrollTop=9999;
+  list.prepend(el);
 }
 function postNote(){
   if(!currentUser||currentUser.role!=='instructor')return;
@@ -560,8 +559,7 @@ function renderWlItem(n,key){
   const el=document.createElement('div');
   el.className='note-item'+(isAlert?' alert':'');el.id='wl-'+key;
   el.innerHTML=`<div class="note-time">${n.user} · ${n.time}</div><div class="note-text${isAlert?' alert-text':''}">${escHtml(n.text)}</div>${isInstructor?`<button class="item-del" onclick="deleteWlItem('${key}')" title="Remove">✕</button>`:''}`;
-  list.appendChild(el);
-  document.getElementById('wlBody').scrollTop=9999;
+  list.prepend(el);
 }
 function postWatchlist(){
   if(!currentUser||currentUser.role!=='instructor')return;
@@ -688,7 +686,7 @@ function renderMessage(m,key){
   el.className='chat-msg'+(isOwn?' own':'');el.id='msg-'+key;
   const isInstructor = currentUser?.role === 'instructor';
   el.innerHTML=`<div class="chat-avatar" style="background:${m.avatarColor}20;color:${m.avatarColor};">${m.avatar}</div><div class="chat-bubble"><div class="chat-meta"><span class="chat-user ${m.badge}">${m.user}</span><span class="chat-badge ${m.badge}">${m.badge==='pro'?'⭐ PRO':'Student'}</span><span class="chat-time-msg">${m.time}</span></div><div class="chat-text">${escapeHtml(m.msg)}</div></div>${isInstructor ? `<button class="msg-del" onclick="deleteMsg('${key}')" title="Delete message">✕</button>` : ''}`;
-  c.appendChild(el);scrollChat();
+  c.prepend(el);
   if(document.getElementById('chatPane').classList.contains('active')){document.getElementById('chatNotif').style.display='none';}
   else{document.getElementById('chatNotif').style.display='inline-block';}
 }
@@ -793,8 +791,7 @@ function renderFeedPost(p, key) {
     ${p.image ? `<img class="feed-img" src="${p.image}" onclick="openFeedImg(this.src,'${p.user}')" alt="chart"/>` : ''}
     ${canDel ? `<button class="item-del" onclick="deleteFeedPost('${key}')" title="Delete">✕</button>` : ''}
   `;
-  list.appendChild(el);
-  document.getElementById('feedBody').scrollTop = 9999;
+  list.prepend(el);
 }
 
 function handleFeedImage(input) {
