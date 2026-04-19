@@ -569,10 +569,32 @@ function saveSettings() {
   } catch(e) { console.error("Save error:", e); }
 }
 
-/* ── CONTROLS ── */
+/* ── FIREBASE LISTENER ── */
+firebase.database().ref("traderoom/chart/settings").on("value", function(snap) {
+  var v = snap.val();
+  if (!v) return;
+  if (v.symbol)   chartSettings.symbol   = v.symbol;
+  if (v.interval) chartSettings.interval = v.interval;
+  if (v.style)    chartSettings.style    = v.style;
+  var inp = document.getElementById("ctrlSymbol");   if (inp) inp.value = chartSettings.symbol;
+  var sel = document.getElementById("ctrlInterval"); if (sel) sel.value = chartSettings.interval;
+  var sty = document.getElementById("ctrlStyle");    if (sty) sty.value = chartSettings.style;
+  if (tvLoaded) doWidget();
+});
 
+/* ── RESIZE ── */
+window.addEventListener("resize", function() {
+  var c = document.getElementById("tv_widget_wrap"); if (!c) return;
+  c.style.height = Math.max(window.innerHeight - 140, 500) + "px";
+  if (tvLoaded) doWidget();
+});
 
-/* ── WATCHLIST ── */
+/* ── INIT — always load TSLA on start ── */
+document.addEventListener("DOMContentLoaded", function() {
+  var wrap = document.getElementById("tv_widget_wrap");
+  if (wrap) wrap.style.height = Math.max(window.innerHeight - 140, 500) + "px";
+  loadTV();
+});
 
 </script>
 <script>
