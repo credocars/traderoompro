@@ -443,7 +443,7 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
       <div style="font-size:13px;color:var(--t3);max-width:360px;line-height:1.7;">The instructor hasn't set a chart embed yet. Sign in as instructor to add your TradingView embed URL.</div>
     </div>
     <!-- Iframe loads here -->
-    <iframe id="tvFrame" src="" style="display:none;width:100%;height:620px;border:none;" allowfullscreen></iframe>
+    <iframe id="tvFrame" src="" style="display:none;width:100%;height:680px;border:none;" allowfullscreen allow="fullscreen"></iframe>
   </div>
 </div></div>
   </div>
@@ -779,13 +779,18 @@ function toEmbedUrl(url) {
   // Accept full iframe code — extract src
   const srcMatch = url.match(/src="([^"]+)"/);
   if (srcMatch) url = srcMatch[1];
-  // Convert regular chart URL to embed URL
-  // https://www.tradingview.com/chart/ID/ → https://www.tradingview.com/widgetbar-chart-embed/ID/
+  // Convert regular chart URL to correct embed format
+  // https://www.tradingview.com/chart/ID/ → https://www.tradingview.com/embed/ID/
   const chartMatch = url.match(/tradingview\.com\/chart\/([a-zA-Z0-9]+)/);
   if (chartMatch) {
-    return 'https://www.tradingview.com/widgetbar-chart-embed/' + chartMatch[1] + '/';
+    return 'https://www.tradingview.com/embed/' + chartMatch[1] + '/';
   }
-  // Already an embed URL or other format — return as is
+  // Convert old widgetbar format if someone pastes it
+  const oldEmbed = url.match(/tradingview\.com\/widgetbar-chart-embed\/([a-zA-Z0-9]+)/);
+  if (oldEmbed) {
+    return 'https://www.tradingview.com/embed/' + oldEmbed[1] + '/';
+  }
+  // Already correct embed URL or unknown — return as is
   return url;
 }
 
@@ -841,7 +846,7 @@ chartDb.ref('traderoom/chart/embedUrl').on('value', snap => {
     if (inp) inp.value = url;
   } else {
     // Default fallback to your saved TradingView chart
-    const defaultUrl = 'https://www.tradingview.com/widgetbar-chart-embed/nsvzGJu0/';
+    const defaultUrl = 'https://www.tradingview.com/embed/nsvzGJu0/';
     loadEmbed(defaultUrl);
     const inp = document.getElementById('embedUrlInput');
     if (inp) inp.value = defaultUrl;
