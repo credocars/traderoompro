@@ -681,8 +681,12 @@ function removeWlSym(sym) {
 }
 
 function saveWatchlist() {
-  // Use set() on the watchlist node directly — update() doesn't reliably overwrite arrays in Firebase
-  firebase.database().ref("traderoom/chart/settings/watchlist").set(chartSettings.watchlist);
+  // Convert array to indexed object — Firebase handles this reliably
+  var wlObj = {};
+  for (var i = 0; i < chartSettings.watchlist.length; i++) {
+    wlObj[i] = chartSettings.watchlist[i];
+  }
+  firebase.database().ref("traderoom/chart/settings/watchlist").set(wlObj);
 }
 
 function quickSwitch(sym) {
@@ -725,7 +729,17 @@ firebase.database().ref("traderoom/chart/settings").on("value", function(snap) {
   chartSettings.symbol   = v.symbol   || "NASDAQ:TSLA";
   chartSettings.interval = v.interval || "1";
   chartSettings.style    = v.style    || "1";
-  if (v.watchlist && Array.isArray(v.watchlist)) chartSettings.watchlist = v.watchlist;
+  if (v.watchlist) {
+    // Firebase stores arrays as numeric-keyed objects — convert back
+    if (Array.isArray(v.watchlist)) {
+      chartSettings.watchlist = v.watchlist;
+    } else if (typeof v.watchlist === 'object') {
+      chartSettings.watchlist = Object.keys(v.watchlist)
+        .sort(function(a,b){ return a - b; })
+        .map(function(k){ return v.watchlist[k]; })
+        .filter(function(s){ return s; });
+    }
+  }
   var inp = document.getElementById("ctrlSymbol");   if (inp) inp.value = chartSettings.symbol;
   var sel = document.getElementById("ctrlInterval"); if (sel) sel.value = chartSettings.interval;
   var sty = document.getElementById("ctrlStyle");    if (sty) sty.value = chartSettings.style;
