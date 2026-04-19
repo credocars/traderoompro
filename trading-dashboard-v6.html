@@ -204,11 +204,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 /* COMMUNITY FEED */
 .feed-body{flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
 .feed-body::-webkit-scrollbar{width:0;}
-.feed-composer{border-top:1px solid var(--border);padding:9px 12px;display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
-.feed-textarea{font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:7px 10px;border-radius:7px;outline:none;resize:none;transition:border-color .15s;width:100%;}
+.feed-composer{border-top:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:row;align-items:center;gap:8px;flex-shrink:0;}
+.feed-textarea{font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:7px 10px;border-radius:7px;outline:none;resize:none;transition:border-color .15s;flex:1;min-width:0;}
 .feed-textarea:focus{border-color:var(--green);}
 .feed-textarea::placeholder{color:var(--t3);}
-.feed-actions{display:flex;align-items:center;gap:8px;}
+.feed-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
 .feed-attach-btn{width:30px;height:30px;border-radius:6px;background:var(--card2);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;}
 .feed-attach-btn:hover{background:rgba(34,197,94,.08);}
 .feed-post{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:9px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;position:relative;}
@@ -343,25 +343,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 
   <div class="content-row">
   <div class="dash-area">
-        <div class="stat-val green" id="statAvgPL">+$847</div>
-        <div class="stat-sub">per trade this period</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Cumulative P&L</div>
-        <div class="stat-val green" id="statCumPL">+$6,240</div>
-        <div class="stat-sub">total this period</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Win Rate</div>
-        <div class="stat-val cyan" id="statWinRate">74%</div>
-        <div class="stat-sub">winning trades</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Trades</div>
-        <div class="stat-val blue" id="statTrades">38</div>
-        <div class="stat-sub">executed this period</div>
-      </div>
-    </div>
     <!-- PANELS GRID 4-col -->
     <div class="panels-grid">
 
@@ -380,7 +361,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
           <div class="notes-list" id="wlList"></div>
         </div>
         <div class="notes-footer" id="wlInputArea" style="display:none;">
-          <textarea class="notes-textarea" id="wlInput" placeholder="e.g. AMC Gap +34% above $4.30" rows="2"></textarea>
+          <textarea class="notes-textarea" id="wlInput" placeholder="e.g. AMC Gap +34%…" rows="1"></textarea>
           <button class="notes-post-btn" onclick="postWatchlist()">Add</button>
         </div>
       </div>
@@ -400,7 +381,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
           <div class="notes-list" id="notesList"></div>
         </div>
         <div class="notes-footer" id="notesInputArea" style="display:none;">
-          <textarea class="notes-textarea" id="notesInput" placeholder="Post a note for students… (Enter to send)" rows="2"></textarea>
+          <textarea class="notes-textarea" id="notesInput" placeholder="Post a note… (Enter to send)" rows="1"></textarea>
           <button class="notes-post-btn" onclick="postNote()">Post</button>
         </div>
       </div>
@@ -420,15 +401,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
           <div id="feedList"></div>
         </div>
         <div class="feed-composer" id="feedComposer" style="display:none;">
-          <textarea class="feed-textarea" id="feedText" placeholder="Share a trade idea or chart setup…" rows="2"></textarea>
+          <textarea class="feed-textarea" id="feedText" placeholder="Share a trade idea…" rows="1"></textarea>
           <div class="feed-actions">
             <label class="feed-attach-btn" title="Attach chart screenshot">📎
               <input type="file" id="feedFileInput" accept="image/*" style="display:none;" onchange="handleFeedImage(this)"/>
             </label>
             <div class="feed-preview-wrap" id="feedPreviewWrap" style="display:none;">
-              <img id="feedPreview" style="max-height:44px;border-radius:5px;border:1px solid var(--border);cursor:pointer;" onclick="document.getElementById('feedPreviewWrap').style.display='none';feedImageData=null;" title="Click to remove"/>
+              <img id="feedPreview" style="max-height:30px;border-radius:4px;border:1px solid var(--border);cursor:pointer;" onclick="document.getElementById('feedPreviewWrap').style.display='none';feedImageData=null;" title="Click to remove"/>
             </div>
-            <button class="notes-post-btn" onclick="postFeed()" style="margin-left:auto;">Post</button>
+            <button class="notes-post-btn" onclick="postFeed()" style="padding:6px 12px;font-size:11px;">Post</button>
           </div>
         </div>
       </div>
