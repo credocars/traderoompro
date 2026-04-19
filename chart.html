@@ -410,10 +410,10 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
   </div>
   <div class="page-card-body">
     <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.7;">
-      On <strong style="color:var(--t1);">TradingView.com</strong> → open your chart → click <strong style="color:var(--t1);">Share</strong> → <strong style="color:var(--t1);">Embed Chart</strong> → copy the <code style="background:var(--card2);color:var(--cyan);padding:2px 6px;border-radius:4px;font-size:12px;">src="..."</code> URL and paste it below.
+      On <strong style="color:var(--t1);">TradingView.com</strong> → open your chart → click <strong style="color:var(--t1);">Share</strong> → <strong style="color:var(--t1);">Embed Chart</strong> → copy the chart URL and paste it below — any TradingView URL works, we'll convert it automatically.
     </div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input id="embedUrlInput" placeholder="https://www.tradingview.com/widgetbar-chart-embed/..." 
+      <input id="embedUrlInput" placeholder="https://www.tradingview.com/chart/nsvzGJu0/ (any TradingView URL works)" 
         style="flex:1;font-family:Inter,sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:10px 14px;border-radius:9px;outline:none;transition:border-color .15s;"
         onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-hi)'"
       />
@@ -775,17 +775,31 @@ function openFeedImg(src, userName) {
 /* ── TRADINGVIEW EMBED (Firebase-synced) ── */
 const chartDb = firebase.database();
 
-function saveEmbedUrl() {
-  let url = document.getElementById('embedUrlInput').value.trim();
-  if (!url) return;
-  // Accept full iframe code or just the src URL
+function toEmbedUrl(url) {
+  // Accept full iframe code — extract src
   const srcMatch = url.match(/src="([^"]+)"/);
   if (srcMatch) url = srcMatch[1];
+  // Convert regular chart URL to embed URL
+  // https://www.tradingview.com/chart/ID/ → https://www.tradingview.com/widgetbar-chart-embed/ID/
+  const chartMatch = url.match(/tradingview\.com\/chart\/([a-zA-Z0-9]+)/);
+  if (chartMatch) {
+    return 'https://www.tradingview.com/widgetbar-chart-embed/' + chartMatch[1] + '/';
+  }
+  // Already an embed URL or other format — return as is
+  return url;
+}
+
+function saveEmbedUrl() {
+  let raw = document.getElementById('embedUrlInput').value.trim();
+  if (!raw) return;
+  const url = toEmbedUrl(raw);
   if (!url.startsWith('http')) {
-    document.getElementById('embedStatus').textContent = '⚠ Please paste a valid TradingView embed URL.';
+    document.getElementById('embedStatus').textContent = '⚠ Please paste a valid TradingView URL.';
     document.getElementById('embedStatus').style.color = 'var(--red)';
     return;
   }
+  // Show what URL we're using
+  document.getElementById('embedUrlInput').value = url;
   chartDb.ref('traderoom/chart/embedUrl').set(url);
   document.getElementById('embedStatus').textContent = '✅ Saved — all students will see this chart.';
   document.getElementById('embedStatus').style.color = 'var(--green)';
@@ -827,7 +841,7 @@ chartDb.ref('traderoom/chart/embedUrl').on('value', snap => {
     if (inp) inp.value = url;
   } else {
     // Default fallback to your saved TradingView chart
-    const defaultUrl = 'https://www.tradingview.com/widgetbar-chart-embed/qED1iZnl/';
+    const defaultUrl = 'https://www.tradingview.com/widgetbar-chart-embed/nsvzGJu0/';
     loadEmbed(defaultUrl);
     const inp = document.getElementById('embedUrlInput');
     if (inp) inp.value = defaultUrl;
