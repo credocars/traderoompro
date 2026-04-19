@@ -419,7 +419,7 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
     <div class="page-card-title">TradingView Chart</div>
     <span class="pg-badge green">Live Data</span>
   </div>
-  <div id="tv_chart_container" style="height:calc(100vh - 120px);min-height:600px;width:100%;"></div>
+  <div id="tv_chart_container" style="height:720px;width:100%;"></div>
 </div>
 </div>
   </div>
@@ -513,20 +513,27 @@ auth.onAuthStateChanged(async function(u) {
 /* ── TRADINGVIEW ADVANCED CHART ── */
 const chartDb = firebase.database();
 let currentWidget = null;
+let chartReady = false;
+let pendingBuild = null;
 
 function buildChart(symbol, interval) {
   symbol = symbol || 'NASDAQ:TSLA';
   interval = interval || '1';
 
+  // If DOM not ready yet, queue it
+  if (!chartReady) {
+    pendingBuild = { symbol, interval };
+    return;
+  }
+
   const container = document.getElementById('tv_chart_container');
   if (!container) return;
 
-  // Clear previous widget
   container.innerHTML = '';
 
   if (typeof TradingView === 'undefined') {
-    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:14px;">Loading chart library…</div>';
-    setTimeout(() => buildChart(symbol, interval), 1000);
+    container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:14px;font-family:Inter,sans-serif;">Loading chart…</div>';
+    setTimeout(function(){ buildChart(symbol, interval); }, 800);
     return;
   }
 
@@ -571,20 +578,25 @@ function buildChart(symbol, interval) {
   });
 }
 
+// Wait for DOM before any chart init
+document.addEventListener('DOMContentLoaded', function() {
+  chartReady = true;
+  // Build immediately with defaults, Firebase will override if settings saved
+  buildChart('NASDAQ:TSLA', '1');
+});
 
 
-
-
-// Firebase sync — fires for all users when instructor changes symbol
-chartDb.ref('traderoom/chart/settings').on('value', snap => {
-  const v = snap.val();
-  const sym = v && v.symbol ? v.symbol : 'NASDAQ:TSLA';
-  const ivl = v && v.interval ? v.interval : '1';
-  const inp = document.getElementById('symbolInput');
-  const sel = document.getElementById('intervalSelect');
-  if (inp) inp.value = sym;
-  if (sel) sel.value = ivl;
-  buildChart(sym, ivl);
+// Firebase sync — only override default if instructor has set a custom symbol
+chartDb.ref('traderoom/chart/settings').on('value', function(snap) {
+  var v = snap.val();
+  if (!v) return; // No saved settings — keep default TSLA
+  var sym = v.symbol || 'NASDAQ:TSLA';
+  var ivl = v.interval || '1';
+  if (chartReady) {
+    buildChart(sym, ivl);
+  } else {
+    pendingBuild = { symbol: sym, interval: ivl };
+  }
 });
 
 
