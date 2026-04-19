@@ -532,7 +532,7 @@ var chartSettings = {
   symbol:   "NASDAQ:TSLA",
   interval: "1",
   style:    "1",
-  watchlist: ["NASDAQ:TSLA","AMEX:ROLR","NASDAQ:AAPL","NASDAQ:NVDA","NASDAQ:AMD","AMEX:SPY","AMEX:QQQ","AMEX:IWM"]
+  watchlist: []
 };
 
 /* ── WIDGET ── */
@@ -560,10 +560,7 @@ function doWidget() {
     allow_symbol_change: true,
     save_image:     true,
     withdateranges: true,
-    hide_side_toolbar: false,
-    watchlist: chartSettings.watchlist,
-    details: true,
-    hotlist: true,
+    hide_side_toolbar: true,
     calendar: false,
     studies: ["VWAP@tv-basicstudies", "MAExp@tv-basicstudies"],
     studies_overrides: {
