@@ -417,6 +417,7 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
     <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
       <input id="ytUrlInput" placeholder="Paste YouTube URL or Video ID…" style="font-family:Inter,sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:7px 12px;border-radius:8px;outline:none;width:280px;" onkeydown="if(event.key==='Enter')loadYT()"/>
       <button onclick="loadYT()" style="font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;border:none;background:var(--green);color:#000;cursor:pointer;">Go Live</button>
+      <button id="clearYTBtn" onclick="clearYT()" style="display:none;font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:7px 16px;border-radius:8px;border:1px solid var(--border-hi);background:transparent;color:var(--red);cursor:pointer;">End Stream</button>
     </div>
   </div>
   <div class="page-card-body" style="padding:0;">
@@ -511,6 +512,93 @@ auth.onAuthStateChanged(async function(u) {
 
 
 </script>
+<script>
+/* ── YOUTUBE STREAM ── */
+var currentVideoId = null;
+
+function getVideoId(url) {
+  if (!url) return null;
+  url = url.trim();
+  // Already a raw video ID (11 chars, no spaces)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+  // youtube.com/watch?v=ID
+  var m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtu.be/ID
+  m = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtube.com/live/ID
+  m = url.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtube.com/embed/ID
+  m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtube.com/shorts/ID
+  m = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  return null;
+}
+
+function loadYT() {
+  var inp = document.getElementById("ytUrlInput");
+  if (!inp) return;
+  var videoId = getVideoId(inp.value.trim());
+  if (!videoId) {
+    var st = document.getElementById("ytStatus");
+    if (st) { st.textContent = "Invalid URL"; st.className = "pg-badge red"; }
+    return;
+  }
+  // Save to Firebase so all students see it
+  firebase.database().ref("traderoom/stream/url").set(inp.value.trim());
+  renderYT(videoId);
+}
+
+function renderYT(videoId) {
+  if (!videoId) return;
+  currentVideoId = videoId;
+  var container = document.getElementById("ytContainer");
+  if (!container) return;
+  container.innerHTML = "";
+  var iframe = document.createElement("iframe");
+  iframe.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&rel=0&modestbranding=1";
+  iframe.style.cssText = "width:100%;height:580px;border:none;";
+  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+  iframe.allowFullscreen = true;
+  container.appendChild(iframe);
+  var st = document.getElementById("ytStatus");
+  if (st) { st.textContent = "LIVE"; st.className = "pg-badge red"; }
+}
+
+function clearYT() {
+  firebase.database().ref("traderoom/stream/url").remove();
+  var container = document.getElementById("ytContainer");
+  if (container) container.innerHTML = '<div style="text-align:center;color:var(--t3);padding:60px 20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="opacity:.3;margin-bottom:12px;"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16 10,8"/></svg><div style="font-size:14px;">Stream ended</div></div>';
+  var st = document.getElementById("ytStatus");
+  if (st) { st.textContent = "Offline"; st.className = "pg-badge"; }
+  var inp = document.getElementById("ytUrlInput"); if (inp) inp.value = "";
+}
+
+// Firebase listener — all students get stream in real time
+firebase.database().ref("traderoom/stream/url").on("value", function(snap) {
+  var url = snap.val();
+  if (url) {
+    var videoId = getVideoId(url);
+    if (videoId) {
+      var inp = document.getElementById("ytUrlInput"); if (inp) inp.value = url;
+      renderYT(videoId);
+    }
+  }
+});
+
+// Show clear button for instructor
+function pageInstructorSetup(role) {
+  if (role === "instructor") {
+    var btn = document.getElementById("clearYTBtn");
+    if (btn) btn.style.display = "inline-block";
+  }
+}
+</script>
+
 <script>
 function handleLogout() {
   firebase.auth().signOut().then(function() {
