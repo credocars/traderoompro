@@ -592,9 +592,9 @@ function doWidget() {
     theme:    "dark",
     style:    chartSettings.style,
     locale:   "en",
-    toolbar_bg:         "#161b27",
+    toolbar_bg:          "#161b27",
     allow_symbol_change: true,
-    save_image:    true,
+    save_image:     true,
     withdateranges: true,
     hide_side_toolbar: true,
     calendar: false,
@@ -604,26 +604,15 @@ function doWidget() {
       "moving average exponential.linewidth": 2,
       "moving average exponential.plottype":  "line",
       "VWAP@tv-basicstudies.Plot.color":      "#F0B90B",
-      "VWAP@tv-basicstudies.Plot.linewidth":  2,
-      "VWAP@tv-basicstudies.Plot.plottype":   "line"
+      "VWAP@tv-basicstudies.Plot.linewidth":  2
     }
   });
   var badge = document.getElementById("symBadge");
-  if (badge) {
-    badge.textContent = chartSettings.symbol.split(":").pop();
-    badge.style.display = "";
-  }
+  if (badge) { badge.textContent = chartSettings.symbol.split(":").pop(); badge.style.display = ""; }
 }
 
-function buildChart(sym, ivl, sty) {
-  if (sym) chartSettings.symbol   = sym;
-  if (ivl) chartSettings.interval = ivl;
-  if (sty) chartSettings.style    = sty;
-  if (window.TradingView) {
-    doWidget();
-  } else {
-    loadTV();
-  }
+function buildChart() {
+  if (window.TradingView) { doWidget(); } else { loadTV(); }
 }
 
 function loadTV() {
@@ -636,6 +625,18 @@ function loadTV() {
   document.body.appendChild(s);
 }
 
+/* ── FIREBASE SAVE — single source of truth ── */
+function saveSettings() {
+  try {
+    firebase.database().ref("traderoom/chart/settings").set({
+      symbol:   chartSettings.symbol,
+      interval: chartSettings.interval,
+      style:    chartSettings.style,
+      watchlist: chartSettings.watchlist.join("|")
+    }).catch(function(err) { console.error("Save failed:", err); });
+  } catch(e) { console.error("Save error:", e); }
+}
+
 /* ── CONTROLS ── */
 function toggleControls() {
   var p = document.getElementById("chartControls");
@@ -646,19 +647,21 @@ function applyChart() {
   var symEl = document.getElementById("ctrlSymbol");
   var ivlEl = document.getElementById("ctrlInterval");
   var styEl = document.getElementById("ctrlStyle");
-  var sym   = symEl ? symEl.value.trim().toUpperCase() : chartSettings.symbol;
-  var ivl   = ivlEl ? ivlEl.value : chartSettings.interval;
-  var sty   = styEl ? styEl.value : chartSettings.style;
+  var sym = symEl ? symEl.value.trim().toUpperCase() : chartSettings.symbol;
+  var ivl = ivlEl ? ivlEl.value : chartSettings.interval;
+  var sty = styEl ? styEl.value : chartSettings.style;
   if (!sym) sym = chartSettings.symbol;
   chartSettings.symbol   = sym;
   chartSettings.interval = ivl;
   chartSettings.style    = sty;
-  saveAllSettings();
-  buildChart(); renderWlList();
+  saveSettings();
+  buildChart();
+  renderWlList();
   var st = document.getElementById("ctrlStatus");
   if (st) { st.classList.add("on"); setTimeout(function(){ st.classList.remove("on"); }, 2500); }
 }
 
+/* ── WATCHLIST ── */
 function addWlSym() {
   var inp = document.getElementById("wlInput");
   if (!inp) return;
@@ -668,31 +671,23 @@ function addWlSym() {
   if (chartSettings.watchlist.indexOf(sym) >= 0) { inp.value = ""; return; }
   chartSettings.watchlist.push(sym);
   inp.value = "";
-  saveAllSettings();
-  renderWlList(); buildChart();
+  saveSettings();
+  renderWlList();
 }
 
 function removeWlSym(sym) {
-  chartSettings.watchlist = chartSettings.watchlist.filter(function(s) { return s !== sym; });
-  saveAllSettings();
-  renderWlList(); buildChart();
-}
-
-function saveAllSettings() {
-  firebase.database().ref("traderoom/chart/settings").set({
-    symbol:   chartSettings.symbol,
-    interval: chartSettings.interval,
-    style:    chartSettings.style,
-    watchlist: chartSettings.watchlist.join(",")
-  });
+  chartSettings.watchlist = chartSettings.watchlist.filter(function(s){ return s !== sym; });
+  saveSettings();
+  renderWlList();
 }
 
 function quickSwitch(sym) {
   chartSettings.symbol = sym;
   var inp = document.getElementById("ctrlSymbol");
   if (inp) inp.value = sym;
-  saveAllSettings();
-  buildChart(); renderWlList();
+  saveSettings();
+  buildChart();
+  renderWlList();
 }
 
 function renderWlList() {
@@ -710,7 +705,7 @@ function renderWlList() {
     label.textContent = ticker;
     var del = document.createElement("span");
     del.className   = "wl-del";
-    del.textContent = "✕";
+    del.textContent = "\u2715";
     del.title       = "Remove";
     del.onclick = (function(s){ return function(e){ e.stopPropagation(); removeWlSym(s); }; })(sym);
     row.appendChild(label);
@@ -718,39 +713,38 @@ function renderWlList() {
     list.appendChild(row);
   }
 }
-function renderChips() { renderWlList(); }
 
-/* ── FIREBASE SYNC ── */
+/* ── FIREBASE LISTENER — read only, never triggers buildChart ── */
 firebase.database().ref("traderoom/chart/settings").on("value", function(snap) {
   var v = snap.val();
   if (!v) return;
   chartSettings.symbol   = v.symbol   || "NASDAQ:TSLA";
   chartSettings.interval = v.interval || "1";
   chartSettings.style    = v.style    || "1";
+
+  /* parse watchlist — stored as pipe-separated string */
   if (v.watchlist) {
     if (typeof v.watchlist === "string" && v.watchlist.length > 0) {
-      // Stored as comma-separated string — split back to array
-      chartSettings.watchlist = v.watchlist.split(",").filter(function(s){ return s.trim(); });
+      chartSettings.watchlist = v.watchlist.split("|").map(function(s){ return s.trim(); }).filter(Boolean);
     } else if (Array.isArray(v.watchlist)) {
       chartSettings.watchlist = v.watchlist;
     } else if (typeof v.watchlist === "object") {
-      // Legacy format — convert
       chartSettings.watchlist = Object.keys(v.watchlist).sort(function(a,b){return a-b;}).map(function(k){return v.watchlist[k];}).filter(Boolean);
     }
   }
+
+  /* update controls */
   var inp = document.getElementById("ctrlSymbol");   if (inp) inp.value = chartSettings.symbol;
   var sel = document.getElementById("ctrlInterval"); if (sel) sel.value = chartSettings.interval;
   var sty = document.getElementById("ctrlStyle");    if (sty) sty.value = chartSettings.style;
   renderWlList();
-  if (tvLoaded) buildChart();
 });
 
 /* ── RESIZE ── */
 window.addEventListener("resize", function() {
-  var c = document.getElementById("tv_widget_wrap");
-  if (!c) return;
+  var c = document.getElementById("tv_widget_wrap"); if (!c) return;
   c.style.height = Math.max(window.innerHeight - 140, 500) + "px";
-  if (tvLoaded) buildChart();
+  if (tvLoaded) doWidget();
 });
 
 /* ── INIT ── */
