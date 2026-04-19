@@ -421,7 +421,7 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
     </div>
   </div>
   <div class="page-card-body" style="padding:0;flex:1;display:flex;flex-direction:column;">
-    <div id="ytContainer" style="background:#000;display:flex;align-items:center;justify-content:center;flex:1;min-height:0;">
+    <div id="ytContainer" style="background:#000;flex:1;min-height:0;overflow:hidden;">
       <div style="text-align:center;color:var(--t3);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="opacity:.3;margin-bottom:12px;"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16 10,8"/></svg>
         <div style="font-size:14px;">Paste a YouTube URL above to go live</div>
@@ -561,7 +561,8 @@ function renderYT(videoId) {
   container.innerHTML = "";
   var iframe = document.createElement("iframe");
   iframe.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&rel=0&modestbranding=1";
-  iframe.style.cssText = "width:100%;height:100%;min-height:0;border:none;flex:1;";
+  var frameH = Math.max(window.innerHeight - 160, 400);
+  iframe.style.cssText = "width:100%;height:" + frameH + "px;border:none;display:block;";
   iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
   iframe.allowFullscreen = true;
   container.appendChild(iframe);
@@ -588,6 +589,12 @@ firebase.database().ref("traderoom/stream/url").on("value", function(snap) {
       renderYT(videoId);
     }
   }
+});
+
+
+window.addEventListener("resize", function() {
+  var iframe = document.querySelector("#ytContainer iframe");
+  if (iframe) iframe.style.height = Math.max(window.innerHeight - 160, 400) + "px";
 });
 
 // Show clear button for instructor
