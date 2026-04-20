@@ -12,7 +12,6 @@ firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDom
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-
 :root{
   --bg:#0f1117;
   --panel:#161b27;
@@ -44,7 +43,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .modal-logo{display:flex;align-items:center;gap:12px;}
 .modal-logo-mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
 .modal-logo-mark svg{width:24px;height:24px;}
-.modal-title{font-family:"Syne",sans-serif;font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-.4px;}
+.modal-title{font-family:"Inter",sans-serif;font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-.4px;}
 .modal-title span{color:var(--green);}
 .modal-sub{font-size:11px;color:var(--t3);margin-top:2px;}
 .modal-divider{height:1px;background:var(--border);}
@@ -67,36 +66,49 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .forgot-link span{font-size:11px;color:var(--blue);cursor:pointer;}
 
 /* ══ SIDEBAR ══ */
-.sidebar{width:240px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;}
+.sidebar{width:240px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .25s cubic-bezier(.4,0,.2,1);}
+.sidebar.collapsed{width:58px;}
+.sidebar.collapsed .sb-wordmark{display:none;}
+.sidebar.collapsed .sb-section{display:none;}
+.sidebar.collapsed .sb-divider{margin:4px 10px;}
+.sidebar.collapsed .sb-item{padding:10px 0;justify-content:center;gap:0;}
+.sidebar.collapsed .sb-label{display:none;}
+.sidebar.collapsed .sb-bottom{padding:10px 6px;display:flex;justify-content:center;}
+.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
+.sidebar.collapsed .sb-logo-area{padding:16px 0;display:flex;justify-content:center;align-items:center;}
+.sidebar.collapsed .sb-logo{justify-content:center;}
+.sidebar.collapsed .sb-logo .sb-wordmark{display:none;}
+.sidebar.collapsed .sb-item{position:relative;}
+.sidebar.collapsed .sb-item:hover::after{content:attr(data-label);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--card);color:var(--t1);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;border:1px solid var(--border-hi);z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.4);}
 .sb-logo-area{height:52px;padding:0 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
 .sb-logo{display:flex;align-items:center;gap:10px;}
 .sb-logo-mark{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
 .sb-logo-mark svg{width:24px;height:24px;}
-.sb-wordmark{font-family:"Syne",sans-serif;font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--t1);-webkit-text-fill-color:var(--t1);}
-.sb-wordmark span{color:var(--green);-webkit-text-fill-color:var(--green);}
-
-
+.sb-wordmark{font-family:"Inter",sans-serif;font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--t1);}
+.sb-wordmark span{color:var(--green);}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .sb-scroll{flex:1;overflow-y:auto;padding:8px 0;}
 .sb-scroll::-webkit-scrollbar{width:0;}
-.sb-section{padding:16px 18px 5px;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--t3);text-transform:uppercase;}
 .sb-item{display:flex;align-items:center;gap:12px;padding:10px 18px;cursor:pointer;font-size:15px;font-weight:500;color:var(--t2);transition:all .12s;}
 .sb-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
-.sb-item.active{background:rgba(34,197,94,.06);color:var(--green);border-right:none;box-shadow:inset 3px 0 0 var(--green);}
+.sb-item.active{background:rgba(34,197,94,.06);color:var(--green);box-shadow:inset 3px 0 0 var(--green);}
 .sb-icon{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
-.sb-divider{height:1px;background:var(--border);margin:6px 16px;}
-.sb-badge-live{font-size:8px;font-weight:700;background:rgba(239,68,68,.15);color:var(--red);padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;margin-left:auto;}
-.sb-online-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-left:auto;}
 .sb-bottom{padding:14px 18px;border-top:1px solid var(--border);}
 .sb-user{display:flex;align-items:center;gap:9px;}
 .sb-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;background:rgba(34,197,94,.15);color:var(--green);}
 .sb-uname{font-size:14px;font-weight:600;color:var(--t1);}
 .sb-urole{font-size:11px;color:var(--t3);}
+.sb-logout-btn{display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:auto;flex-shrink:0;border-radius:7px;border:none;background:transparent;cursor:pointer;color:var(--t3);transition:all .15s;}
+.sb-logout-btn:hover{background:rgba(239,68,68,.1);color:var(--red);}
+.sidebar.collapsed .sb-logout-btn{margin:0 auto;}
+.sidebar-wrap{position:relative;flex-shrink:0;}
+.sb-toggle-btn{position:absolute;top:72px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--border-hi);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--t2);transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.35);}
+.sb-toggle-btn:hover{background:var(--green);border-color:var(--green);color:#000;}
 
-/* ══ MAIN ══ */
+/* ══ HEADER ══ */
 .main-content{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
 .header{height:52px;background:rgba(15,17,23,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
-.header-title{font-family:"Inter",sans-serif;font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-.3px;}
+.header-title{font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-.3px;}
 .live-badge{display:flex;align-items:center;gap:5px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:.08em;text-transform:uppercase;}
 .live-badge::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--red);animation:pulse 1.5s ease-in-out infinite;}
 .market-pill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--t2);}
@@ -107,199 +119,135 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
 .session-clock{font-size:13px;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.15);padding:4px 11px;border-radius:7px;}
 .username-chip{font-size:10px;font-weight:600;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);padding:4px 10px;border-radius:6px;}
-.firebase-status{font-size:9px;color:var(--t3);display:flex;align-items:center;gap:4px;}
-.firebase-status.connected{color:var(--green);}
-.firebase-status::before{content:"";width:4px;height:4px;border-radius:50%;background:currentColor;}
 
-/* CONTENT LAYOUT */
+/* ══ COURSES PAGE LAYOUT ══ */
 .content-row{flex:1;min-height:0;display:flex;overflow:hidden;}
-.dash-area{flex:1;min-width:0;overflow-y:hidden;padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
-.dash-area::-webkit-scrollbar{width:3px;}
-.dash-area::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
-
-
-
-
-
-
-
-
-/* BOTTOM PANELS GRID */
-.panels-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;flex:1;min-height:0;height:100%;}
-.dash-panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative;}.dash-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);z-index:1;}
-.dp-header{display:flex;align-items:center;gap:8px;padding:13px 16px 11px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.dp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.dp-dot.g{background:var(--green);animation:pulse 2s ease-in-out infinite;}
-.dp-dot.b{background:var(--blue);}
-.dp-dot.c{background:var(--cyan);}
-.dp-dot.p{background:var(--purple);}
-.dp-title{font-size:15px;font-weight:700;color:var(--t1);flex:1;}
-.panel-clear-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.07);color:var(--red);cursor:pointer;transition:all .15s;margin-left:auto;}
-.panel-clear-btn:hover{background:rgba(239,68,68,.15);}
-.chat-clear-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.07);color:var(--red);cursor:pointer;transition:all .15s;}
-.chat-clear-btn:hover{background:rgba(239,68,68,.15);}
-
-/* NOTES */
-.notes-body{flex:1;overflow-y:auto;min-height:0;padding:10px 13px;display:flex;flex-direction:column;gap:7px;background:var(--panel);}
-.notes-body::-webkit-scrollbar{width:3px;}.notes-body::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
-.note-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:20px;}
-.note-placeholder-icon{opacity:.18;color:var(--t2);}
-.note-placeholder-text{font-size:13px;color:var(--t3);line-height:1.5;max-width:140px;}
-.notes-list{display:flex;flex-direction:column;gap:7px;}
-.note-item{background:rgba(59,130,246,.05);border-radius:8px;padding:9px 11px;border-left:2px solid var(--blue);position:relative;}
-.note-item.alert{border-left-color:var(--orange);background:rgba(245,158,11,.05);}
-.note-item:hover .item-del{opacity:1;}
-.note-time{font-size:11px;color:var(--t3);margin-bottom:3px;font-weight:600;}
-.note-text{font-size:13px;color:var(--t1);line-height:1.6;}
-.note-text.alert-text{color:var(--orange);font-weight:700;}
-.notes-footer{border-top:1px solid var(--border);padding:9px 13px;display:flex;gap:8px;flex-shrink:0;}
-.notes-textarea{flex:1;font-family:'Inter',sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:9px 11px;border-radius:7px;outline:none;resize:none;transition:border-color .15s;}
-.notes-textarea:focus{border-color:var(--green);}
-.notes-textarea::placeholder{color:var(--t3);}
-.notes-post-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:7px 14px;border-radius:7px;border:none;background:var(--green);color:#000;cursor:pointer;transition:all .15s;align-self:flex-end;letter-spacing:.02em;}
-.notes-post-btn:hover{opacity:.85;}
-.item-del{position:absolute;top:5px;right:5px;width:16px;height:16px;border-radius:50%;background:rgba(239,68,68,.1);border:none;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;line-height:1;}
-.item-del:hover{background:rgba(239,68,68,.2);}
-
-/* CHAT */
-.chat-tab{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:4px 8px;border-radius:6px;cursor:pointer;color:var(--t3);border:none;background:transparent;transition:all .12s;}
-.chat-tab.active{background:rgba(34,197,94,.1);color:var(--green);border-radius:6px;}
-.tab-pane{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;}
-.tab-pane.active{display:flex;}
-.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-height:0;background:var(--panel);}
-.chat-messages::-webkit-scrollbar{width:3px;}
-.chat-messages::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
-.chat-msg{display:flex;gap:7px;align-items:flex-start;animation:msgIn .2s ease-out;position:relative;}
-@keyframes msgIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.chat-msg:hover .msg-del{opacity:1;}
-.msg-del{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(239,68,68,.1);border:none;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;line-height:1;}
-.msg-del:hover{background:rgba(239,68,68,.2);}
-.chat-avatar{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;margin-top:1px;}
-.chat-bubble{flex:1;min-width:0;}
-.chat-meta{display:flex;align-items:center;gap:5px;margin-bottom:2px;}
-.chat-user{font-size:12px;font-weight:700;}
-.chat-user.pro{color:var(--cyan);}
-.chat-user.student{color:var(--t2);}
-.chat-badge{font-size:10px;padding:1px 5px;border-radius:4px;font-weight:700;}
-.chat-badge.pro{background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);}
-.chat-badge.student{background:rgba(255,255,255,.04);color:var(--t3);border:1px solid var(--border);}
-.chat-time-msg{font-size:11px;color:var(--t3);}
-.chat-text{font-size:13px;color:var(--t1);line-height:1.5;word-break:break-word;}
-.chat-msg.own .chat-bubble{background:rgba(34,197,94,.06);border-radius:8px;padding:4px 8px;border:1px solid rgba(34,197,94,.1);}
-.typing-indicator{display:none;align-items:center;gap:6px;padding:4px 12px;font-size:10px;color:var(--t3);flex-shrink:0;}
-.typing-dots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--t3);margin:0 1px;animation:tdot 1.2s ease-in-out infinite;}
-.typing-dots span:nth-child(2){animation-delay:.2s;}
-.typing-dots span:nth-child(3){animation-delay:.4s;}
-@keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
-.chat-input-area{display:flex;gap:8px;padding:9px 12px;border-top:1px solid var(--border);flex-shrink:0;}
-.chat-input{flex:1;font-family:'Inter',sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:9px 11px;border-radius:7px;outline:none;transition:all .15s;}
-.chat-input:focus{border-color:var(--green);}
-.chat-input::placeholder{color:var(--t3);}
-.chat-input:disabled{opacity:.4;cursor:not-allowed;}
-.send-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;border-radius:7px;border:none;background:var(--green);color:#000;cursor:pointer;transition:all .15s;letter-spacing:.02em;}
-.send-btn:hover{opacity:.85;}
-.send-btn:disabled{opacity:.4;cursor:not-allowed;}
-.notif-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle;}
-.panel-body{flex:1;overflow-y:auto;padding:12px;background:var(--panel);}
-
-/* COMMUNITY FEED */
-.feed-body{flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--panel);}
-.feed-body::-webkit-scrollbar{width:0;}
-.feed-composer{border-top:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:row;align-items:center;gap:8px;flex-shrink:0;}
-.feed-textarea{font-family:'Inter',sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:8px 11px;border-radius:7px;outline:none;resize:none;transition:border-color .15s;flex:1;min-width:0;}
-.feed-textarea:focus{border-color:var(--green);}
-.feed-textarea::placeholder{color:var(--t3);}
-.feed-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.feed-attach-btn{width:30px;height:30px;border-radius:6px;background:var(--card2);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;}
-.feed-attach-btn:hover{background:rgba(34,197,94,.08);}
-.feed-post{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:9px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;position:relative;}
-.feed-post:hover .item-del{opacity:1;}
-.feed-post-header{display:flex;align-items:center;gap:7px;}
-.feed-avatar{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;}
-.feed-user{font-size:13px;font-weight:700;}
-.feed-user.pro{color:var(--cyan);}
-.feed-user.student{color:var(--t2);}
-.feed-badge{font-size:10px;padding:1px 5px;border-radius:4px;font-weight:700;}
-.feed-badge.pro{background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);}
-.feed-badge.student{background:rgba(255,255,255,.04);color:var(--t3);border:1px solid var(--border);}
-.feed-time{font-size:11px;color:var(--t3);margin-left:auto;}
-.feed-text{font-size:13px;color:var(--t1);line-height:1.6;word-break:break-word;}
-.feed-img{width:100%;border-radius:7px;cursor:zoom-in;border:1px solid var(--border);max-height:160px;object-fit:cover;}
-.feed-img-full{position:fixed;inset:0;z-index:9990;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.feed-img-full .fim-img{width:100vw;height:100vh;object-fit:contain;cursor:zoom-out;}
-.feed-img-full .fim-bar{position:absolute;top:0;left:0;right:0;height:52px;display:flex;align-items:center;padding:0 20px;gap:12px;background:linear-gradient(rgba(0,0,0,.7),transparent);z-index:2;}
-.feed-img-full .fim-title{font-size:13px;font-weight:600;color:rgba(255,255,255,.9);}
-.feed-img-full .fim-close{margin-left:auto;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
-.feed-img-full .fim-hint{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap;pointer-events:none;}
-.up{color:var(--green);}
-.dn{color:var(--red);}
-
-/* ══ SIDEBAR COLLAPSE ══ */
-.sidebar{transition:width .25s cubic-bezier(.4,0,.2,1);}
-.sidebar.collapsed{width:58px;}
-.sidebar.collapsed .sb-wordmark{display:none;}
-.sidebar.collapsed .sb-section{display:none;}
-.sidebar.collapsed .sb-divider{margin:4px 10px;}
-.sidebar.collapsed .sb-badge-live{display:none;}
-.sidebar.collapsed .sb-online-dot{display:none;}
-.sidebar.collapsed .sb-item{padding:10px 0;justify-content:center;gap:0;}
-.sidebar.collapsed .sb-label{display:none;}
-.sidebar.collapsed .sb-badge-live{display:none;}
-.sidebar.collapsed .sb-online-dot{display:none;}
-.sidebar.collapsed .sb-bottom{padding:10px 6px;display:flex;justify-content:center;}
-.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
-.sidebar.collapsed .sb-logo-area{padding:16px 0;display:flex;justify-content:center;align-items:center;}
-.sidebar.collapsed .sb-logo{justify-content:center;}
-.sidebar.collapsed .sb-logo .sb-wordmark{display:none;}
-/* Tooltip on collapsed items */
-.sidebar.collapsed .sb-item{position:relative;}
-.sidebar.collapsed .sb-item:hover::after{content:attr(data-label);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--card);color:var(--t1);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;border:1px solid var(--border-hi);z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.4);}
-/* Toggle button — sits on sidebar right edge */
-.sidebar-wrap{position:relative;flex-shrink:0;}
-.sb-toggle-btn{position:absolute;top:72px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--border-hi);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--t2);transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.35);}
-.sb-toggle-btn:hover{background:var(--green);border-color:var(--green);color:#000;}
-.sb-toggle-btn{transition:transform .25s;}
-
-
-.page-content{flex:1;min-width:0;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px;}
+.page-content{flex:1;min-width:0;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px;}
 .page-content::-webkit-scrollbar{width:3px;}
 .page-content::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
-.page-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;}
-.page-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);}
-.page-card-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--panel);}
-.page-card-title{font-size:15px;font-weight:700;color:var(--t1);flex:1;}
-.page-card-body{padding:20px;background:var(--panel);}
-.pg-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.05em;text-transform:uppercase;}
-.pg-badge.green{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
-.pg-badge.blue{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
-.pg-badge.cyan{background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);}
-.pg-badge.red{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);}
-.pg-badge.orange{background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.2);}
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center;gap:14px;}
-.empty-icon{opacity:.15;color:var(--t2);}
-.empty-title{font-size:18px;font-weight:700;color:var(--t2);}
-.empty-sub{font-size:13px;color:var(--t3);max-width:380px;line-height:1.7;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.stat-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
-.stat-box-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
-.stat-box-val{font-size:24px;font-weight:800;letter-spacing:-.5px;}
-.stat-box-val.green{color:var(--green);}
-.stat-box-val.blue{color:var(--blue);}
-.stat-box-val.cyan{color:var(--cyan);}
-.stat-box-sub{font-size:11px;color:var(--t3);margin-top:3px;}
-iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
 
+/* ══ PROGRESS BANNER ══ */
+.progress-banner{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;display:flex;align-items:center;gap:28px;position:relative;overflow:hidden;flex-shrink:0;}
+.progress-banner::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,.5),rgba(6,182,212,.3),transparent);}
+.pb-left{flex:1;min-width:0;}
+.pb-heading{font-size:13px;font-weight:700;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
+.pb-title{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-.4px;margin-bottom:4px;}
+.pb-sub{font-size:13px;color:var(--t2);line-height:1.5;}
+.pb-track{margin-top:14px;display:flex;gap:3px;align-items:center;}
+.pb-step{flex:1;height:4px;border-radius:2px;background:var(--card2);transition:background .4s;}
+.pb-step.done{background:var(--green);}
+.pb-step.active{background:var(--cyan);}
+.pb-step-label{font-size:10px;color:var(--t3);margin-left:8px;white-space:nowrap;font-weight:600;}
+.pb-stats{display:flex;gap:20px;flex-shrink:0;}
+.pb-stat{text-align:center;}
+.pb-stat-val{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+.pb-stat-val.green{color:var(--green);}
+.pb-stat-val.blue{color:var(--blue);}
+.pb-stat-val.cyan{color:var(--cyan);}
+.pb-stat-label{font-size:10px;color:var(--t3);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.pb-divider{width:1px;height:48px;background:var(--border);flex-shrink:0;}
 
-.sb-logout-btn{display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:auto;flex-shrink:0;border-radius:7px;border:none;background:transparent;cursor:pointer;color:var(--t3);transition:all .15s;}
-.sb-logout-btn:hover{background:rgba(239,68,68,.1);color:var(--red);}
-.sb-logout-btn svg{pointer-events:none;}
-.sidebar.collapsed .sb-logout-btn{margin:0 auto;}
+/* ══ SECTION HEADER ══ */
+.section-hd{display:flex;align-items:center;gap:10px;}
+.section-hd-title{font-size:13px;font-weight:700;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;}
+.section-hd-line{flex:1;height:1px;background:var(--border);}
+.section-hd-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.05em;text-transform:uppercase;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+
+/* ══ MODULE GRID ══ */
+.modules-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ══ MODULE CARD ══ */
+.mod-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;cursor:pointer;transition:border-color .2s,transform .15s;}
+.mod-card:hover:not(.locked){border-color:var(--border-hi);transform:translateY(-1px);}
+.mod-card.locked{cursor:default;opacity:.6;}
+.mod-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);z-index:1;}
+.mod-card.active-card::before{background:linear-gradient(90deg,transparent,rgba(34,197,94,.6),transparent);}
+
+/* card header band */
+.mod-header{padding:18px 20px 14px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--border);position:relative;}
+.mod-num{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;}
+.mod-title{font-size:15px;font-weight:700;color:var(--t1);line-height:1.35;letter-spacing:-.2px;}
+.mod-meta{font-size:11px;color:var(--t2);}
+.mod-icon{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+
+/* card body */
+.mod-body{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px;}
+.mod-progress-row{display:flex;align-items:center;gap:8px;}
+.mod-bar-wrap{flex:1;height:4px;background:var(--card2);border-radius:2px;overflow:hidden;}
+.mod-bar{height:100%;border-radius:2px;transition:width .6s ease;}
+.mod-pct{font-size:11px;font-weight:700;min-width:32px;text-align:right;}
+.mod-topics{font-size:11px;color:var(--t3);line-height:1.5;}
+.mod-lessons{display:flex;flex-direction:column;gap:5px;}
+.mod-lesson-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);}
+.mod-lesson-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--border-hi);}
+.mod-lesson-dot.done{background:var(--green);}
+.mod-lesson-dot.active{background:var(--cyan);animation:pulse 2s ease-in-out infinite;}
+.mod-btn{width:100%;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:9px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;margin-top:4px;letter-spacing:.01em;}
+.mod-btn.start{background:var(--green);color:#000;}
+.mod-btn.start:hover{opacity:.88;}
+.mod-btn.continue{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25);}
+.mod-btn.continue:hover{background:rgba(6,182,212,.2);}
+.mod-btn.locked-btn{background:transparent;color:var(--t3);border:1px solid var(--border);cursor:default;}
+.mod-btn.done-btn{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2);cursor:default;}
+
+/* lock overlay */
+.lock-overlay{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:rgba(71,85,105,.2);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
+.lock-overlay svg{opacity:.5;}
+
+/* gate notice */
+.gate-notice{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:var(--radius-lg);padding:14px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.gate-icon{width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gate-text{flex:1;}
+.gate-title{font-size:13px;font-weight:700;color:var(--orange);margin-bottom:2px;}
+.gate-sub{font-size:12px;color:var(--t3);line-height:1.5;}
+.gate-quiz-btn{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:7px 16px;border-radius:7px;border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.1);color:var(--orange);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;}
+.gate-quiz-btn:hover{background:rgba(245,158,11,.2);}
+
+/* ══ PHASE 2 TEASER ══ */
+.phase-teaser{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;display:flex;align-items:center;gap:16px;opacity:.45;position:relative;overflow:hidden;}
+.phase-teaser::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);}
+.phase-lock-icon{width:40px;height:40px;border-radius:10px;background:rgba(71,85,105,.15);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.phase-teaser-title{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:3px;}
+.phase-teaser-sub{font-size:12px;color:var(--t3);}
+.phase-lock-badge{margin-left:auto;font-size:10px;font-weight:700;padding:4px 12px;border-radius:5px;background:rgba(71,85,105,.15);color:var(--t3);border:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
+
+/* ══ QUIZ MODAL ══ */
+.quiz-overlay{position:fixed;inset:0;z-index:8888;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;}
+.quiz-overlay.hidden{display:none;}
+.quiz-box{background:var(--panel);border:1px solid var(--border-hi);border-radius:16px;width:520px;max-height:85vh;overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 40px 80px rgba(0,0,0,.6);position:relative;}
+.quiz-box::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,.5),transparent);}
+.quiz-header{padding:22px 26px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.quiz-header-title{font-size:16px;font-weight:800;color:var(--t1);flex:1;letter-spacing:-.3px;}
+.quiz-close{width:28px;height:28px;border-radius:50%;background:var(--card2);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:16px;transition:all .15s;}
+.quiz-close:hover{background:rgba(239,68,68,.1);color:var(--red);}
+.quiz-body{padding:22px 26px;display:flex;flex-direction:column;gap:20px;flex:1;}
+.quiz-q{background:var(--card);border:1px solid var(--border-hi);border-radius:10px;padding:16px 18px;}
+.quiz-q-num{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.quiz-q-text{font-size:14px;font-weight:600;color:var(--t1);line-height:1.5;margin-bottom:12px;}
+.quiz-options{display:flex;flex-direction:column;gap:6px;}
+.quiz-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;border:1px solid var(--border-hi);cursor:pointer;transition:all .15s;font-size:13px;color:var(--t2);}
+.quiz-opt:hover{border-color:var(--green);background:rgba(34,197,94,.04);color:var(--t1);}
+.quiz-opt.selected{border-color:var(--green);background:rgba(34,197,94,.08);color:var(--green);}
+.quiz-opt.correct{border-color:var(--green);background:rgba(34,197,94,.12);color:var(--green);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.08);color:var(--red);}
+.quiz-opt-letter{width:20px;height:20px;border-radius:5px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.quiz-footer{padding:16px 26px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;}
+.quiz-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:10px 22px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;}
+.quiz-btn.primary{background:var(--green);color:#000;}
+.quiz-btn.primary:hover{opacity:.88;}
+.quiz-btn.secondary{background:var(--card2);color:var(--t2);border:1px solid var(--border-hi);}
+.quiz-btn.secondary:hover{background:var(--card);}
+.quiz-result{text-align:center;padding:10px 0;}
+.quiz-result-score{font-size:48px;font-weight:800;letter-spacing:-2px;margin-bottom:8px;}
+.quiz-result-score.pass{color:var(--green);}
+.quiz-result-score.fail{color:var(--red);}
+.quiz-result-label{font-size:15px;font-weight:600;color:var(--t2);margin-bottom:4px;}
+.quiz-result-sub{font-size:13px;color:var(--t3);}
 </style>
 </head>
 <body>
 
+<!-- AUTH MODAL -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
     <div class="modal-logo">
@@ -335,7 +283,25 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
   </div>
 </div>
 
+<!-- QUIZ MODAL -->
+<div class="quiz-overlay hidden" id="quizModal">
+  <div class="quiz-box">
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-header-title" id="quizTitle">Module 1 Quiz</div>
+        <div style="font-size:12px;color:var(--t3);margin-top:2px;">Score 80% or higher to unlock the next module</div>
+      </div>
+      <div class="quiz-close" onclick="closeQuiz()">✕</div>
+    </div>
+    <div class="quiz-body" id="quizBody"></div>
+    <div class="quiz-footer" id="quizFooter">
+      <button class="quiz-btn secondary" onclick="closeQuiz()">Cancel</button>
+      <button class="quiz-btn primary" id="quizSubmitBtn" onclick="submitQuiz()">Submit Answers</button>
+    </div>
+  </div>
+</div>
 
+<!-- SIDEBAR -->
 <div class="sidebar-wrap">
 <nav class="sidebar" id="sidebar">
   <div class="sb-logo-area">
@@ -347,28 +313,28 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
     </div>
   </div>
   <div class="sb-scroll">
-    <div class="sb-item" onclick="window.location.href='trading-dashboard.html'">
+    <div class="sb-item" data-label="Dashboard" onclick="window.location.href='trading-dashboard.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></span><span class="sb-label">Dashboard</span>
     </div>
-    <div class="sb-item" onclick="window.location.href='scanners.html'">
+    <div class="sb-item" data-label="Scanners" onclick="window.location.href='scanners.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Scanners</span>
     </div>
-    <div class="sb-item" onclick="window.location.href='chart.html'">
+    <div class="sb-item" data-label="Charting" onclick="window.location.href='chart.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></span><span class="sb-label">Charting</span>
     </div>
-    <div class="sb-item" onclick="window.location.href='youtube.html'">
+    <div class="sb-item" data-label="YouTube" onclick="window.location.href='youtube.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16 10,8" fill="currentColor" stroke="none"/></svg></span><span class="sb-label">YouTube</span>
     </div>
-    <div class="sb-item" onclick="window.location.href='zoom.html'">
+    <div class="sb-item" data-label="Zoom" onclick="window.location.href='zoom.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></span><span class="sb-label">Zoom</span>
     </div>
-    <div class="sb-item active" onclick="window.location.href='courses.html'">
+    <div class="sb-item active" data-label="Courses" onclick="window.location.href='courses.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Courses</span>
     </div>
-    <div class="sb-item" onclick="window.location.href='mentorship.html'">
+    <div class="sb-item" data-label="Mentorship" onclick="window.location.href='mentorship.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sb-label">Mentorship</span>
     </div>
-    <div class="sb-item" onclick="window.location.href='tradervue.html'">
+    <div class="sb-item" data-label="Tradervue" onclick="window.location.href='tradervue.html'">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg></span><span class="sb-label">Tradervue</span>
     </div>
   </div>
@@ -387,100 +353,487 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
 </nav>
 </div>
 
-
-
+<!-- MAIN -->
 <div class="main-content">
   <div class="header">
-    <div class="header-title">Courses</div>
+    <div class="header-title">Foundation Course</div>
     <div class="live-badge">LIVE</div>
     <div class="market-pill"><span class="ms-dot open"></span><span id="marketStatusText">Market Open</span></div>
     <span class="username-chip" id="userChip">⭐ Instructor</span>
     <div class="header-right">
-      <span class="firebase-status" id="fbStatus"></span>
-      <div class="session-clock" id="sessionTime">09:32:14</div>
+      <div class="session-clock" id="sessionTime">00:00:00</div>
     </div>
   </div>
+
   <div class="content-row">
     <div class="page-content">
-<div class="three-col">
-  <div class="page-card">
-    <div style="background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(6,182,212,.08));padding:20px;border-bottom:1px solid var(--border);">
-      <div style="font-size:28px;margin-bottom:10px;">📈</div>
-      <div style="font-family:Inter,sans-serif;font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px;">Momentum Trading Fundamentals</div>
-      <div style="font-size:12px;color:var(--t2);">12 lessons · 4.5 hours</div>
-    </div>
-    <div class="page-card-body">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <div style="flex:1;height:5px;background:var(--card2);border-radius:3px;overflow:hidden;"><div style="width:65%;height:100%;background:var(--green);border-radius:3px;"></div></div>
-        <span style="font-size:11px;font-weight:700;color:var(--green);">65%</span>
+
+      <!-- PROGRESS BANNER -->
+      <div class="progress-banner">
+        <div class="pb-left">
+          <div class="pb-heading">CREDO Trading Academy</div>
+          <div class="pb-title">Small-Cap Day Trading — Foundation Course</div>
+          <div class="pb-sub">Complete all 6 modules before advancing to live paper trading.</div>
+          <div class="pb-track" id="pbTrack">
+            <div class="pb-step" id="step0"></div>
+            <div class="pb-step" id="step1"></div>
+            <div class="pb-step" id="step2"></div>
+            <div class="pb-step" id="step3"></div>
+            <div class="pb-step" id="step4"></div>
+            <div class="pb-step" id="step5"></div>
+            <span class="pb-step-label" id="pbStepLabel">Module 1 of 6</span>
+          </div>
+        </div>
+        <div class="pb-divider"></div>
+        <div class="pb-stats">
+          <div class="pb-stat"><div class="pb-stat-val green" id="statModules">0</div><div class="pb-stat-label">Modules Done</div></div>
+          <div class="pb-stat"><div class="pb-stat-val blue" id="statLessons">0</div><div class="pb-stat-label">Lessons Done</div></div>
+          <div class="pb-stat"><div class="pb-stat-val cyan" id="statPct">0%</div><div class="pb-stat-label">Overall</div></div>
+        </div>
       </div>
-      <div style="font-size:12px;color:var(--t3);margin-bottom:14px;">Gap & Go, VWAP, Float rotation, Level 2 reads</div>
-      <button style="width:100%;font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:9px;border-radius:8px;border:none;background:var(--green);color:#000;cursor:pointer;">Continue →</button>
-    </div>
-  </div>
-  <div class="page-card">
-    <div style="background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.08));padding:20px;border-bottom:1px solid var(--border);">
-      <div style="font-size:28px;margin-bottom:10px;">🧠</div>
-      <div style="font-family:Inter,sans-serif;font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px;">Trading Psychology & Risk</div>
-      <div style="font-size:12px;color:var(--t2);">8 lessons · 3 hours</div>
-    </div>
-    <div class="page-card-body">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <div style="flex:1;height:5px;background:var(--card2);border-radius:3px;overflow:hidden;"><div style="width:30%;height:100%;background:var(--blue);border-radius:3px;"></div></div>
-        <span style="font-size:11px;font-weight:700;color:var(--blue);">30%</span>
+
+      <!-- GATE NOTICE (shown when quiz needed) -->
+      <div class="gate-notice" id="gateNotice" style="display:none;">
+        <div class="gate-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="gate-text">
+          <div class="gate-title">Quiz Required to Unlock Next Module</div>
+          <div class="gate-sub" id="gateNoticeText">Complete the Module 1 quiz with 80% or higher to unlock Module 2.</div>
+        </div>
+        <button class="gate-quiz-btn" id="gateQuizBtn">Take Quiz →</button>
       </div>
-      <div style="font-size:12px;color:var(--t3);margin-bottom:14px;">Risk management, FOMO control, trade journaling</div>
-      <button style="width:100%;font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:9px;border-radius:8px;border:none;background:var(--blue);color:#fff;cursor:pointer;">Continue →</button>
-    </div>
-  </div>
-  <div class="page-card">
-    <div style="background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.08));padding:20px;border-bottom:1px solid var(--border);">
-      <div style="font-size:28px;margin-bottom:10px;">🔬</div>
-      <div style="font-family:Inter,sans-serif;font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px;">Advanced Short Selling</div>
-      <div style="font-size:12px;color:var(--t2);">10 lessons · 5 hours</div>
-    </div>
-    <div class="page-card-body">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <div style="flex:1;height:5px;background:var(--card2);border-radius:3px;overflow:hidden;"><div style="width:0%;height:100%;background:var(--orange);border-radius:3px;"></div></div>
-        <span style="font-size:11px;font-weight:700;color:var(--t3);">Not started</span>
+
+      <!-- SECTION: FOUNDATION COURSE -->
+      <div class="section-hd">
+        <div class="section-hd-title">Foundation Course — 6 Modules</div>
+        <div class="section-hd-line"></div>
+        <div class="section-hd-badge" id="enrolledBadge">0 of 6 complete</div>
       </div>
-      <div style="font-size:12px;color:var(--t3);margin-bottom:14px;">Borrow rates, locate, short squeezes, covering</div>
-      <button style="width:100%;font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:9px;border-radius:8px;border:1px solid var(--border-hi);background:transparent;color:var(--t2);cursor:pointer;">Start Course →</button>
+
+      <!-- MODULE CARDS -->
+      <div class="modules-grid" id="modulesGrid"></div>
+
+      <!-- PHASE 2 TEASER -->
+      <div class="section-hd">
+        <div class="section-hd-title">What Comes Next</div>
+        <div class="section-hd-line"></div>
+      </div>
+
+      <div class="phase-teaser">
+        <div class="phase-lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <div class="phase-teaser-title">Phase 2 — Paper Trading Curriculum</div>
+          <div class="phase-teaser-sub">Pre-market thesis drills, called-shot trading, setup isolation, Sterling tape reading, TraderVue journaling. Unlocks after all 6 Foundation modules are complete.</div>
+        </div>
+        <div class="phase-lock-badge">Locked — Complete Foundation First</div>
+      </div>
+
+      <div class="phase-teaser">
+        <div class="phase-lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <div class="phase-teaser-title">Phase 3 — Live Trading with Real Capital</div>
+          <div class="phase-teaser-sub">Daily live sessions 7:00–10:30 AM EST, scaled position sizing, IB Risk Navigator, daily 1-on-1 mentor calls. Requires Phase 2 progression gate clearance.</div>
+        </div>
+        <div class="phase-lock-badge">Locked — Complete Phase 2 First</div>
+      </div>
+
     </div>
-  </div>
-</div>
-<div class="page-card">
-  <div class="page-card-header">
-    <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.7" width="18" height="18"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
-    <div class="page-card-title">Your Progress</div>
-    <span class="pg-badge cyan">3 courses enrolled</span>
-  </div>
-  <div class="page-card-body" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-    <div style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--green);">24</div><div style="font-size:11px;color:var(--t3);">Lessons Complete</div></div>
-    <div style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--blue);">8.5h</div><div style="font-size:11px;color:var(--t3);">Watch Time</div></div>
-    <div style="text-align:center;"><div style="font-size:26px;font-weight:800;color:var(--cyan);">42%</div><div style="font-size:11px;color:var(--t3);">Overall Progress</div></div>
-  </div>
-</div></div>
   </div>
 </div>
 
 <script>
-var selectedRole = 'student';
-function setNav(el){document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active');});el.classList.add('active');}
-function updateMarketStatus(){var et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));var mins=et.getHours()*60+et.getMinutes(),day=et.getDay();var dot=document.querySelector('.ms-dot'),txt=document.getElementById('marketStatusText');if(!dot)return;if(day===0||day===6){dot.className='ms-dot closed';txt.textContent='Weekend';}else if(mins>=240&&mins<570){dot.className='ms-dot pre';txt.textContent='Pre-Market';}else if(mins>=570&&mins<960){dot.className='ms-dot open';txt.textContent='Market Open';}else if(mins>=960&&mins<1200){dot.className='ms-dot pre';txt.textContent='After Hours';}else{dot.className='ms-dot closed';txt.textContent='Market Closed';}}
-setInterval(updateMarketStatus,30000);updateMarketStatus();
-function updateClock(){document.getElementById('sessionTime').textContent=new Date().toTimeString().slice(0,8);}
-setInterval(updateClock,1000);updateClock();
+// ══ MODULE DATA ══
+var MODULES = [
+  {
+    id: 1,
+    title: "How the Stock Market Works",
+    lessons: ["What is a stock?", "How buying and selling works", "Understanding small-cap stocks", "Reading a stock chart", "The language of trading", "Your daily routine"],
+    topics: "Stocks, orders, float, catalysts, chart basics",
+    hours: "5-7 hrs",
+    icon: "📈",
+    color: "var(--green)",
+    gradient: "rgba(34,197,94,.12),rgba(6,182,212,.08)",
+    quiz: [
+      { q: "What is a stock?", opts: ["A loan you give to a company","A small piece of ownership in a company","A type of government bond","A contract to buy goods at a fixed price"], ans: 1 },
+      { q: "If a stock has a bid of $4.90 and an ask of $5.10, what is the spread?", opts: ["$0.10","$5.00","$0.20","$4.90"], ans: 2 },
+      { q: "Which order type guarantees your price but may not fill?", opts: ["Market order","Stop order","Limit order","Bracket order"], ans: 2 },
+      { q: "What is float?", opts: ["Total shares ever issued","Shares available for public trading","Daily trading volume","Price minus open"], ans: 1 },
+      { q: "Why do day traders prefer low-float stocks?", opts: ["They are safer","Less risk of halts","Each order has more price impact","They always have good catalysts"], ans: 2 },
+      { q: "What does a green candlestick indicate?", opts: ["Stock will keep rising","Stock closed higher than it opened","Volume was above average","There was a positive catalyst"], ans: 1 },
+      { q: "What is VWAP?", opts: ["Volume-Weighted Average Price","A chart pattern","The highest price in pre-market","A regulatory halt trigger"], ans: 0 },
+      { q: "What is the PDT rule?", opts: ["Requires limit orders only","Limits to 3 trades per week","Requires $25,000 minimum for unlimited day trading","Prevents short selling"], ans: 2 },
+      { q: "Which is a Tier 1 catalyst?", opts: ["A technical breakout with no news","An FDA drug approval decision","High relative volume with no news","A Reddit post going viral"], ans: 1 },
+      { q: "When does the most volume and biggest moves occur?", opts: ["12:00 PM – 2:00 PM","2:00 PM – 4:00 PM","9:30 AM – 10:30 AM","4:00 AM – 7:00 AM"], ans: 2 }
+    ]
+  },
+  {
+    id: 2, title: "Reading Charts and Price Action",
+    lessons: ["Candlestick patterns", "Support and resistance", "Drawing key levels", "1-minute and 5-minute timeframes", "VWAP in depth", "Strong vs weak setups"],
+    topics: "Candlesticks, S/R levels, VWAP, timeframes",
+    hours: "5-7 hrs", icon: "📊",
+    color: "var(--blue)", gradient: "rgba(59,130,246,.12),rgba(139,92,246,.08)",
+    quiz: []
+  },
+  {
+    id: 3, title: "Small-Cap Mechanics Deep Dive",
+    lessons: ["Short selling mechanics", "The short squeeze setup", "Reading SEC filings", "Finding float with Finviz", "Gap-and-go vs gap-and-trap", "Halt and resume mechanics"],
+    topics: "Shorts, SEC filings, gap patterns, halts",
+    hours: "6-8 hrs", icon: "🔬",
+    color: "var(--orange)", gradient: "rgba(245,158,11,.12),rgba(239,68,68,.08)",
+    quiz: []
+  },
+  {
+    id: 4, title: "Platform Setup and Tool Training",
+    lessons: ["Trade Ideas gap scanner setup", "Scanner literacy and alerts", "Sterling Trader Pro layout", "Hotkey configuration and drills", "IB account and TWS setup", "TraderVue and Discord orientation"],
+    topics: "Trade Ideas, Sterling, IB, TraderVue",
+    hours: "8-10 hrs", icon: "⚙️",
+    color: "var(--purple)", gradient: "rgba(139,92,246,.12),rgba(59,130,246,.08)",
+    quiz: []
+  },
+  {
+    id: 5, title: "Risk Management Fundamentals",
+    lessons: ["Position sizing formula", "Daily loss limit mechanics", "Cost of drawdown", "Spread and commission calculation", "Bracket order workflow in IB", "IB Risk Navigator configuration"],
+    topics: "Sizing, stop losses, daily limits, IB bot",
+    hours: "5-6 hrs", icon: "🛡️",
+    color: "var(--red)", gradient: "rgba(239,68,68,.12),rgba(245,158,11,.08)",
+    quiz: []
+  },
+  {
+    id: 6, title: "Trading Psychology and Daily Routine",
+    lessons: ["Revenge trading and winner's tilt", "FOMO and hope as strategy", "Outcome bias and confirmation bias", "Pre-session and post-session routine", "Emotional state rating system", "Monthly self-review protocol"],
+    topics: "Psychology, bias, daily routine, discipline",
+    hours: "4-5 hrs", icon: "🧠",
+    color: "var(--cyan)", gradient: "rgba(6,182,212,.12),rgba(139,92,246,.08)",
+    quiz: []
+  }
+];
 
-function showTab(tab){var l=tab==='login';document.getElementById('tabLogin').classList.toggle('active',l);document.getElementById('tabRegister').classList.toggle('active',!l);document.getElementById('formLogin').style.display=l?'flex':'none';document.getElementById('formRegister').style.display=l?'none':'flex';document.getElementById('authBtn').textContent=l?'Sign In':'Create Account';document.getElementById('modalSubtitle').textContent=l?'Sign in to join the live session':'Create your TradeRoom account';document.getElementById('modalError').style.display='none';}
-function setRole(r){selectedRole=r;document.getElementById('roleStudent').classList.toggle('active',r==='student');document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');}
-function handleAuth(){var err=document.getElementById('modalError');err.style.display='none';var btn=document.getElementById('authBtn');btn.textContent='...';btn.disabled=true;var isLogin=document.getElementById('tabLogin').classList.contains('active');if(isLogin){var email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value;if(!email||!pass){showErr('Please enter your email and password.');return;}firebase.auth().signInWithEmailAndPassword(email,pass).catch(function(e){showErr(friendlyError(e.code));});}else{var name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPassword').value;if(!name||!email||!pass){showErr('Please fill in all fields.');return;}if(pass.length<6){showErr('Password must be at least 6 characters.');return;}firebase.auth().createUserWithEmailAndPassword(email,pass).then(function(c){firebase.database().ref('traderoom/users/'+c.user.uid).set({name:name,role:selectedRole,email:email});}).catch(function(e){showErr(friendlyError(e.code));});}}
-function showErr(msg){var err=document.getElementById('modalError');err.textContent='! '+msg;err.style.display='block';var btn=document.getElementById('authBtn');btn.disabled=false;btn.textContent=document.getElementById('tabLogin').classList.contains('active')?'Sign In':'Create Account';}
-function friendlyError(code){var map={'auth/user-not-found':'No account found with that email.','auth/wrong-password':'Incorrect password.','auth/invalid-email':'Please enter a valid email address.','auth/email-already-in-use':'That email is already registered.','auth/weak-password':'Password must be at least 6 characters.','auth/too-many-requests':'Too many attempts. Please wait.','auth/invalid-credential':'Incorrect email or password.'};return map[code]||'Something went wrong. Please try again.';}
-function forgotPassword(){var email=document.getElementById('loginEmail').value.trim();if(!email){showErr('Enter your email address first.');return;}firebase.auth().sendPasswordResetEmail(email).then(function(){var e=document.getElementById('modalError');e.textContent='Reset email sent.';e.style.color='var(--green)';e.style.display='block';}).catch(function(e){showErr(friendlyError(e.code));});}
+// ══ STATE ══
+var currentUser = null;
+var userProgress = {}; // { modId: { pct, quizPassed } }
+var activeQuizMod = null;
+var quizAnswers = {};
+
+function getUnlockedCount() {
+  // Module 1 always unlocked. Module N unlocked if N-1 quiz passed.
+  var count = 1;
+  for (var i = 1; i < MODULES.length; i++) {
+    var prev = userProgress[MODULES[i-1].id];
+    if (prev && prev.quizPassed) count = i + 1;
+    else break;
+  }
+  return count;
+}
+
+function getCompletedCount() {
+  var c = 0;
+  MODULES.forEach(function(m) {
+    var p = userProgress[m.id];
+    if (p && p.quizPassed) c++;
+  });
+  return c;
+}
+
+function getTotalLessons() {
+  var done = 0;
+  MODULES.forEach(function(m) {
+    var p = userProgress[m.id];
+    if (p && p.quizPassed) done += m.lessons.length;
+    else if (p && p.pct > 0) done += Math.round(m.lessons.length * p.pct / 100);
+  });
+  return done;
+}
+
+function getOverallPct() {
+  var total = MODULES.reduce(function(s, m) { return s + m.lessons.length; }, 0);
+  return total > 0 ? Math.round(getTotalLessons() / total * 100) : 0;
+}
+
+// ══ RENDER ══
+function renderAll() {
+  var unlocked = getUnlockedCount();
+  var completed = getCompletedCount();
+
+  // Banner stats
+  document.getElementById('statModules').textContent = completed;
+  document.getElementById('statLessons').textContent = getTotalLessons();
+  document.getElementById('statPct').textContent = getOverallPct() + '%';
+  document.getElementById('enrolledBadge').textContent = completed + ' of 6 complete';
+  document.getElementById('pbStepLabel').textContent = 'Module ' + Math.min(unlocked, 6) + ' of 6';
+
+  // Progress steps
+  for (var s = 0; s < 6; s++) {
+    var el = document.getElementById('step' + s);
+    if (!el) continue;
+    var mod = MODULES[s];
+    var p = userProgress[mod.id];
+    if (p && p.quizPassed) el.className = 'pb-step done';
+    else if (s < unlocked) el.className = 'pb-step active';
+    else el.className = 'pb-step';
+  }
+
+  // Gate notice
+  var gn = document.getElementById('gateNotice');
+  var nextMod = MODULES[completed]; // first incomplete
+  if (nextMod && completed < 6) {
+    var prevMod = MODULES[completed - 1];
+    if (prevMod) {
+      var pp = userProgress[prevMod.id];
+      if (pp && pp.pct >= 100 && !pp.quizPassed) {
+        gn.style.display = 'flex';
+        document.getElementById('gateNoticeText').textContent = 'Complete the Module ' + prevMod.id + ' quiz with 80% or higher to unlock Module ' + nextMod.id + '.';
+        document.getElementById('gateQuizBtn').onclick = function() { openQuiz(prevMod.id - 1); };
+      } else { gn.style.display = 'none'; }
+    } else { gn.style.display = 'none'; }
+  } else { gn.style.display = 'none'; }
+
+  // Module cards
+  renderCards(unlocked);
+}
+
+function renderCards(unlocked) {
+  var grid = document.getElementById('modulesGrid');
+  grid.innerHTML = '';
+
+  MODULES.forEach(function(mod, idx) {
+    var p = userProgress[mod.id] || { pct: 0, quizPassed: false };
+    var isLocked = idx >= unlocked;
+    var isDone = p.quizPassed;
+    var pct = isDone ? 100 : p.pct;
+    var isActive = !isLocked && !isDone;
+
+    var card = document.createElement('div');
+    card.className = 'mod-card' + (isLocked ? ' locked' : '') + (isActive && pct > 0 ? ' active-card' : '');
+
+    // Button state
+    var btnClass, btnText, btnAction;
+    if (isLocked) { btnClass = 'locked-btn'; btnText = '🔒 Locked'; btnAction = ''; }
+    else if (isDone) { btnClass = 'done-btn'; btnText = '✓ Complete'; btnAction = ''; }
+    else if (pct === 0) { btnClass = 'start'; btnText = 'Start Module →'; btnAction = 'startModule(' + idx + ')'; }
+    else if (pct >= 100) { btnClass = 'continue'; btnText = 'Take Quiz →'; btnAction = 'openQuiz(' + idx + ')'; }
+    else { btnClass = 'continue'; btnText = 'Continue →'; btnAction = 'startModule(' + idx + ')'; }
+
+    // Bar color
+    var barColor = isDone ? 'var(--green)' : (isActive ? mod.color : 'var(--t3)');
+
+    // Lesson dots
+    var lessonDots = mod.lessons.map(function(lesson, li) {
+      var dotClass = 'mod-lesson-dot';
+      if (isDone || li < Math.floor(mod.lessons.length * pct / 100)) dotClass += ' done';
+      else if (li === Math.floor(mod.lessons.length * pct / 100) && isActive && pct > 0) dotClass += ' active';
+      return '<div class="mod-lesson-row"><div class="' + dotClass + '"></div><span>' + lesson + '</span></div>';
+    }).join('');
+
+    card.innerHTML =
+      '<div class="mod-header" style="background:linear-gradient(135deg,' + mod.gradient + ');">' +
+        '<div class="mod-num">Module ' + mod.id + ' · ' + mod.hours + '</div>' +
+        '<div class="mod-title">' + mod.title + '</div>' +
+        '<div class="mod-meta">' + mod.lessons.length + ' lessons</div>' +
+        '<div class="mod-icon" style="background:rgba(0,0,0,.2);">' + mod.icon + '</div>' +
+      '</div>' +
+      '<div class="mod-body">' +
+        '<div class="mod-progress-row">' +
+          '<div class="mod-bar-wrap"><div class="mod-bar" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' +
+          '<span class="mod-pct" style="color:' + barColor + ';">' + (isLocked ? '—' : pct + '%') + '</span>' +
+        '</div>' +
+        '<div class="mod-topics">' + mod.topics + '</div>' +
+        '<div class="mod-lessons">' + lessonDots + '</div>' +
+        (btnAction ? '<button class="mod-btn ' + btnClass + '" onclick="' + btnAction + '">' + btnText + '</button>' :
+          '<button class="mod-btn ' + btnClass + '" disabled>' + btnText + '</button>') +
+      '</div>' +
+      (isLocked ? '<div class="lock-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" width="12" height="12"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>' : '');
+
+    grid.appendChild(card);
+  });
+}
+
+function startModule(idx) {
+  var mod = MODULES[idx];
+  // Simulate progress — in real app navigate to module page
+  if (!userProgress[mod.id]) userProgress[mod.id] = { pct: 0, quizPassed: false };
+  if (userProgress[mod.id].pct < 100) {
+    // Demo: advance by 1 lesson each click
+    var lessonStep = Math.round(100 / mod.lessons.length);
+    userProgress[mod.id].pct = Math.min(100, userProgress[mod.id].pct + lessonStep);
+    if (currentUser) saveProgress();
+  }
+  if (userProgress[mod.id].pct >= 100 && mod.quiz.length > 0) {
+    openQuiz(idx);
+  } else if (userProgress[mod.id].pct >= 100 && mod.quiz.length === 0) {
+    userProgress[mod.id].quizPassed = true;
+    if (currentUser) saveProgress();
+  }
+  renderAll();
+}
+
+// ══ QUIZ ══
+function openQuiz(idx) {
+  var mod = MODULES[idx];
+  if (!mod.quiz || mod.quiz.length === 0) {
+    // No quiz yet — mark as passed (placeholder for modules not yet built)
+    if (!userProgress[mod.id]) userProgress[mod.id] = { pct: 100, quizPassed: false };
+    userProgress[mod.id].quizPassed = true;
+    if (currentUser) saveProgress();
+    renderAll();
+    return;
+  }
+  activeQuizMod = idx;
+  quizAnswers = {};
+  document.getElementById('quizTitle').textContent = 'Module ' + mod.id + ' — ' + mod.title + ' Quiz';
+  document.getElementById('quizSubmitBtn').textContent = 'Submit Answers';
+  document.getElementById('quizSubmitBtn').onclick = submitQuiz;
+  document.getElementById('quizSubmitBtn').style.display = '';
+
+  var body = document.getElementById('quizBody');
+  body.innerHTML = '';
+  mod.quiz.forEach(function(q, qi) {
+    var letters = ['A','B','C','D'];
+    var optsHtml = q.opts.map(function(o, oi) {
+      return '<div class="quiz-opt" id="opt_' + qi + '_' + oi + '" onclick="selectOpt(' + qi + ',' + oi + ')">' +
+        '<div class="quiz-opt-letter">' + letters[oi] + '</div>' + o + '</div>';
+    }).join('');
+    var qEl = document.createElement('div');
+    qEl.className = 'quiz-q';
+    qEl.innerHTML = '<div class="quiz-q-num">Question ' + (qi+1) + ' of ' + mod.quiz.length + '</div>' +
+      '<div class="quiz-q-text">' + q.q + '</div>' +
+      '<div class="quiz-options">' + optsHtml + '</div>';
+    body.appendChild(qEl);
+  });
+
+  document.getElementById('quizModal').classList.remove('hidden');
+}
+
+function selectOpt(qi, oi) {
+  var mod = MODULES[activeQuizMod];
+  quizAnswers[qi] = oi;
+  // Clear row
+  mod.quiz[qi].opts.forEach(function(_, i) {
+    var el = document.getElementById('opt_' + qi + '_' + i);
+    if (el) el.className = 'quiz-opt' + (i === oi ? ' selected' : '');
+  });
+}
+
+function submitQuiz() {
+  var mod = MODULES[activeQuizMod];
+  var correct = 0;
+  mod.quiz.forEach(function(q, qi) {
+    var answered = quizAnswers[qi];
+    mod.quiz[qi].opts.forEach(function(_, oi) {
+      var el = document.getElementById('opt_' + qi + '_' + oi);
+      if (!el) return;
+      if (oi === q.ans) el.className = 'quiz-opt correct';
+      else if (oi === answered && answered !== q.ans) el.className = 'quiz-opt wrong';
+    });
+    if (answered === q.ans) correct++;
+  });
+
+  var pct = Math.round(correct / mod.quiz.length * 100);
+  var passed = pct >= 80;
+
+  // Show result
+  var body = document.getElementById('quizBody');
+  var resultEl = document.createElement('div');
+  resultEl.className = 'quiz-result';
+  resultEl.innerHTML =
+    '<div class="quiz-result-score ' + (passed ? 'pass' : 'fail') + '">' + pct + '%</div>' +
+    '<div class="quiz-result-label">' + correct + ' of ' + mod.quiz.length + ' correct — ' + (passed ? 'PASS' : 'FAIL') + '</div>' +
+    '<div class="quiz-result-sub">' + (passed ? 'Module ' + (mod.id+1) + ' is now unlocked.' : 'Score 80% or higher to unlock the next module. Review the lessons and try again.') + '</div>';
+  body.appendChild(resultEl);
+  body.scrollTop = body.scrollHeight;
+
+  document.getElementById('quizSubmitBtn').style.display = 'none';
+  document.getElementById('quizModal').querySelector('.quiz-footer').innerHTML =
+    '<button class="quiz-btn primary" onclick="closeQuiz()">Close</button>';
+
+  if (passed) {
+    if (!userProgress[mod.id]) userProgress[mod.id] = { pct: 100, quizPassed: false };
+    userProgress[mod.id].pct = 100;
+    userProgress[mod.id].quizPassed = true;
+    if (currentUser) saveProgress();
+    renderAll();
+  }
+}
+
+function closeQuiz() {
+  document.getElementById('quizModal').classList.add('hidden');
+  activeQuizMod = null;
+  quizAnswers = {};
+}
+
+// ══ FIREBASE PROGRESS ══
+function saveProgress() {
+  if (!currentUser) return;
+  firebase.database().ref('traderoom/users/' + currentUser.uid + '/courseProgress').set(userProgress);
+}
+
+function loadProgress(uid) {
+  firebase.database().ref('traderoom/users/' + uid + '/courseProgress').get().then(function(snap) {
+    if (snap.exists()) userProgress = snap.val() || {};
+    // Ensure M1 always started
+    if (!userProgress[1]) userProgress[1] = { pct: 0, quizPassed: false };
+    renderAll();
+  });
+}
+
+// ══ AUTH ══
+var selectedRole = 'student';
+function showTab(tab) {
+  var l = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', l);
+  document.getElementById('tabRegister').classList.toggle('active', !l);
+  document.getElementById('formLogin').style.display = l ? 'flex' : 'none';
+  document.getElementById('formRegister').style.display = l ? 'none' : 'flex';
+  document.getElementById('authBtn').textContent = l ? 'Sign In' : 'Create Account';
+  document.getElementById('modalSubtitle').textContent = l ? 'Sign in to join the live session' : 'Create your TradeRoom account';
+  document.getElementById('modalError').style.display = 'none';
+}
+function setRole(r) {
+  selectedRole = r;
+  document.getElementById('roleStudent').classList.toggle('active', r === 'student');
+  document.getElementById('roleInstructor').classList.toggle('active', r === 'instructor');
+}
+function handleAuth() {
+  var err = document.getElementById('modalError'); err.style.display = 'none';
+  var btn = document.getElementById('authBtn'); btn.textContent = '...'; btn.disabled = true;
+  var isLogin = document.getElementById('tabLogin').classList.contains('active');
+  if (isLogin) {
+    var email = document.getElementById('loginEmail').value.trim(), pass = document.getElementById('loginPassword').value;
+    if (!email || !pass) { showErr('Please enter your email and password.'); return; }
+    firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(e) { showErr(friendlyError(e.code)); });
+  } else {
+    var name = document.getElementById('regName').value.trim(), email2 = document.getElementById('regEmail').value.trim(), pass2 = document.getElementById('regPassword').value;
+    if (!name || !email2 || !pass2) { showErr('Please fill in all fields.'); return; }
+    if (pass2.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+    firebase.auth().createUserWithEmailAndPassword(email2, pass2).then(function(c) {
+      firebase.database().ref('traderoom/users/' + c.user.uid).set({ name: name, role: selectedRole, email: email2 });
+    }).catch(function(e) { showErr(friendlyError(e.code)); });
+  }
+}
+function showErr(msg) {
+  var err = document.getElementById('modalError'); err.textContent = '! ' + msg; err.style.display = 'block';
+  var btn = document.getElementById('authBtn'); btn.disabled = false;
+  btn.textContent = document.getElementById('tabLogin').classList.contains('active') ? 'Sign In' : 'Create Account';
+}
+function friendlyError(code) {
+  var map = { 'auth/user-not-found': 'No account found with that email.', 'auth/wrong-password': 'Incorrect password.', 'auth/invalid-email': 'Please enter a valid email address.', 'auth/email-already-in-use': 'That email is already registered.', 'auth/weak-password': 'Password must be at least 6 characters.', 'auth/too-many-requests': 'Too many attempts. Please wait.', 'auth/invalid-credential': 'Incorrect email or password.' };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+function forgotPassword() {
+  var email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showErr('Enter your email address first.'); return; }
+  firebase.auth().sendPasswordResetEmail(email).then(function() {
+    var e = document.getElementById('modalError'); e.textContent = 'Reset email sent.'; e.style.color = 'var(--green)'; e.style.display = 'block';
+  }).catch(function(e) { showErr(friendlyError(e.code)); });
+}
 
 firebase.auth().onAuthStateChanged(function(u) {
-  if (!u) return;
+  if (!u) { renderAll(); return; }
+  currentUser = u;
   try {
     firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
       var p = snap.exists() ? snap.val() : null;
@@ -490,49 +843,55 @@ firebase.auth().onAuthStateChanged(function(u) {
       if (modal) modal.classList.add('hidden');
       var chip = document.getElementById('userChip');
       if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
-      var sbA = document.getElementById('sbAvatar');
-      var sbN = document.getElementById('sbName');
-      var sbR = document.getElementById('sbRole');
+      var sbA = document.getElementById('sbAvatar'), sbN = document.getElementById('sbName'), sbR = document.getElementById('sbRole');
       if (sbN) sbN.textContent = name;
       if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
-      if (sbA) { sbA.textContent = name.slice(0,2).toUpperCase(); sbA.style.background = role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)'; sbA.style.color = role==='instructor'?'#06b6d4':'#8b5cf6'; }
-      if (typeof pageInstructorSetup === 'function') pageInstructorSetup(role);
+      if (sbA) { sbA.textContent = name.slice(0,2).toUpperCase(); sbA.style.background = role === 'instructor' ? 'rgba(6,182,212,.15)' : 'rgba(139,92,246,.15)'; sbA.style.color = role === 'instructor' ? '#06b6d4' : '#8b5cf6'; }
+      loadProgress(u.uid);
     });
-  } catch(e) { console.error('Auth error:', e); }
+  } catch(e) { console.error('Auth error:', e); renderAll(); }
 });
-</script>
 
-
-<script>
-
-
-</script>
-<script>
-function handleLogout() {
-  firebase.auth().signOut().then(function() {
-    window.location.href = 'index.html';
-  }).catch(function(err) { console.error('Logout error:', err); });
+// ══ CLOCK / MARKET ══
+function updateMarketStatus() {
+  var et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  var mins = et.getHours() * 60 + et.getMinutes(), day = et.getDay();
+  var dot = document.querySelector('.ms-dot'), txt = document.getElementById('marketStatusText');
+  if (!dot) return;
+  if (day === 0 || day === 6) { dot.className = 'ms-dot closed'; txt.textContent = 'Weekend'; }
+  else if (mins >= 240 && mins < 570) { dot.className = 'ms-dot pre'; txt.textContent = 'Pre-Market'; }
+  else if (mins >= 570 && mins < 960) { dot.className = 'ms-dot open'; txt.textContent = 'Market Open'; }
+  else if (mins >= 960 && mins < 1200) { dot.className = 'ms-dot pre'; txt.textContent = 'After Hours'; }
+  else { dot.className = 'ms-dot closed'; txt.textContent = 'Market Closed'; }
 }
-</script>
-<script>
-/* ── SIDEBAR COLLAPSE ── */
+setInterval(updateMarketStatus, 30000); updateMarketStatus();
+function updateClock() { document.getElementById('sessionTime').textContent = new Date().toTimeString().slice(0, 8); }
+setInterval(updateClock, 1000); updateClock();
+
+// ══ SIDEBAR ══
 function toggleSidebar() {
-  const sb  = document.getElementById('sidebar');
-  const btn = document.getElementById('collapseBtn');
-  const collapsed = sb.classList.toggle('collapsed');
+  var sb = document.getElementById('sidebar'), btn = document.getElementById('collapseBtn');
+  var collapsed = sb.classList.toggle('collapsed');
   btn.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
   localStorage.setItem('sb_collapsed', collapsed);
 }
-(function restoreSidebar() {
+(function() {
   if (localStorage.getItem('sb_collapsed') === 'true') {
-    document.addEventListener('DOMContentLoaded', () => {
-      const sb  = document.getElementById('sidebar');
-      const btn = document.getElementById('collapseBtn');
-      if (sb)  sb.classList.add('collapsed');
+    document.addEventListener('DOMContentLoaded', function() {
+      var sb = document.getElementById('sidebar'), btn = document.getElementById('collapseBtn');
+      if (sb) sb.classList.add('collapsed');
       if (btn) btn.style.transform = 'rotate(180deg)';
     });
   }
 })();
+
+function handleLogout() {
+  firebase.auth().signOut().then(function() { window.location.href = 'index.html'; }).catch(function(err) { console.error('Logout error:', err); });
+}
+
+// Initial render (pre-auth, unlocked only M1)
+userProgress = { 1: { pct: 0, quizPassed: false } };
+renderAll();
 </script>
 </body>
 </html>
