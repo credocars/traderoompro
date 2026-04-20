@@ -273,25 +273,28 @@ function initMedia(role) {
   if (mediaInited) return;
   mediaInited = true;
 
+  // Show instructor controls
   if (role === 'instructor') {
     var panel = document.getElementById('mediaInstructorPanel');
     if (panel) panel.style.display = 'block';
     var delBtn = document.getElementById('mediaChannelDel');
-    if (delBtn) delBtn.style.display = 'flex';
+    if (delBtn) delBtn.style.display = 'inline-block';
   }
 
+  // Channel info listener
   db.ref('traderoom/media/channel').on('value', function(snap) {
     var v = snap.val();
-    if (!v) return;
-    var el;
-    el = document.getElementById('mediaChannelHandle');
-    if (el && v.handle) el.textContent = v.handle;
-    el = document.getElementById('mediaChannelBtn');
-    if (el && v.url) el.href = v.url;
-    el = document.getElementById('mediaChannelUrl');
-    if (el && v.url) el.value = v.url;
+    var handle = document.getElementById('mediaChannelHandle');
+    var btn    = document.getElementById('mediaChannelBtn');
+    var inp    = document.getElementById('mediaChannelUrl');
+    if (v && v.url) {
+      if (handle) handle.textContent = v.handle || v.url;
+      if (btn)    btn.href = v.url;
+      if (inp)    inp.value = v.url;
+    }
   });
 
+  // Videos listener
   db.ref('traderoom/media/videos').on('value', function(snap) {
     var list = document.getElementById('mediaVideoList');
     if (!list) return;
@@ -299,50 +302,57 @@ function initMedia(role) {
     var data = snap.val();
     if (!data) {
       var empty = document.createElement('div');
-      empty.style.cssText = 'font-size:12px;color:var(--t3);text-align:center;padding:24px 12px;';
+      empty.style.cssText = 'font-size:12px;color:var(--t3);text-align:center;padding:24px;';
       empty.textContent = 'No videos added yet';
       list.appendChild(empty);
       return;
     }
     Object.keys(data).forEach(function(key) {
       var vid = data[key];
-      var videoId = ytVideoId(vid.url);
-
-      var row = document.createElement('a');
+      var row = document.createElement('div');
       row.className = 'media-video-item';
-      row.href = vid.url || '#';
-      row.target = '_blank';
-      row.rel = 'noopener';
 
+      // Thumbnail
       var thumb = document.createElement('div');
       thumb.className = 'media-vid-thumb';
-      if (videoId) {
+      var vid_id = ytVidId(vid.url);
+      if (vid_id) {
         var img = document.createElement('img');
-        img.src = 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg';
+        img.src = 'https://img.youtube.com/vi/' + vid_id + '/mqdefault.jpg';
         img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:5px;';
         img.onerror = function() { this.remove(); };
         thumb.appendChild(img);
       }
       row.appendChild(thumb);
 
+      // Info
       var info = document.createElement('div');
       info.className = 'media-vid-info';
-      var t = document.createElement('div');
-      t.className = 'media-vid-title';
-      t.textContent = vid.title || '';
-      info.appendChild(t);
+      var titleEl = document.createElement('div');
+      titleEl.className = 'media-vid-title';
+      titleEl.textContent = vid.title || '';
+      info.appendChild(titleEl);
       row.appendChild(info);
 
+      // Open link button
+      var openBtn = document.createElement('a');
+      openBtn.href = vid.url || '#';
+      openBtn.target = '_blank';
+      openBtn.rel = 'noopener';
+      openBtn.className = 'media-vid-open';
+      openBtn.title = 'Open video';
+      openBtn.innerHTML = '&#9654;';
+      row.appendChild(openBtn);
+
+      // Delete button (instructor only)
       if (currentUser && currentUser.role === 'instructor') {
         var del = document.createElement('button');
-        del.className = 'media-inst-btn del';
-        del.textContent = '✕';
+        del.className = 'item-del';
+        del.textContent = '\u2715';
+        del.title = 'Remove';
+        del.style.cssText = 'margin-left:2px;';
         del.onclick = (function(k) {
-          return function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            db.ref('traderoom/media/videos/' + k).remove();
-          };
+          return function() { db.ref('traderoom/media/videos/' + k).remove(); };
         })(key);
         row.appendChild(del);
       }
@@ -352,17 +362,14 @@ function initMedia(role) {
   });
 }
 
-function ytVideoId(url) {
+function ytVidId(url) {
   if (!url) return null;
   var m = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
   if (m) return m[1];
-  var parts = ['youtu.be/', 'live/', 'embed/', 'shorts/'];
-  for (var i = 0; i < parts.length; i++) {
-    var idx = url.indexOf(parts[i]);
-    if (idx >= 0) {
-      var id = url.slice(idx + parts[i].length).split(/[?&]/)[0];
-      if (id) return id;
-    }
+  var checks = ['youtu.be/', 'live/', 'embed/', 'shorts/'];
+  for (var i = 0; i < checks.length; i++) {
+    var pos = url.indexOf(checks[i]);
+    if (pos >= 0) return url.slice(pos + checks[i].length).split(/[?&#]/)[0];
   }
   return null;
 }
@@ -372,32 +379,35 @@ function saveMediaChannel() {
   if (!inp || !inp.value.trim()) return;
   var url = inp.value.trim();
   var parts = url.split('/');
-  var handle = parts[parts.length - 1] || parts[parts.length - 2] || url;
-  db.ref('traderoom/media/channel').set({ url: url, handle: handle });
+  var handle = '@' + (parts[parts.length - 1] || parts[parts.length - 2] || '').replace('@','');
+  db.ref('traderoom/media/channel').set({ url: url, handle: handle })
+    .catch(function(e) { console.error('Save channel error:', e); });
 }
 
 function clearMediaChannel() {
-  if (!confirm('Remove channel from Media tab?')) return;
+  if (!confirm('Remove channel info?')) return;
   db.ref('traderoom/media/channel').remove();
   var handle = document.getElementById('mediaChannelHandle');
-  var btn = document.getElementById('mediaChannelBtn');
-  var inp = document.getElementById('mediaChannelUrl');
+  var btn    = document.getElementById('mediaChannelBtn');
+  var inp    = document.getElementById('mediaChannelUrl');
   if (handle) handle.textContent = '';
-  if (btn) btn.href = '#';
-  if (inp) inp.value = '';
+  if (btn)    btn.href = '#';
+  if (inp)    inp.value = '';
 }
 
 function addMediaVideo() {
   var titleEl = document.getElementById('mediaVidTitle');
-  var urlEl = document.getElementById('mediaVidUrl');
+  var urlEl   = document.getElementById('mediaVidUrl');
   if (!titleEl || !urlEl) return;
   var title = titleEl.value.trim();
-  var url = urlEl.value.trim();
-  if (!title || !url) return;
-  db.ref('traderoom/media/videos').push({ title: title, url: url });
+  var url   = urlEl.value.trim();
+  if (!title || !url) { alert('Please enter both title and URL.'); return; }
+  db.ref('traderoom/media/videos').push({ title: title, url: url })
+    .catch(function(e) { console.error('Add video error:', e); });
   titleEl.value = '';
-  urlEl.value = '';
+  urlEl.value   = '';
 }
+
 
 /* ── EMOJI PICKER ── */
 .emoji-btn{width:32px;height:32px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s;}
@@ -697,7 +707,7 @@ function addMediaVideo() {
                 <div class="media-ch-handle" id="mediaChannelHandle">@credotrading</div>
               </div>
               <a id="mediaChannelBtn" href="https://youtube.com/@credotrading" target="_blank" class="media-ch-btn">Subscribe</a>
-              <button id="mediaChannelDel" onclick="clearMediaChannel()" title="Remove channel" style="display:none;width:24px;height:24px;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red);font-size:12px;cursor:pointer;flex-shrink:0;display:none;align-items:center;justify-content:center;">&#10005;</button>
+              <button id="mediaChannelDel" onclick="clearMediaChannel()" title="Remove channel" style="display:none;width:24px;height:24px;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red);font-size:13px;cursor:pointer;flex-shrink:0;">&#10005;</button>
             </div>
 
             <!-- Instructor panel -->
