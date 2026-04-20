@@ -155,7 +155,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .notes-textarea{flex:1;font-family:'Inter',sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:9px 11px;border-radius:7px;outline:none;resize:none;transition:border-color .15s;}
 .notes-textarea:focus{border-color:var(--green);}
 .notes-textarea::placeholder{color:var(--t3);}
-.notes-post-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:7px 14px;border-radius:7px;border:none;background:var(--green);color:#000;cursor:pointer;transition:all .15s;align-self:flex-end;letter-spacing:.02em;}
+.notes-post-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;border-radius:7px;border:none;background:var(--green);color:#000;cursor:pointer;transition:all .15s;letter-spacing:.02em;}
 .notes-post-btn:hover{opacity:.85;}
 .item-del{position:absolute;top:5px;right:5px;width:16px;height:16px;border-radius:50%;background:rgba(239,68,68,.1);border:none;color:var(--red);font-size:9px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;line-height:1;}
 .item-del:hover{background:rgba(239,68,68,.2);}
@@ -450,7 +450,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
             <div class="feed-preview-wrap" id="feedPreviewWrap" style="display:none;">
               <img id="feedPreview" style="max-height:30px;border-radius:4px;border:1px solid var(--border);cursor:pointer;" onclick="document.getElementById('feedPreviewWrap').style.display='none';feedImageData=null;" title="Click to remove"/>
             </div>
-            <button class="notes-post-btn" onclick="postFeed()" style="padding:6px 12px;font-size:11px;">Post</button>
+            <button class="notes-post-btn" onclick="postFeed()">Post</button>
           </div>
         </div>
       </div>
