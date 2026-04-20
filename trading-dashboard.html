@@ -558,7 +558,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
           <div class="media-body" id="mediaBody">
 
             <!-- Channel Card -->
-            <div class="media-channel-card">
+            <div class="media-channel-card" id="mediaChannelCard" style="display:none;">
               <div class="media-ch-avatar">&#9654;</div>
               <div class="media-ch-info">
                 <div class="media-ch-name">TradeRoom PRO</div>
@@ -835,13 +835,17 @@ function initMedia(role) {
   // Channel info listener
   db.ref('traderoom/media/channel').on('value', function(snap) {
     var v = snap.val();
+    var card   = document.getElementById('mediaChannelCard');
     var handle = document.getElementById('mediaChannelHandle');
     var btn    = document.getElementById('mediaChannelBtn');
     var inp    = document.getElementById('mediaChannelUrl');
     if (v && v.url) {
+      if (card)   card.style.display = 'flex';
       if (handle) handle.textContent = v.handle || v.url;
       if (btn)    btn.href = v.url;
       if (inp)    inp.value = v.url;
+    } else {
+      if (card) card.style.display = 'none';
     }
   });
 
@@ -933,17 +937,17 @@ function saveMediaChannel() {
   var handle = '@' + (parts[parts.length - 1] || parts[parts.length - 2] || '').replace('@','');
   db.ref('traderoom/media/channel').set({ url: url, handle: handle })
     .catch(function(e) { console.error('Save channel error:', e); });
+  var card = document.getElementById('mediaChannelCard');
+  if (card) card.style.display = 'flex';
 }
 
 function clearMediaChannel() {
   if (!confirm('Remove channel info?')) return;
   db.ref('traderoom/media/channel').remove();
-  var handle = document.getElementById('mediaChannelHandle');
-  var btn    = document.getElementById('mediaChannelBtn');
-  var inp    = document.getElementById('mediaChannelUrl');
-  if (handle) handle.textContent = '';
-  if (btn)    btn.href = '#';
-  if (inp)    inp.value = '';
+  var inp = document.getElementById('mediaChannelUrl');
+  if (inp) inp.value = '';
+  var card = document.getElementById('mediaChannelCard');
+  if (card) card.style.display = 'none';
 }
 
 function addMediaVideo() {
