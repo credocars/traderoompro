@@ -543,8 +543,10 @@ function getTotalLessons() {
   var done = 0;
   MODULES.forEach(function(m) {
     var p = userProgress[m.id];
-    if (p && p.quizPassed) done += m.lessons.length;
-    else if (p && p.pct > 0) done += Math.round(m.lessons.length * p.pct / 100);
+    if (!p) return;
+    if (p.quizPassed) { done += m.lessons.length; return; }
+    if (p.lessonsComplete && p.lessonsComplete.length > 0) { done += p.lessonsComplete.length; return; }
+    if (p.pct > 0) done += Math.round(m.lessons.length * p.pct / 100);
   });
   return done;
 }
@@ -584,7 +586,11 @@ function renderAll() {
     var prevMod = MODULES[completed - 1];
     if (prevMod) {
       var pp = userProgress[prevMod.id];
-      if (pp && pp.pct >= 100 && !pp.quizPassed) {
+      var allLessonsComplete = pp && (
+        pp.pct >= 100 ||
+        (pp.lessonsComplete && pp.lessonsComplete.length >= prevMod.lessons.length)
+      );
+      if (allLessonsComplete && !pp.quizPassed) {
         gn.style.display = 'flex';
         document.getElementById('gateNoticeText').textContent = 'Complete the Module ' + prevMod.id + ' quiz with 80% or higher to unlock Module ' + nextMod.id + '.';
         document.getElementById('gateQuizBtn').onclick = function() { openQuiz(prevMod.id - 1); };
@@ -604,7 +610,13 @@ function renderCards(unlocked) {
     var p = userProgress[mod.id] || { pct: 0, quizPassed: false };
     var isLocked = idx >= unlocked;
     var isDone = p.quizPassed;
-    var pct = isDone ? 100 : p.pct;
+
+    // Support both old pct format and new lessonsComplete array from lesson.html
+    var doneLessons = p.lessonsComplete || [];
+    var pct = isDone ? 100 : (doneLessons.length > 0
+      ? Math.round(doneLessons.length / mod.lessons.length * 100)
+      : (p.pct || 0));
+
     var isActive = !isLocked && !isDone;
 
     var card = document.createElement('div');
@@ -621,11 +633,13 @@ function renderCards(unlocked) {
     // Bar color
     var barColor = isDone ? 'var(--green)' : (isActive ? mod.color : 'var(--t3)');
 
-    // Lesson dots
+    // Lesson dots — use lessonsComplete array for accurate per-lesson status
     var lessonDots = mod.lessons.map(function(lesson, li) {
       var dotClass = 'mod-lesson-dot';
-      if (isDone || li < Math.floor(mod.lessons.length * pct / 100)) dotClass += ' done';
-      else if (li === Math.floor(mod.lessons.length * pct / 100) && isActive && pct > 0) dotClass += ' active';
+      var lessonDone = isDone || doneLessons.indexOf(mod.lessons[li].id) !== -1;
+      var lessonActive = !lessonDone && isActive && li === doneLessons.length;
+      if (lessonDone) dotClass += ' done';
+      else if (lessonActive) dotClass += ' active';
       return '<div class="mod-lesson-row"><div class="' + dotClass + '"></div><span>' + lesson + '</span></div>';
     }).join('');
 
@@ -654,21 +668,14 @@ function renderCards(unlocked) {
 
 function startModule(idx) {
   var mod = MODULES[idx];
-  // Simulate progress — in real app navigate to module page
-  if (!userProgress[mod.id]) userProgress[mod.id] = { pct: 0, quizPassed: false };
-  if (userProgress[mod.id].pct < 100) {
-    // Demo: advance by 1 lesson each click
-    var lessonStep = Math.round(100 / mod.lessons.length);
-    userProgress[mod.id].pct = Math.min(100, userProgress[mod.id].pct + lessonStep);
-    if (currentUser) saveProgress();
+  var p = userProgress[mod.id] || { pct: 0, lessonsComplete: [] };
+  var done = p.lessonsComplete || [];
+  var resumeLesson = 0;
+  for (var i = 0; i < mod.lessons.length; i++) {
+    if (done.indexOf(mod.lessons[i].id) === -1) { resumeLesson = i; break; }
+    if (i === mod.lessons.length - 1) { resumeLesson = i; }
   }
-  if (userProgress[mod.id].pct >= 100 && mod.quiz.length > 0) {
-    openQuiz(idx);
-  } else if (userProgress[mod.id].pct >= 100 && mod.quiz.length === 0) {
-    userProgress[mod.id].quizPassed = true;
-    if (currentUser) saveProgress();
-  }
-  renderAll();
+  window.location.href = 'lesson.html?mod=' + idx + '&lesson=' + resumeLesson;
 }
 
 // ══ QUIZ ══
@@ -774,8 +781,9 @@ function saveProgress() {
 function loadProgress(uid) {
   firebase.database().ref('traderoom/users/' + uid + '/courseProgress').get().then(function(snap) {
     if (snap.exists()) userProgress = snap.val() || {};
-    // Ensure M1 always started
-    if (!userProgress[1]) userProgress[1] = { pct: 0, quizPassed: false };
+    // Ensure M1 always has correct structure
+    if (!userProgress[1]) userProgress[1] = { pct: 0, quizPassed: false, lessonsComplete: [] };
+    if (!userProgress[1].lessonsComplete) userProgress[1].lessonsComplete = [];
     renderAll();
   });
 }
@@ -889,8 +897,8 @@ function handleLogout() {
   firebase.auth().signOut().then(function() { window.location.href = 'index.html'; }).catch(function(err) { console.error('Logout error:', err); });
 }
 
-// Initial render (pre-auth, unlocked only M1)
-userProgress = { 1: { pct: 0, quizPassed: false } };
+// Initial render (pre-auth — Module 1 unlocked, no lessons complete yet)
+userProgress = { 1: { pct: 0, quizPassed: false, lessonsComplete: [] } };
 renderAll();
 </script>
 </body>
