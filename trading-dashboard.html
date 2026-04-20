@@ -67,7 +67,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 
 /* ══ SIDEBAR ══ */
 .sidebar{width:240px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;}
-.sb-logo-area{height:52px;padding:0 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
+.sb-logo-area{padding:20px 18px 18px;border-bottom:1px solid var(--border);}
 .sb-logo{display:flex;align-items:center;gap:10px;}
 .sb-logo-mark{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
 .sb-logo-mark svg{width:24px;height:24px;}
@@ -125,7 +125,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 
 /* BOTTOM PANELS GRID */
 .panels-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;flex:1;min-height:0;height:100%;}
-.dash-panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative;}.dash-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);z-index:1;}
+.dash-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative;}.dash-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);z-index:1;}
 .dp-header{display:flex;align-items:center;gap:8px;padding:13px 16px 11px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .dp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .dp-dot.g{background:var(--green);animation:pulse 2s ease-in-out infinite;}
@@ -139,7 +139,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .chat-clear-btn:hover{background:rgba(239,68,68,.15);}
 
 /* NOTES */
-.notes-body{flex:1;overflow-y:auto;min-height:0;padding:10px 13px;display:flex;flex-direction:column;gap:7px;background:var(--panel);}
+.notes-body{flex:1;overflow-y:auto;min-height:0;padding:10px 13px;display:flex;flex-direction:column;gap:7px;}
 .notes-body::-webkit-scrollbar{width:3px;}.notes-body::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
 .note-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:20px;}
 .note-placeholder-icon{opacity:.18;color:var(--t2);}
@@ -164,8 +164,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .chat-tab{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:4px 8px;border-radius:6px;cursor:pointer;color:var(--t3);border:none;background:transparent;transition:all .12s;}
 .chat-tab.active{background:rgba(34,197,94,.1);color:var(--green);border-radius:6px;}
 .tab-pane{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;}
-.tab-pane.active{display:flex;flex-direction:column;}
-.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-height:0;background:var(--panel);}
+.tab-pane.active{display:flex;}
+.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-height:0;}
 .chat-messages::-webkit-scrollbar{width:3px;}
 .chat-messages::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
 .chat-msg{display:flex;gap:7px;align-items:flex-start;animation:msgIn .2s ease-out;position:relative;}
@@ -199,10 +199,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .send-btn:hover{opacity:.85;}
 .send-btn:disabled{opacity:.4;cursor:not-allowed;}
 .notif-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle;}
-.panel-body{flex:1;overflow-y:auto;padding:12px;background:var(--panel);}
+.panel-body{flex:1;overflow-y:auto;padding:12px;}
 
 /* COMMUNITY FEED */
-.feed-body{flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--panel);}
+.feed-body{flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
 .feed-body::-webkit-scrollbar{width:0;}
 .feed-composer{border-top:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:row;align-items:center;gap:8px;flex-shrink:0;}
 .feed-textarea{font-family:'Inter',sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:8px 11px;border-radius:7px;outline:none;resize:none;transition:border-color .15s;flex:1;min-width:0;}
@@ -265,50 +265,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .sb-logout-btn svg{pointer-events:none;}
 .sidebar.collapsed .sb-logout-btn{margin:0 auto;}
 
-
-
 /* ── EMOJI PICKER ── */
 .emoji-btn{width:32px;height:32px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s;}
 .emoji-btn:hover{background:var(--card);}
 .emoji-picker{position:absolute;bottom:52px;right:0;background:var(--panel);border:1px solid var(--border-hi);border-radius:12px;padding:10px;width:280px;display:none;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.5);flex-wrap:wrap;gap:2px;}
 .emoji-picker.open{display:flex;}
-.emoji-picker::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);}
 .ep-category{width:100%;font-size:9px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;padding:4px 2px 2px;}
 .ep-emoji{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:18px;border:none;background:transparent;transition:background .1s;}
 .ep-emoji:hover{background:var(--card);}
 .chat-input-area{position:relative;}
-
-/* ── MEDIA TAB ── */
-.media-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--panel);}
-.media-body::-webkit-scrollbar{width:2px;}
-.media-body::-webkit-scrollbar-thumb{background:var(--border-hi);}
-.media-channel-card{background:linear-gradient(135deg,#0f2040,#1a3a6b);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(59,130,246,.2);}
-.media-ch-avatar{width:40px;height:40px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.media-ch-info{flex:1;min-width:0;}
-.media-ch-name{font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:2px;}
-.media-ch-handle{font-size:11px;color:#94a3b8;}
-.media-ch-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;border:none;background:#22c55e;color:#000;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;}
-.media-ch-btn:hover{opacity:.85;}
-.media-section-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;padding:2px 0;}
-.media-video-item{display:flex;gap:10px;align-items:center;padding:9px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .12s;text-decoration:none;}
-.media-video-item:hover{border-color:var(--border-hi);}
-.media-vid-thumb{width:68px;height:42px;background:#0a0d14;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.media-vid-play{width:20px;height:20px;border-radius:50%;background:rgba(34,197,94,.15);display:flex;align-items:center;justify-content:center;}
-.media-vid-dur{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.8);color:#f1f5f9;font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;}
-.media-vid-info{flex:1;min-width:0;}
-.media-vid-title{font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
-.media-vid-meta{font-size:10px;color:var(--t3);}
-.media-vid-open{width:24px;height:24px;border-radius:5px;border:1px solid var(--border-hi);background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;color:var(--t3);transition:all .12s;}
-.media-vid-open:hover{border-color:var(--green);color:var(--green);}
-.media-instructor-panel{background:var(--card);border:1px solid var(--border-hi);border-radius:8px;padding:12px;position:relative;overflow:hidden;display:none;}
-.media-instructor-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(6,182,212,.4),transparent);}
-.media-inst-label{font-size:10px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
-.media-inst-row{display:flex;gap:6px;margin-bottom:6px;}
-.media-inst-input{flex:1;font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:6px 10px;border-radius:6px;outline:none;}
-.media-inst-input:focus{border-color:var(--green);}
-.media-inst-input::placeholder{color:var(--t3);}
-.media-inst-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;}
-.media-inst-btn.del{background:transparent;border:1px solid var(--border-hi);color:var(--red);padding:4px 8px;}
 </style>
 </head>
 <body>
@@ -496,53 +461,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
           <div class="dp-dot c"></div>
           <button class="chat-tab active" onclick="switchTab(this,'chatTab','chatPane')">Chat <span class="notif-dot" id="chatNotif" style="display:none;"></span></button>
           <button class="chat-tab" onclick="switchTab(this,'chatTab','studentsPane')">Members</button>
-          <button class="chat-tab" onclick="switchTab(this,'chatTab','mediaPane')">📺 Media</button>
           <button class="chat-clear-btn" id="chatClearBtnHeader" style="display:none;margin-left:auto;" onclick="clearAllChat()">Clear</button>
         </div>
-        <div class="tab-pane active" id="chatPane" style="flex:1;min-height:0;overflow:hidden;flex-direction:column;">
+        <div class="tab-pane active" id="chatPane" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
           <div class="chat-messages" id="chatMessages"></div>
           <div class="typing-indicator" id="typingIndicator">
             <div class="typing-dots"><span></span><span></span><span></span></div>
             <span id="typingText">Someone is typing…</span>
           </div>
           <div class="chat-input-area">
-            <!-- Emoji Picker -->
             <div class="emoji-picker" id="emojiPicker">
               <div class="ep-category">Smileys</div>
-              <button class="ep-emoji" onclick="insertEmoji('😀')">😀</button>
-              <button class="ep-emoji" onclick="insertEmoji('😂')">😂</button>
-              <button class="ep-emoji" onclick="insertEmoji('😍')">😍</button>
-              <button class="ep-emoji" onclick="insertEmoji('🤔')">🤔</button>
-              <button class="ep-emoji" onclick="insertEmoji('😎')">😎</button>
-              <button class="ep-emoji" onclick="insertEmoji('🙌')">🙌</button>
-              <button class="ep-emoji" onclick="insertEmoji('👍')">👍</button>
-              <button class="ep-emoji" onclick="insertEmoji('👎')">👎</button>
-              <button class="ep-emoji" onclick="insertEmoji('🔥')">🔥</button>
-              <button class="ep-emoji" onclick="insertEmoji('💯')">💯</button>
-              <button class="ep-emoji" onclick="insertEmoji('🚀')">🚀</button>
-              <button class="ep-emoji" onclick="insertEmoji('💎')">💎</button>
+              <button class="ep-emoji" onclick="insertEmoji('😀')">😀</button><button class="ep-emoji" onclick="insertEmoji('😂')">😂</button><button class="ep-emoji" onclick="insertEmoji('😍')">😍</button><button class="ep-emoji" onclick="insertEmoji('🤔')">🤔</button><button class="ep-emoji" onclick="insertEmoji('😎')">😎</button><button class="ep-emoji" onclick="insertEmoji('🙌')">🙌</button><button class="ep-emoji" onclick="insertEmoji('👍')">👍</button><button class="ep-emoji" onclick="insertEmoji('👎')">👎</button><button class="ep-emoji" onclick="insertEmoji('🔥')">🔥</button><button class="ep-emoji" onclick="insertEmoji('💯')">💯</button><button class="ep-emoji" onclick="insertEmoji('🚀')">🚀</button><button class="ep-emoji" onclick="insertEmoji('💎')">💎</button>
               <div class="ep-category">Trading</div>
-              <button class="ep-emoji" onclick="insertEmoji('📈')">📈</button>
-              <button class="ep-emoji" onclick="insertEmoji('📉')">📉</button>
-              <button class="ep-emoji" onclick="insertEmoji('💰')">💰</button>
-              <button class="ep-emoji" onclick="insertEmoji('💵')">💵</button>
-              <button class="ep-emoji" onclick="insertEmoji('⚡')">⚡</button>
-              <button class="ep-emoji" onclick="insertEmoji('🎯')">🎯</button>
-              <button class="ep-emoji" onclick="insertEmoji('🏆')">🏆</button>
-              <button class="ep-emoji" onclick="insertEmoji('⚠️')">⚠️</button>
-              <button class="ep-emoji" onclick="insertEmoji('🚨')">🚨</button>
-              <button class="ep-emoji" onclick="insertEmoji('✅')">✅</button>
-              <button class="ep-emoji" onclick="insertEmoji('❌')">❌</button>
-              <button class="ep-emoji" onclick="insertEmoji('💤')">💤</button>
+              <button class="ep-emoji" onclick="insertEmoji('📈')">📈</button><button class="ep-emoji" onclick="insertEmoji('📉')">📉</button><button class="ep-emoji" onclick="insertEmoji('💰')">💰</button><button class="ep-emoji" onclick="insertEmoji('⚡')">⚡</button><button class="ep-emoji" onclick="insertEmoji('🎯')">🎯</button><button class="ep-emoji" onclick="insertEmoji('🏆')">🏆</button><button class="ep-emoji" onclick="insertEmoji('⚠️')">⚠️</button><button class="ep-emoji" onclick="insertEmoji('🚨')">🚨</button><button class="ep-emoji" onclick="insertEmoji('✅')">✅</button><button class="ep-emoji" onclick="insertEmoji('❌')">❌</button>
               <div class="ep-category">Hands</div>
-              <button class="ep-emoji" onclick="insertEmoji('🙏')">🙏</button>
-              <button class="ep-emoji" onclick="insertEmoji('👏')">👏</button>
-              <button class="ep-emoji" onclick="insertEmoji('🤝')">🤝</button>
-              <button class="ep-emoji" onclick="insertEmoji('✌️')">✌️</button>
-              <button class="ep-emoji" onclick="insertEmoji('🤞')">🤞</button>
-              <button class="ep-emoji" onclick="insertEmoji('💪')">💪</button>
-              <button class="ep-emoji" onclick="insertEmoji('👋')">👋</button>
-              <button class="ep-emoji" onclick="insertEmoji('🫡')">🫡</button>
+              <button class="ep-emoji" onclick="insertEmoji('🙏')">🙏</button><button class="ep-emoji" onclick="insertEmoji('👏')">👏</button><button class="ep-emoji" onclick="insertEmoji('🤝')">🤝</button><button class="ep-emoji" onclick="insertEmoji('💪')">💪</button><button class="ep-emoji" onclick="insertEmoji('👋')">👋</button>
             </div>
             <button class="emoji-btn" id="emojiToggle" onclick="toggleEmojiPicker()" title="Emoji">😊</button>
             <input class="chat-input" id="chatInput" placeholder="Sign in to chat…" disabled/>
@@ -552,44 +486,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
         <div class="tab-pane" id="studentsPane" style="flex:1;min-height:0;overflow:hidden;">
           <div class="panel-body" id="studentsList"></div>
         </div>
-
-        <!-- MEDIA TAB -->
-        <div class="tab-pane" id="mediaPane" style="flex:1;min-height:0;overflow:hidden;">
-          <div class="media-body" id="mediaBody">
-
-            <!-- Channel Card -->
-            <div class="media-channel-card" id="mediaChannelCard" style="display:none;">
-              <div class="media-ch-avatar">&#9654;</div>
-              <div class="media-ch-info">
-                <div class="media-ch-name">TradeRoom PRO</div>
-                <div class="media-ch-handle" id="mediaChannelHandle">@credotrading</div>
-              </div>
-              <a id="mediaChannelBtn" href="https://youtube.com/@credotrading" target="_blank" class="media-ch-btn">Subscribe</a>
-              <button id="mediaChannelDel" onclick="clearMediaChannel()" title="Remove channel" style="display:none;width:24px;height:24px;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red);font-size:13px;cursor:pointer;flex-shrink:0;">&#10005;</button>
-            </div>
-
-            <!-- Instructor panel -->
-            <div class="media-instructor-panel" id="mediaInstructorPanel">
-              <div class="media-inst-label">&#9881; Manage Media</div>
-              <div class="media-inst-row">
-                <input class="media-inst-input" id="mediaChannelUrl" placeholder="YouTube channel URL"/>
-                <button class="media-inst-btn" onclick="saveMediaChannel()">Save</button>
-              </div>
-              <div class="media-inst-row">
-                <input class="media-inst-input" id="mediaVidTitle" placeholder="Video title"/>
-                <input class="media-inst-input" id="mediaVidUrl" placeholder="YouTube URL" style="flex:1.5;"/>
-                <button class="media-inst-btn" onclick="addMediaVideo()">+ Add</button>
-              </div>
-            </div>
-
-            <!-- Must-Watch Videos -->
-            <div class="media-section-label">Must-Watch</div>
-            <div id="mediaVideoList">
-              <div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;">No videos added yet</div>
-            </div>
-
-          </div>
-        </div>
       </div>
 
     </div>
@@ -597,6 +493,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
   </div>
   </div>
 </div>
+
+<script>
+
+</script>
 
 <script>
 function setNav(el){document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');}
@@ -770,7 +670,6 @@ auth.onAuthStateChanged(async u=>{
   initNotes();
   initWatchlist();
   initFeed();
-  initMedia(role);
   if(role==='instructor'){
     const area=document.getElementById('notesInputArea');if(area)area.style.display='flex';
     const inp=document.getElementById('notesInput');
@@ -816,177 +715,9 @@ function renderMessage(m,key){
 }
 function escapeHtml(str){return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-
-/* ── MEDIA TAB ── */
-var mediaInited = false;
-
-function initMedia(role) {
-  if (mediaInited) return;
-  mediaInited = true;
-
-  // Show instructor controls
-  if (role === 'instructor') {
-    var panel = document.getElementById('mediaInstructorPanel');
-    if (panel) panel.style.display = 'block';
-    var delBtn = document.getElementById('mediaChannelDel');
-    if (delBtn) delBtn.style.display = 'inline-block';
-  }
-
-  // Channel info listener
-  db.ref('traderoom/media/channel').on('value', function(snap) {
-    var v = snap.val();
-    var card   = document.getElementById('mediaChannelCard');
-    var handle = document.getElementById('mediaChannelHandle');
-    var btn    = document.getElementById('mediaChannelBtn');
-    var inp    = document.getElementById('mediaChannelUrl');
-    if (v && v.url) {
-      if (card)   card.style.display = 'flex';
-      if (handle) handle.textContent = v.handle || v.url;
-      if (btn)    btn.href = v.url;
-      if (inp)    inp.value = v.url;
-    } else {
-      if (card) card.style.display = 'none';
-    }
-  });
-
-  // Videos listener
-  db.ref('traderoom/media/videos').on('value', function(snap) {
-    var list = document.getElementById('mediaVideoList');
-    if (!list) return;
-    list.innerHTML = '';
-    var data = snap.val();
-    if (!data) {
-      var empty = document.createElement('div');
-      empty.style.cssText = 'font-size:12px;color:var(--t3);text-align:center;padding:24px;';
-      empty.textContent = 'No videos added yet';
-      list.appendChild(empty);
-      return;
-    }
-    Object.keys(data).forEach(function(key) {
-      var vid = data[key];
-      var row = document.createElement('div');
-      row.className = 'media-video-item';
-
-      // Thumbnail
-      var thumb = document.createElement('div');
-      thumb.className = 'media-vid-thumb';
-      var vid_id = ytVidId(vid.url);
-      if (vid_id) {
-        var img = document.createElement('img');
-        img.src = 'https://img.youtube.com/vi/' + vid_id + '/mqdefault.jpg';
-        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:5px;';
-        img.onerror = function() { this.remove(); };
-        thumb.appendChild(img);
-      }
-      row.appendChild(thumb);
-
-      // Info
-      var info = document.createElement('div');
-      info.className = 'media-vid-info';
-      var titleEl = document.createElement('div');
-      titleEl.className = 'media-vid-title';
-      titleEl.textContent = vid.title || '';
-      info.appendChild(titleEl);
-      row.appendChild(info);
-
-      // Open link button
-      var openBtn = document.createElement('a');
-      openBtn.href = vid.url || '#';
-      openBtn.target = '_blank';
-      openBtn.rel = 'noopener';
-      openBtn.className = 'media-vid-open';
-      openBtn.title = 'Open video';
-      openBtn.innerHTML = '&#9654;';
-      row.appendChild(openBtn);
-
-      // Delete button (instructor only)
-      if (currentUser && currentUser.role === 'instructor') {
-        var del = document.createElement('button');
-        del.className = 'item-del';
-        del.textContent = '\u2715';
-        del.title = 'Remove';
-        del.style.cssText = 'margin-left:2px;';
-        del.onclick = (function(k) {
-          return function() { db.ref('traderoom/media/videos/' + k).remove(); };
-        })(key);
-        row.appendChild(del);
-      }
-
-      list.appendChild(row);
-    });
-  });
-}
-
-function ytVidId(url) {
-  if (!url) return null;
-  var m = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-  if (m) return m[1];
-  var checks = ['youtu.be/', 'live/', 'embed/', 'shorts/'];
-  for (var i = 0; i < checks.length; i++) {
-    var pos = url.indexOf(checks[i]);
-    if (pos >= 0) return url.slice(pos + checks[i].length).split(/[?&#]/)[0];
-  }
-  return null;
-}
-
-function saveMediaChannel() {
-  var inp = document.getElementById('mediaChannelUrl');
-  if (!inp || !inp.value.trim()) return;
-  var url = inp.value.trim();
-  var parts = url.split('/');
-  var handle = '@' + (parts[parts.length - 1] || parts[parts.length - 2] || '').replace('@','');
-  db.ref('traderoom/media/channel').set({ url: url, handle: handle })
-    .catch(function(e) { console.error('Save channel error:', e); });
-  var card = document.getElementById('mediaChannelCard');
-  if (card) card.style.display = 'flex';
-}
-
-function clearMediaChannel() {
-  if (!confirm('Remove channel info?')) return;
-  db.ref('traderoom/media/channel').remove();
-  var inp = document.getElementById('mediaChannelUrl');
-  if (inp) inp.value = '';
-  var card = document.getElementById('mediaChannelCard');
-  if (card) card.style.display = 'none';
-}
-
-function addMediaVideo() {
-  var titleEl = document.getElementById('mediaVidTitle');
-  var urlEl   = document.getElementById('mediaVidUrl');
-  if (!titleEl || !urlEl) return;
-  var title = titleEl.value.trim();
-  var url   = urlEl.value.trim();
-  if (!title || !url) { alert('Please enter both title and URL.'); return; }
-  db.ref('traderoom/media/videos').push({ title: title, url: url })
-    .catch(function(e) { console.error('Add video error:', e); });
-  titleEl.value = '';
-  urlEl.value   = '';
-}
-
-/* ── EMOJI PICKER ── */
-function toggleEmojiPicker() {
-  var picker = document.getElementById('emojiPicker');
-  if (picker) picker.classList.toggle('open');
-}
-function insertEmoji(emoji) {
-  var inp = document.getElementById('chatInput');
-  if (!inp) return;
-  var start = inp.selectionStart || inp.value.length;
-  inp.value = inp.value.slice(0, start) + emoji + inp.value.slice(start);
-  inp.focus();
-  inp.selectionStart = inp.selectionEnd = start + emoji.length;
-  // Close picker after inserting
-  var picker = document.getElementById('emojiPicker');
-  if (picker) picker.classList.remove('open');
-}
-// Close emoji picker when clicking outside
-document.addEventListener('click', function(e) {
-  var picker = document.getElementById('emojiPicker');
-  var toggle = document.getElementById('emojiToggle');
-  if (picker && toggle && !picker.contains(e.target) && e.target !== toggle) {
-    picker.classList.remove('open');
-  }
-});
+function toggleEmojiPicker(){var p=document.getElementById('emojiPicker');if(p)p.classList.toggle('open');}
+function insertEmoji(e){var i=document.getElementById('chatInput');if(!i)return;var s=i.selectionStart||i.value.length;i.value=i.value.slice(0,s)+e+i.value.slice(s);i.focus();i.selectionStart=i.selectionEnd=s+e.length;var p=document.getElementById('emojiPicker');if(p)p.classList.remove('open');}
+document.addEventListener('click',function(e){var p=document.getElementById('emojiPicker');var t=document.getElementById('emojiToggle');if(p&&t&&!p.contains(e.target)&&e.target!==t)p.classList.remove('open');});
 
 function sendChat(){
   if(!currentUser||!chatRef)return;
@@ -1007,18 +738,10 @@ function renderPresenceList(users){
 }
 function scrollChat(){const c=document.getElementById('chatMessages');c.scrollTop=c.scrollHeight;}
 function switchTab(btn,group,paneId){
-  btn.parentElement.querySelectorAll('.chat-tab').forEach(function(t){t.classList.remove('active');});
+  btn.parentElement.querySelectorAll('.chat-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('.tab-pane').forEach(function(p){
-    p.classList.remove('active');
-    p.style.display = 'none';
-  });
-  var pane = document.getElementById(paneId);
-  if (pane) {
-    pane.classList.add('active');
-    pane.style.display = 'flex';
-    pane.style.flexDirection = 'column';
-  }
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const inp=document.getElementById('chatInput');
@@ -1201,10 +924,14 @@ function openFeedImg(src, userName) {
 
 
 <script>
+
 function handleLogout() {
-  firebase.auth().signOut().then(() => {
+  const auth = firebase.auth();
+  auth.signOut().then(() => {
     window.location.href = 'index.html';
-  }).catch(err => console.error('Logout error:', err));
+  }).catch(err => {
+    console.error('Logout error:', err);
+  });
 }
 </script>
 
