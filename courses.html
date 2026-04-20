@@ -593,7 +593,9 @@ function renderAll() {
       if (allLessonsComplete && !pp.quizPassed) {
         gn.style.display = 'flex';
         document.getElementById('gateNoticeText').textContent = 'Complete the Module ' + prevMod.id + ' quiz with 80% or higher to unlock Module ' + nextMod.id + '.';
-        document.getElementById('gateQuizBtn').onclick = function() { openQuiz(prevMod.id - 1); };
+        (function(capturedIdx) {
+          document.getElementById('gateQuizBtn').onclick = function() { openQuiz(capturedIdx); };
+        })(prevMod.id - 1);
       } else { gn.style.display = 'none'; }
     } else { gn.style.display = 'none'; }
   } else { gn.style.display = 'none'; }
@@ -633,11 +635,12 @@ function renderCards(unlocked) {
     // Bar color
     var barColor = isDone ? 'var(--green)' : (isActive ? mod.color : 'var(--t3)');
 
-    // Lesson dots — use lessonsComplete array for accurate per-lesson status
+    // Lesson dots — lessonsComplete stores numeric IDs (1-6), lessons array is strings so use li+1 as ID
     var lessonDots = mod.lessons.map(function(lesson, li) {
+      var lessonId = li + 1;
       var dotClass = 'mod-lesson-dot';
-      var lessonDone = isDone || doneLessons.indexOf(mod.lessons[li].id) !== -1;
-      var lessonActive = !lessonDone && isActive && li === doneLessons.length;
+      var lessonDone = isDone || doneLessons.indexOf(lessonId) !== -1;
+      var lessonActive = !lessonDone && isActive && doneLessons.length === li;
       if (lessonDone) dotClass += ' done';
       else if (lessonActive) dotClass += ' active';
       return '<div class="mod-lesson-row"><div class="' + dotClass + '"></div><span>' + lesson + '</span></div>';
@@ -670,10 +673,17 @@ function startModule(idx) {
   var mod = MODULES[idx];
   var p = userProgress[mod.id] || { pct: 0, lessonsComplete: [] };
   var done = p.lessonsComplete || [];
+
+  // If all lessons already complete but quiz not yet taken — quiz fires on courses page
+  if (done.length >= mod.lessons.length && !p.quizPassed) {
+    window.location.href = 'courses.html';
+    return;
+  }
+
+  // Find first incomplete lesson to resume from
   var resumeLesson = 0;
   for (var i = 0; i < mod.lessons.length; i++) {
-    if (done.indexOf(mod.lessons[i].id) === -1) { resumeLesson = i; break; }
-    if (i === mod.lessons.length - 1) { resumeLesson = i; }
+    if (done.indexOf(i + 1) === -1) { resumeLesson = i; break; }
   }
   window.location.href = 'lesson.html?mod=' + idx + '&lesson=' + resumeLesson;
 }
@@ -749,7 +759,9 @@ function submitQuiz() {
   resultEl.innerHTML =
     '<div class="quiz-result-score ' + (passed ? 'pass' : 'fail') + '">' + pct + '%</div>' +
     '<div class="quiz-result-label">' + correct + ' of ' + mod.quiz.length + ' correct — ' + (passed ? 'PASS' : 'FAIL') + '</div>' +
-    '<div class="quiz-result-sub">' + (passed ? 'Module ' + (mod.id+1) + ' is now unlocked.' : 'Score 80% or higher to unlock the next module. Review the lessons and try again.') + '</div>';
+    '<div class="quiz-result-sub">' + (passed
+      ? (mod.id < 6 ? 'Module ' + (mod.id + 1) + ' is now unlocked.' : 'Foundation Course complete. Paper trading curriculum is now unlocked.')
+      : 'Score 80% or higher to unlock the next module. Review the lessons and try again.') + '</div>';
   body.appendChild(resultEl);
   body.scrollTop = body.scrollHeight;
 

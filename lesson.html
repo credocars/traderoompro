@@ -437,7 +437,7 @@ function renderPage() {
     var isActive = i === currentLessonIdx;
     var item = document.createElement('div');
     item.className = 'lesson-item' + (isActive ? ' active' : '') + (isDone && !isActive ? ' done-item' : '');
-    item.onclick = function() { navigateLesson(i); };
+    (function(idx) { item.onclick = function() { navigateLesson(idx); }; })(i);
     var dotClass = 'lesson-dot' + (isDone ? ' done' : (isActive ? ' active' : ''));
     item.innerHTML = '<div class="' + dotClass + '">' + (isDone ? '' : (isActive ? '' : (i+1))) + '</div>' +
       '<div class="lesson-item-text">' + l.title + '</div>';
@@ -490,8 +490,13 @@ function prevLesson() {
   if (currentLessonIdx > 0) {
     currentLessonIdx--;
   } else if (currentModIdx > 0) {
+    // Only go to previous module if it exists (always safe — previous modules are always unlocked)
     currentModIdx--;
     currentLessonIdx = MODULES[currentModIdx].lessons.length - 1;
+  } else {
+    // Already at very first lesson — go back to courses
+    window.location.href = 'courses.html';
+    return;
   }
   setParams(currentModIdx, currentLessonIdx);
   renderPage();
@@ -536,6 +541,10 @@ function saveProgress() {
 function loadProgress(uid, callback) {
   firebase.database().ref('traderoom/users/' + uid + '/courseProgress').get().then(function(snap) {
     if (snap.exists()) userProgress = snap.val() || {};
+    // Ensure current module always has correct structure
+    var modId = MODULES[currentModIdx].id;
+    if (!userProgress[modId]) userProgress[modId] = { pct: 0, quizPassed: false, lessonsComplete: [] };
+    if (!userProgress[modId].lessonsComplete) userProgress[modId].lessonsComplete = [];
     callback();
   }).catch(function() { callback(); });
 }
