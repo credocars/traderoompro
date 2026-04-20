@@ -304,27 +304,71 @@ function initMedia() {
 function renderMediaVideos() {
   var list = document.getElementById('mediaVideoList');
   if (!list) return;
+  list.innerHTML = '';
   if (!mediaVideos.length) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;">No videos added yet</div>';
+    var empty = document.createElement('div');
+    empty.style.cssText = 'font-size:12px;color:var(--t3);text-align:center;padding:20px;';
+    empty.textContent = 'No videos added yet';
+    list.appendChild(empty);
     return;
   }
-  list.innerHTML = '';
   mediaVideos.forEach(function(vid) {
     var videoId = getYTVideoId(vid.url);
+
     var el = document.createElement('a');
     el.className = 'media-video-item';
     el.href = vid.url;
     el.target = '_blank';
     el.rel = 'noopener';
-    var thumbHtml = videoId
-      ? '<img src="https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">'
-      : '<div class="media-vid-play"><svg viewBox="0 0 24 24" fill="none" width="10" height="10"><polygon points="8,6 18,12 8,18" fill="#22c55e"/></svg></div>';
-    var delBtn = currentUser && currentUser.role === 'instructor'
-      ? '<button class="media-inst-btn del" onclick="event.preventDefault();event.stopPropagation();deleteMediaVideo('' + vid.id + '')" title="Remove">&#10005;</button>'
-      : '';
-    el.innerHTML = '<div class="media-vid-thumb">' + thumbHtml + '<span class="media-vid-dur">' + (vid.duration || '') + '</span></div>'
-      + '<div class="media-vid-info"><div class="media-vid-title">' + escHtml(vid.title) + '</div><div class="media-vid-meta">' + (vid.views || '') + '</div></div>'
-      + delBtn;
+
+    // Thumb
+    var thumb = document.createElement('div');
+    thumb.className = 'media-vid-thumb';
+    if (videoId) {
+      var img = document.createElement('img');
+      img.src = 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      img.onerror = function() { this.style.display = 'none'; };
+      thumb.appendChild(img);
+    } else {
+      var play = document.createElement('div');
+      play.className = 'media-vid-play';
+      play.textContent = '▶';
+      thumb.appendChild(play);
+    }
+    if (vid.duration) {
+      var dur = document.createElement('span');
+      dur.className = 'media-vid-dur';
+      dur.textContent = vid.duration;
+      thumb.appendChild(dur);
+    }
+    el.appendChild(thumb);
+
+    // Info
+    var info = document.createElement('div');
+    info.className = 'media-vid-info';
+    var title = document.createElement('div');
+    title.className = 'media-vid-title';
+    title.textContent = vid.title;
+    var meta = document.createElement('div');
+    meta.className = 'media-vid-meta';
+    meta.textContent = vid.views || '';
+    info.appendChild(title);
+    info.appendChild(meta);
+    el.appendChild(info);
+
+    // Delete btn (instructor only)
+    if (currentUser && currentUser.role === 'instructor') {
+      var del = document.createElement('button');
+      del.className = 'media-inst-btn del';
+      del.textContent = '✕';
+      del.title = 'Remove';
+      del.onclick = (function(id) {
+        return function(e) { e.preventDefault(); e.stopPropagation(); deleteMediaVideo(id); };
+      })(vid.id);
+      el.appendChild(del);
+    }
+
     list.appendChild(el);
   });
 }
@@ -342,7 +386,7 @@ function saveMediaChannel() {
   var inp = document.getElementById('mediaChannelUrl');
   if (!inp || !inp.value.trim()) return;
   var url = inp.value.trim();
-  var handle = url.replace(/.*youtube\.com\//,'').replace(/\?.*/,'');
+  var handle = url.split('youtube.com/').pop().split('?')[0];
   db.ref('traderoom/media/channel').set({ url: url, handle: handle });
   var btn = document.getElementById('mediaChannelBtn');
   if (btn) btn.href = url;
@@ -952,27 +996,71 @@ function initMedia() {
 function renderMediaVideos() {
   var list = document.getElementById('mediaVideoList');
   if (!list) return;
+  list.innerHTML = '';
   if (!mediaVideos.length) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;">No videos added yet</div>';
+    var empty = document.createElement('div');
+    empty.style.cssText = 'font-size:12px;color:var(--t3);text-align:center;padding:20px;';
+    empty.textContent = 'No videos added yet';
+    list.appendChild(empty);
     return;
   }
-  list.innerHTML = '';
   mediaVideos.forEach(function(vid) {
     var videoId = getYTVideoId(vid.url);
+
     var el = document.createElement('a');
     el.className = 'media-video-item';
     el.href = vid.url;
     el.target = '_blank';
     el.rel = 'noopener';
-    var thumbHtml = videoId
-      ? '<img src="https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">'
-      : '<div class="media-vid-play"><svg viewBox="0 0 24 24" fill="none" width="10" height="10"><polygon points="8,6 18,12 8,18" fill="#22c55e"/></svg></div>';
-    var delBtn = currentUser && currentUser.role === 'instructor'
-      ? '<button class="media-inst-btn del" onclick="event.preventDefault();event.stopPropagation();deleteMediaVideo('' + vid.id + '')" title="Remove">&#10005;</button>'
-      : '';
-    el.innerHTML = '<div class="media-vid-thumb">' + thumbHtml + '<span class="media-vid-dur">' + (vid.duration || '') + '</span></div>'
-      + '<div class="media-vid-info"><div class="media-vid-title">' + escHtml(vid.title) + '</div><div class="media-vid-meta">' + (vid.views || '') + '</div></div>'
-      + delBtn;
+
+    // Thumb
+    var thumb = document.createElement('div');
+    thumb.className = 'media-vid-thumb';
+    if (videoId) {
+      var img = document.createElement('img');
+      img.src = 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      img.onerror = function() { this.style.display = 'none'; };
+      thumb.appendChild(img);
+    } else {
+      var play = document.createElement('div');
+      play.className = 'media-vid-play';
+      play.textContent = '▶';
+      thumb.appendChild(play);
+    }
+    if (vid.duration) {
+      var dur = document.createElement('span');
+      dur.className = 'media-vid-dur';
+      dur.textContent = vid.duration;
+      thumb.appendChild(dur);
+    }
+    el.appendChild(thumb);
+
+    // Info
+    var info = document.createElement('div');
+    info.className = 'media-vid-info';
+    var title = document.createElement('div');
+    title.className = 'media-vid-title';
+    title.textContent = vid.title;
+    var meta = document.createElement('div');
+    meta.className = 'media-vid-meta';
+    meta.textContent = vid.views || '';
+    info.appendChild(title);
+    info.appendChild(meta);
+    el.appendChild(info);
+
+    // Delete btn (instructor only)
+    if (currentUser && currentUser.role === 'instructor') {
+      var del = document.createElement('button');
+      del.className = 'media-inst-btn del';
+      del.textContent = '✕';
+      del.title = 'Remove';
+      del.onclick = (function(id) {
+        return function(e) { e.preventDefault(); e.stopPropagation(); deleteMediaVideo(id); };
+      })(vid.id);
+      el.appendChild(del);
+    }
+
     list.appendChild(el);
   });
 }
@@ -990,7 +1078,7 @@ function saveMediaChannel() {
   var inp = document.getElementById('mediaChannelUrl');
   if (!inp || !inp.value.trim()) return;
   var url = inp.value.trim();
-  var handle = url.replace(/.*youtube\.com\//,'').replace(/\?.*/,'');
+  var handle = url.split('youtube.com/').pop().split('?')[0];
   db.ref('traderoom/media/channel').set({ url: url, handle: handle });
   var btn = document.getElementById('mediaChannelBtn');
   if (btn) btn.href = url;
