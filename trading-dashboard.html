@@ -265,6 +265,106 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .sb-logout-btn svg{pointer-events:none;}
 .sidebar.collapsed .sb-logout-btn{margin:0 auto;}
 
+
+/* ── MEDIA TAB ── */
+var mediaVideos = [];
+var mediaChannelUrl = 'https://youtube.com/@credotrading';
+
+function initMedia() {
+  // Load channel info
+  db.ref('traderoom/media/channel').on('value', function(snap) {
+    var v = snap.val();
+    if (v) {
+      var handle = document.getElementById('mediaChannelHandle');
+      var btn = document.getElementById('mediaChannelBtn');
+      var inp = document.getElementById('mediaChannelUrl');
+      if (handle && v.handle) handle.textContent = v.handle;
+      if (btn && v.url) { btn.href = v.url; mediaChannelUrl = v.url; }
+      if (inp && v.url) inp.value = v.url;
+    }
+  });
+  // Load videos
+  db.ref('traderoom/media/videos').on('value', function(snap) {
+    var v = snap.val();
+    mediaVideos = [];
+    if (v) {
+      Object.keys(v).forEach(function(k) {
+        mediaVideos.push(Object.assign({id: k}, v[k]));
+      });
+    }
+    renderMediaVideos();
+  });
+  // Show instructor panel
+  if (currentUser && currentUser.role === 'instructor') {
+    var panel = document.getElementById('mediaInstructorPanel');
+    if (panel) panel.style.display = 'block';
+  }
+}
+
+function renderMediaVideos() {
+  var list = document.getElementById('mediaVideoList');
+  if (!list) return;
+  if (!mediaVideos.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;">No videos added yet</div>';
+    return;
+  }
+  list.innerHTML = '';
+  mediaVideos.forEach(function(vid) {
+    var videoId = getYTVideoId(vid.url);
+    var el = document.createElement('a');
+    el.className = 'media-video-item';
+    el.href = vid.url;
+    el.target = '_blank';
+    el.rel = 'noopener';
+    var thumbHtml = videoId
+      ? '<img src="https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">'
+      : '<div class="media-vid-play"><svg viewBox="0 0 24 24" fill="none" width="10" height="10"><polygon points="8,6 18,12 8,18" fill="#22c55e"/></svg></div>';
+    var delBtn = currentUser && currentUser.role === 'instructor'
+      ? '<button class="media-inst-btn del" onclick="event.preventDefault();event.stopPropagation();deleteMediaVideo('' + vid.id + '')" title="Remove">&#10005;</button>'
+      : '';
+    el.innerHTML = '<div class="media-vid-thumb">' + thumbHtml + '<span class="media-vid-dur">' + (vid.duration || '') + '</span></div>'
+      + '<div class="media-vid-info"><div class="media-vid-title">' + escHtml(vid.title) + '</div><div class="media-vid-meta">' + (vid.views || '') + '</div></div>'
+      + delBtn;
+    list.appendChild(el);
+  });
+}
+
+function getYTVideoId(url) {
+  if (!url) return null;
+  var m;
+  m = url.match(/[?&]v=([a-zA-Z0-9_-]+)/); if (m) return m[1];
+  m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/); if (m) return m[1];
+  m = url.match(/youtube\.com\/(?:live|embed|shorts)\/([a-zA-Z0-9_-]+)/); if (m) return m[1];
+  return null;
+}
+
+function saveMediaChannel() {
+  var inp = document.getElementById('mediaChannelUrl');
+  if (!inp || !inp.value.trim()) return;
+  var url = inp.value.trim();
+  var handle = url.replace(/.*youtube\.com\//,'').replace(/\?.*/,'');
+  db.ref('traderoom/media/channel').set({ url: url, handle: handle });
+  var btn = document.getElementById('mediaChannelBtn');
+  if (btn) btn.href = url;
+  var h = document.getElementById('mediaChannelHandle');
+  if (h) h.textContent = handle;
+}
+
+function addMediaVideo() {
+  var titleEl = document.getElementById('mediaVidTitle');
+  var urlEl   = document.getElementById('mediaVidUrl');
+  var title = titleEl ? titleEl.value.trim() : '';
+  var url   = urlEl   ? urlEl.value.trim()   : '';
+  if (!title || !url) return;
+  db.ref('traderoom/media/videos').push({ title: title, url: url, duration: '', views: '' });
+  titleEl.value = '';
+  urlEl.value   = '';
+}
+
+function deleteMediaVideo(id) {
+  db.ref('traderoom/media/videos/' + id).remove();
+}
+
 /* ── EMOJI PICKER ── */
 .emoji-btn{width:32px;height:32px;border-radius:7px;border:none;background:transparent;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .12s;}
 .emoji-btn:hover{background:var(--card);}
@@ -275,6 +375,38 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .ep-emoji{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:18px;border:none;background:transparent;transition:background .1s;}
 .ep-emoji:hover{background:var(--card);}
 .chat-input-area{position:relative;}
+
+/* ── MEDIA TAB ── */
+.media-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--panel);}
+.media-body::-webkit-scrollbar{width:2px;}
+.media-body::-webkit-scrollbar-thumb{background:var(--border-hi);}
+.media-channel-card{background:linear-gradient(135deg,#0f2040,#1a3a6b);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;border:1px solid rgba(59,130,246,.2);}
+.media-ch-avatar{width:40px;height:40px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.media-ch-info{flex:1;min-width:0;}
+.media-ch-name{font-size:13px;font-weight:700;color:#f1f5f9;margin-bottom:2px;}
+.media-ch-handle{font-size:11px;color:#94a3b8;}
+.media-ch-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;border:none;background:#22c55e;color:#000;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;}
+.media-ch-btn:hover{opacity:.85;}
+.media-section-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;padding:2px 0;}
+.media-video-item{display:flex;gap:10px;align-items:center;padding:9px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .12s;text-decoration:none;}
+.media-video-item:hover{border-color:var(--border-hi);}
+.media-vid-thumb{width:68px;height:42px;background:#0a0d14;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.media-vid-play{width:20px;height:20px;border-radius:50%;background:rgba(34,197,94,.15);display:flex;align-items:center;justify-content:center;}
+.media-vid-dur{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.8);color:#f1f5f9;font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;}
+.media-vid-info{flex:1;min-width:0;}
+.media-vid-title{font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.media-vid-meta{font-size:10px;color:var(--t3);}
+.media-vid-open{width:24px;height:24px;border-radius:5px;border:1px solid var(--border-hi);background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;color:var(--t3);transition:all .12s;}
+.media-vid-open:hover{border-color:var(--green);color:var(--green);}
+.media-instructor-panel{background:var(--card);border:1px solid var(--border-hi);border-radius:8px;padding:12px;position:relative;overflow:hidden;display:none;}
+.media-instructor-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(6,182,212,.4),transparent);}
+.media-inst-label{font-size:10px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.media-inst-row{display:flex;gap:6px;margin-bottom:6px;}
+.media-inst-input{flex:1;font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:6px 10px;border-radius:6px;outline:none;}
+.media-inst-input:focus{border-color:var(--green);}
+.media-inst-input::placeholder{color:var(--t3);}
+.media-inst-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:6px 12px;border-radius:6px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;}
+.media-inst-btn.del{background:transparent;border:1px solid var(--border-hi);color:var(--red);padding:4px 8px;}
 </style>
 </head>
 <body>
@@ -462,6 +594,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
           <div class="dp-dot c"></div>
           <button class="chat-tab active" onclick="switchTab(this,'chatTab','chatPane')">Chat <span class="notif-dot" id="chatNotif" style="display:none;"></span></button>
           <button class="chat-tab" onclick="switchTab(this,'chatTab','studentsPane')">Members</button>
+          <button class="chat-tab" onclick="switchTab(this,'chatTab','mediaPane')">📺 Media</button>
           <button class="chat-clear-btn" id="chatClearBtnHeader" style="display:none;margin-left:auto;" onclick="clearAllChat()">Clear</button>
         </div>
         <div class="tab-pane active" id="chatPane" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
@@ -516,6 +649,43 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
         </div>
         <div class="tab-pane" id="studentsPane" style="flex:1;min-height:0;overflow:hidden;">
           <div class="panel-body" id="studentsList"></div>
+        </div>
+
+        <!-- MEDIA TAB -->
+        <div class="tab-pane" id="mediaPane" style="flex:1;min-height:0;overflow:hidden;display:none;flex-direction:column;">
+          <div class="media-body" id="mediaBody">
+
+            <!-- Channel Card -->
+            <div class="media-channel-card">
+              <div class="media-ch-avatar">&#9654;</div>
+              <div class="media-ch-info">
+                <div class="media-ch-name">TradeRoom PRO</div>
+                <div class="media-ch-handle" id="mediaChannelHandle">@credotrading</div>
+              </div>
+              <a id="mediaChannelBtn" href="https://youtube.com/@credotrading" target="_blank" class="media-ch-btn">Subscribe</a>
+            </div>
+
+            <!-- Instructor panel -->
+            <div class="media-instructor-panel" id="mediaInstructorPanel">
+              <div class="media-inst-label">&#9881; Manage Media</div>
+              <div class="media-inst-row">
+                <input class="media-inst-input" id="mediaChannelUrl" placeholder="YouTube channel URL"/>
+                <button class="media-inst-btn" onclick="saveMediaChannel()">Save</button>
+              </div>
+              <div class="media-inst-row">
+                <input class="media-inst-input" id="mediaVidTitle" placeholder="Video title"/>
+                <input class="media-inst-input" id="mediaVidUrl" placeholder="YouTube URL" style="flex:1.5;"/>
+                <button class="media-inst-btn" onclick="addMediaVideo()">+ Add</button>
+              </div>
+            </div>
+
+            <!-- Must-Watch Videos -->
+            <div class="media-section-label">Must-Watch</div>
+            <div id="mediaVideoList">
+              <div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;">No videos added yet</div>
+            </div>
+
+          </div>
         </div>
       </div>
 
@@ -697,6 +867,7 @@ auth.onAuthStateChanged(async u=>{
   initNotes();
   initWatchlist();
   initFeed();
+  initMedia();
   if(role==='instructor'){
     const area=document.getElementById('notesInputArea');if(area)area.style.display='flex';
     const inp=document.getElementById('notesInput');
@@ -741,6 +912,106 @@ function renderMessage(m,key){
   else{document.getElementById('chatNotif').style.display='inline-block';}
 }
 function escapeHtml(str){return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+
+/* ── MEDIA TAB ── */
+var mediaVideos = [];
+var mediaChannelUrl = 'https://youtube.com/@credotrading';
+
+function initMedia() {
+  // Load channel info
+  db.ref('traderoom/media/channel').on('value', function(snap) {
+    var v = snap.val();
+    if (v) {
+      var handle = document.getElementById('mediaChannelHandle');
+      var btn = document.getElementById('mediaChannelBtn');
+      var inp = document.getElementById('mediaChannelUrl');
+      if (handle && v.handle) handle.textContent = v.handle;
+      if (btn && v.url) { btn.href = v.url; mediaChannelUrl = v.url; }
+      if (inp && v.url) inp.value = v.url;
+    }
+  });
+  // Load videos
+  db.ref('traderoom/media/videos').on('value', function(snap) {
+    var v = snap.val();
+    mediaVideos = [];
+    if (v) {
+      Object.keys(v).forEach(function(k) {
+        mediaVideos.push(Object.assign({id: k}, v[k]));
+      });
+    }
+    renderMediaVideos();
+  });
+  // Show instructor panel
+  if (currentUser && currentUser.role === 'instructor') {
+    var panel = document.getElementById('mediaInstructorPanel');
+    if (panel) panel.style.display = 'block';
+  }
+}
+
+function renderMediaVideos() {
+  var list = document.getElementById('mediaVideoList');
+  if (!list) return;
+  if (!mediaVideos.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;">No videos added yet</div>';
+    return;
+  }
+  list.innerHTML = '';
+  mediaVideos.forEach(function(vid) {
+    var videoId = getYTVideoId(vid.url);
+    var el = document.createElement('a');
+    el.className = 'media-video-item';
+    el.href = vid.url;
+    el.target = '_blank';
+    el.rel = 'noopener';
+    var thumbHtml = videoId
+      ? '<img src="https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">'
+      : '<div class="media-vid-play"><svg viewBox="0 0 24 24" fill="none" width="10" height="10"><polygon points="8,6 18,12 8,18" fill="#22c55e"/></svg></div>';
+    var delBtn = currentUser && currentUser.role === 'instructor'
+      ? '<button class="media-inst-btn del" onclick="event.preventDefault();event.stopPropagation();deleteMediaVideo('' + vid.id + '')" title="Remove">&#10005;</button>'
+      : '';
+    el.innerHTML = '<div class="media-vid-thumb">' + thumbHtml + '<span class="media-vid-dur">' + (vid.duration || '') + '</span></div>'
+      + '<div class="media-vid-info"><div class="media-vid-title">' + escHtml(vid.title) + '</div><div class="media-vid-meta">' + (vid.views || '') + '</div></div>'
+      + delBtn;
+    list.appendChild(el);
+  });
+}
+
+function getYTVideoId(url) {
+  if (!url) return null;
+  var m;
+  m = url.match(/[?&]v=([a-zA-Z0-9_-]+)/); if (m) return m[1];
+  m = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/); if (m) return m[1];
+  m = url.match(/youtube\.com\/(?:live|embed|shorts)\/([a-zA-Z0-9_-]+)/); if (m) return m[1];
+  return null;
+}
+
+function saveMediaChannel() {
+  var inp = document.getElementById('mediaChannelUrl');
+  if (!inp || !inp.value.trim()) return;
+  var url = inp.value.trim();
+  var handle = url.replace(/.*youtube\.com\//,'').replace(/\?.*/,'');
+  db.ref('traderoom/media/channel').set({ url: url, handle: handle });
+  var btn = document.getElementById('mediaChannelBtn');
+  if (btn) btn.href = url;
+  var h = document.getElementById('mediaChannelHandle');
+  if (h) h.textContent = handle;
+}
+
+function addMediaVideo() {
+  var titleEl = document.getElementById('mediaVidTitle');
+  var urlEl   = document.getElementById('mediaVidUrl');
+  var title = titleEl ? titleEl.value.trim() : '';
+  var url   = urlEl   ? urlEl.value.trim()   : '';
+  if (!title || !url) return;
+  db.ref('traderoom/media/videos').push({ title: title, url: url, duration: '', views: '' });
+  titleEl.value = '';
+  urlEl.value   = '';
+}
+
+function deleteMediaVideo(id) {
+  db.ref('traderoom/media/videos/' + id).remove();
+}
 
 /* ── EMOJI PICKER ── */
 function toggleEmojiPicker() {
