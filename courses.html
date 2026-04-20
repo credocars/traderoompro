@@ -473,11 +473,22 @@ var MODULES = [
   },
   {
     id: 2, title: "Reading Charts and Price Action",
-    lessons: ["Candlestick patterns", "Support and resistance", "Drawing key levels", "1-minute and 5-minute timeframes", "VWAP in depth", "Strong vs weak setups"],
+    lessons: ["Candlestick patterns", "Support and resistance in practice", "VWAP in depth", "1-min and 5-min timeframes", "Pre-market high and level context", "Strong vs weak setups"],
     topics: "Candlesticks, S/R levels, VWAP, timeframes",
     hours: "5-7 hrs", icon: "📊",
     color: "var(--blue)", gradient: "rgba(59,130,246,.12),rgba(139,92,246,.08)",
-    quiz: []
+    quiz: [
+      { q: "What is the key feature that distinguishes a hammer candlestick?", opts: ["A large green body with no wicks","A small body near the top with a long lower wick","Two candles where the second engulfs the first","Identical highs on two consecutive candles"], ans: 1 },
+      { q: "A bearish engulfing pattern appears after a strong morning run. What does this signal?", opts: ["Buyers are about to regain control","The stock is about to break to new highs","Sellers overwhelmed buyers and upward momentum is likely ending","Volume is about to increase significantly"], ans: 2 },
+      { q: "What is the pre-market high and why is it significant?", opts: ["The highest price ever traded on the stock","The highest price before 9:30 AM — first major resistance for a gapper","The price at which the stock opened at 9:30 AM","The average price during pre-market trading"], ans: 1 },
+      { q: "A stock is trading below VWAP. What does this tell you about the intraday structure?", opts: ["The stock is bullish and likely to continue higher","Institutional traders are buying aggressively","The stock is in a bearish intraday structure — sellers have been dominant","The stock is about to reclaim VWAP"], ans: 2 },
+      { q: "What is the VWAP reclaim setup?", opts: ["Buying a stock as it first breaks above VWAP at the open","Stock dips below VWAP then crosses back above it with volume — entry on the reclaim","Selling a stock when it reaches VWAP from below","Waiting for VWAP to turn flat before entering"], ans: 1 },
+      { q: "Which timeframe is used for setup structure, and which for precise entry timing?", opts: ["1-minute for setup, 5-minute for entry","Daily chart for setup, 1-minute for entry","5-minute for setup structure, 1-minute for precise entry timing","Both timeframes show identical information"], ans: 2 },
+      { q: "A stock closed at $4.00 yesterday and is trading at $6.20 pre-market. What is the gap percentage?", opts: ["35%","55%","64.5%","220%"], ans: 1 },
+      { q: "Which of the following is a sign of a WEAK setup that should be avoided?", opts: ["3x+ relative volume on the breakout","Stock trading above VWAP with clear catalyst","Price moving on high volume with no confirmed news catalyst","Bullish engulfing at a key support level"], ans: 2 },
+      { q: "Using the setup scorecard, what is the minimum score required before entering a paper trade?", opts: ["2 out of 6","3 out of 6","4 out of 6","All 6 factors must be present"], ans: 2 },
+      { q: "What does a doji candlestick signal when it appears after a strong upward move?", opts: ["The upward move is likely to accelerate","Volume is extremely high","Buyers and sellers are equally matched — momentum has stalled and reversal is possible","The stock is about to gap up the following day"], ans: 2 }
+    ]
   },
   {
     id: 3, title: "Small-Cap Mechanics Deep Dive",

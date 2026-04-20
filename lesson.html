@@ -335,12 +335,12 @@ var MODULES = [
   {
     id:2, title:"Reading Charts and Price Action", hours:"5-7 hrs",
     lessons:[
-      {id:1,title:"Candlestick Patterns",content:comingSoon("Candlestick Patterns","Doji, hammer, engulfing, shooting star — the patterns that signal reversals and continuations.")},
-      {id:2,title:"Support and Resistance",content:comingSoon("Support and Resistance","How to identify and draw the key price levels that every trader watches.")},
-      {id:3,title:"Drawing Key Levels",content:comingSoon("Drawing Key Levels","Step-by-step chart markup on real small-cap examples.")},
-      {id:4,title:"1-Minute and 5-Minute Timeframes",content:comingSoon("1-Minute and 5-Minute Timeframes","Which timeframe to use and when — and why both matter for your trade plan.")},
-      {id:5,title:"VWAP in Depth",content:comingSoon("VWAP in Depth","The single most important intraday level for day traders, explained completely.")},
-      {id:6,title:"Strong vs Weak Setups",content:comingSoon("Strong vs Weak Setups","How to distinguish a high-probability setup from a trap before you enter.")}
+      {id:1,title:"Candlestick Patterns",content:buildM2L1()},
+      {id:2,title:"Support and Resistance in Practice",content:buildM2L2()},
+      {id:3,title:"VWAP in Depth",content:buildM2L3()},
+      {id:4,title:"The 1-Minute and 5-Minute Timeframes",content:buildM2L4()},
+      {id:5,title:"Pre-Market High, Previous Close, and Level Context",content:buildM2L5()},
+      {id:6,title:"Recognizing Strong vs Weak Setups",content:buildM2L6()}
     ]
   },
   {
@@ -817,6 +817,149 @@ function buildLesson6() {
       '<li>If a concept is confusing during a live session, say so immediately. The session will pause to clarify.</li>' +
     '</ol>' +
     callout('amber','A word from your mentor','I have been trading small-cap stocks for six years. I know this material so well that I have forgotten what it feels like not to understand it. Your job is to tell me when something is not clear. My job is to explain it differently until it makes sense. That is what the daily call is for.');
+}
+
+// ══ MODULE 2 LESSONS ══
+function buildM2L1() {
+  return obj('By the end of this lesson you will recognize the most important candlestick patterns, understand what they signal about buyer and seller strength, and identify them on a live chart.') +
+    h2('1.1 Why Candlestick Patterns Matter') +
+    p('In Module 1 you learned that each candlestick shows the open, high, low, and close for a time period, and that green candles mean buyers won that period while red candles mean sellers won. Candlestick patterns take this one step further — they look at the shape of individual candles and combinations of two or three candles to detect moments when momentum is shifting.') +
+    callout('amber','Important','Candlestick patterns have higher reliability when they appear at a significant price level — a known support, resistance, VWAP, or pre-market high. A hammer candle in random space means less than a hammer at a key support level with high volume. Context always matters more than the pattern alone.') +
+    h2('1.2 Single Candle Reversal Patterns') +
+    h3('The Hammer') +
+    p('A hammer has a small body near the top of the candle with a long lower wick (at least 2x the body length). It forms after a downward move and signals that sellers pushed price down hard, but buyers stepped in strongly and pushed price back near the open. The long lower wick is the tell — it shows a significant rejection of lower prices.') +
+    dataTable([['Body','Small, near the top of the candle — open and close were close together'],['Lower wick','Long (2x+ the body length) — sellers pushed hard down, then buyers fought back'],['Upper wick','Little or none — price did not go much above the open/close'],['Location required','After a downward move — only meaningful as a potential reversal']]) +
+    callout('green','Key insight','A green hammer (closes above the open) is stronger than a red hammer. Both are bullish signals at support, but the green version is more convincing — buyers fully won the period.') +
+    h3('The Shooting Star') +
+    p('The shooting star is the mirror image of the hammer. It has a small body near the bottom with a long upper wick. It forms after an upward move and signals that buyers pushed price up hard, but sellers overwhelmed them and pushed price back down. On a small-cap stock that has run 50% in the morning, a shooting star at the pre-market high is a strong signal that the move is exhausting.') +
+    h3('The Doji') +
+    p('A doji forms when the open and close are at or nearly the same price, creating a very small body. The wicks can extend in both directions. A doji means indecision — neither buyers nor sellers won the period. After a strong move in either direction, a doji signals that momentum is stalling.') +
+    twoCol('Bullish context','Doji after a downward move at support — buyers and sellers are equally matched. Watch for the next candle to confirm direction.','Bearish context','Doji after a strong upward move at resistance — the buying momentum has stalled. If the next candle is red, the reversal is likely confirmed.','green','red') +
+    h3('The Marubozu') +
+    p('A marubozu is a candle with a large body and little or no wicks. A green marubozu means pure buyer control from open to close. A red marubozu means pure seller control. These signal strong momentum and often appear during the first five minutes of a gap-and-go opening.') +
+    h2('1.3 Two-Candle Patterns') +
+    h3('The Engulfing Pattern') +
+    p('An engulfing pattern requires two candles. The second candle\'s body completely contains (engulfs) the first candle\'s body.') +
+    ul(['Bullish engulfing: After a downward move, a small red candle is followed by a large green candle that engulfs it. Buyers dominated so completely on the second candle that they overcame the entire previous period\'s selling.',
+        'Bearish engulfing: After an upward move, a small green candle is followed by a large red candle that engulfs it. Sellers took complete control — a frequent signal that a small-cap morning run is ending.']) +
+    callout('amber','Small-cap note','Bearish engulfing patterns on the 1-minute chart during the power hour (9:30-10:30 AM) are one of the most reliable short-entry signals for experienced traders. As a beginner, observe these — do not trade them — until Module 3 and 4 training is complete.') +
+    defTable([['Hammer','Small body near top, long lower wick. Bullish reversal at support.'],['Shooting star','Small body near bottom, long upper wick. Bearish reversal at resistance.'],['Doji','Open and close nearly equal. Signals indecision and potential reversal.'],['Marubozu','Large body, no wicks. Signals strong pure momentum.'],['Bullish engulfing','Large green candle fully engulfs prior red candle. Bullish reversal.'],['Bearish engulfing','Large red candle fully engulfs prior green candle. Bearish reversal.']]);
+}
+
+function buildM2L2() {
+  return obj('By the end of this lesson you will be able to draw meaningful support and resistance levels on a chart, explain why they matter, and identify the key levels used in CREDO trading sessions.') +
+    h2('2.1 Why Support and Resistance Are the Foundation of All Trading') +
+    p('Every setup you will ever trade at CREDO is defined in relation to a key level. Your entry will be near a level. Your stop will be just beyond a level. Your target will be the next level. Without understanding how levels work, you cannot build a trade plan.') +
+    p('A support level is a price where buyers have historically stepped in and prevented further decline — a floor. A resistance level is a price where sellers have overwhelmed buyers and prevented further advance — a ceiling.') +
+    callout('amber','Key concept','Support and resistance are zones, not exact prices. Draw a zone approximately $0.10 to $0.30 wide on a small-cap stock and think about whether price is respecting that zone, not whether it has touched a single price.') +
+    h2('2.2 The Most Important Levels in Small-Cap Trading') +
+    h3('Pre-Market High (PMH)') +
+    p('The pre-market high is the highest price before the 9:30 AM open. It is the single most watched level in small-cap trading. When a stock gaps up on a catalyst, the pre-market high is where the first real test of strength happens.') +
+    twoCol('Gap-and-go scenario','Stock opens, consolidates briefly below PMH, then breaks above it with high volume. This breakout is a classic long entry trigger — buyers who were waiting for confirmation rush in.','Gap-and-trap scenario','Stock opens, spikes briefly above PMH on thin volume, then immediately reverses. This false breakout is a trap. The stock often sells off sharply as trapped longs and new shorts create selling pressure.','green','red') +
+    h3('Previous Day\'s Close (PDC)') +
+    p('The previous day\'s close is a reference point for overnight context. If a stock gapped up significantly from its PDC, the size of that gap tells you how aggressive the overnight buying was. PDC often acts as support on pullbacks — if a stock has run from $3.50 (PDC) to $5.00 on a catalyst, a pullback to $3.50 may find buyers stepping back in.') +
+    h3('Round Numbers') +
+    p('Round numbers — $1, $2, $3, $5, $10, $20 — act as natural support and resistance because they are psychologically significant. Traders place orders at round numbers. Stops cluster around them. On a stock moving from $2.50 toward $5.00, the $5.00 level will almost always act as resistance.') +
+    h3('Intraday Highs and Lows') +
+    p('As the trading day progresses, the high and low of the day become dynamic levels. A breakout above the high of day (HOD) is bullish. A break below the low of day (LOD) is bearish. In CREDO daily sessions, the mentor will call out HOD and LOD during live commentary.') +
+    h2('2.3 How to Draw Levels') +
+    p('Drawing levels is a skill that improves with practice. Follow these steps for every watchlist stock:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Mark the pre-market high and previous close first — these are mandatory for every watchlist stock.</li>' +
+      '<li>Look for price areas with multiple touches. Three bounces from $4.20 in two days = meaningful support.</li>' +
+      '<li>Mark round numbers between current price and 2x the PMH as potential resistance zones.</li>' +
+      '<li>Do not over-draw. Five clear levels are more useful than fifteen marginal ones.</li>' +
+      '<li>Zoom out to the daily chart to see prior week support and resistance — these carry more weight.</li>' +
+    '</ol>' +
+    callout('green','Daily practice','During observation homework, draw PMH, previous close, and obvious S/R zones on each watchlist stock before 9:30 AM. Watch what happens at each level during the open. Note which levels held and which broke. This is how pattern recognition develops.');
+}
+
+function buildM2L3() {
+  return obj('By the end of this lesson you will understand how VWAP is calculated, why it is the most important intraday level, and how to use it to evaluate whether a trade setup is strong or weak.') +
+    h2('3.1 What VWAP Is and Why It Matters') +
+    p('VWAP stands for Volume Weighted Average Price. It is the average price a stock has traded at throughout the day, with each transaction weighted by the number of shares traded. A transaction of 10,000 shares at $5.00 has ten times more influence on VWAP than 1,000 shares at $6.00.') +
+    p('VWAP resets to zero at the start of each trading day and recalculates continuously. It appears as a single curved line on an intraday chart. Sterling Trader Pro displays VWAP automatically.') +
+    callout('amber','Why VWAP matters','Institutional traders — funds, market makers, algorithms — use VWAP as their execution benchmark. When a fund buys a large block, they try to buy at or below VWAP. This institutional activity makes VWAP a self-fulfilling line of support and resistance. Traders who understand VWAP trade in alignment with institutional order flow.') +
+    h2('3.2 Trading Above vs Below VWAP') +
+    dataTable([['Price above VWAP','Stock is trading above the average price paid today. Buyers have been dominant. Bullish intraday structure — look for long setups.'],['Price below VWAP','Stock is trading below the average price paid today. Sellers have been dominant. Bearish intraday structure — look for short setups.'],['Price at VWAP','Stock is testing the average price. Highest-significance moment. Watch for direction — break above or below tells you who is winning.']]) +
+    h2('3.3 The VWAP Reclaim — A Core CREDO Setup') +
+    p('The VWAP reclaim is one of the most reliable patterns in small-cap day trading:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Stock gaps up strongly on a catalyst and opens above VWAP.</li>' +
+      '<li>Early profit-taking causes the stock to pull back and dip below VWAP.</li>' +
+      '<li>Buyers who missed the initial move see this as an opportunity and step in near VWAP.</li>' +
+      '<li>The stock reclaims VWAP — crosses back above the line with volume.</li>' +
+      '<li>The reclaim is the entry trigger. Stop goes just below VWAP. Target is the pre-market high or high of day.</li>' +
+    '</ol>' +
+    callout('green','Key insight','The VWAP reclaim only works when the underlying catalyst is still valid. If the stock dipped below VWAP because bad news emerged or the market sold off, a reclaim has less significance. Always combine VWAP with catalyst awareness.') +
+    h2('3.4 VWAP as a Stop Reference') +
+    p('VWAP is used as a stop reference for many CREDO setups. When you are long a stock above VWAP, your stop is often just below VWAP. The logic: if the stock loses VWAP, the intraday structure has shifted from bullish to bearish. Your thesis is no longer valid and you exit.') +
+    callout('red','Beginner trap','Do not place your stop exactly at VWAP. On a volatile small-cap, price will cross VWAP many times, triggering your stop and then reversing. Place your stop a defined distance below VWAP — typically $0.10 to $0.20 — and look for a candle close below VWAP as confirmation.');
+}
+
+function buildM2L4() {
+  return obj('By the end of this lesson you will understand what each timeframe shows you, when to use each one, and how to combine them to build a complete picture of a stock\'s price action.') +
+    h2('4.1 Why Timeframe Matters') +
+    p('A candlestick chart is not a fixed view — it changes completely depending on the timeframe you choose. A 1-minute chart shows one candle for every minute of trading. A 5-minute chart shows one candle for every five minutes. The same stock at the same moment looks very different on each timeframe.') +
+    twoCol('1-minute chart','High resolution. Shows every twist and turn. Used for precise entry and exit timing. Can appear chaotic and noisy on volatile stocks. The tree view.','5-minute chart','Medium resolution. Smooths out noise. Shows broader structure — is this a genuine uptrend or just chop? Used for setup identification and trend confirmation. The forest view.','blue','green') +
+    h2('4.2 How CREDO Uses Each Timeframe') +
+    h3('5-Minute Chart: The Setup Chart') +
+    p('The 5-minute chart is where you assess the overall structure of a move. Before entering any trade, look at the 5-minute chart and ask: Is this stock making higher highs and higher lows? Is it above VWAP? Has it consolidated near a key level, suggesting it is building energy for a move? A clean consolidation on the 5-minute chart is one of the strongest setup signals.') +
+    h3('1-Minute Chart: The Entry Chart') +
+    p('Once you identify a setup on the 5-minute chart, switch to the 1-minute chart to time your entry. Look for the trigger candle — the specific candle that breaks above a level, reclaims VWAP, or shows a reversal pattern at support. Enter when that candle confirms.') +
+    callout('amber','Important','New traders who use only the 1-minute chart get whipsawed — they enter on every small spike and get stopped out repeatedly. The 5-minute chart prevents this by ensuring you only take entries where the broader structure supports your direction.') +
+    h2('4.3 The Multi-Timeframe Checklist') +
+    p('Before every trade, run through this mental check:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>5-minute structure: Is the broader trend in my direction? (Higher highs for a long, lower lows for a short)</li>' +
+      '<li>5-minute VWAP: Is the stock on the right side of VWAP for my direction?</li>' +
+      '<li>1-minute setup: Is there a specific candlestick pattern or breakout level that defines my entry?</li>' +
+      '<li>1-minute entry: What is the specific trigger? What price do I enter at?</li>' +
+      '<li>Stop and target: Where is my stop? What is the nearest resistance as my target?</li>' +
+    '</ol>' +
+    callout('green','CREDO standard','Every trade must be verifiable on both timeframes. If you cannot articulate the 5-minute structure and the 1-minute entry trigger, you do not have a valid setup. You have a guess.') +
+    h2('4.4 Reading the First 5 Minutes') +
+    p('The first five minutes after 9:30 AM are the most important and most dangerous of the day. Here is how to approach them:') +
+    ul(['Do not enter immediately at 9:30. Watch the first one to three candles form — the market is price-discovering in those first minutes.',
+        'Observe whether the stock holds above its pre-market high (gap-and-go) or immediately reverses (gap-and-trap).',
+        'Watch where the first 5-minute candle closes. Upper third is bullish. Lower third is bearish.',
+        'Volume in the first 5-minute candle sets the benchmark. Declining volume on subsequent candles means the initial move is losing momentum.']) +
+    callout('amber','Beginner guideline','During your first two weeks of observation homework, do not focus on entries at all in the first 5 minutes. Simply watch and narrate what you see in your journal. The ability to read the open comes from pattern exposure — that takes days and weeks of repetition.');
+}
+
+function buildM2L5() {
+  return obj('By the end of this lesson you will be able to build a complete level map for any watchlist stock before the open, calculate gap percentage, and understand why context determines whether a level is significant.') +
+    h2('5.1 Building Your Level Map Before 9:30') +
+    p('Professional day traders do not wait for the market to open and then figure out where the important levels are. They build their level map in the 30 to 60 minutes before the open, so that when price reaches a level at 9:32 AM they already know exactly what they will do there.') +
+    dataTable([['Pre-market high (PMH)','Highest price in pre-market (4 AM-9:30 AM). First major resistance for a gapper. Breakout above = go signal.'],['Pre-market low (PML)','Lowest price in pre-market. Support for gap pullbacks. Break below = weakness signal.'],['Previous close (PDC)','Prior day\'s closing price. Baseline. Gap size = (PMH minus PDC) divided by PDC.'],['Round numbers in range','Identify $1, $2, $3 increments between current price and 2x PMH.'],['Prior day high/low','Yesterday\'s high and low. Longer-term S/R that intraday traders watch.']]) +
+    h2('5.2 Calculating Gap Percentage') +
+    p('Gap percentage formula: (Pre-market price minus previous close) divided by previous close, multiplied by 100.') +
+    p('Example: Stock closed at $3.00. Pre-market price is $4.20. Gap % = (4.20 - 3.00) / 3.00 x 100 = 40%.') +
+    dataTable([['5-10%','Below CREDO minimum. Often fades at open. Weak catalyst or thin interest.'],['10-25%','Minimum for watchlist. Needs strong catalyst and low float.'],['25-50%','High priority. Strong interest. Likely volatile and tradeable.'],['50%+','Highest priority. Major catalyst. Most opportunity and most risk.']]) +
+    callout('amber','Scanner reminder','Our Trade Ideas gap scanner is set to show only stocks with 10%+ gap, float under 20 million, and a confirmed news catalyst. This filter removes the vast majority of gappers and leaves only those worth building a thesis on.') +
+    h2('5.3 Why Context Determines Level Significance') +
+    p('Not all levels are equal. A level\'s significance is determined by: how many times price has tested it (more touches = stronger), how recent the tests were (recent levels are fresher), and what volume accompanied the tests (high-volume tests leave stronger levels).') +
+    p('A stock that bounced from $4.00 three times in the past two days on high volume is far more significant than a level price briefly touched once two weeks ago on thin volume. Prioritize multi-touch, high-volume, recent levels.') +
+    callout('green','Practical rule','If you have to squint to see whether the chart is really touching a level, it probably is not meaningful. The most significant levels will be visually obvious — price will have clearly stalled, bounced, or reversed there multiple times.');
+}
+
+function buildM2L6() {
+  return obj('By the end of this lesson you will be able to assess whether a potential trade setup is high-probability or low-probability based on the factors covered in this module.') +
+    h2('6.1 What Makes a Setup Strong') +
+    p('A strong setup is one where multiple factors align in your favor. No single factor guarantees a winning trade, but when four or five factors line up the probability of success increases meaningfully. Strong setups are rare — and that rarity is exactly why we wait for them.') +
+    defTable([['Tier 1 catalyst','The stock is moving on a specific, verified news event. Tier 1 catalysts (FDA decision, earnings surprise, major contract) produce the most sustained moves.'],['Low float','Under 10 million shares preferred. Each buying order has more price impact.'],['Clear level','The setup is at a well-defined, multi-touch level — not in random space. PMH, a round number, or a VWAP reclaim.'],['Volume confirmation','3x+ relative volume on the move. Volume is the fuel. A breakout on low volume is a trap.'],['Clean chart structure','Higher highs and higher lows for a long. Lower lows for a short. Erratic charts are harder to trade.'],['Right side of VWAP','Above VWAP for a long, below VWAP for a short. Aligns with institutional order flow.']]) +
+    h2('6.2 What Makes a Setup Weak') +
+    p('Weak setups are those where the supporting factors are absent, contradictory, or unclear. Trading weak setups is where most beginner losses come from.') +
+    ul(['No clear catalyst: The stock is moving on volume but there is no specific news. These stocks can reverse violently.',
+        'Extended price action: The stock has already moved 50-100%+ from its base. Late entries here are chasing.',
+        'Breaking below key levels: The stock keeps making lower lows on increasing volume. A long setup here is fighting the tape.',
+        'Low or declining volume: Price is moving but volume is thin and declining. The move is unlikely to continue.',
+        'Choppy price action: Large wicks in both directions, price crossing VWAP repeatedly, no clear structure. Sit out.']) +
+    callout('red','Risk warning','The most dangerous setups for beginners are those that look strong but are actually weak. A stock making new highs with no apparent reason to pause can feel like an unstoppable winner — right up until it reverses 30% in three minutes. Always verify the catalyst and always have a stop placed before entering.') +
+    h2('6.3 The Setup Scorecard') +
+    p('Before entering any paper trade, run through this six-point scorecard. Give yourself one point for each factor that clearly supports your direction. Enter only when you score 4 or higher.') +
+    dataTable([['Catalyst','Tier 1 or 2 confirmed','S-3 filing, no catalyst, or fading'],['Float','Under 10M shares','Any float (be careful with shorts)'],['Level','Clear support, PMH breakout, or VWAP reclaim','Clear resistance or break below support'],['Volume','3x+ relative volume on the move','Low or declining volume'],['Structure','Higher highs/lows on 5-min','Lower highs/lows on 5-min'],['VWAP','Trading above VWAP','Trading below VWAP']]) +
+    callout('green','Mentor note','In the first months of training, you will find that many scanner stocks fail this scorecard. That is the point. The scorecard trains you to be selective. Five well-qualified setups per week executed correctly teaches more than 20 daily trades on marginal setups.');
 }
 </script>
 </body>
