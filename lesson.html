@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeRoom PRO — Lesson</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339",storageBucket:"traderoom-42339.firebasestorage.app",messagingSenderId:"997045199477",appId:"1:997045199477:web:22c5861bfc0965ec960e3c"});
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1117;--panel:#161b27;--card:#1e2535;--card2:#1a2030;
+  --border:#243044;--border-hi:#2d3d57;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+  --cyan:#06b6d4;--orange:#f59e0b;--purple:#8b5cf6;
+  --t1:#f1f5f9;--t2:#94a3b8;--t3:#475569;
+  --radius:10px;--radius-lg:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden;display:flex;}
+
+/* ── SIDEBAR (same as courses.html) ── */
+.sidebar{width:240px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .25s cubic-bezier(.4,0,.2,1);}
+.sidebar.collapsed{width:58px;}
+.sidebar.collapsed .sb-wordmark,.sidebar.collapsed .sb-label,.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
+.sidebar.collapsed .sb-item{padding:10px 0;justify-content:center;gap:0;}
+.sidebar.collapsed .sb-bottom{padding:10px 6px;display:flex;justify-content:center;}
+.sidebar.collapsed .sb-logo-area{padding:16px 0;justify-content:center;}
+.sidebar.collapsed .sb-logo{justify-content:center;}
+.sidebar.collapsed .sb-item{position:relative;}
+.sidebar.collapsed .sb-item:hover::after{content:attr(data-label);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--card);color:var(--t1);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;border:1px solid var(--border-hi);z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+.sb-logo-area{height:52px;padding:0 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
+.sb-logo{display:flex;align-items:center;gap:10px;}
+.sb-logo-mark{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
+.sb-logo-mark svg{width:24px;height:24px;}
+.sb-wordmark{font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--t1);}
+.sb-wordmark span{color:var(--green);}
+.sb-scroll{flex:1;overflow-y:auto;padding:8px 0;}
+.sb-scroll::-webkit-scrollbar{width:0;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:10px 18px;cursor:pointer;font-size:15px;font-weight:500;color:var(--t2);transition:all .12s;}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+.sb-item.active{background:rgba(34,197,94,.06);color:var(--green);box-shadow:inset 3px 0 0 var(--green);}
+.sb-icon{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.sb-bottom{padding:14px 18px;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:9px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;background:rgba(34,197,94,.15);color:var(--green);}
+.sb-uname{font-size:14px;font-weight:600;color:var(--t1);}
+.sb-urole{font-size:11px;color:var(--t3);}
+.sb-logout-btn{display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:auto;flex-shrink:0;border-radius:7px;border:none;background:transparent;cursor:pointer;color:var(--t3);transition:all .15s;}
+.sb-logout-btn:hover{background:rgba(239,68,68,.1);color:var(--red);}
+.sidebar.collapsed .sb-logout-btn{margin:0 auto;}
+.sidebar-wrap{position:relative;flex-shrink:0;}
+.sb-toggle-btn{position:absolute;top:72px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--border-hi);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--t2);transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.35);}
+.sb-toggle-btn:hover{background:var(--green);border-color:var(--green);color:#000;}
+
+/* ── HEADER ── */
+.main-content{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+.header{height:52px;background:rgba(15,17,23,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+.header-back{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;padding:5px 10px;border-radius:7px;transition:all .15s;border:none;background:transparent;}
+.header-back:hover{background:rgba(255,255,255,.05);color:var(--t1);}
+.header-divider{width:1px;height:20px;background:var(--border);}
+.header-crumb{font-size:13px;color:var(--t3);}
+.header-crumb span{color:var(--t1);font-weight:600;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.session-clock{font-size:13px;font-weight:700;color:var(--cyan);font-variant-numeric:tabular-nums;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.15);padding:4px 11px;border-radius:7px;}
+.username-chip{font-size:10px;font-weight:600;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);padding:4px 10px;border-radius:6px;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── LESSON LAYOUT ── */
+.lesson-layout{flex:1;min-height:0;display:flex;overflow:hidden;}
+
+/* ── LESSON NAV PANEL ── */
+.lesson-nav{width:260px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.lesson-nav-header{padding:16px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.lesson-nav-mod{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.lesson-nav-title{font-size:14px;font-weight:700;color:var(--t1);line-height:1.3;}
+.lesson-nav-meta{font-size:11px;color:var(--t3);margin-top:4px;}
+.lesson-nav-progress{margin-top:10px;}
+.lesson-nav-bar-wrap{height:3px;background:var(--card2);border-radius:2px;overflow:hidden;}
+.lesson-nav-bar{height:100%;border-radius:2px;background:var(--green);transition:width .4s ease;}
+.lesson-nav-pct{font-size:10px;color:var(--t3);margin-top:4px;}
+.lesson-list{flex:1;overflow-y:auto;padding:8px 0;}
+.lesson-list::-webkit-scrollbar{width:3px;}
+.lesson-list::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
+.lesson-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;transition:all .12s;position:relative;}
+.lesson-item:hover{background:rgba(255,255,255,.04);}
+.lesson-item.active{background:rgba(34,197,94,.06);}
+.lesson-item.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);border-radius:0 2px 2px 0;}
+.lesson-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;border:1.5px solid var(--border-hi);background:var(--card2);color:var(--t3);transition:all .3s;}
+.lesson-dot.done{background:var(--green);border-color:var(--green);color:#000;}
+.lesson-dot.done::after{content:"✓";}
+.lesson-dot.active{border-color:var(--cyan);background:rgba(6,182,212,.1);color:var(--cyan);}
+.lesson-dot.active::after{content:"●";font-size:6px;}
+.lesson-item-text{font-size:13px;font-weight:500;color:var(--t2);line-height:1.3;flex:1;}
+.lesson-item.active .lesson-item-text{color:var(--t1);}
+.lesson-item.done-item .lesson-item-text{color:var(--t3);}
+.lesson-nav-footer{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;}
+.download-btn{width:100%;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:8px;border-radius:7px;border:1px solid var(--border-hi);background:transparent;color:var(--t2);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.download-btn:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+
+/* ── LESSON CONTENT ── */
+.lesson-content{flex:1;min-width:0;overflow-y:auto;display:flex;flex-direction:column;}
+.lesson-content::-webkit-scrollbar{width:3px;}
+.lesson-content::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
+.lesson-body{flex:1;padding:36px 48px;max-width:820px;}
+.lesson-num{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
+.lesson-h1{font-size:26px;font-weight:800;color:var(--t1);letter-spacing:-.5px;line-height:1.2;margin-bottom:8px;}
+.lesson-obj{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:28px;font-size:13px;color:var(--blue);line-height:1.6;}
+.lesson-obj strong{font-weight:700;}
+.lesson-h2{font-size:18px;font-weight:700;color:var(--t1);margin:28px 0 10px;letter-spacing:-.3px;}
+.lesson-h3{font-size:15px;font-weight:700;color:var(--t2);margin:20px 0 8px;}
+.lesson-p{font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:12px;}
+.lesson-ul{margin:8px 0 12px 20px;display:flex;flex-direction:column;gap:6px;}
+.lesson-ul li{font-size:14px;color:var(--t2);line-height:1.7;}
+.lesson-ul li::marker{color:var(--green);}
+
+/* callout boxes */
+.callout{border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13px;line-height:1.7;display:flex;gap:12px;align-items:flex-start;}
+.callout-icon{flex-shrink:0;margin-top:1px;}
+.callout-body{flex:1;}
+.callout-title{font-weight:700;margin-bottom:3px;}
+.callout.blue{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);color:var(--blue);}
+.callout.green{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);color:#4ade80;}
+.callout.amber{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:var(--orange);}
+.callout.red{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#f87171;}
+
+/* two-col comparison */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+.col-box{border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.7;}
+.col-box.blue{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);color:var(--blue);}
+.col-box.green{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);color:#4ade80;}
+.col-box-title{font-weight:700;margin-bottom:6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;}
+
+/* definition table */
+.def-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+.def-table th{background:rgba(59,130,246,.1);color:var(--blue);font-weight:700;padding:10px 14px;text-align:left;border:1px solid rgba(59,130,246,.15);}
+.def-table td{padding:9px 14px;border:1px solid var(--border);color:var(--t2);line-height:1.6;vertical-align:top;}
+.def-table td:first-child{font-weight:600;color:var(--t1);white-space:nowrap;width:180px;}
+.def-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+
+/* three-col table */
+.data-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+.data-table th{background:rgba(59,130,246,.1);color:var(--blue);font-weight:700;padding:10px 14px;text-align:left;border:1px solid rgba(59,130,246,.15);}
+.data-table td{padding:9px 14px;border:1px solid var(--border);color:var(--t2);line-height:1.6;}
+.data-table tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+
+/* ── LESSON FOOTER ── */
+.lesson-footer{padding:24px 48px;border-top:1px solid var(--border);display:flex;align-items:center;gap:16px;flex-shrink:0;background:var(--panel);}
+.lesson-footer-info{flex:1;font-size:12px;color:var(--t3);}
+.lesson-footer-info span{color:var(--t1);font-weight:600;}
+.prev-btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:9px 20px;border-radius:8px;border:1px solid var(--border-hi);background:transparent;color:var(--t2);cursor:pointer;transition:all .15s;}
+.prev-btn:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+.prev-btn:disabled{opacity:.3;cursor:default;}
+.next-btn{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;padding:10px 28px;border-radius:8px;border:none;background:var(--green);color:#000;cursor:pointer;transition:all .15s;}
+.next-btn:hover{opacity:.88;}
+.next-btn.finish{background:var(--cyan);color:#000;}
+.complete-badge{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);padding:6px 12px;border-radius:7px;}
+
+/* ── MODAL (auth) ── */
+.modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--panel);border:1px solid var(--border-hi);border-radius:16px;padding:36px;width:420px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden;}
+.modal-box::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,.4),rgba(6,182,212,.4),transparent);}
+.modal-logo{display:flex;align-items:center;gap:12px;}
+.modal-logo-mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
+.modal-title{font-size:20px;font-weight:800;color:var(--t1);}
+.modal-title span{color:var(--green);}
+.modal-sub{font-size:11px;color:var(--t3);margin-top:2px;}
+.modal-divider{height:1px;background:var(--border);}
+.tab-row{display:flex;border:1px solid var(--border-hi);border-radius:8px;overflow:hidden;}
+.auth-tab{flex:1;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px;border:none;background:var(--card);color:var(--t3);cursor:pointer;transition:all .15s;}
+.auth-tab.active{background:var(--blue);color:#fff;}
+.modal-input-group{display:flex;flex-direction:column;gap:10px;}
+.modal-input{font-family:'Inter',sans-serif;font-size:13px;background:var(--card);border:1px solid var(--border-hi);color:var(--t1);padding:11px 14px;border-radius:8px;outline:none;transition:border-color .15s;width:100%;}
+.modal-input:focus{border-color:var(--green);}
+.modal-input::placeholder{color:var(--t3);}
+.modal-role-row{display:flex;gap:8px;}
+.role-btn{flex:1;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px;border-radius:7px;border:1px solid var(--border-hi);background:var(--card);color:var(--t3);cursor:pointer;transition:all .15s;text-align:center;}
+.role-btn.active{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green);}
+.modal-join-btn{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:9px;border:none;background:var(--green);color:#000;cursor:pointer;}
+.modal-error{font-size:11px;color:var(--red);padding:8px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;display:none;}
+.forgot-link{text-align:right;margin-top:-4px;}
+.forgot-link span{font-size:11px;color:var(--blue);cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <div class="modal-logo-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h13" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#22c55e"/></svg></div>
+      <div><div class="modal-title">TradeRoom <span>PRO</span></div><div class="modal-sub" id="modalSubtitle">Sign in to continue</div></div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="tab-row">
+      <button id="tabLogin" class="auth-tab active" onclick="showTab('login')">Sign In</button>
+      <button id="tabRegister" class="auth-tab" onclick="showTab('register')">Create Account</button>
+    </div>
+    <div id="formLogin" class="modal-input-group">
+      <input class="modal-input" id="loginEmail" type="email" placeholder="Email address"/>
+      <input class="modal-input" id="loginPassword" type="password" placeholder="Password"/>
+      <div class="forgot-link"><span onclick="forgotPassword()">Forgot password?</span></div>
+    </div>
+    <div id="formRegister" class="modal-input-group" style="display:none;">
+      <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24"/>
+      <input class="modal-input" id="regEmail" type="email" placeholder="Email address"/>
+      <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)"/>
+      <div class="modal-role-row">
+        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
+        <button class="role-btn" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      </div>
+    </div>
+    <div class="modal-error" id="modalError"></div>
+    <button class="modal-join-btn" id="authBtn" onclick="handleAuth()">Enter Trading Room →</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-wrap">
+<nav class="sidebar" id="sidebar">
+  <div class="sb-logo-area">
+    <div class="sb-logo">
+      <div class="sb-logo-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h13" stroke="#00d97e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#00d97e"/></svg></div>
+      <div class="sb-wordmark">TradeRoom<span> PRO</span></div>
+    </div>
+  </div>
+  <div class="sb-scroll">
+    <div class="sb-item" data-label="Dashboard" onclick="window.location.href='trading-dashboard.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></span><span class="sb-label">Dashboard</span></div>
+    <div class="sb-item" data-label="Scanners" onclick="window.location.href='scanners.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Scanners</span></div>
+    <div class="sb-item" data-label="Charting" onclick="window.location.href='chart.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></span><span class="sb-label">Charting</span></div>
+    <div class="sb-item" data-label="YouTube" onclick="window.location.href='youtube.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16 10,8" fill="currentColor" stroke="none"/></svg></span><span class="sb-label">YouTube</span></div>
+    <div class="sb-item" data-label="Zoom" onclick="window.location.href='zoom.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></span><span class="sb-label">Zoom</span></div>
+    <div class="sb-item active" data-label="Courses" onclick="window.location.href='courses.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Courses</span></div>
+    <div class="sb-item" data-label="Mentorship" onclick="window.location.href='mentorship.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sb-label">Mentorship</span></div>
+    <div class="sb-item" data-label="Tradervue" onclick="window.location.href='tradervue.html'"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg></span><span class="sb-label">Tradervue</span></div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-uname" id="sbName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div><div class="sb-urole" id="sbRole">—</div></div>
+      <button class="sb-logout-btn" onclick="handleLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </div>
+  <button class="sb-toggle-btn" id="collapseBtn" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="15,18 9,12 15,6"/></svg></button>
+</nav>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+  <div class="header">
+    <button class="header-back" onclick="window.location.href='courses.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15,18 9,12 15,6"/></svg>
+      Courses
+    </button>
+    <div class="header-divider"></div>
+    <div class="header-crumb" id="headerCrumb">Foundation Course &rsaquo; <span>Module 1</span></div>
+    <div class="header-right">
+      <span class="username-chip" id="userChip">⭐ Instructor</span>
+      <div class="session-clock" id="sessionTime">00:00:00</div>
+    </div>
+  </div>
+
+  <div class="lesson-layout">
+
+    <!-- LESSON NAV PANEL -->
+    <div class="lesson-nav">
+      <div class="lesson-nav-header">
+        <div class="lesson-nav-mod" id="navModNum">Module 1</div>
+        <div class="lesson-nav-title" id="navModTitle">How the Stock Market Works</div>
+        <div class="lesson-nav-meta" id="navModMeta">6 lessons · 5-7 hrs</div>
+        <div class="lesson-nav-progress">
+          <div class="lesson-nav-bar-wrap"><div class="lesson-nav-bar" id="navBar" style="width:0%"></div></div>
+          <div class="lesson-nav-pct" id="navPct">0 of 6 complete</div>
+        </div>
+      </div>
+      <div class="lesson-list" id="lessonList"></div>
+      <div class="lesson-nav-footer">
+        <button class="download-btn" onclick="downloadDoc()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Module PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- LESSON CONTENT -->
+    <div class="lesson-content" id="lessonContent">
+      <div class="lesson-body" id="lessonBody"></div>
+      <div class="lesson-footer" id="lessonFooter">
+        <div class="lesson-footer-info" id="footerInfo"></div>
+        <button class="prev-btn" id="prevBtn" onclick="prevLesson()">← Previous</button>
+        <button class="next-btn" id="nextBtn" onclick="nextLesson()">Mark Complete & Continue →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══ ALL MODULE + LESSON DATA ══
+var MODULES = [
+  {
+    id:1, title:"How the Stock Market Works", hours:"5-7 hrs",
+    lessons:[
+      {
+        id:1, title:"What is the Stock Market?",
+        content: buildLesson1()
+      },
+      {
+        id:2, title:"How Buying and Selling Works",
+        content: buildLesson2()
+      },
+      {
+        id:3, title:"Understanding Small-Cap Stocks",
+        content: buildLesson3()
+      },
+      {
+        id:4, title:"Reading a Stock Chart",
+        content: buildLesson4()
+      },
+      {
+        id:5, title:"The Language of Trading",
+        content: buildLesson5()
+      },
+      {
+        id:6, title:"Your Daily Routine Starts Here",
+        content: buildLesson6()
+      }
+    ]
+  },
+  {
+    id:2, title:"Reading Charts and Price Action", hours:"5-7 hrs",
+    lessons:[
+      {id:1,title:"Candlestick Patterns",content:comingSoon("Candlestick Patterns","Doji, hammer, engulfing, shooting star — the patterns that signal reversals and continuations.")},
+      {id:2,title:"Support and Resistance",content:comingSoon("Support and Resistance","How to identify and draw the key price levels that every trader watches.")},
+      {id:3,title:"Drawing Key Levels",content:comingSoon("Drawing Key Levels","Step-by-step chart markup on real small-cap examples.")},
+      {id:4,title:"1-Minute and 5-Minute Timeframes",content:comingSoon("1-Minute and 5-Minute Timeframes","Which timeframe to use and when — and why both matter for your trade plan.")},
+      {id:5,title:"VWAP in Depth",content:comingSoon("VWAP in Depth","The single most important intraday level for day traders, explained completely.")},
+      {id:6,title:"Strong vs Weak Setups",content:comingSoon("Strong vs Weak Setups","How to distinguish a high-probability setup from a trap before you enter.")}
+    ]
+  },
+  {
+    id:3, title:"Small-Cap Mechanics Deep Dive", hours:"6-8 hrs",
+    lessons:[
+      {id:1,title:"Short Selling Mechanics",content:comingSoon("Short Selling Mechanics","How short selling works, locate costs, and the risk profile of shorting small-caps.")},
+      {id:2,title:"The Short Squeeze Setup",content:comingSoon("The Short Squeeze Setup","Why heavily shorted stocks can explode — and how to identify them pre-market.")},
+      {id:3,title:"Reading SEC Filings",content:comingSoon("Reading SEC Filings","S-1, S-3, 8-K — what each means, what to look for, and what to avoid.")},
+      {id:4,title:"Finding Float with Finviz",content:comingSoon("Finding Float with Finviz","How to look up any stock's float in 30 seconds and what the number tells you.")},
+      {id:5,title:"Gap-and-Go vs Gap-and-Trap",content:comingSoon("Gap-and-Go vs Gap-and-Trap","The two most common gap patterns and how to tell them apart before the open.")},
+      {id:6,title:"Halt and Resume Mechanics",content:comingSoon("Halt and Resume Mechanics","What happens during a LULD halt, how long it lasts, and how to prepare for the resume.")}
+    ]
+  },
+  {
+    id:4, title:"Platform Setup and Tool Training", hours:"8-10 hrs",
+    lessons:[
+      {id:1,title:"Trade Ideas Gap Scanner Setup",content:comingSoon("Trade Ideas Gap Scanner Setup","Building the CREDO pre-market gap scanner from scratch — every filter explained.")},
+      {id:2,title:"Scanner Literacy and Alerts",content:comingSoon("Scanner Literacy and Alerts","Reading alert columns, relative volume, and news integration in real time.")},
+      {id:3,title:"Sterling Trader Pro Layout",content:comingSoon("Sterling Trader Pro Layout","Standardized montage layout, Level 2 configuration, and why consistency matters.")},
+      {id:4,title:"Hotkey Configuration and Drills",content:comingSoon("Hotkey Configuration and Drills","Buy on ask, sell on bid, flatten, cancel all — drill until it's under 3 seconds.")},
+      {id:5,title:"IB Account and TWS Setup",content:comingSoon("IB Account and TWS Setup","Opening your IB paper account, TWS layout, commission calculator, PDT tracking.")},
+      {id:6,title:"TraderVue and Discord Orientation",content:comingSoon("TraderVue and Discord Orientation","Custom field setup, Discord channel walkthrough, daily workflow from day one.")}
+    ]
+  },
+  {
+    id:5, title:"Risk Management Fundamentals", hours:"5-6 hrs",
+    lessons:[
+      {id:1,title:"Position Sizing Formula",content:comingSoon("Position Sizing Formula","The exact formula: risk per trade ÷ stop distance = share size. Never guess again.")},
+      {id:2,title:"Daily Loss Limit Mechanics",content:comingSoon("Daily Loss Limit Mechanics","Why a hard daily limit is a rule, not a guideline — and what happens when you hit it.")},
+      {id:3,title:"Cost of Drawdown",content:comingSoon("Cost of Drawdown","The math that changes how you think: 25% loss needs 33% gain just to break even.")},
+      {id:4,title:"Spread and Commission Calculation",content:comingSoon("Spread and Commission Calculation","Calculating your true break-even on every trade before you place it.")},
+      {id:5,title:"Bracket Order Workflow in IB",content:comingSoon("Bracket Order Workflow in IB","Entry + stop + target submitted simultaneously — the only way we enter trades.")},
+      {id:6,title:"IB Risk Navigator Configuration",content:comingSoon("IB Risk Navigator Configuration","Setting up the automated risk bot: per-trade stops, daily limit, three alert thresholds.")}
+    ]
+  },
+  {
+    id:6, title:"Trading Psychology and Daily Routine", hours:"4-5 hrs",
+    lessons:[
+      {id:1,title:"Revenge Trading and Winner's Tilt",content:comingSoon("Revenge Trading and Winner's Tilt","Two patterns that destroy accounts — and how to catch yourself before they take hold.")},
+      {id:2,title:"FOMO and Hope as Strategy",content:comingSoon("FOMO and Hope as Strategy","Why FOMO entries and holding losers feel rational in the moment and aren't.")},
+      {id:3,title:"Outcome Bias and Confirmation Bias",content:comingSoon("Outcome Bias and Confirmation Bias","Why a winning trade can teach you the wrong lesson, and how to evaluate process not P&L.")},
+      {id:4,title:"Pre-Session and Post-Session Routine",content:comingSoon("Pre-Session and Post-Session Routine","The 15-minute pre-market checklist and 3 mandatory post-session questions.")},
+      {id:5,title:"Emotional State Rating System",content:comingSoon("Emotional State Rating System","Rate 1-5 before every session. Your data will show you patterns you can't see in the moment.")},
+      {id:6,title:"Monthly Self-Review Protocol",content:comingSoon("Monthly Self-Review Protocol","The structured review that turns your TraderVue data into a personal coaching session.")}
+    ]
+  }
+];
+
+// ══ STATE ══
+var currentUser = null;
+var userProgress = {};
+var currentModIdx = 0;
+var currentLessonIdx = 0;
+
+// ══ URL PARAMS ══
+function getParams() {
+  var p = new URLSearchParams(window.location.search);
+  return {
+    mod: Math.max(0, Math.min(5, parseInt(p.get('mod') || '0'))),
+    lesson: Math.max(0, Math.min(5, parseInt(p.get('lesson') || '0')))
+  };
+}
+
+function setParams(mod, lesson) {
+  var url = new URL(window.location.href);
+  url.searchParams.set('mod', mod);
+  url.searchParams.set('lesson', lesson);
+  window.history.replaceState({}, '', url);
+}
+
+// ══ RENDER ══
+function renderPage() {
+  var mod = MODULES[currentModIdx];
+  var lesson = mod.lessons[currentLessonIdx];
+  var p = userProgress[mod.id] || { pct: 0, lessonsComplete: [] };
+  var done = p.lessonsComplete || [];
+
+  // Header
+  document.getElementById('headerCrumb').innerHTML = 'Foundation Course &rsaquo; <span>' + mod.title + '</span>';
+
+  // Nav header
+  document.getElementById('navModNum').textContent = 'Module ' + mod.id;
+  document.getElementById('navModTitle').textContent = mod.title;
+  document.getElementById('navModMeta').textContent = mod.lessons.length + ' lessons · ' + mod.hours;
+  var pct = Math.round(done.length / mod.lessons.length * 100);
+  document.getElementById('navBar').style.width = pct + '%';
+  document.getElementById('navPct').textContent = done.length + ' of ' + mod.lessons.length + ' complete';
+
+  // Lesson list
+  var list = document.getElementById('lessonList');
+  list.innerHTML = '';
+  mod.lessons.forEach(function(l, i) {
+    var isDone = done.indexOf(l.id) !== -1;
+    var isActive = i === currentLessonIdx;
+    var item = document.createElement('div');
+    item.className = 'lesson-item' + (isActive ? ' active' : '') + (isDone && !isActive ? ' done-item' : '');
+    item.onclick = function() { navigateLesson(i); };
+    var dotClass = 'lesson-dot' + (isDone ? ' done' : (isActive ? ' active' : ''));
+    item.innerHTML = '<div class="' + dotClass + '">' + (isDone ? '' : (isActive ? '' : (i+1))) + '</div>' +
+      '<div class="lesson-item-text">' + l.title + '</div>';
+    list.appendChild(item);
+  });
+
+  // Content
+  document.getElementById('lessonBody').innerHTML =
+    '<div class="lesson-num">Lesson ' + (currentLessonIdx+1) + ' of ' + mod.lessons.length + '</div>' +
+    '<div class="lesson-h1">' + lesson.title + '</div>' +
+    lesson.content;
+
+  // Footer
+  var isDoneCurrent = done.indexOf(lesson.id) !== -1;
+  var isLastLesson = currentLessonIdx === mod.lessons.length - 1;
+  document.getElementById('footerInfo').innerHTML =
+    '<span>' + mod.title + '</span> · Lesson ' + (currentLessonIdx+1) + ' of ' + mod.lessons.length;
+  document.getElementById('prevBtn').disabled = currentModIdx === 0 && currentLessonIdx === 0;
+
+  var nextBtn = document.getElementById('nextBtn');
+  if (isDoneCurrent) {
+    if (isLastLesson) {
+      nextBtn.textContent = 'Go to Quiz →';
+      nextBtn.className = 'next-btn finish';
+    } else {
+      nextBtn.textContent = 'Next Lesson →';
+      nextBtn.className = 'next-btn';
+    }
+  } else {
+    if (isLastLesson) {
+      nextBtn.textContent = 'Complete & Take Quiz →';
+      nextBtn.className = 'next-btn finish';
+    } else {
+      nextBtn.textContent = 'Mark Complete & Continue →';
+      nextBtn.className = 'next-btn';
+    }
+  }
+
+  // Scroll to top
+  document.getElementById('lessonContent').scrollTop = 0;
+}
+
+function navigateLesson(lessonIdx) {
+  currentLessonIdx = lessonIdx;
+  setParams(currentModIdx, currentLessonIdx);
+  renderPage();
+}
+
+function prevLesson() {
+  if (currentLessonIdx > 0) {
+    currentLessonIdx--;
+  } else if (currentModIdx > 0) {
+    currentModIdx--;
+    currentLessonIdx = MODULES[currentModIdx].lessons.length - 1;
+  }
+  setParams(currentModIdx, currentLessonIdx);
+  renderPage();
+}
+
+function nextLesson() {
+  var mod = MODULES[currentModIdx];
+  var lesson = mod.lessons[currentLessonIdx];
+  var p = userProgress[mod.id] || { pct: 0, lessonsComplete: [] };
+  if (!p.lessonsComplete) p.lessonsComplete = [];
+
+  // Mark current lesson complete
+  if (p.lessonsComplete.indexOf(lesson.id) === -1) {
+    p.lessonsComplete.push(lesson.id);
+    p.pct = Math.round(p.lessonsComplete.length / mod.lessons.length * 100);
+    userProgress[mod.id] = p;
+    if (currentUser) saveProgress();
+  }
+
+  var isLastLesson = currentLessonIdx === mod.lessons.length - 1;
+  if (isLastLesson) {
+    // All lessons done — go back to courses page for quiz
+    window.location.href = 'courses.html';
+    return;
+  }
+
+  currentLessonIdx++;
+  setParams(currentModIdx, currentLessonIdx);
+  renderPage();
+}
+
+function downloadDoc() {
+  alert('Module ' + MODULES[currentModIdx].id + ' PDF download — link your Word doc file here.');
+}
+
+// ══ FIREBASE PROGRESS ══
+function saveProgress() {
+  if (!currentUser) return;
+  firebase.database().ref('traderoom/users/' + currentUser.uid + '/courseProgress').set(userProgress);
+}
+
+function loadProgress(uid, callback) {
+  firebase.database().ref('traderoom/users/' + uid + '/courseProgress').get().then(function(snap) {
+    if (snap.exists()) userProgress = snap.val() || {};
+    callback();
+  }).catch(function() { callback(); });
+}
+
+// ══ AUTH ══
+var selectedRole = 'student';
+function showTab(tab) {
+  var l = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', l);
+  document.getElementById('tabRegister').classList.toggle('active', !l);
+  document.getElementById('formLogin').style.display = l ? 'flex' : 'none';
+  document.getElementById('formRegister').style.display = l ? 'none' : 'flex';
+  document.getElementById('authBtn').textContent = l ? 'Sign In' : 'Create Account';
+}
+function setRole(r) {
+  selectedRole = r;
+  document.getElementById('roleStudent').classList.toggle('active', r === 'student');
+  document.getElementById('roleInstructor').classList.toggle('active', r === 'instructor');
+}
+function handleAuth() {
+  var err = document.getElementById('modalError'); err.style.display = 'none';
+  var btn = document.getElementById('authBtn'); btn.textContent = '...'; btn.disabled = true;
+  var isLogin = document.getElementById('tabLogin').classList.contains('active');
+  if (isLogin) {
+    var email = document.getElementById('loginEmail').value.trim(), pass = document.getElementById('loginPassword').value;
+    if (!email || !pass) { showErr('Please enter your email and password.'); return; }
+    firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(e) { showErr(e.message); });
+  } else {
+    var name = document.getElementById('regName').value.trim(), email2 = document.getElementById('regEmail').value.trim(), pass2 = document.getElementById('regPassword').value;
+    if (!name || !email2 || !pass2) { showErr('Please fill in all fields.'); return; }
+    firebase.auth().createUserWithEmailAndPassword(email2, pass2).then(function(c) {
+      firebase.database().ref('traderoom/users/' + c.user.uid).set({ name: name, role: selectedRole, email: email2 });
+    }).catch(function(e) { showErr(e.message); });
+  }
+}
+function showErr(msg) {
+  var err = document.getElementById('modalError'); err.textContent = msg; err.style.display = 'block';
+  var btn = document.getElementById('authBtn'); btn.disabled = false;
+  btn.textContent = document.getElementById('tabLogin').classList.contains('active') ? 'Sign In' : 'Create Account';
+}
+function forgotPassword() {
+  var email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showErr('Enter your email first.'); return; }
+  firebase.auth().sendPasswordResetEmail(email).then(function() {
+    document.getElementById('modalError').textContent = 'Reset email sent.';
+    document.getElementById('modalError').style.color = 'var(--green)';
+    document.getElementById('modalError').style.display = 'block';
+  });
+}
+
+firebase.auth().onAuthStateChanged(function(u) {
+  var params = getParams();
+  currentModIdx = params.mod;
+  currentLessonIdx = params.lesson;
+
+  if (!u) {
+    renderPage();
+    return;
+  }
+  currentUser = u;
+  firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
+    var p = snap.exists() ? snap.val() : null;
+    var name = p ? p.name : u.email.split('@')[0];
+    var role = p ? p.role : 'student';
+    document.getElementById('loginModal').classList.add('hidden');
+    document.getElementById('userChip').textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+    var sbA = document.getElementById('sbAvatar'), sbN = document.getElementById('sbName'), sbR = document.getElementById('sbRole');
+    if (sbN) sbN.textContent = name;
+    if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
+    if (sbA) { sbA.textContent = name.slice(0,2).toUpperCase(); sbA.style.background = role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)'; sbA.style.color = role==='instructor'?'#06b6d4':'#8b5cf6'; }
+    loadProgress(u.uid, function() { renderPage(); });
+  }).catch(function() { renderPage(); });
+});
+
+// ══ CLOCK ══
+function updateClock() { document.getElementById('sessionTime').textContent = new Date().toTimeString().slice(0,8); }
+setInterval(updateClock, 1000); updateClock();
+
+// ══ SIDEBAR ══
+function toggleSidebar() {
+  var sb = document.getElementById('sidebar'), btn = document.getElementById('collapseBtn');
+  var c = sb.classList.toggle('collapsed');
+  btn.style.transform = c ? 'rotate(180deg)' : 'rotate(0deg)';
+  localStorage.setItem('sb_collapsed', c);
+}
+(function() {
+  if (localStorage.getItem('sb_collapsed') === 'true') {
+    document.addEventListener('DOMContentLoaded', function() {
+      var sb = document.getElementById('sidebar'), btn = document.getElementById('collapseBtn');
+      if (sb) sb.classList.add('collapsed');
+      if (btn) btn.style.transform = 'rotate(180deg)';
+    });
+  }
+})();
+function handleLogout() {
+  firebase.auth().signOut().then(function() { window.location.href = 'index.html'; });
+}
+
+// ══ CONTENT HELPERS ══
+function h2(t) { return '<h2 class="lesson-h2">' + t + '</h2>'; }
+function h3(t) { return '<h3 class="lesson-h3">' + t + '</h3>'; }
+function p(t) { return '<p class="lesson-p">' + t + '</p>'; }
+function obj(t) { return '<div class="lesson-obj"><strong>Learning objective:</strong> ' + t + '</div>'; }
+function ul(items) { return '<ul class="lesson-ul">' + items.map(function(i){return '<li>'+i+'</li>';}).join('') + '</ul>'; }
+function callout(type, title, body) {
+  var icons = { blue:'ℹ', green:'✓', amber:'⚠', red:'⛔' };
+  return '<div class="callout ' + type + '"><div class="callout-icon">' + icons[type] + '</div><div class="callout-body"><div class="callout-title">' + title + '</div>' + body + '</div></div>';
+}
+function twoCol(leftTitle, leftBody, rightTitle, rightBody, leftType, rightType) {
+  return '<div class="two-col"><div class="col-box ' + (leftType||'blue') + '"><div class="col-box-title">' + leftTitle + '</div>' + leftBody + '</div><div class="col-box ' + (rightType||'green') + '"><div class="col-box-title">' + rightTitle + '</div>' + rightBody + '</div></div>';
+}
+function defTable(rows) {
+  var html = '<table class="def-table"><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody>';
+  rows.forEach(function(r) { html += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; });
+  return html + '</tbody></table>';
+}
+function dataTable(headers, rows) {
+  var html = '<table class="data-table"><thead><tr>' + headers.map(function(h){return '<th>'+h+'</th>';}).join('') + '</tr></thead><tbody>';
+  rows.forEach(function(r) { html += '<tr>' + r.map(function(c){return '<td>'+c+'</td>';}).join('') + '</tr>'; });
+  return html + '</tbody></table>';
+}
+function comingSoon(title, desc) {
+  return obj('This lesson is coming soon. The content is being built now.') +
+    '<div class="callout blue"><div class="callout-icon">📋</div><div class="callout-body"><div class="callout-title">' + title + '</div>' + desc + '</div></div>' +
+    p('This lesson will be available shortly. You can still mark it complete and continue through the module.');
+}
+
+// ══ LESSON CONTENT ══
+function buildLesson1() {
+  return obj('By the end of this lesson you will be able to explain what a stock is, why companies issue stock, and what the stock market is for.') +
+    h2('1.1 What is a Stock?') +
+    p('A stock is a small piece of ownership in a company. When a company wants to raise money to grow — to hire more people, build a factory, or launch a new product — it can divide itself into millions of tiny equal pieces and sell those pieces to the public. Each piece is called a share of stock.') +
+    p('If a company is worth $1,000,000 and it divides itself into 1,000,000 shares, each share is worth $1.00. If you buy 100 shares, you own 0.01% of the company and your shares are worth $100. If the company grows and becomes worth $2,000,000, your 100 shares are now worth $200. That is how stock ownership works at its most basic level.') +
+    callout('amber','Real example','Apple Inc. (ticker: AAPL) has approximately 15 billion shares outstanding. When you buy one share of Apple, you own one 15-billionth of the entire Apple company — every iPhone factory, every employee, every dollar in their bank account.') +
+    h2('1.2 Why Do Companies Issue Stock?') +
+    p('Companies issue stock to raise capital — money they can use to grow the business. This process of selling stock to the public for the first time is called an Initial Public Offering, or IPO. Before the IPO, the company is private. After the IPO, it is public and anyone can buy shares.') +
+    twoCol('Private company','Owned by founders, early investors, and employees. Shares cannot be bought by the general public. Examples: your local restaurant, a startup before its IPO.','Public company','Shares are listed on a stock exchange and can be bought and sold by anyone with a brokerage account. Examples: Apple, Tesla, Amazon, GameStop.','blue','green') +
+    h2('1.3 What is the Stock Market?') +
+    p('The stock market is a network of buyers and sellers who trade shares of public companies. Think of it like an auction — but instead of art or antiques, people are buying and selling pieces of companies. In the United States, the two main stock exchanges are:') +
+    ul(['NYSE (New York Stock Exchange) — the oldest and largest exchange by market value. Home to large, established companies like JPMorgan and Exxon.','NASDAQ — technology-heavy exchange. Home to Apple, Microsoft, Tesla, and Amazon.']) +
+    p('The U.S. stock market is open Monday through Friday, 9:30 AM to 4:00 PM Eastern Time. There is also a pre-market session (4:00 AM–9:30 AM EST) and after-hours session (4:00 PM–8:00 PM EST). At CREDO, your primary focus will be on the pre-market and the first 90 minutes of the regular session.') +
+    h2('1.4 How Does a Stock Price Change?') +
+    p('A stock price changes every second during market hours based on supply and demand. If more people want to buy a stock than sell it, the price goes up. If more people want to sell than buy, the price goes down. Every price movement comes down to this simple equation.') +
+    p('What causes people to want to buy or sell?') +
+    ul(['Company news — earnings reports, new products, lawsuits, management changes','Industry news — regulatory changes, competitor announcements','General market sentiment — fear, greed, economic data','For small-cap stocks specifically: press releases, FDA decisions, contract wins, stock offerings']) +
+    callout('green','Key insight','As a day trader you are not investing in companies. You are trading the price movements caused by these events. Whether a company is good or bad is largely irrelevant. What matters is whether the price is moving, why it is moving, and whether you can predict the short-term direction.');
+}
+
+function buildLesson2() {
+  return obj('By the end of this lesson you will understand what a brokerage account is, what the bid and ask prices mean, and what the different types of orders do.') +
+    h2('2.1 The Brokerage Account') +
+    p('To buy and sell stocks you need a brokerage account. A broker is a company that connects you to the stock market. You deposit money into your brokerage account, and the broker allows you to place buy and sell orders on stock exchanges.') +
+    p('At CREDO Trading Academy we use Interactive Brokers (IB) as our brokerage. It is one of the most powerful and cost-effective platforms available for active traders. You will open and fund your IB account before beginning hands-on training.') +
+    callout('amber','Important — PDT Rule','U.S. regulations require day traders to maintain a minimum account balance of $25,000. This rule is called the Pattern Day Trader (PDT) rule. If your account falls below $25,000 you will be restricted from making more than 3 day trades in a rolling 5-day period. We will cover this in detail in Module 5.') +
+    h2('2.2 The Bid and Ask') +
+    p('Every stock has two prices at any given moment: the bid and the ask.') +
+    dataTable(['Price','Definition','You pay / receive'],[['BID','The highest price a buyer is willing to pay right now','You receive this price when you SELL'],['ASK','The lowest price a seller is willing to accept right now','You pay this price when you BUY'],['SPREAD','The difference between ask and bid','This is the built-in cost of every round-trip trade']]) +
+    p('Example: Stock XYZ has a bid of $5.00 and an ask of $5.10. The spread is $0.10. If you buy 1,000 shares at $5.10 and immediately sell at $5.00, you lose $100 before the stock moves even one penny. This is why spread cost is critical.') +
+    callout('amber','Small-cap alert','Small-cap stocks often have much wider spreads than large-cap stocks — sometimes $0.20, $0.50, or more. A stock must move substantially in your favor just to break even on entry. We will calculate spread costs as part of every trade plan.') +
+    h2('2.3 Types of Orders') +
+    h3('Market Order') +
+    p('A market order tells the broker to buy or sell immediately at whatever the current price is. It guarantees your order will be filled but does NOT guarantee the price. In a fast-moving small-cap stock, a market order can fill at a price far from what you expected. This is called slippage.') +
+    callout('red','Warning','Never use market orders on small-cap stocks during volatile periods. The price you see and the price you get can be dramatically different. At CREDO we use limit orders for all entries and exits.') +
+    h3('Limit Order') +
+    p('A limit order tells the broker to buy or sell only at a specific price or better. A buy limit order will only fill at your price or lower. A sell limit order will only fill at your price or higher. This protects you from slippage but means your order may not fill if the price does not reach your limit.') +
+    callout('green','CREDO standard','All student entries and exits must use limit orders. Bracket orders (entry + stop + target submitted together) are required from Week 3 of training onward.') +
+    h3('Stop Order (Stop Loss)') +
+    p('A stop order becomes a market order once the stock reaches a specified trigger price. Stop orders are used as stop losses — automatic exits that protect you when a trade goes wrong. When the stock hits your stop price, your shares are sold immediately to cut the loss.') +
+    h3('Stop Limit Order') +
+    p('A stop limit order combines a stop and a limit. When the trigger price is hit, it becomes a limit order rather than a market order. This prevents slippage on the stop but introduces risk: if the stock drops fast through your limit price, your order may not fill and your loss can grow larger than planned.') +
+    dataTable(['Order type','Best for','Risk'],[['Market','Speed — guaranteed fill','Price slippage — never use on small-caps'],['Limit','Controlled entry and exit price','May not fill if price misses your level'],['Stop (market)','Quick stop loss execution','Slippage on fast-moving stocks'],['Stop limit','Price-controlled stop loss','May not fill in fast drops']]);
+}
+
+function buildLesson3() {
+  return obj('By the end of this lesson you will understand what small-cap stocks are, why they are different from large-cap stocks, and why they are the focus of this Academy.') +
+    h2('3.1 What is Market Capitalization?') +
+    p('Market capitalization (market cap) is the total value of a company\'s outstanding shares. It is calculated simply: share price multiplied by total number of shares.') +
+    dataTable(['Category','Market cap','Examples'],[['Mega-cap','Over $200B','Apple, Microsoft, Google'],['Large-cap','$10B – $200B','Ford, Nike, Starbucks'],['Mid-cap','$2B – $10B','Hasbro, Five Below'],['Small-cap','$300M – $2B','Regional companies, biotech'],['Micro-cap','Under $300M','Early-stage, speculative stocks']]) +
+    callout('amber','CREDO note','We use the term "small-cap" loosely to include micro-cap stocks. The stocks we trade typically have share prices between $1 and $20 and market caps under $500 million. This range produces the most predictable intraday price movements.') +
+    h2('3.2 What is Float?') +
+    p('Float is the number of shares available for public trading — not the total shares outstanding, but specifically the shares that are not locked up by insiders, institutions, or restricted stock agreements.') +
+    p('Example: A company has 10,000,000 total shares outstanding. The CEO owns 4,000,000 (locked up). Another 1,000,000 are restricted. The float is 10,000,000 – 4,000,000 – 1,000,000 = 5,000,000 shares.') +
+    twoCol('Low float (under 10M shares)','Fewer shares available means each buy or sell order has more impact on price. Stocks move faster and further. Large percentage moves are common — 10%, 50%, 100%+ in one day.','High float (over 50M shares)','More shares available means price is more stable. Large orders have less impact. Moves are smaller and slower. Less opportunity for day traders.','blue','green') +
+    callout('green','The CREDO edge','We focus on low-float stocks because they produce the biggest price moves in the shortest time. A stock with 2 million shares in float and a fresh catalyst can move 50–200% in a single morning.') +
+    h2('3.3 What Causes Small-Cap Stocks to Move?') +
+    p('Small-cap stocks move on catalysts — news events that cause traders to buy or sell rapidly. Learning to identify catalysts is your first core skill as a trader.') +
+    h3('Tier 1 Catalysts (strongest movers)') +
+    ul(['FDA decisions — drug approval or rejection for biotech companies. Can move a stock 50–300% in minutes.','Earnings surprises — results dramatically better or worse than expected.','Major contract wins — unexpected large government or corporate contracts.','Merger or acquisition announcements — company being bought out, often at a premium.']) +
+    h3('Tier 2 Catalysts (moderate movers)') +
+    ul(['SEC filings — S-1 (going public), S-3 (new share offering), 8-K (material event disclosure).','Sector sympathy — a stock in the same sector as a big mover often follows.','Short squeeze — heavily shorted stock surges as short sellers scramble to cover.']) +
+    h3('Tier 3 Catalysts (weaker movers)') +
+    ul(['General market news — Fed announcements, economic data releases.','Technical breakouts — price breaking a key chart level with no news.','Social media attention — Reddit or Twitter driven momentum (often short-lived).']) +
+    callout('amber','Important','A strong catalyst does NOT automatically mean a profitable trade. The catalyst tells you WHY a stock is moving. Your job is to identify HOW it is likely to move and WHEN to enter and exit. We will build this skill across Modules 3 through 6.') +
+    h2('3.4 Trading Halts') +
+    p('A trading halt is a temporary stop in trading for a specific stock. As a small-cap trader you will encounter halts frequently. There are two types:') +
+    h3('LULD Halt (Limit Up / Limit Down)') +
+    p('An automatic circuit breaker triggered when a stock moves too fast in either direction. When a small-cap stock surges more than a set percentage within five minutes, trading is halted for five minutes to allow the market to stabilize. The stock then resumes trading.') +
+    callout('blue','Beginner note','The moment after a halt resumes is one of the highest-volatility moments in day trading. As a beginner, observe halts and resumptions rather than trading them until your mentor clears you to do so.') +
+    h3('Regulatory Halt (T1 / T2)') +
+    p('A halt imposed by FINRA or the SEC when regulators have concerns about a stock. Regulatory halts can last minutes, hours, or even days. Any open position in a halted stock is frozen — a significant risk.') +
+    callout('red','Risk rule','Never hold a position in a stock with an active S-3 filing or a history of regulatory halts overnight. We will identify these flags during pre-market scanning training in Module 4.');
+}
+
+function buildLesson4() {
+  return obj('By the end of this lesson you will be able to read a basic candlestick chart, identify key price levels, and understand what volume tells you about price movement.') +
+    h2('4.1 The Candlestick Chart') +
+    p('Stock prices are displayed using candlestick charts. Each candlestick represents price movement during a specific time period. A candlestick has four pieces of information:') +
+    dataTable(['Data point','What it means','Where it appears'],[['OPEN','Price at the beginning of the period','Bottom of green body / Top of red body'],['CLOSE','Price at the end of the period','Top of green body / Bottom of red body'],['HIGH','Highest price reached during the period','Top of the upper wick'],['LOW','Lowest price reached during the period','Bottom of the lower wick']]) +
+    p('A GREEN candle means the stock closed HIGHER than it opened — buyers were in control. A RED candle means the stock closed LOWER than it opened — sellers were in control. The body is the area between open and close. The wicks show how far the price traveled beyond the body during the period.') +
+    h2('4.2 Key Price Levels') +
+    p('Certain price levels act as magnets — areas where buying or selling tends to cluster repeatedly. Learning to identify these levels is essential for planning your entries and exits.') +
+    defTable([['Support','A price level where buyers have repeatedly stepped in and stopped a decline. Think of it as a floor. The more times a stock bounces from a level, the stronger the support.'],['Resistance','A price level where sellers have repeatedly pushed a stock back down. Think of it as a ceiling. Previous highs often become resistance.'],['VWAP','Volume Weighted Average Price. The average price a stock has traded at throughout the day, weighted by volume. VWAP is the most important intraday level for day traders.'],['Pre-market high','The highest price a stock reached before the 9:30 AM open. This level often acts as key resistance or a breakout trigger at the open.'],['Previous close','Where the stock closed the prior day. The gap between previous close and current pre-market price shows how much the stock moved overnight.']]) +
+    h2('4.3 Volume — The Most Important Indicator') +
+    p('Volume is the number of shares traded during a period. A price move on high volume is significant and likely to continue. A price move on low volume is weak and likely to reverse.') +
+    twoCol('High volume + price rise','Strong buying pressure. Many traders are participating. Move is more likely to continue. This is the type of move we look to enter early.','Low volume + price rise','Weak buying pressure. Few traders participating. Move is likely to fade. These are traps that catch inexperienced traders.','green','blue') +
+    p('Relative volume compares today\'s volume to the average volume for that time of day. A stock trading at 5x relative volume means it is trading five times more than normal — a signal that something significant is happening.') +
+    callout('green','CREDO scan rule','Our Trade Ideas scanner requires a minimum relative volume of 3x before we consider a stock for the watchlist. Low relative volume stocks are ignored regardless of price movement.');
+}
+
+function buildLesson5() {
+  return obj('Master the core vocabulary used in daily sessions, Discord, and mentor calls. You will hear these terms every day from Week 1.') +
+    h2('5.1 Essential Vocabulary') +
+    defTable([
+      ['Long','Buying shares expecting the price to rise. When you are "long" a stock you profit when the price goes up.'],
+      ['Short','Borrowing shares and selling them, expecting to buy back cheaper. You profit when price goes down. Covered in Module 3.'],
+      ['Position','The shares you currently hold. "I have a position in XYZ" means you own or are short shares of XYZ.'],
+      ['Flat','Having no open positions. "I am flat" means you are not in any trades.'],
+      ['Entry','The price at which you bought or shorted a stock.'],
+      ['Exit','The price at which you sold your position to close the trade.'],
+      ['Stop loss','The price level at which you will automatically exit a losing trade to limit loss. Non-negotiable at CREDO.'],
+      ['Target','The price level at which you plan to take profit on a winning trade.'],
+      ['R (Risk/Reward)','If you risk $100 and your target profits $200, your risk/reward is 2R (or 2:1). We require minimum 2:1 on all trades.'],
+      ['P&L','Profit and Loss. Your daily P&L is total money made or lost that session.'],
+      ['Drawdown','The peak-to-trough decline in your account. A 10% drawdown means your account dropped 10% from its highest point.'],
+      ['Catalyst','The news event driving a stock\'s move.'],
+      ['Gap up','When a stock opens significantly higher than its previous close due to overnight news.'],
+      ['Gap down','When a stock opens significantly lower than its previous close.'],
+      ['Breakout','When a stock moves above a key resistance level with strong volume.'],
+      ['Breakdown','When a stock moves below a key support level.'],
+      ['Cover','Buying back shares to close a short position.'],
+      ['Scalp','A very short-term trade held for seconds to minutes targeting a small price move.'],
+      ['Runner','A partial position kept open after taking initial profits to capture further upside.'],
+      ['PDT rule','Pattern Day Trader rule — requires $25,000 minimum balance for unlimited day trading.']
+    ]) +
+    h2('5.2 Ticker Symbols') +
+    p('Every public stock has a ticker symbol — a short abbreviation used to identify it. Tickers are 1 to 5 letters long.') +
+    ul(['AAPL — Apple Inc.','TSLA — Tesla Inc.','GME — GameStop Corp.','AMC — AMC Entertainment']) +
+    p('In small-cap trading, watch for the suffix /W which indicates warrants — a highly speculative instrument we do not trade in the Academy.');
+}
+
+function buildLesson6() {
+  return obj('Understand the daily rhythm of the market and establish the observation habits that all successful traders build before they ever place a real trade.') +
+    h2('6.1 The Market Day — Hour by Hour') +
+    dataTable(['Time (EST)','Session','What happens'],[['4:00 AM','Pre-market opens','News begins flowing. Early movers appear on scanners.'],['6:30 AM','Economic data','Major reports often released (CPI, jobs, Fed statements).'],['7:00 AM','CREDO session begins','Trade Ideas scanner running. Mentor reviews gappers live.'],['7:00 – 9:15 AM','Pre-market prep','Thesis written and posted to Discord. Watchlist finalized by 9:15.'],['9:30 AM','Regular session opens','Highest volatility period of the day begins.'],['9:30 – 10:30 AM','Power hour','Most volume and biggest moves. Primary trading window.'],['10:30 – 11:30 AM','Tapering volume','Trades become more selective. Avoid chasing extended moves.'],['12:00 – 2:00 PM','Lunch hour','Very low volume. Unpredictable. Most experienced traders stop.'],['2:00 – 4:00 PM','Afternoon','Volume picks up. Occasional news-driven opportunities.'],['4:00 PM','Session closes','After-hours trading begins (limited liquidity).']]) +
+    h2('6.2 Your Homework — Starting This Week') +
+    p('Before you place a single paper trade, you must develop the habit of market observation. Each trading day for the next two weeks, complete the following:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Open Trade Ideas by 7:00 AM and note the top 3 pre-market gappers.</li>' +
+      '<li>For each gapper, write down: ticker, price, percentage gain, and one-sentence description of the catalyst.</li>' +
+      '<li>Watch the open from 9:30 AM to 10:30 AM without trading. Note what happens to each gapper.</li>' +
+      '<li>After 10:30 AM, write a brief observation in TraderVue: what moved, why, and what surprised you.</li>' +
+    '</ol>' +
+    callout('green','Mentor note','This observation exercise is not optional. Your ability to eventually read price action in real time is built entirely on the pattern library your brain develops during these early sessions. Traders who skip this step take twice as long to develop intuition.') +
+    h2('6.3 When You Do Not Understand Something') +
+    p('There is no such thing as a stupid question in this program. Use the following escalation path:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Check the Discord #resources channel first.</li>' +
+      '<li>Post your question in Discord #general.</li>' +
+      '<li>Bring unresolved questions to your daily one-on-one mentor call.</li>' +
+      '<li>If a concept is confusing during a live session, say so immediately. The session will pause to clarify.</li>' +
+    '</ol>' +
+    callout('amber','A word from your mentor','I have been trading small-cap stocks for six years. I know this material so well that I have forgotten what it feels like not to understand it. Your job is to tell me when something is not clear. My job is to explain it differently until it makes sense. That is what the daily call is for.');
+}
+</script>
+</body>
+</html>
