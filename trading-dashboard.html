@@ -276,6 +276,8 @@ function initMedia(role) {
   if (role === 'instructor') {
     var panel = document.getElementById('mediaInstructorPanel');
     if (panel) panel.style.display = 'block';
+    var delBtn = document.getElementById('mediaChannelDel');
+    if (delBtn) delBtn.style.display = 'flex';
   }
 
   db.ref('traderoom/media/channel').on('value', function(snap) {
@@ -372,6 +374,17 @@ function saveMediaChannel() {
   var parts = url.split('/');
   var handle = parts[parts.length - 1] || parts[parts.length - 2] || url;
   db.ref('traderoom/media/channel').set({ url: url, handle: handle });
+}
+
+function clearMediaChannel() {
+  if (!confirm('Remove channel from Media tab?')) return;
+  db.ref('traderoom/media/channel').remove();
+  var handle = document.getElementById('mediaChannelHandle');
+  var btn = document.getElementById('mediaChannelBtn');
+  var inp = document.getElementById('mediaChannelUrl');
+  if (handle) handle.textContent = '';
+  if (btn) btn.href = '#';
+  if (inp) inp.value = '';
 }
 
 function addMediaVideo() {
@@ -684,6 +697,7 @@ function addMediaVideo() {
                 <div class="media-ch-handle" id="mediaChannelHandle">@credotrading</div>
               </div>
               <a id="mediaChannelBtn" href="https://youtube.com/@credotrading" target="_blank" class="media-ch-btn">Subscribe</a>
+              <button id="mediaChannelDel" onclick="clearMediaChannel()" title="Remove channel" style="display:none;width:24px;height:24px;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:var(--red);font-size:12px;cursor:pointer;flex-shrink:0;display:none;align-items:center;justify-content:center;">&#10005;</button>
             </div>
 
             <!-- Instructor panel -->
