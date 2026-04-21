@@ -350,12 +350,12 @@ var MODULES = [
   {
     id:4, title:"Platform Setup and Tool Training", hours:"8-10 hrs",
     lessons:[
-      {id:1,title:"Trade Ideas Gap Scanner Setup",content:comingSoon("Trade Ideas Gap Scanner Setup","Building the CREDO pre-market gap scanner from scratch — every filter explained.")},
-      {id:2,title:"Scanner Literacy and Alerts",content:comingSoon("Scanner Literacy and Alerts","Reading alert columns, relative volume, and news integration in real time.")},
-      {id:3,title:"Sterling Trader Pro Layout",content:comingSoon("Sterling Trader Pro Layout","Standardized montage layout, Level 2 configuration, and why consistency matters.")},
-      {id:4,title:"Hotkey Configuration and Drills",content:comingSoon("Hotkey Configuration and Drills","Buy on ask, sell on bid, flatten, cancel all — drill until it's under 3 seconds.")},
-      {id:5,title:"IB Account and TWS Setup",content:comingSoon("IB Account and TWS Setup","Opening your IB paper account, TWS layout, commission calculator, PDT tracking.")},
-      {id:6,title:"TraderVue and Discord Orientation",content:comingSoon("TraderVue and Discord Orientation","Custom field setup, Discord channel walkthrough, daily workflow from day one.")}
+      {id:1,title:"Trade Ideas Gap Scanner Setup",content:buildM4L1()},
+      {id:2,title:"Scanner Literacy and Alerts",content:buildM4L2()},
+      {id:3,title:"Sterling Trader Pro Layout",content:buildM4L3()},
+      {id:4,title:"Hotkey Configuration and Drills",content:buildM4L4()},
+      {id:5,title:"IB Account and TWS Setup",content:buildM4L5()},
+      {id:6,title:"TraderVue and Discord Orientation",content:buildM4L6()}
     ]
   },
   {
@@ -1159,6 +1159,191 @@ function buildM3L6() {
         'Level 2 shows no asks (buy-side halt) or no bids (sell-side halt) — market makers stepping back.',
         'Previous halts the same day — a stock that has halted once is more likely to halt again.']) +
     callout('green','Observation homework','In your next 10 trading sessions, note every halt you observe on your watchlist stocks. Record: the stock, the price at halt, the catalyst, the halt duration, and the reopening price vs the halt price. After 10 observations you will have a real dataset of how halts affect price.');
+}
+
+// ══ MODULE 4 LESSONS ══
+function buildM4L1() {
+  return obj('By the end of this lesson you will have built the CREDO pre-market gap scanner in Trade Ideas from scratch, with every filter set to the exact specifications used in daily sessions.') +
+    h2('1.1 What Trade Ideas Is') +
+    p('Trade Ideas is a real-time stock scanner that monitors thousands of stocks simultaneously and alerts you when any of them meet your specified criteria. For CREDO Trading Academy, Trade Ideas is the primary tool for finding pre-market gappers — the stocks with catalysts that will be on the watchlist each morning.') +
+    p('Trade Ideas runs as a desktop application. You will have it open every morning by 7:00 AM EST, before the mentor session begins. The scanner is running before you sit down — by the time you open your laptop, stocks are already appearing.') +
+    h2('1.2 The CREDO Pre-Market Gap Scanner — Filter by Filter') +
+    p('Open Trade Ideas. Go to Alerts → New Alert Window. You will configure the following filters exactly:') +
+    dataTable(['Filter','Setting','Why this setting'],
+      [['Price','Min $1.00 / Max $20.00','Our trading range. Under $1 is too thin to trade. Over $20 requires more capital and moves less %.'],
+       ['Float','Max 20,000,000 shares','Low float = more price impact per order. Over 20M reduces the squeeze potential.'],
+       ['Volume (today)','Min 50,000 shares','Minimum liquidity to enter and exit without massive slippage.'],
+       ['Gap %','Min 10%','Stocks gapping less than 10% rarely have enough momentum to produce a clean setup.'],
+       ['Relative volume','Min 2.0','Stock must be trading at least 2x its normal pre-market volume. Confirms active interest.'],
+       ['News','Required (Has News = Yes)','No catalyst = no trade. This filter removes purely technical moves and potential pumps.'],
+       ['Market cap','Max $500,000,000','Keeps focus on small and micro-cap stocks in our target range.'],
+       ['Country','USA only','Limits to US-listed stocks. Avoids ADRs and foreign listings with different halt rules.']]) +
+    callout('green','CREDO scanner name','Save this scanner as "CREDO Pre-Market Gapper" in Trade Ideas. Do not modify these settings without discussing with your mentor first. Every filter has a reason — changing one filter changes the entire quality of results.') +
+    h2('1.3 Setting Up Alert Columns') +
+    p('Once your filters are saved, configure the alert window columns so the most important data is visible at a glance:') +
+    ul(['Symbol — the ticker','Last Price — current price','Gap % — how much it gapped from previous close','Volume — shares traded today so far','Relative Volume — today volume vs average','Float — shares in float (from Trade Ideas data)','News — headline summary','Market Cap — total company value']) +
+    p('Sort the window by Gap % descending. The biggest gappers appear at the top. Scroll down to see smaller gappers that may have better setups. A 200% gap on a 2M float stock may be more tradeable than a 15% gap on a 15M float stock.') +
+    callout('amber','Important','Trade Ideas float data can lag SEC filings by 1-2 days. Always cross-reference with Finviz for any stock where a recent offering or S-3 has occurred. The scanner is your starting point — not your final answer.');
+}
+
+function buildM4L2() {
+  return obj('By the end of this lesson you will be able to read every column in the Trade Ideas alert window, understand what relative volume means in real time, and use the news integration to verify catalysts without leaving the platform.') +
+    h2('2.1 Reading the Alert Window in Real Time') +
+    p('The Trade Ideas alert window updates continuously. Stocks appear, disappear, and change position as their data changes. Here is how to read it efficiently:') +
+    defTable([
+      ['Symbol','The stock ticker. Click it to open a chart directly in Trade Ideas.'],
+      ['Last','Current price. This is delayed 15 minutes on the free tier — use your broker platform for real-time price.'],
+      ['Gap %','(Current price - Previous close) / Previous close × 100. Most important column. Sort by this.'],
+      ['Volume','Total shares traded today. A stock with 500K volume at 8 AM is highly active.'],
+      ['Rel Vol','Relative volume. Today\'s volume divided by average volume for this time of day. 3.0 = trading 3x normal pace.'],
+      ['Float','Shares available for public trading. Cross-reference with Finviz.'],
+      ['News','Headline of the most recent news item. Click to open full article.'],
+      ['Mkt Cap','Total market capitalization. Small = more volatile on the same catalyst.'],
+    ]) +
+    h2('2.2 Relative Volume — The Most Underused Column') +
+    p('Relative volume (RelVol) is the single most important number for confirming whether a pre-market move is real. It answers the question: is this stock moving because of genuine unusual interest, or is it just normal noise?') +
+    twoCol('RelVol 1.0 - 2.0','Normal range. The stock is trading about as much as usual for this time of day. A gap on this volume level is weak and unlikely to sustain at the open.','RelVol 3.0+','Significantly elevated. Multiple times more trading than normal. Real buyers and sellers are active. Gap at this level is much more likely to produce a tradeable move at the open.','blue','green') +
+    callout('green','Key insight','A 50% gap with 1.5x relative volume is less interesting than a 20% gap with 8x relative volume. Volume is the confirmation signal. Price without volume is noise. Always check RelVol before adding any stock to the watchlist.') +
+    h2('2.3 Using News Integration') +
+    p('When a stock appears on the scanner, click the news headline in the News column. Trade Ideas connects to several news wires — BusinessWire, PR Newswire, Benzinga, and SEC filings. The news panel opens on the right side of the screen.') +
+    p('Your 60-second news review process:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Read the headline. Is this a Tier 1, 2, or 3 catalyst?</li>' +
+      '<li>Scroll to the first two paragraphs. What is the specific event?</li>' +
+      '<li>Find the dollar amount or specific outcome if relevant (FDA approval, contract value, earnings number).</li>' +
+      '<li>Check if there is an SEC filing linked. If yes, open it and scan for share count changes (S-3 risk).</li>' +
+      '<li>Ask: is this news something that will matter to other traders at 9:30 AM? If yes, add to watchlist. If uncertain, skip.</li>' +
+    '</ol>' +
+    callout('amber','Discipline rule','If you cannot summarize the catalyst in one sentence, you do not understand it well enough to trade it. Do not add a stock to your watchlist until you can say exactly why it is moving. "It is up a lot" is not a reason. "FDA approved their lead drug for rare blood cancer" is a reason.');
+}
+
+function buildM4L3() {
+  return obj('By the end of this lesson you will have Sterling Trader Pro configured with the standard CREDO layout — montage, Level 2, time and sales, and chart — and understand what each component shows you.') +
+    h2('3.1 What Sterling Trader Pro Is') +
+    p('Sterling Trader Pro is a professional direct-access trading platform used by active traders and prop firms. It connects directly to market makers and electronic communication networks (ECNs), giving you faster order routing and better Level 2 data than most retail platforms. At CREDO, Sterling is used for Level 2 reading, tape reading, and execution in Phase 1 and beyond.') +
+    p('Important: Sterling Trader Pro requires a subscription through your broker or a third-party provider. Your mentor will provide setup instructions for the specific broker connection used in the program. This lesson covers the layout and how to read the data — the connection setup happens with your mentor directly.') +
+    h2('3.2 The Four Components of the CREDO Sterling Layout') +
+    h3('The Montage') +
+    p('The montage is the central order entry panel. It shows the current bid and ask, your order entry fields (symbol, share size, order type, price), and your position and P&L for the current stock. This is where you execute trades.') +
+    defTable([
+      ['Bid','The highest price any buyer is currently willing to pay. If you sell immediately, you receive this price.'],
+      ['Ask','The lowest price any seller is currently willing to accept. If you buy immediately, you pay this price.'],
+      ['Size','The number of shares at the best bid and ask. Small size = thin market, easier to move the price.'],
+      ['Last','The price of the most recent trade executed.'],
+      ['Position','Your current share count in this stock. Positive = long. Zero = flat.'],
+      ['P&L','Your current profit or loss on the open position, updating in real time.'],
+    ]) +
+    h3('Level 2') +
+    p('Level 2 shows the full order book — not just the best bid and ask, but all the bids and asks stacked behind them, organized by price level. Each row shows: the market maker or ECN routing the order, the price, and the share size.') +
+    p('Reading Level 2 tells you: where large orders are sitting (support and resistance), whether buyers or sellers are more aggressive, and when market makers are stepping back (often precedes a halt or a large move).') +
+    twoCol('Strong bid side','Many market makers stacked on the bid with large size. Buyers are willing to absorb selling. Stock is likely to hold its level or rise. Bullish for short-term direction.','Strong ask side','Heavy selling pressure above current price. Multiple large offers stacked at resistance. Stock will struggle to break through without a major volume surge.','green','red') +
+    h3('Time and Sales (The Tape)') +
+    p('Time and sales shows every trade as it executes — the time, price, and size of each transaction in real time. Reading the tape lets you see whether trades are happening on the bid (sellers are aggressive) or on the ask (buyers are aggressive).') +
+    ul(['Green prints (at ask or above) — buyers are aggressive. Bullish tape.','Red prints (at bid or below) — sellers are aggressive. Bearish tape.','Large prints (10,000+ shares) — institutional or block orders. High significance.','Rapid small prints — momentum. Stock moving fast with many small orders hitting.']) +
+    h3('Intraday Chart') +
+    p('Sterling includes a built-in charting window. Configure it to show 1-minute and 5-minute candlestick charts with VWAP displayed. This chart updates in real time and syncs with the montage — when you switch symbols in the montage, the chart updates automatically.') +
+    callout('amber','Layout reminder','Save your Sterling layout immediately after configuring it. Sterling allows you to save named layouts — save one called "CREDO Standard". Load this layout every morning to ensure your panels are exactly where you expect them. Consistency in your platform reduces cognitive load during fast-moving markets.');
+}
+
+function buildM4L4() {
+  return obj('By the end of this lesson you will have your hotkeys configured in Sterling Trader Pro and be able to execute the six core CREDO hotkey actions in under 3 seconds each.') +
+    h2('4.1 Why Hotkeys Are Non-Negotiable') +
+    p('In small-cap day trading, the difference between a good fill and a bad fill is often measured in seconds. When a stock is moving $0.50 per minute, the time it takes you to click through menus, type a share size, and submit an order can cost you $200 on a 400-share position. Hotkeys eliminate that delay.') +
+    p('Every CREDO student must pass the hotkey execution drill — each action completed in under 3 seconds — before advancing to live paper trading sessions. This lesson covers the configuration. The drilling happens daily in your pre-session routine.') +
+    h2('4.2 The Six Core CREDO Hotkeys') +
+    dataTable(['Action','Hotkey (default)','What it does'],
+      [['Buy on ask','Shift + B','Sends a limit buy order at the current ask price for your default share size.'],
+       ['Sell on bid','Shift + S','Sends a limit sell order at the current bid price for your default share size.'],
+       ['Flatten','Shift + F','Closes your entire position immediately at market — all shares, both long and short.'],
+       ['Cancel all orders','Shift + C','Cancels all open orders for the current symbol. Use when a trade is not filling as expected.'],
+       ['Buy 100 shares (scaled)','Ctrl + B','Buys exactly 100 shares at the ask. Used for scaling into a position.'],
+       ['Sell 100 shares (scaled)','Ctrl + S','Sells exactly 100 shares at the bid. Used for scaling out of a position.']]) +
+    callout('red','Critical rule','The Flatten hotkey (Shift + F) must be your most automatic action. In a fast-moving adverse situation, your hand must move to Shift + F before your brain has finished processing what is happening. Practice this action 50 times per day until it is completely automatic.') +
+    h2('4.3 Configuring Hotkeys in Sterling') +
+    p('In Sterling Trader Pro: go to Setup → Hotkeys → Key Configuration. You will see a list of all available actions on the left and their current key assignments on the right.') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Find "Buy on Ask" in the action list. Click it. Press Shift + B on your keyboard. Click Apply.</li>' +
+      '<li>Find "Sell on Bid". Press Shift + S. Apply.</li>' +
+      '<li>Find "Cancel All Orders". Press Shift + C. Apply.</li>' +
+      '<li>Find "Flatten Position". Press Shift + F. Apply.</li>' +
+      '<li>Click OK and save your configuration as "CREDO Hotkeys".</li>' +
+    '</ol>' +
+    h2('4.4 The Hotkey Drill') +
+    p('Every day before the session begins, run through this drill five times:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Start a timer.</li>' +
+      '<li>In sequence: Buy on ask → Cancel all → Sell on bid → Cancel all → Flatten → Cancel all.</li>' +
+      '<li>Stop the timer. Record the time.</li>' +
+      '<li>Target: under 18 seconds for the full sequence (3 seconds per action).</li>' +
+      '<li>Repeat until you consistently hit under 18 seconds before markets open.</li>' +
+    '</ol>' +
+    callout('green','Mentor note','The hotkey drill is not about speed for its own sake. It is about removing the mechanical friction between your decision and your action. When you see the setup, your hand should already be moving. Students who skip the drill consistently enter 1-2 seconds late and exit 1-2 seconds late — those seconds are the difference between a good trade and a bad one.');
+}
+
+function buildM4L5() {
+  return obj('By the end of this lesson you will have your Interactive Brokers paper trading account fully configured, understand how TWS is laid out, and know how to calculate commissions and track PDT status.') +
+    h2('5.1 Why Interactive Brokers') +
+    p('Interactive Brokers (IB) is the brokerage CREDO uses for both paper trading and live trading. IB was chosen for three reasons: the lowest commissions of any major US broker for active traders, the most sophisticated risk management tools (Risk Navigator), and seamless integration with TraderVue via automatic trade import.') +
+    p('You will open your IB paper trading account before beginning hands-on training. Paper trading uses simulated money but real market data — prices, fills, and spreads reflect actual market conditions. This is critical: paper trading on a delayed or synthetic data feed does not prepare you for real execution.') +
+    h2('5.2 Opening Your Paper Trading Account') +
+    p('Log in to your Interactive Brokers account at ibkr.com. Navigate to Account Management → Paper Trading → Open Paper Trading Account. IB will create a simulated account with $1,000,000 in virtual capital. You will not use all of this — you will configure your risk parameters to match the account size you plan to use in live trading.') +
+    callout('amber','Important','Do not configure your paper account as if you have $1,000,000 to trade. Configure it to match your intended live account size — typically $25,000-$50,000 for CREDO students. Trading as if you have 20x your real capital builds habits that do not transfer to live trading.') +
+    h2('5.3 Trader Workstation (TWS) Layout') +
+    p('TWS is IB\'s desktop trading platform. Download and install it from the IB website. The CREDO TWS layout has four main areas:') +
+    defTable([
+      ['Watchlist panel','Top left. Add your daily watchlist stocks here. Shows real-time bid, ask, last, volume.'],
+      ['Order entry panel','Center. Where you build and submit orders. Shows pending orders and their status.'],
+      ['Portfolio panel','Bottom left. Shows all open positions, their P&L, and your account summary.'],
+      ['Risk Navigator','Separate window. Shows daily P&L, loss limit usage, and risk alerts. Keep this visible at all times.'],
+    ]) +
+    h2('5.4 Commission Calculation') +
+    p('IB charges commissions on a per-share basis for the Fixed pricing plan, which is the plan used at CREDO:') +
+    p('Commission formula: $0.005 per share, minimum $1.00 per order, maximum 1% of trade value.') +
+    p('Examples:') +
+    ul(['500 shares × $0.005 = $2.50 commission per side. Round trip (buy + sell) = $5.00.',
+        '200 shares × $0.005 = $1.00 (hits the minimum). Round trip = $2.00.',
+        '1,000 shares of a $3 stock × $0.005 = $5.00. 1% of $3,000 = $30. Commission = $5.00 (lower of the two).']) +
+    callout('amber','Break-even calculation','Your trade must move in your favor by at least (commission cost + spread cost) / shares before you are profitable. On a 500-share trade with $2.50 commission each side and a $0.10 spread: break-even = ($5.00 + $50.00) / 500 = $0.11 per share. The stock must move $0.11 just to break even.') +
+    h2('5.5 PDT Rule Tracking') +
+    p('The Pattern Day Trader (PDT) rule restricts accounts under $25,000 to a maximum of 3 day trades in any rolling 5-business-day period. IB tracks this automatically and will warn you when you are approaching the limit.') +
+    p('In TWS: go to Account → Account Window → Trading Limits. The "Day Trades Left" field shows how many day trades remain before the restriction triggers. Check this every morning before trading.') +
+    callout('green','Paper account note','The PDT rule applies to your live account, not your paper account. Paper trading has no PDT restriction. However, practice counting your trades as if the PDT rule applies — this builds the discipline of selective trading that the rule is designed to enforce.');
+}
+
+function buildM4L6() {
+  return obj('By the end of this lesson you will have TraderVue fully configured for CREDO-standard journaling and understand the complete daily Discord workflow from pre-market thesis to post-session debrief.') +
+    h2('6.1 TraderVue — Your Trading Journal') +
+    p('TraderVue is a web-based trade journal that automatically imports your trades from Interactive Brokers. It calculates your statistics, shows your P&L by setup, time of day, and stock, and lets you add notes to each trade. At CREDO, TraderVue is mandatory from Day 1 — even during the observation phase before you place any paper trades.') +
+    h2('6.2 Setting Up TraderVue') +
+    p('Sign up at tradervue.com. Choose the individual plan (Silver or Gold — Gold is recommended for the detailed analytics). Connect to Interactive Brokers:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>In TraderVue: go to Settings → Brokers → Interactive Brokers.</li>' +
+      '<li>Enable "Flex Query" in your IB account (Account Management → Reports → Flex Queries).</li>' +
+      '<li>Create a new Flex Query with: Trades, Open Positions, Account Information. Delivery: HTTP. Format: XML.</li>' +
+      '<li>Copy the Flex Query token and paste it into TraderVue. Set auto-import to run daily at 5:00 PM EST.</li>' +
+    '</ol>' +
+    callout('green','Auto-import','Once set up, TraderVue automatically pulls your trades from IB every day at 5 PM. You never manually enter trades. This eliminates the most common journaling failure — forgetting to log a trade and then losing the details.') +
+    h2('6.3 CREDO Custom Fields in TraderVue') +
+    p('TraderVue allows custom tags and fields. Set up these four for every trade:') +
+    defTable([
+      ['Setup tag','Tag every trade with the setup name: VWAP Reclaim, Gap-and-Go, Opening Range Breakout, Short Squeeze, etc. This lets you filter your statistics by setup type and calculate true expectancy per setup.'],
+      ['Emotional state (1-5)','Rate your emotional state before the trade: 1 = very distracted/anxious, 3 = neutral, 5 = calm and focused. Over time, this data shows you how emotional state correlates with performance.'],
+      ['Planned vs unplanned','Mark each trade as Planned (was on your pre-market watchlist) or Unplanned (taken in the moment without prior research). Your planned/unplanned ratio is one of the most revealing statistics in your journal.'],
+      ['Thesis note','One sentence describing why you entered: "VWAP reclaim on AAON after gap-up on FDA approval, targeting PMH at $8.50." Written before entry, not after.'],
+    ]) +
+    h2('6.4 The Daily Discord Workflow') +
+    p('Discord is the real-time communication hub for all CREDO sessions. Here is the complete daily workflow:') +
+    dataTable(['Time (EST)','Channel','Action'],
+      [['7:00 AM','#scan-alerts','Trade Ideas webhook posts top pre-market gappers automatically. Review the list.'],
+       ['7:00 - 9:15 AM','#pre-market-thesis','Write your thesis for each watchlist stock: catalyst, float, key levels, planned entry, stop, target.'],
+       ['9:15 AM','#pre-market-thesis','DEADLINE. Thesis must be posted before 9:15 AM or the session counts as a missed submission.'],
+       ['9:30 AM','#live-trading','Mentor posts live commentary as the market opens. Watch but do not distract with questions during fast moves.'],
+       ['9:30 - 10:30 AM','#trade-calls','Post your trade calls here BEFORE you execute: "Long ABCD at $5.20, stop $4.90, target $5.80".'],
+       ['10:30 AM','#daily-review','Session ends. Post your P&L, number of trades, and one observation from the session.'],
+       ['5:00 PM','#daily-review','Post your TraderVue report link for the day after auto-import completes.'],
+       ['Friday 10:30 AM','#weekly-debrief','Extended debrief. Review the week\'s TraderVue data. Mentor posts the group P&L summary.']]) +
+    callout('amber','Pre-market thesis rule','The thesis must be posted in #pre-market-thesis before 9:15 AM without exception. A thesis posted at 9:31 AM — after you have already seen the open — is not a thesis. It is a rationalization. The 9:15 AM deadline enforces honest pre-market thinking.') +
+    callout('green','Why all of this matters','The combination of TraderVue journaling and Discord accountability creates a feedback loop that accelerates learning. You declare your thesis publicly before the market opens. You trade it or choose not to. You post the result. You review the data. Within 30 days of this routine, you will know more about your own trading patterns than most traders learn in years.');
 }
 </script>
 </body>

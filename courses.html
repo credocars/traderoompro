@@ -523,7 +523,18 @@ var MODULES = [
     topics: "Trade Ideas, Sterling, IB, TraderVue",
     hours: "8-10 hrs", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>`,
     color: "var(--purple)", gradient: "rgba(139,92,246,.12),rgba(59,130,246,.08)",
-    quiz: []
+    quiz: [
+      { q: "What is the minimum gap percentage required by the CREDO pre-market gap scanner?", opts: ["5%","10%","15%","20%"], ans: 1 },
+      { q: "What does a relative volume of 3.0 mean?", opts: ["The stock has traded 3,000 shares today","The stock is trading at 3x its normal volume for this time of day","The stock has gapped up 3%","The stock has 3 times its float in short interest"], ans: 1 },
+      { q: "What is the maximum float allowed in the CREDO scanner filter?", opts: ["5 million","10 million","20 million","50 million"], ans: 2 },
+      { q: "In Sterling Trader Pro, what does the Time and Sales window show?", opts: ["Yesterday's closing prices for watchlist stocks","Every trade as it executes — time, price, and size in real time","The news feed for the current symbol","Your daily P&L summary"], ans: 1 },
+      { q: "What does a green print on the tape indicate?", opts: ["The stock closed up for the day","A trade executed at the ask or above — buyers are aggressive","A trade executed at the bid — sellers are aggressive","The stock has no short interest"], ans: 1 },
+      { q: "What is the IB commission for 500 shares using the Fixed pricing plan?", opts: ["$1.00","$2.50","$5.00","$10.00"], ans: 1 },
+      { q: "What is the Flatten hotkey used for?", opts: ["Buying shares at the ask","Cancelling all pending orders","Closing your entire position immediately","Switching to a different symbol"], ans: 2 },
+      { q: "What is the PDT rule?", opts: ["You must hold every position for at least one day","Accounts under $25,000 are limited to 3 day trades in any rolling 5-business-day period","You must use pattern day trading software","Accounts must maintain a 25% margin at all times"], ans: 1 },
+      { q: "What is the CREDO pre-market thesis deadline?", opts: ["7:00 AM","8:30 AM","9:15 AM","9:29 AM"], ans: 2 },
+      { q: "In TraderVue, what does the 'planned vs unplanned' custom field track?", opts: ["Whether the trade was profitable","Whether the trade was on your pre-market watchlist before the open","Whether you used a hotkey or clicked manually","Whether the stock was hard to borrow"], ans: 1 }
+    ]
   },
   {
     id: 5, title: "Risk Management Fundamentals",
