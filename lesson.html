@@ -99,8 +99,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .lesson-item.active .lesson-item-text{color:var(--t1);}
 .lesson-item.done-item .lesson-item-text{color:var(--t3);}
 .lesson-nav-footer{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;}
-.download-btn{width:100%;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:8px;border-radius:7px;border:1px solid var(--border-hi);background:transparent;color:var(--t2);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.download-btn:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+
 
 /* ── LESSON CONTENT ── */
 .lesson-content{flex:1;min-width:0;overflow-y:auto;display:flex;flex-direction:column;}
@@ -279,12 +278,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
         </div>
       </div>
       <div class="lesson-list" id="lessonList"></div>
-      <div class="lesson-nav-footer">
-        <button class="download-btn" onclick="downloadDoc()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Module PDF
-        </button>
-      </div>
     </div>
 
     <!-- LESSON CONTENT -->
@@ -526,10 +519,6 @@ function nextLesson() {
   currentLessonIdx++;
   setParams(currentModIdx, currentLessonIdx);
   renderPage();
-}
-
-function downloadDoc() {
-  alert('Module ' + MODULES[currentModIdx].id + ' PDF download — link your Word doc file here.');
 }
 
 // ══ FIREBASE PROGRESS ══
