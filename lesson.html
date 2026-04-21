@@ -361,23 +361,23 @@ var MODULES = [
   {
     id:5, title:"Risk Management Fundamentals", hours:"5-6 hrs",
     lessons:[
-      {id:1,title:"Position Sizing Formula",content:comingSoon("Position Sizing Formula","The exact formula: risk per trade ÷ stop distance = share size. Never guess again.")},
-      {id:2,title:"Daily Loss Limit Mechanics",content:comingSoon("Daily Loss Limit Mechanics","Why a hard daily limit is a rule, not a guideline — and what happens when you hit it.")},
-      {id:3,title:"Cost of Drawdown",content:comingSoon("Cost of Drawdown","The math that changes how you think: 25% loss needs 33% gain just to break even.")},
-      {id:4,title:"Spread and Commission Calculation",content:comingSoon("Spread and Commission Calculation","Calculating your true break-even on every trade before you place it.")},
-      {id:5,title:"Bracket Order Workflow in IB",content:comingSoon("Bracket Order Workflow in IB","Entry + stop + target submitted simultaneously — the only way we enter trades.")},
-      {id:6,title:"IB Risk Navigator Configuration",content:comingSoon("IB Risk Navigator Configuration","Setting up the automated risk bot: per-trade stops, daily limit, three alert thresholds.")}
+      {id:1,title:"Position Sizing Formula",content:buildM5L1()},
+      {id:2,title:"Daily Loss Limit Mechanics",content:buildM5L2()},
+      {id:3,title:"Cost of Drawdown",content:buildM5L3()},
+      {id:4,title:"Spread and Commission Calculation",content:buildM5L4()},
+      {id:5,title:"Bracket Order Workflow in IB",content:buildM5L5()},
+      {id:6,title:"IB Risk Navigator Configuration",content:buildM5L6()}
     ]
   },
   {
     id:6, title:"Trading Psychology and Daily Routine", hours:"4-5 hrs",
     lessons:[
-      {id:1,title:"Revenge Trading and Winner's Tilt",content:comingSoon("Revenge Trading and Winner's Tilt","Two patterns that destroy accounts — and how to catch yourself before they take hold.")},
-      {id:2,title:"FOMO and Hope as Strategy",content:comingSoon("FOMO and Hope as Strategy","Why FOMO entries and holding losers feel rational in the moment and aren't.")},
-      {id:3,title:"Outcome Bias and Confirmation Bias",content:comingSoon("Outcome Bias and Confirmation Bias","Why a winning trade can teach you the wrong lesson, and how to evaluate process not P&L.")},
-      {id:4,title:"Pre-Session and Post-Session Routine",content:comingSoon("Pre-Session and Post-Session Routine","The 15-minute pre-market checklist and 3 mandatory post-session questions.")},
-      {id:5,title:"Emotional State Rating System",content:comingSoon("Emotional State Rating System","Rate 1-5 before every session. Your data will show you patterns you can't see in the moment.")},
-      {id:6,title:"Monthly Self-Review Protocol",content:comingSoon("Monthly Self-Review Protocol","The structured review that turns your TraderVue data into a personal coaching session.")}
+      {id:1,title:"Revenge Trading and Winner's Tilt",content:buildM6L1()},
+      {id:2,title:"FOMO and Hope as Strategy",content:buildM6L2()},
+      {id:3,title:"Outcome Bias and Confirmation Bias",content:buildM6L3()},
+      {id:4,title:"Pre-Session and Post-Session Routine",content:buildM6L4()},
+      {id:5,title:"Emotional State Rating System",content:buildM6L5()},
+      {id:6,title:"Monthly Self-Review Protocol",content:buildM6L6()}
     ]
   }
 ];
@@ -1344,6 +1344,339 @@ function buildM4L6() {
        ['Friday 10:30 AM','#weekly-debrief','Extended debrief. Review the week\'s TraderVue data. Mentor posts the group P&L summary.']]) +
     callout('amber','Pre-market thesis rule','The thesis must be posted in #pre-market-thesis before 9:15 AM without exception. A thesis posted at 9:31 AM — after you have already seen the open — is not a thesis. It is a rationalization. The 9:15 AM deadline enforces honest pre-market thinking.') +
     callout('green','Why all of this matters','The combination of TraderVue journaling and Discord accountability creates a feedback loop that accelerates learning. You declare your thesis publicly before the market opens. You trade it or choose not to. You post the result. You review the data. Within 30 days of this routine, you will know more about your own trading patterns than most traders learn in years.');
+}
+
+// ══ MODULE 5 LESSONS ══
+function buildM5L1() {
+  return obj('By the end of this lesson you will be able to calculate the correct share size for any trade using the CREDO position sizing formula, given any account size, risk percentage, and stop distance.') +
+    h2('1.1 Why Position Sizing Is the Foundation of Everything') +
+    p('Position sizing is the single most important mechanical skill in trading. It answers one question before every trade: how many shares do I buy? Get this wrong — too many shares — and one bad trade can end your account. Get it right — every single time — and you can survive a long losing streak and still be in the game to recover.') +
+    p('Most beginners think about trading in terms of price targets: "If this stock goes from $5 to $6, I make $1 per share." Professionals think about trading in terms of risk: "I am willing to lose $100 on this trade. How many shares does that allow me to buy?" The difference in approach is everything.') +
+    h2('1.2 The CREDO Position Sizing Formula') +
+    p('The formula has three inputs and one output:') +
+    defTable([
+      ['Account size','The total capital in your trading account. For paper trading, use your intended live account size — not the full $1M IB paper account.'],
+      ['Risk per trade %','The maximum percentage of your account you are willing to lose on a single trade. At CREDO: 0.5% for paper trading, up to 1% for live trading once approved.'],
+      ['Stop distance','The distance in dollars between your entry price and your stop loss price. This is the most critical input — it must be set before you size the trade.'],
+    ]) +
+    p('Formula: Share size = (Account size × Risk %) ÷ Stop distance') +
+    callout('green','Example','Account: $30,000. Risk: 0.5% = $150. Entry: $5.20. Stop: $4.90. Stop distance: $0.30. Share size = $150 ÷ $0.30 = 500 shares. Maximum loss on this trade: 500 × $0.30 = $150 — exactly 0.5% of the account.') +
+    h2('1.3 Working Through Five Scenarios') +
+    dataTable(['Account','Risk %','Risk $','Entry','Stop','Stop distance','Share size','Max loss'],
+      [['$25,000','0.5%','$125','$3.50','$3.20','$0.30','416 shares','$124.80'],
+       ['$25,000','0.5%','$125','$8.00','$7.60','$0.40','312 shares','$124.80'],
+       ['$30,000','0.5%','$150','$2.10','$1.85','$0.25','600 shares','$150.00'],
+       ['$30,000','1.0%','$300','$5.00','$4.70','$0.30','1,000 shares','$300.00'],
+       ['$50,000','0.5%','$250','$12.00','$11.50','$0.50','500 shares','$250.00']]) +
+    p('Notice that share size goes DOWN when the stop distance is wider and UP when the stop distance is tighter. This is intentional — wider stops mean more risk per share, so you must take fewer shares to keep the total dollar risk the same.') +
+    callout('red','Critical rule','Never size a trade based on how many shares you want to own or how much you hope to make. Always size based on how much you can afford to lose. The share size is an output of the formula — not an input. If the formula says 200 shares and you want to buy 1,000, you are taking 5x your planned risk.');
+}
+
+function buildM5L2() {
+  return obj('By the end of this lesson you will understand how daily loss limits work at CREDO, what happens when you hit them, and why they are a rule rather than a guideline.') +
+    h2('2.1 What is a Daily Loss Limit?') +
+    p('A daily loss limit is the maximum amount you are allowed to lose in a single trading session. When you hit it, your trading day is over. No more trades — not one — until the next session. This is enforced at CREDO by the IB Risk Navigator (covered in Lesson 6) and monitored during live sessions by your mentor.') +
+    p('The CREDO daily loss limits:') +
+    defTable([
+      ['Paper trading limit','1.5% of your paper account size. On a $30,000 paper account: $450. When you have lost $450, the session ends.'],
+      ['Live trading limit (Phase 2+)','2% of your live account size. On a $30,000 live account: $600. Enforced by IB Risk Navigator auto-flat.'],
+      ['Mentor SMS threshold','Your mentor receives an SMS at 50%, 75%, and 100% of your daily limit. At 100%, a call is scheduled.'],
+    ]) +
+    h2('2.2 Why the Daily Limit Is a Rule, Not a Guideline') +
+    p('New traders always believe their daily loss limit is a suggestion — something they will respect on most days but override when they are "close to recovering." This belief has destroyed more trading accounts than any bad setup ever has.') +
+    p('Here is the math that changes how you think about this. If your account is $30,000 and you lose $1,500 in one session (5%), you now need to make $1,578 just to get back to $30,000 — because your new account balance of $28,500 requires a larger percentage gain. The deeper you dig, the harder it is to recover.') +
+    twoCol('The 1.5% daily limit','Maximum loss per session. On a $30,000 account = $450. If you lose $450 across 20 sessions, total loss is $9,000. Account remains $21,000 — still tradeable, still recoverable with discipline.','No daily limit','A trader who loses 5% per day for just 10 bad sessions loses over 40% of their account. $30,000 becomes $17,500. Recovery from this requires a 71% gain — a near-impossible task for a beginner.','green','red') +
+    callout('amber','What happens when you hit the limit','Stop trading immediately. Close all open positions. Post in Discord #daily-review: "Hit daily limit. Session done." Your mentor will review the session with you in your next one-on-one call. There is no judgment — hitting the limit occasionally is expected in early training. Refusing to stop is a violation.') +
+    h2('2.3 The Alert Thresholds') +
+    p('The IB Risk Navigator sends alerts at three points during the day. Learn to respond to each one:') +
+    dataTable(['Threshold','Action required'],
+      [['50% of daily limit ($225 on $30K paper)','Slow down. Review your last two trades in TraderVue. Are you trading your plan or chasing?'],
+       ['75% of daily limit ($337 on $30K paper)','Mandatory 15-minute break. Step away from the screen. Come back with fresh eyes or end the session.'],
+       ['100% of daily limit ($450 on $30K paper)','Session ends immediately. Flatten all positions. Post in Discord. No exceptions.']]);
+}
+
+function buildM5L3() {
+  return obj('By the end of this lesson you will understand the mathematics of drawdown and why protecting your account from large losses is more important than capturing large gains.') +
+    h2('3.1 What is Drawdown?') +
+    p('Drawdown is the decline from a peak account balance to a subsequent trough. If your account grows to $32,000 then falls to $27,000 before recovering, you experienced a $5,000 drawdown — or 15.6% of the peak value. Drawdown is the most important measure of trading risk because it captures the worst possible experience a strategy produces.') +
+    h2('3.2 The Cost of Drawdown — The Math That Changes Everything') +
+    p('The critical insight about drawdown is that losses and gains are not symmetric. Losing 20% requires a 25% gain just to break even. Losing 50% requires a 100% gain. The deeper the hole, the harder the climb out.') +
+    dataTable(['Loss suffered','Gain required to recover','Why this is devastating'],
+      [['10%','11.1%','Manageable with consistent trading'],
+       ['20%','25.0%','Requires above-average performance to recover'],
+       ['30%','42.9%','Difficult — requires exceptional performance'],
+       ['40%','66.7%','Very difficult — most beginners do not recover'],
+       ['50%','100.0%','Must double the remaining account — near impossible for a beginner'],
+       ['75%','300.0%','Effectively career-ending for most traders']]) +
+    callout('red','The lesson','A 1.5% daily loss limit exists precisely to prevent the kind of drawdown that makes recovery impossible. One bad session capped at 1.5% is recoverable in a week of normal trading. One uncontrolled session at 20% may never be recovered. Protecting capital is not defensive thinking — it is the highest-priority trading skill.') +
+    h2('3.3 The Weekly Loss Limit') +
+    p('In addition to the daily limit, CREDO has a weekly loss limit:') +
+    defTable([
+      ['Paper trading weekly limit','3% of account. On a $30,000 paper account: $900 per week.'],
+      ['Live trading weekly limit','5% of account. On a $30,000 live account: $1,500 per week.'],
+      ['Consequence of hitting weekly limit','Paper trading only for the rest of the week. A written self-review must be completed and submitted to your mentor before trading resumes.'],
+    ]) +
+    p('The weekly limit catches a pattern the daily limit alone cannot: a trader who loses 1.4% every day for five days (just under the daily limit each time) has lost 7% for the week. The weekly limit is a circuit breaker for consistent underperformance, not just single-session disasters.') +
+    h2('3.4 Drawdown Recovery Protocol') +
+    p('If you hit your weekly loss limit, the following protocol applies before the following Monday:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Pull your TraderVue report for the week. Print or screenshot it.</li>' +
+      '<li>Write a one-page review: What setups did you take? Were they on the pre-market watchlist? Where were your stops? Did you honor them?</li>' +
+      '<li>Identify the single biggest mistake of the week — not the biggest loss, but the worst decision.</li>' +
+      '<li>Write one rule you will follow next week specifically to avoid repeating that mistake.</li>' +
+      '<li>Submit to your mentor in your private Discord channel before Sunday night.</li>' +
+    '</ol>' +
+    callout('green','Why this protocol matters','The written review forces you to process the loss analytically rather than emotionally. Traders who skip this step come back the following week trying to "get even" — and usually make the drawdown worse. The review is not punishment. It is the mechanism that turns a bad week into a learning event.');
+}
+
+function buildM5L4() {
+  return obj('By the end of this lesson you will be able to calculate the true break-even on any trade by accounting for both the bid/ask spread and IB commissions, and understand how these costs affect your minimum required price move.') +
+    h2('4.1 The Hidden Costs of Every Trade') +
+    p('When you buy a stock at $5.20 and sell it at $5.40, your gross profit is $0.20 per share. But this is not your net profit. Two costs are extracted before you see the money: the bid/ask spread and commissions. Failing to account for these costs leads to a distorted picture of your performance — especially on small-cap stocks where spreads can be wide.') +
+    h2('4.2 The Bid/Ask Spread Cost') +
+    p('When you buy at the ask and sell at the bid, you pay the spread twice — once on entry and once on exit. The spread cost is the round-trip cost of the spread.') +
+    p('Example: Stock XYZ has a bid of $5.00 and an ask of $5.10. The spread is $0.10. If you buy 500 shares at $5.10 (ask) and immediately sell at $5.00 (bid), you lose $50 on the spread alone — before the stock moves even one penny.') +
+    defTable([
+      ['Spread on entry','You buy at the ask price, which is always higher than the midpoint.'],
+      ['Spread on exit','You sell at the bid price, which is always lower than the midpoint.'],
+      ['Round-trip spread cost','Spread × shares × 2 (both sides). On a $0.10 spread with 500 shares: $0.10 × 500 = $50.'],
+    ]) +
+    callout('amber','Small-cap spreads','On actively traded large-cap stocks, spreads are often $0.01-$0.02. On small-cap stocks during volatile pre-market periods, spreads can widen to $0.20, $0.50, or even $1.00. A $0.50 spread on a 500-share position = $250 round-trip spread cost. Your target must be at least $0.50 just to break even.') +
+    h2('4.3 The Full Break-Even Calculation') +
+    p('Break-even per share = (Spread cost + Total commissions) ÷ Shares') +
+    p('Full example: 500 shares of a $5 stock with a $0.10 spread, IB commission at $0.005/share.') +
+    ul(['Spread cost: 500 shares × $0.10 = $50.00',
+        'Commission on buy: 500 × $0.005 = $2.50',
+        'Commission on sell: 500 × $0.005 = $2.50',
+        'Total costs: $50 + $2.50 + $2.50 = $55.00',
+        'Break-even per share: $55.00 ÷ 500 = $0.11',
+        'The stock must move AT LEAST $0.11 in your favor just to break even.']) +
+    dataTable(['Spread','Shares','Spread cost','Commissions','Total cost','Break-even move'],
+      [['$0.05','500','$25.00','$5.00','$30.00','$0.06/share'],
+       ['$0.10','500','$50.00','$5.00','$55.00','$0.11/share'],
+       ['$0.20','500','$100.00','$5.00','$105.00','$0.21/share'],
+       ['$0.10','1000','$100.00','$10.00','$110.00','$0.11/share']]) +
+    callout('green','Key insight','Before entering any trade, calculate your break-even move. If your target is $0.30 per share and the break-even is $0.15, you need a $0.15 net move to profit. If the break-even is $0.25 and your target is $0.30, the risk/reward is terrible — a $0.05 net gain versus a $0.30 gross risk. The math must work before you enter.');
+}
+
+function buildM5L5() {
+  return obj('By the end of this lesson you will be able to build a complete bracket order in Interactive Brokers — entry, stop, and target submitted simultaneously — and understand why this is the only acceptable way to enter a trade at CREDO.') +
+    h2('5.1 What is a Bracket Order?') +
+    p('A bracket order is three orders submitted simultaneously as a group: the entry order, a stop loss order that triggers if the trade goes against you, and a profit target order that closes the trade when your target is reached. Once submitted, whichever of the two exit orders fills first automatically cancels the other.') +
+    p('The bracket order is the foundation of CREDO risk management. It means that the moment you enter a trade, your maximum loss is already defined and your exit plan is already in the market — without any further action required from you.') +
+    twoCol('Without a bracket order','You enter the trade. The stock moves against you. You hesitate — hoping it will recover. It drops further. You finally exit, having lost 3x your planned maximum. This is how accounts are blown.','With a bracket order','You enter the trade with a stop and target already set. If the stock drops to your stop, it sells automatically. If it reaches your target, it sells automatically. You cannot hold a loser past your planned exit.','red','green') +
+    h2('5.2 Building a Bracket Order in IB TWS') +
+    p('In Trader Workstation (TWS), bracket orders are built as follows:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Click on the stock in your watchlist to open the order entry row.</li>' +
+      '<li>Select order type: LMT (Limit). Set your entry price at or near the current ask.</li>' +
+      '<li>Right-click the order row → Attach → Bracket Order. TWS adds two child orders below the entry.</li>' +
+      '<li>Set the stop loss child order: LMT or STP. Enter your stop price (e.g. $0.30 below entry).</li>' +
+      '<li>Set the profit target child order: LMT. Enter your target price (e.g. $0.60 above entry).</li>' +
+      '<li>Review all three prices. Check share size on all three — they must match.</li>' +
+      '<li>Click Transmit. All three orders go live simultaneously.</li>' +
+    '</ol>' +
+    callout('amber','Common mistake','New traders often set the bracket correctly but forget to check that all three orders have the same share size. If your entry is 500 shares but your stop is 100 shares, the stop only covers 20% of your position. The remaining 400 shares have no protection. Always verify share sizes before transmitting.') +
+    h2('5.3 Managing the Bracket After Entry') +
+    p('Once your bracket is live, here is the only intervention allowed:') +
+    defTable([
+      ['Moving the stop UP','If the trade goes in your favor and you want to lock in a profit, you may move the stop up — never down. Moving a stop down to give a trade "more room" is a violation of risk management rules.'],
+      ['Scaling out','You may cancel the profit target on partial shares and sell them manually at a higher price while keeping the remainder in the bracket. This is an advanced technique — reviewed with your mentor before use.'],
+      ['Full cancellation','If you decide to exit the trade early (e.g. you see a bearish candle developing), you may cancel the bracket and exit manually. Always exit the full position — do not leave partial shares without a bracket.'],
+    ]) +
+    callout('red','Non-negotiable rule','At CREDO, every trade must be entered with a bracket order from Week 3 of training onward. Any trade entered without a simultaneous stop loss is a bracket violation. Bracket violations are reviewed in the next mentor call without exception. The rule is not about trust — it is about building the habit that protects your account when your emotions are running hot.');
+}
+
+function buildM5L6() {
+  return obj('By the end of this lesson you will have the IB Risk Navigator configured with your daily and weekly loss limits, understand what happens when each threshold is breached, and have signed the CREDO Risk Parameters document.') +
+    h2('6.1 What is the IB Risk Navigator?') +
+    p('The IB Risk Navigator is a real-time risk monitoring tool built into Trader Workstation. It tracks your daily P&L across all positions and can automatically flatten (close) all positions when a predefined loss limit is reached. For CREDO students, the Risk Navigator is the mechanical enforcement of the daily loss limit — it removes the temptation to override the limit manually during a losing session.') +
+    h2('6.2 Configuring the Risk Navigator') +
+    p('In TWS: go to Risk → Risk Navigator → Open Risk Navigator. In the Risk Navigator window:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Click Settings → Daily Loss Limit.</li>' +
+      '<li>Enter your daily loss limit in dollars. For a $30,000 paper account at 1.5%: enter -$450.</li>' +
+      '<li>Check the box: "Liquidate positions when limit is reached." This enables the auto-flat feature.</li>' +
+      '<li>Click Settings → Alert Thresholds. Add three alerts: at -$225 (50%), -$337 (75%), and -$450 (100%).</li>' +
+      '<li>For each alert, select "Send email" and enter your email address. Also add your phone number for SMS if available.</li>' +
+      '<li>Save settings. The Risk Navigator is now active.</li>' +
+    '</ol>' +
+    callout('green','Verification','After configuring, check that the Risk Navigator window shows your current daily P&L updating in real time. If the number is not moving as you enter paper trades, the connection to your paper account is not active — contact your mentor for troubleshooting.') +
+    h2('6.3 The Three Alert Thresholds — What to Do at Each') +
+    dataTable(['Alert','$ amount (on $30K paper)','Required action'],
+      [['50% of daily limit','-$225','Pause. Review last two trades in TraderVue. Ask: am I trading my plan?'],
+       ['75% of daily limit','-$337','Mandatory 15-minute break. Leave the screen entirely. Return only if mentally clear.'],
+       ['100% of daily limit','-$450','Session ends. Risk Navigator auto-flats all positions. Post in Discord. No more trading today.']]) +
+    h2('6.4 The CREDO Risk Parameters Sign-Off') +
+    p('Before beginning paper trading, every CREDO student signs a Risk Parameters document confirming they understand and accept the following:') +
+    ul(['Daily loss limit of 1.5% (paper) / 2% (live) is a hard stop — not a guideline.',
+        'Weekly loss limit of 3% (paper) / 5% (live). Written review required if breached.',
+        'Every trade must use a bracket order with entry, stop, and target submitted simultaneously.',
+        'No position held overnight during Phase 1 and Phase 2 training.',
+        'No trading of halted stocks in the first 30 seconds after resume.',
+        'Pre-market thesis posted by 9:15 AM every session without exception.',
+        'IB Risk Navigator configured and active before each session.',
+        'All trades logged in TraderVue by 5:00 PM daily.']) +
+    callout('amber','Action required','Your mentor will send you the Risk Parameters document in your private Discord channel. Read it fully. Sign it and return it before your first paper trading session. This is not a formality — the rules in this document are the framework that will protect your capital during training.') +
+    callout('green','Final thought on risk management','Risk management is not what you do when things go wrong. It is what you set up before things go wrong so that when they do — and they will — the damage is contained, survivable, and recoverable. Every great trader has losing days. No great trader has losing days that end their career. The difference is risk management.');
+}
+
+// ══ MODULE 6 LESSONS ══
+function buildM6L1() {
+  return obj('By the end of this lesson you will be able to identify revenge trading and winner\'s tilt as they are happening, understand the brain state that produces each, and apply the specific interventions that stop both patterns before they damage your account.') +
+    h2('1.1 The Two Patterns That Destroy Accounts') +
+    p('Of all the psychological patterns that cause traders to lose money, revenge trading and winner\'s tilt are the two most destructive — and the two most common. They are dangerous because they do not feel like mistakes while they are happening. They feel like confidence, urgency, or righteous recovery. Understanding them intellectually is the first step. Catching them in real time is the skill.') +
+    h2('1.2 Revenge Trading') +
+    p('Revenge trading occurs after a losing trade when a trader immediately takes another position — usually larger, faster, and with less research — in an attempt to recover the loss. The name is accurate: it feels like you are fighting back against the market that just took your money.') +
+    defTable([
+      ['What triggers it','A loss that feels unfair, unexpected, or embarrassing. The emotional experience of being wrong.'],
+      ['What it feels like','Urgency. Certainty. The strong sense that the next trade will work. A need to act immediately.'],
+      ['What it actually is','An emotionally driven decision made while the prefrontal cortex — the rational brain — is temporarily offline due to loss aversion.'],
+      ['What it produces','A second loss, often larger than the first, compounding the damage and deepening the emotional hole.'],
+    ]) +
+    p('The signature of revenge trading is speed. If you lose a trade and enter the next one in less than 60 seconds without reviewing your thesis, checking the scanner, and confirming a valid setup — that is revenge trading, regardless of whether the trade works.') +
+    callout('red','The revenge trade rule','After any loss, you must wait a minimum of 5 minutes before entering another trade. Use that time to: review what happened in TraderVue, confirm a valid setup exists on the scanner, and rate your emotional state (1-5). If your emotional state is 2 or below, the session is over. This is not optional.') +
+    h2('1.3 Winner\'s Tilt') +
+    p('Winner\'s tilt is the opposite of revenge trading — and equally dangerous. It occurs after a winning trade when a trader becomes overconfident and begins taking progressively larger, faster, or lower-quality setups. The winning trade creates a feeling of invincibility that temporarily distorts risk perception.') +
+    p('Winner\'s tilt is harder to catch than revenge trading because it feels good. You are not angry — you are excited. You are not trying to recover a loss — you are trying to extend a win. The emotional state that produces winner\'s tilt is indistinguishable from genuine confidence to the person experiencing it.') +
+    twoCol('Genuine confidence','Based on a clear setup, a confirmed catalyst, proper position sizing, and a defined stop. You can articulate exactly why you are entering before you click. The trade fits your criteria.','Winner\'s tilt','Based on the feeling that you are "hot" today and anything you touch will work. Entry criteria are relaxed. Position size may be increased beyond your formula. Stop is widened or absent.','green','red') +
+    callout('amber','How to catch it','After your second profitable trade in a day, pause for 60 seconds before entering a third. Ask yourself: does this next setup meet the same criteria as the first two? Or am I entering because I feel good? If you cannot clearly articulate the setup, catalyst, and stop distance before clicking — do not enter. Winner\'s tilt lives in that hesitation.');
+}
+
+function buildM6L2() {
+  return obj('By the end of this lesson you will recognize FOMO and hope as distinct psychological patterns, understand exactly what brain state produces each, and have a concrete response protocol for both.') +
+    h2('2.1 FOMO — Fear of Missing Out') +
+    p('FOMO is the emotional experience of watching a stock move without you and feeling compelled to enter anyway — despite the fact that the original setup no longer exists. The stock has already moved. The entry you planned is gone. But the fear of missing further upside overrides your rational evaluation.') +
+    p('FOMO entries are characterized by three things: they happen after a significant move has already occurred, they lack a clear defined stop because the setup is no longer clean, and they feel urgent — like the window is closing and you must act now.') +
+    defTable([
+      ['The FOMO trigger','A stock on your watchlist spikes 20% in the first 5 minutes. You did not enter at your planned level because you were watching. Now it is running and you did not get in.'],
+      ['The FOMO thought','If I do not buy now I will miss the whole move. It is still going up. I will just buy here and trail my stop.'],
+      ['The FOMO reality','You are entering at the worst possible time — extended, with no clean level to stop against, with every early buyer sitting on profit and looking to exit into your buying.'],
+      ['The FOMO outcome','The stock pauses or reverses. You exit at a loss. The original planned entry — the one you skipped — would have been profitable. You lost money on a stock you were right about.'],
+    ]) +
+    callout('green','The FOMO rule','If you missed the entry, you missed the trade. There is no second entry on a FOMO move. Write in your journal: "Missed ABCD setup at $X — did not chase." That journal entry is worth more than a chased trade. Over 30 sessions, your missed setup log will show you the true cost of FOMO — which is zero, because you never entered.') +
+    h2('2.2 Hope as a Position Management Strategy') +
+    p('Hope is what replaces your stop loss when you remove it. A trader who enters a trade with a stop at $4.90, watches the stock drop to $4.80, and thinks "I\'ll give it a little more room" — is no longer managing a trade. They are hoping.') +
+    p('Hope is not a trading strategy. It is the absence of one. And unlike every other psychological pattern covered in this module, hope compounds over time. The longer you hold a losing position without a stop, the larger the loss becomes, and the more hope you need to justify staying in. This is how small losses become account-destroying losses.') +
+    ul(['Hope thought #1: "It will come back — it always does."','Hope thought #2: "I\'ll hold through the dip — my thesis is still valid."','Hope thought #3: "If I sell now I lock in the loss. I\'ll wait for the recovery."','Hope thought #4: "It is close to support — I\'ll add more to average down."']) +
+    callout('red','The hardest rule in trading','When your stop is hit, you sell. Not because the thesis is definitely wrong. Not because you are giving up. Because you decided the price at which you were wrong before you entered, and that price has been reached. The stop is the pre-commitment device that makes decisions in advance, when you are rational, so that you do not have to make them in the moment, when you are not.');
+}
+
+function buildM6L3() {
+  return obj('By the end of this lesson you will understand outcome bias and confirmation bias, why they are particularly dangerous for trading, and how to use process-based evaluation to avoid both.') +
+    h2('3.1 Outcome Bias') +
+    p('Outcome bias is the tendency to evaluate the quality of a decision based on its result rather than the quality of the process that produced it. In trading, this means judging a trade as "good" if it made money and "bad" if it lost money — regardless of whether it was executed correctly.') +
+    p('This is one of the most dangerous thinking patterns in trading because it causes you to repeat mistakes that happened to work out and abandon correct processes that happened to produce losses.') +
+    twoCol('Good process, losing trade','You followed the checklist. The setup had all 6 criteria. You sized correctly. You used a bracket order. The stock reversed on unexpected news and hit your stop. Result: -$120. Grade: A. This was a perfect trade.','Bad process, winning trade','You chased a FOMO move with no clear stop. The stock kept running and you made $300. Result: +$300. Grade: F. This was a terrible trade that happened to work. Repeating it will eventually produce a large loss.','green','red') +
+    callout('green','Process over outcome','In TraderVue, evaluate every trade on process: Did I have a pre-market thesis? Did I enter at my planned level? Did I use a bracket order? Did I honor my stop? A "yes" to all four is a perfect trade regardless of P&L. A "no" to any one is a flawed trade regardless of P&L.') +
+    h2('3.2 Confirmation Bias') +
+    p('Confirmation bias is the tendency to seek out, interpret, and remember information that confirms your existing belief — and ignore information that contradicts it. In trading, this is most dangerous when you already have a position open.') +
+    p('A trader who is long a stock will naturally notice every bullish piece of news, every green candle, every analyst upgrade — and tend to discount the bearish signals. This is not dishonesty. It is how the human brain processes information under uncertainty, especially when money is involved.') +
+    defTable([
+      ['Pre-trade bias','Researching a stock and only reading bullish information. Ignoring the S-3 filing because "the catalyst is strong enough."'],
+      ['In-trade bias','Holding a losing position and finding reasons it will recover while ignoring the deteriorating price action.'],
+      ['Post-trade bias','Remembering your winning trades in detail while the losing trades fade from memory — making your mental record of performance more positive than reality.'],
+    ]) +
+    h2('3.3 The Antidote — Pre-Mortem Thinking') +
+    p('The most effective counter to confirmation bias is pre-mortem thinking: before entering any trade, spend 30 seconds arguing the opposite case. Ask yourself: why is this trade wrong? What would have to be true for this stock to go down instead of up? What am I not seeing?') +
+    p('If you cannot generate a single bearish argument for a stock you are about to buy long, you are not thinking clearly — you are confirming. Every setup has a bear case. Knowing it is not a reason to skip the trade — it is information about where your stop should be and why the risk management rules exist.') +
+    callout('amber','The weekly debrief tool','Every Friday in the group debrief, the mentor asks: "Tell me the bear case for your best trade this week." If you cannot answer, that trade was taken on confirmation bias. This is not criticism — it is training. Over time, the ability to argue both sides of every position becomes automatic.');
+}
+
+function buildM6L4() {
+  return obj('By the end of this lesson you will have a specific, timed pre-session routine that prepares you to trade, and a post-session review process that extracts learning from every day regardless of the P&L result.') +
+    h2('4.1 Why Routine Matters More Than You Think') +
+    p('Trading performance is not random. It correlates strongly with the state you are in when you sit down to trade. A trader who arrives at 9:28 AM having just woken up, skipped breakfast, and not reviewed the scanner is at a significant disadvantage compared to one who has been working since 7:00 AM with a completed watchlist, a written thesis, and a calm mental state.') +
+    p('The pre-session routine is not preparation for trading. It IS the trading. By 9:30 AM, all the decisions that can be made in advance should already be made. What stock. What setup. What entry. What stop. What target. The open is execution — not research.') +
+    h2('4.2 The CREDO Pre-Session Routine (15-20 minutes)') +
+    p('Begin at 7:00 AM. Work through this sequence:') +
+    dataTable(['Time','Task','Output'],
+      [['7:00 - 7:15','Open Trade Ideas. Review scanner for pre-market gappers. Filter to top 3-5 candidates.','A shortlist of stocks meeting CREDO scanner criteria.'],
+       ['7:15 - 7:45','For each candidate: Finviz check (float, short float), news review (catalyst tier, S-3 risk), chart review (key levels, gap %).','Watchlist reduced to 2-3 high-quality setups.'],
+       ['7:45 - 8:30','For each watchlist stock: write the thesis. Catalyst, float, key levels, planned entry, stop distance, target, risk/reward.','Thesis document or Discord post drafted.'],
+       ['8:30 - 9:00','Rate your emotional state (1-5). Review yesterday\'s TraderVue data briefly. Are you carrying anything from yesterday?','Honest self-assessment before markets open.'],
+       ['9:00 - 9:15','Post thesis to #pre-market-thesis in Discord. Final review of each stock\'s pre-market price action.','Thesis posted. Watchlist finalized. Mind settled.'],
+       ['9:15 - 9:30','Silence. No more research. Watch the scanner passively. Prepare for the open.','Mental state: calm, prepared, patient.']]) +
+    callout('green','The most important 15 minutes','The period from 9:15 to 9:30 AM is the most important of the trading day. This is when inexperienced traders are feverishly adding new stocks to their list and revising their thesis based on pre-market price action. Experienced traders are sitting quietly, reviewing what they already know, and waiting for the open. The work is done. The rest is patience.') +
+    h2('4.3 The Post-Session Review (3 Mandatory Questions)') +
+    p('After the session ends at 10:30 AM — before you close your charts, before you check Twitter, before you do anything else — answer these three questions in your TraderVue journal:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li><strong>Did I trade my plan?</strong> For each trade: was the stock on my pre-market watchlist? Did I enter at my planned level? Did I use a bracket order? A simple yes or no for each trade.</li>' +
+      '<li><strong>What was my best decision today?</strong> Not your most profitable trade — your best decision. This could be a trade you passed on. It could be honoring a stop. It could be stopping early when your emotional state was poor. Train your brain to recognize good process.</li>' +
+      '<li><strong>What is the one thing I would do differently?</strong> One thing only. Not a list. If you try to fix five things at once, you fix none. Identify the single highest-leverage improvement and write it as a specific rule for tomorrow.</li>' +
+    '</ol>' +
+    callout('amber','The power of one rule','Every day you identify one specific improvement. Over 20 trading sessions that is 20 targeted adjustments to your process. This is how traders get better — not through inspiration or heroic insight, but through the accumulation of small, specific, data-driven improvements made consistently over time.');
+}
+
+function buildM6L5() {
+  return obj('By the end of this lesson you will have a working emotional state rating system configured in TraderVue, understand what each rating means in practice, and know the rule for each rating level.') +
+    h2('5.1 Why Emotional State Tracking Matters') +
+    p('Every trader knows they perform worse when they are emotional. What few traders do is measure this systematically over time. Without measurement, the insight stays vague: "I trade worse when I\'m stressed." With measurement, it becomes precise: "When I rate myself 1 or 2 before a session, my win rate drops from 58% to 31% and my average loss is 40% larger than my average win."') +
+    p('That is the difference between a feeling and a fact. Facts change behavior. Feelings do not.') +
+    h2('5.2 The 1-5 Emotional State Rating Scale') +
+    dataTable(['Rating','Description','Physical signals','Trading rule'],
+      [['1','Highly distressed. Angry, anxious, or emotionally flooded from something outside trading.','Racing heart, tight chest, difficulty concentrating, intrusive thoughts.','Do not trade. Log the rating. Close the platform.'],
+       ['2','Below baseline. Tired, mildly anxious, or carrying residue from yesterday\'s session.','Slight tension, mild distraction, lower-than-normal energy.','Reduce position size by 50%. Maximum 2 trades. Stop at first loss.'],
+       ['3','Neutral baseline. Neither good nor bad. Normal state.','No notable physical signals. Baseline focus.','Trade normally within all standard rules.'],
+       ['4','Above baseline. Clear-headed, focused, well-rested. Genuine confidence from preparation.','Calm energy. Clear thinking. Good recall of setups and levels.','Trade normally. Full size. All setups available.'],
+       ['5','Peak state. Rare. Everything aligned — preparation, sleep, mindset, market conditions.','Effortless focus. High pattern recognition. Decisions feel obvious, not forced.','Trade normally. Do not increase size because you feel good — that is winner\'s tilt.']]) +
+    callout('amber','Rating 5 warning','A self-reported rating of 5 should trigger extra caution, not extra confidence. The conditions that produce peak performance are identical to the conditions that produce winner\'s tilt. If you rate yourself 5 and immediately take an oversized position outside your planned setups, you were not in peak state — you were in winner\'s tilt.') +
+    h2('5.3 How to Rate Yourself Honestly') +
+    p('The rating is taken before the session begins — ideally at 8:30 AM as part of the pre-session routine. Do not rate yourself after a winning trade or after a loss. The rating reflects your state coming in, not your state during.') +
+    p('The most common rating error is systematic over-rating. Traders who consistently rate themselves 4-5 and wonder why their performance is inconsistent are not rating their state — they are rating their aspirations. Calibrate by comparing your rating history to your performance data in TraderVue. If you rate 4 but your results on those days look like 2 results, you are over-rating.') +
+    h2('5.4 Setting Up the Rating in TraderVue') +
+    p('In TraderVue, go to Settings → Custom Fields → Add Field. Name it "Emotional State". Set type to "Number (1-5)". Make it required — this forces you to enter a rating before you can add any trade notes for the day.') +
+    p('Each week in your Friday debrief, run the TraderVue filter: group trades by Emotional State rating. Review: average P&L by rating, average win/loss ratio by rating, average position size by rating. This data will eventually tell you more about your trading psychology than any book ever could.') +
+    callout('green','The long game','The emotional state rating system does not produce results in one week. It produces results over three to six months of consistent data. Every session you skip the rating is a data point lost. Every session you rate honestly — even when the number is uncomfortable — is a deposit into the most valuable dataset you will ever own: the honest record of your own performance under known psychological conditions.');
+}
+
+function buildM6L6() {
+  return obj('By the end of this lesson you will have a complete monthly self-review protocol and understand how to use your TraderVue data to run a structured personal coaching session at the end of every month.') +
+    h2('6.1 Why Monthly Review Is Different from Daily Review') +
+    p('The daily post-session review captures what happened today. The monthly self-review reveals what is happening to you as a trader over time — the patterns that are too slow to see day by day but are unmistakable across 20 sessions. A trader who has a good day cannot see their FOMO problem. A trader who reviews their last 20 days can see exactly how often FOMO entries occur, which day of the week they cluster on, and what their P&L looks like on FOMO days versus planned days.') +
+    h2('6.2 The Monthly Self-Review Protocol') +
+    p('Run this review on the last trading day of each month. Set aside 60-90 minutes. No trading. No distractions. This is the most important analysis session of the month.') +
+    h3('Step 1 — Pull the Raw Numbers') +
+    p('In TraderVue, set the date range to the calendar month. Record:') +
+    ul(['Total trades taken','Planned trades vs unplanned trades (ratio and absolute number)','Win rate (% of trades profitable)','Average winner vs average loser (ratio)','Total P&L','Largest single-day loss','Largest single-day gain','P&L by setup tag (which setups are profitable? which are not?)']) +
+    h3('Step 2 — The Setup Analysis') +
+    p('Filter TraderVue by each setup tag you used this month. For each setup, calculate:') +
+    defTable([
+      ['Win rate','What % of trades on this setup were profitable?'],
+      ['Average R','Average profit divided by average loss. Is this setup paying you at least 2:1?'],
+      ['Expectancy','(Win rate × average winner) minus (loss rate × average loser). Positive = the setup has edge. Negative = stop trading it.'],
+      ['Sample size','How many trades? Under 10 is not statistically meaningful. Reserve judgment until you have 20+.'],
+    ]) +
+    h3('Step 3 — The Emotional State Correlation') +
+    p('Group your trades by Emotional State rating. Compare your key metrics (win rate, average P&L, position size) at each rating level. Answer: is there a rating level at which your performance falls below break-even? If yes — that is your cut-off. At that rating, you stop trading for the session.') +
+    h3('Step 4 — The Pattern Hunt') +
+    p('Look for repeating patterns across the month. Common discoveries:') +
+    ul(['Losses cluster on Monday mornings — you are not settled back into the routine after the weekend.',
+        'Best performance happens on Tuesday and Wednesday — mid-week, fully warmed up.',
+        'Unplanned trades have a negative expectancy even though they sometimes win.',
+        'The first trade of the day is profitable more often than the second or third.',
+        'Afternoon trades (after 11 AM) have significantly worse results than power hour trades.']) +
+    h3('Step 5 — Write the One-Page Summary') +
+    p('One page. No more. Answer these questions:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>What is the single most profitable thing I did this month?</li>' +
+      '<li>What is the single most costly mistake I repeated?</li>' +
+      '<li>Which setup had the best expectancy? Will I trade it more next month?</li>' +
+      '<li>Which setup had negative expectancy? Will I stop trading it next month?</li>' +
+      '<li>What is my one specific rule change for next month?</li>' +
+    '</ol>' +
+    callout('green','Share it with your mentor','Submit your monthly one-page summary to your mentor in your private Discord channel before the first session of the following month. Your mentor will review it and bring specific observations to your next one-on-one call. This is the highest-leverage feedback loop in the program — the point where your personal data meets experienced pattern recognition.') +
+    h2('6.3 Foundation Course Complete — What Comes Next') +
+    p('You have completed all six modules of the CREDO Foundation Course. This is not a small thing. Most aspiring traders never spend this much time learning before they risk real money. The fact that you have done so puts you ahead of the vast majority of people who attempt this career.') +
+    p('What you have now:') +
+    ul(['A complete understanding of how small-cap stocks work and why they move.',
+        'Chart reading skills — candlestick patterns, support and resistance, VWAP, timeframes.',
+        'Deep knowledge of short mechanics, squeeze setups, SEC filings, and gap patterns.',
+        'A fully configured platform — Trade Ideas, Sterling, IB, TraderVue, Discord.',
+        'A mechanical risk management system that protects your capital with rules, not willpower.',
+        'A psychology framework that names your vulnerabilities and gives you protocols to manage them.']) +
+    p('What comes next is Phase 1 — paper trading with real-time market data, live mentor sessions, called-shot trades, and the daily accountability structure of the CREDO program. You will trade small, with strict rules, under close supervision. The goal is not to make money in Phase 1. The goal is to build the habits that make money possible in Phase 2 and Phase 3.') +
+    callout('green','A final note from your mentor','I built this Foundation Course because I wish someone had handed it to me before I started. The six years I spent learning what is in these lessons cost me real money — not because the market is unfair, but because I did not know what I did not know. You now know what I did not. Use it.');
 }
 </script>
 </body>
