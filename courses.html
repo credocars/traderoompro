@@ -172,7 +172,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .mod-num{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;}
 .mod-title{font-size:19px;font-weight:700;color:var(--t1);line-height:1.3;letter-spacing:-.3px;}
 .mod-meta{font-size:13px;color:var(--t2);}
-.mod-icon{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.mod-icon{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;}
 
 /* card body */
 .mod-body{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px;}
@@ -463,7 +463,7 @@ var MODULES = [
     lessons: ["What is a stock?", "How buying and selling works", "Understanding small-cap stocks", "Reading a stock chart", "The language of trading", "Your daily routine"],
     topics: "Stocks, orders, float, catalysts, chart basics",
     hours: "5-7 hrs",
-    icon: "📈",
+    icon: "<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg>",
     color: "var(--green)",
     gradient: "rgba(34,197,94,.12),rgba(6,182,212,.08)",
     quiz: [
@@ -483,7 +483,7 @@ var MODULES = [
     id: 2, title: "Reading Charts and Price Action",
     lessons: ["Candlestick patterns", "Support and resistance in practice", "VWAP in depth", "1-min and 5-min timeframes", "Pre-market high and level context", "Strong vs weak setups"],
     topics: "Candlesticks, S/R levels, VWAP, timeframes",
-    hours: "5-7 hrs", icon: "📊",
+    hours: "5-7 hrs", icon: "<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="15" y1="10" x2="21" y2="10"/><line x1="9" y1="4" x2="15" y2="4"/><line x1="3" y1="14" x2="9" y2="14"/></svg>",
     color: "var(--blue)", gradient: "rgba(59,130,246,.12),rgba(139,92,246,.08)",
     quiz: [
       { q: "What is the key feature that distinguishes a hammer candlestick?", opts: ["A large green body with no wicks","A small body near the top with a long lower wick","Two candles where the second engulfs the first","Identical highs on two consecutive candles"], ans: 1 },
@@ -502,7 +502,7 @@ var MODULES = [
     id: 3, title: "Small-Cap Mechanics Deep Dive",
     lessons: ["Short selling mechanics", "The short squeeze setup", "Reading SEC filings", "Finding float with Finviz", "Gap-and-go vs gap-and-trap", "Halt and resume mechanics"],
     topics: "Shorts, SEC filings, gap patterns, halts",
-    hours: "6-8 hrs", icon: "🔬",
+    hours: "6-8 hrs", icon: "<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><polygon points="12,2 2,7 12,12 22,7 12,2"/><polyline points="2,17 12,22 22,17"/><polyline points="2,12 12,17 22,12"/></svg>",
     color: "var(--orange)", gradient: "rgba(245,158,11,.12),rgba(239,68,68,.08)",
     quiz: []
   },
@@ -510,7 +510,7 @@ var MODULES = [
     id: 4, title: "Platform Setup and Tool Training",
     lessons: ["Trade Ideas gap scanner setup", "Scanner literacy and alerts", "Sterling Trader Pro layout", "Hotkey configuration and drills", "IB account and TWS setup", "TraderVue and Discord orientation"],
     topics: "Trade Ideas, Sterling, IB, TraderVue",
-    hours: "8-10 hrs", icon: "⚙️",
+    hours: "8-10 hrs", icon: "<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>",
     color: "var(--purple)", gradient: "rgba(139,92,246,.12),rgba(59,130,246,.08)",
     quiz: []
   },
@@ -518,7 +518,7 @@ var MODULES = [
     id: 5, title: "Risk Management Fundamentals",
     lessons: ["Position sizing formula", "Daily loss limit mechanics", "Cost of drawdown", "Spread and commission calculation", "Bracket order workflow in IB", "IB Risk Navigator configuration"],
     topics: "Sizing, stop losses, daily limits, IB bot",
-    hours: "5-6 hrs", icon: "🛡️",
+    hours: "5-6 hrs", icon: "<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>",
     color: "var(--red)", gradient: "rgba(239,68,68,.12),rgba(245,158,11,.08)",
     quiz: []
   },
@@ -526,7 +526,7 @@ var MODULES = [
     id: 6, title: "Trading Psychology and Daily Routine",
     lessons: ["Revenge trading and winner's tilt", "FOMO and hope as strategy", "Outcome bias and confirmation bias", "Pre-session and post-session routine", "Emotional state rating system", "Monthly self-review protocol"],
     topics: "Psychology, bias, daily routine, discipline",
-    hours: "4-5 hrs", icon: "🧠",
+    hours: "4-5 hrs", icon: "<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>",
     color: "var(--cyan)", gradient: "rgba(6,182,212,.12),rgba(139,92,246,.08)",
     quiz: []
   }
@@ -671,7 +671,7 @@ function renderCards(unlocked) {
         '<div class="mod-num">Module ' + mod.id + ' · ' + mod.hours + '</div>' +
         '<div class="mod-title">' + mod.title + '</div>' +
         '<div class="mod-meta">' + mod.lessons.length + ' lessons</div>' +
-        '<div class="mod-icon" style="background:rgba(0,0,0,.2);">' + mod.icon + '</div>' +
+        '<div class="mod-icon" style="background:rgba(0,0,0,.25);color:' + (isLocked ? 'var(--t3)' : mod.color) + ';opacity:' + (isLocked ? '0.4' : '1') + ';">' + mod.icon + '</div>' +
       '</div>' +
       '<div class="mod-body">' +
         '<div class="mod-progress-row">' +
