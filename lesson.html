@@ -391,9 +391,13 @@ var currentLessonIdx = 0;
 // ══ URL PARAMS ══
 function getParams() {
   var p = new URLSearchParams(window.location.search);
+  var mod    = parseInt(p.get('mod')    || '0');
+  var lesson = parseInt(p.get('lesson') || '0');
+  if (isNaN(mod))    mod    = 0;
+  if (isNaN(lesson)) lesson = 0;
   return {
-    mod: Math.max(0, Math.min(5, parseInt(p.get('mod') || '0'))),
-    lesson: Math.max(0, Math.min(5, parseInt(p.get('lesson') || '0')))
+    mod:    Math.max(0, Math.min(5, mod)),
+    lesson: Math.max(0, Math.min(5, lesson))
   };
 }
 
@@ -406,6 +410,10 @@ function setParams(mod, lesson) {
 
 // ══ RENDER ══
 function renderPage() {
+  // Safety guards
+  if (currentModIdx < 0 || currentModIdx >= MODULES.length) currentModIdx = 0;
+  if (currentLessonIdx < 0 || currentLessonIdx >= MODULES[currentModIdx].lessons.length) currentLessonIdx = 0;
+
   var mod = MODULES[currentModIdx];
   var lesson = mod.lessons[currentLessonIdx];
   var p = userProgress[mod.id] || { pct: 0, lessonsComplete: [] };
@@ -817,7 +825,7 @@ function buildM2L1() {
     h2('1.2 Single Candle Reversal Patterns') +
     h3('The Hammer') +
     p('A hammer has a small body near the top of the candle with a long lower wick (at least 2x the body length). It forms after a downward move and signals that sellers pushed price down hard, but buyers stepped in strongly and pushed price back near the open. The long lower wick is the tell — it shows a significant rejection of lower prices.') +
-    dataTable([['Body','Small, near the top of the candle — open and close were close together'],['Lower wick','Long (2x+ the body length) — sellers pushed hard down, then buyers fought back'],['Upper wick','Little or none — price did not go much above the open/close'],['Location required','After a downward move — only meaningful as a potential reversal']]) +
+    defTable([['Body','Small, near the top of the candle — open and close were close together'],['Lower wick','Long (2x+ the body length) — sellers pushed hard down, then buyers fought back'],['Upper wick','Little or none — price did not go much above the open/close'],['Location required','After a downward move — only meaningful as a potential reversal']]) +
     callout('green','Key insight','A green hammer (closes above the open) is stronger than a red hammer. Both are bullish signals at support, but the green version is more convincing — buyers fully won the period.') +
     h3('The Shooting Star') +
     p('The shooting star is the mirror image of the hammer. It has a small body near the bottom with a long upper wick. It forms after an upward move and signals that buyers pushed price up hard, but sellers overwhelmed them and pushed price back down. On a small-cap stock that has run 50% in the morning, a shooting star at the pre-market high is a strong signal that the move is exhausting.') +
@@ -870,7 +878,7 @@ function buildM2L3() {
     p('VWAP resets to zero at the start of each trading day and recalculates continuously. It appears as a single curved line on an intraday chart. Sterling Trader Pro displays VWAP automatically.') +
     callout('amber','Why VWAP matters','Institutional traders — funds, market makers, algorithms — use VWAP as their execution benchmark. When a fund buys a large block, they try to buy at or below VWAP. This institutional activity makes VWAP a self-fulfilling line of support and resistance. Traders who understand VWAP trade in alignment with institutional order flow.') +
     h2('3.2 Trading Above vs Below VWAP') +
-    dataTable([['Price above VWAP','Stock is trading above the average price paid today. Buyers have been dominant. Bullish intraday structure — look for long setups.'],['Price below VWAP','Stock is trading below the average price paid today. Sellers have been dominant. Bearish intraday structure — look for short setups.'],['Price at VWAP','Stock is testing the average price. Highest-significance moment. Watch for direction — break above or below tells you who is winning.']]) +
+    defTable([['Price above VWAP','Stock is trading above the average price paid today. Buyers have been dominant. Bullish intraday structure — look for long setups.'],['Price below VWAP','Stock is trading below the average price paid today. Sellers have been dominant. Bearish intraday structure — look for short setups.'],['Price at VWAP','Stock is testing the average price. Highest-significance moment. Watch for direction — break above or below tells you who is winning.']]) +
     h2('3.3 The VWAP Reclaim — A Core CREDO Setup') +
     p('The VWAP reclaim is one of the most reliable patterns in small-cap day trading:') +
     '<ol class="lesson-ul" style="list-style:decimal;">' +
@@ -920,11 +928,11 @@ function buildM2L5() {
   return obj('By the end of this lesson you will be able to build a complete level map for any watchlist stock before the open, calculate gap percentage, and understand why context determines whether a level is significant.') +
     h2('5.1 Building Your Level Map Before 9:30') +
     p('Professional day traders do not wait for the market to open and then figure out where the important levels are. They build their level map in the 30 to 60 minutes before the open, so that when price reaches a level at 9:32 AM they already know exactly what they will do there.') +
-    dataTable([['Pre-market high (PMH)','Highest price in pre-market (4 AM-9:30 AM). First major resistance for a gapper. Breakout above = go signal.'],['Pre-market low (PML)','Lowest price in pre-market. Support for gap pullbacks. Break below = weakness signal.'],['Previous close (PDC)','Prior day\'s closing price. Baseline. Gap size = (PMH minus PDC) divided by PDC.'],['Round numbers in range','Identify $1, $2, $3 increments between current price and 2x PMH.'],['Prior day high/low','Yesterday\'s high and low. Longer-term S/R that intraday traders watch.']]) +
+    defTable([['Pre-market high (PMH)','Highest price in pre-market (4 AM-9:30 AM). First major resistance for a gapper. Breakout above = go signal.'],['Pre-market low (PML)','Lowest price in pre-market. Support for gap pullbacks. Break below = weakness signal.'],['Previous close (PDC)','Prior day\'s closing price. Baseline. Gap size = (PMH minus PDC) divided by PDC.'],['Round numbers in range','Identify $1, $2, $3 increments between current price and 2x PMH.'],['Prior day high/low','Yesterday\'s high and low. Longer-term S/R that intraday traders watch.']]) +
     h2('5.2 Calculating Gap Percentage') +
     p('Gap percentage formula: (Pre-market price minus previous close) divided by previous close, multiplied by 100.') +
     p('Example: Stock closed at $3.00. Pre-market price is $4.20. Gap % = (4.20 - 3.00) / 3.00 x 100 = 40%.') +
-    dataTable([['5-10%','Below CREDO minimum. Often fades at open. Weak catalyst or thin interest.'],['10-25%','Minimum for watchlist. Needs strong catalyst and low float.'],['25-50%','High priority. Strong interest. Likely volatile and tradeable.'],['50%+','Highest priority. Major catalyst. Most opportunity and most risk.']]) +
+    defTable([['5-10%','Below CREDO minimum. Often fades at open. Weak catalyst or thin interest.'],['10-25%','Minimum for watchlist. Needs strong catalyst and low float.'],['25-50%','High priority. Strong interest. Likely volatile and tradeable.'],['50%+','Highest priority. Major catalyst. Most opportunity and most risk.']]) +
     callout('amber','Scanner reminder','Our Trade Ideas gap scanner is set to show only stocks with 10%+ gap, float under 20 million, and a confirmed news catalyst. This filter removes the vast majority of gappers and leaves only those worth building a thesis on.') +
     h2('5.3 Why Context Determines Level Significance') +
     p('Not all levels are equal. A level\'s significance is determined by: how many times price has tested it (more touches = stronger), how recent the tests were (recent levels are fresher), and what volume accompanied the tests (high-volume tests leave stronger levels).') +
@@ -947,7 +955,7 @@ function buildM2L6() {
     callout('red','Risk warning','The most dangerous setups for beginners are those that look strong but are actually weak. A stock making new highs with no apparent reason to pause can feel like an unstoppable winner — right up until it reverses 30% in three minutes. Always verify the catalyst and always have a stop placed before entering.') +
     h2('6.3 The Setup Scorecard') +
     p('Before entering any paper trade, run through this six-point scorecard. Give yourself one point for each factor that clearly supports your direction. Enter only when you score 4 or higher.') +
-    dataTable([['Catalyst','Tier 1 or 2 confirmed','S-3 filing, no catalyst, or fading'],['Float','Under 10M shares','Any float (be careful with shorts)'],['Level','Clear support, PMH breakout, or VWAP reclaim','Clear resistance or break below support'],['Volume','3x+ relative volume on the move','Low or declining volume'],['Structure','Higher highs/lows on 5-min','Lower highs/lows on 5-min'],['VWAP','Trading above VWAP','Trading below VWAP']]) +
+    dataTable(['Factor','Long trade check','Short trade check'],[['Catalyst','Tier 1 or 2 confirmed','S-3 filing, no catalyst, or fading'],['Float','Under 10M shares','Any float (be careful with shorts)'],['Level','Clear support, PMH breakout, or VWAP reclaim','Clear resistance or break below support'],['Volume','3x+ relative volume on the move','Low or declining volume'],['Structure','Higher highs/lows on 5-min','Lower highs/lows on 5-min'],['VWAP','Trading above VWAP','Trading below VWAP']]) +
     callout('green','Mentor note','In the first months of training, you will find that many scanner stocks fail this scorecard. That is the point. The scorecard trains you to be selective. Five well-qualified setups per week executed correctly teaches more than 20 daily trades on marginal setups.');
 }
 </script>
