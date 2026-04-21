@@ -146,6 +146,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .pb-stat-val.cyan{color:var(--cyan);}
 .pb-stat-label{font-size:10px;color:var(--t3);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
 .pb-divider{width:1px;height:48px;background:var(--border);flex-shrink:0;}
+.reset-btn{display:none;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.07);color:var(--red);cursor:pointer;transition:all .15s;white-space:nowrap;position:absolute;top:14px;right:16px;}
+.reset-btn:hover{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);}
+.reset-btn svg{flex-shrink:0;}
+.progress-banner{position:relative;}
 
 /* ══ SECTION HEADER ══ */
 .section-hd{display:flex;align-items:center;gap:10px;}
@@ -390,6 +394,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
           <div class="pb-stat"><div class="pb-stat-val blue" id="statLessons">0</div><div class="pb-stat-label">Lessons Done</div></div>
           <div class="pb-stat"><div class="pb-stat-val cyan" id="statPct">0%</div><div class="pb-stat-label">Overall</div></div>
         </div>
+        <button class="reset-btn" id="resetBtn" onclick="resetProgress()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Reset Progress
+        </button>
       </div>
 
       <!-- GATE NOTICE (shown when quiz needed) -->
@@ -526,6 +534,7 @@ var MODULES = [
 
 // ══ STATE ══
 var currentUser = null;
+var currentRole = 'student';
 var userProgress = {}; // { modId: { pct, quizPassed } }
 var activeQuizMod = null;
 var quizAnswers = {};
@@ -879,6 +888,7 @@ firebase.auth().onAuthStateChanged(function(u) {
       var p = snap.exists() ? snap.val() : null;
       var name = p ? p.name : u.email.split('@')[0];
       var role = p ? p.role : 'student';
+      currentRole = role;
       var modal = document.getElementById('loginModal');
       if (modal) modal.classList.add('hidden');
       var chip = document.getElementById('userChip');
@@ -887,6 +897,9 @@ firebase.auth().onAuthStateChanged(function(u) {
       if (sbN) sbN.textContent = name;
       if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
       if (sbA) { sbA.textContent = name.slice(0,2).toUpperCase(); sbA.style.background = role === 'instructor' ? 'rgba(6,182,212,.15)' : 'rgba(139,92,246,.15)'; sbA.style.color = role === 'instructor' ? '#06b6d4' : '#8b5cf6'; }
+      // Show reset button only for instructors
+      var rb = document.getElementById('resetBtn');
+      if (rb && role === 'instructor') rb.style.display = 'flex';
       loadProgress(u.uid);
     });
   } catch(e) { console.error('Auth error:', e); renderAll(); }
@@ -924,6 +937,18 @@ function toggleSidebar() {
     });
   }
 })();
+
+function resetProgress() {
+  if (!currentUser) return;
+  if (!confirm('Reset all course progress? This cannot be undone.')) return;
+  firebase.database().ref('traderoom/users/' + currentUser.uid + '/courseProgress')
+    .remove()
+    .then(function() {
+      userProgress = { 1: { pct: 0, quizPassed: false, lessonsComplete: [] } };
+      renderAll();
+    })
+    .catch(function(e) { console.error('Reset error:', e); });
+}
 
 function handleLogout() {
   firebase.auth().signOut().then(function() { window.location.href = 'index.html'; }).catch(function(err) { console.error('Logout error:', err); });
