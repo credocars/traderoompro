@@ -201,14 +201,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
       <button id="tabRegister" class="auth-tab" onclick="showTab('register')">Create Account</button>
     </div>
     <div id="formLogin" class="modal-input-group">
-      <input class="modal-input" id="loginEmail" type="email" placeholder="Email address"/>
-      <input class="modal-input" id="loginPassword" type="password" placeholder="Password"/>
+      <input class="modal-input" id="loginEmail" type="text" placeholder="Email address" inputmode="email" onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <input class="modal-input" id="loginPassword" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()"/>
       <div class="forgot-link"><span onclick="forgotPassword()">Forgot password?</span></div>
     </div>
     <div id="formRegister" class="modal-input-group" style="display:none;">
       <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24"/>
-      <input class="modal-input" id="regEmail" type="email" placeholder="Email address"/>
-      <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)"/>
+      <input class="modal-input" id="regEmail" type="text" placeholder="Email address" inputmode="email"/>
+      <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" onkeydown="if(event.key==='Enter')handleAuth()"/>
       <div class="modal-role-row">
         <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
         <button class="role-btn" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
@@ -579,6 +579,11 @@ function friendlyError(code) {
 function handleAuth() {
   var err = document.getElementById('modalError'); err.style.display = 'none';
   var btn = document.getElementById('authBtn'); btn.textContent = '...'; btn.disabled = true;
+  var _authTimer = setTimeout(function() {
+    showErr('Connection timeout. Please check your internet and try again.');
+  }, 10000);
+  var _origCatch = showErr;
+  showErr = function(m) { clearTimeout(_authTimer); showErr = _origCatch; _origCatch(m); };
   var isLogin = document.getElementById('tabLogin').classList.contains('active');
   if (isLogin) {
     var email = document.getElementById('loginEmail').value.trim();
@@ -632,12 +637,15 @@ firebase.auth().onAuthStateChanged(function(u) {
     return;
   }
   currentUser = u;
+  // Hide modal immediately — do not wait for DB read
+  var modal = document.getElementById('loginModal');
+  if (modal) modal.classList.add('hidden');
   firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
     var p = snap.exists() ? snap.val() : null;
     var name = p ? p.name : u.email.split('@')[0];
     var role = p ? p.role : 'student';
-    document.getElementById('loginModal').classList.add('hidden');
-    document.getElementById('userChip').textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+    var chip = document.getElementById('userChip');
+    if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
     var sbA = document.getElementById('sbAvatar'), sbN = document.getElementById('sbName'), sbR = document.getElementById('sbRole');
     if (sbN) sbN.textContent = name;
     if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
