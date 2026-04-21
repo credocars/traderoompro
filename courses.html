@@ -504,7 +504,18 @@ var MODULES = [
     topics: "Shorts, SEC filings, gap patterns, halts",
     hours: "6-8 hrs", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><polygon points="12,2 2,7 12,12 22,7 12,2"/><polyline points="2,17 12,22 22,17"/><polyline points="2,12 12,17 22,12"/></svg>`,
     color: "var(--orange)", gradient: "rgba(245,158,11,.12),rgba(239,68,68,.08)",
-    quiz: []
+    quiz: [
+      { q: "What is the maximum possible loss when you short a stock?", opts: ["The amount you paid for the shares","The stock price at time of shorting","Theoretically unlimited — there is no ceiling","The amount your broker will lend you"], ans: 2 },
+      { q: "What does HTB (Hard to Borrow) mean?", opts: ["The stock is hard to find on a chart","Shares are scarce to borrow and carry a high daily fee","The stock is too volatile to short","Your broker does not allow short selling"], ans: 1 },
+      { q: "A stock has 5,000,000 float and 1,500,000 shares sold short. What is the short float percentage?", opts: ["10%","20%","30%","40%"], ans: 2 },
+      { q: "What is an S-3 filing and why is it dangerous for long traders?", opts: ["A positive earnings report","A shelf registration giving the company permission to sell additional shares — diluting shareholders","An FDA approval filing","A filing that freezes all trading"], ans: 1 },
+      { q: "A stock has Float: 4.2M and Short Float: 38%. A Tier 1 catalyst just hit. What does this tell you?", opts: ["Too risky — avoid completely","Possible gap-and-trap because it moved too much","Strong short squeeze candidate — low float, high short interest, real catalyst","Only worth trading if above $10"], ans: 2 },
+      { q: "What is the key difference between a gap-and-go and a gap-and-trap at the open?", opts: ["Gap-and-go stocks have higher pre-market volume","In a gap-and-go the stock holds above its PMH and continues; in a gap-and-trap it spikes then fails back below","Gap-and-trap always has bad news","Gap-and-go only occurs on FDA catalysts"], ans: 1 },
+      { q: "A $5.00 stock triggers a LULD halt. What is the approximate percentage move that caused it?", opts: ["5%","10%","15%","20%"], ans: 1 },
+      { q: "During a trading halt, what can you do with an open long position?", opts: ["Sell immediately at market price","Close it with a limit order","Nothing — all trading is frozen until the halt lifts","Cancel through your broker's customer service"], ans: 2 },
+      { q: "What is the CREDO entry rule for a gap-and-go setup?", opts: ["Buy at the market open as soon as the stock appears","Enter on the first tick above the pre-market high","Wait for the opening range consolidation, then buy the breakout above the high with volume","Enter during pre-market to get the best price"], ans: 2 },
+      { q: "A stock files an 8-K for an FDA approval with 3M float and 35% short float, gapping up 80% pre-market. Which statement is most accurate?", opts: ["Too risky — avoid completely","Possible gap-and-trap — already moved too much","Strong short squeeze candidate — Tier 1 catalyst, low float, high short interest","Only worth trading if above $10"], ans: 2 }
+    ]
   },
   {
     id: 4, title: "Platform Setup and Tool Training",

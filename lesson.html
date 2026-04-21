@@ -339,12 +339,12 @@ var MODULES = [
   {
     id:3, title:"Small-Cap Mechanics Deep Dive", hours:"6-8 hrs",
     lessons:[
-      {id:1,title:"Short Selling Mechanics",content:comingSoon("Short Selling Mechanics","How short selling works, locate costs, and the risk profile of shorting small-caps.")},
-      {id:2,title:"The Short Squeeze Setup",content:comingSoon("The Short Squeeze Setup","Why heavily shorted stocks can explode — and how to identify them pre-market.")},
-      {id:3,title:"Reading SEC Filings",content:comingSoon("Reading SEC Filings","S-1, S-3, 8-K — what each means, what to look for, and what to avoid.")},
-      {id:4,title:"Finding Float with Finviz",content:comingSoon("Finding Float with Finviz","How to look up any stock's float in 30 seconds and what the number tells you.")},
-      {id:5,title:"Gap-and-Go vs Gap-and-Trap",content:comingSoon("Gap-and-Go vs Gap-and-Trap","The two most common gap patterns and how to tell them apart before the open.")},
-      {id:6,title:"Halt and Resume Mechanics",content:comingSoon("Halt and Resume Mechanics","What happens during a LULD halt, how long it lasts, and how to prepare for the resume.")}
+      {id:1,title:"Short Selling Mechanics",content:buildM3L1()},
+      {id:2,title:"The Short Squeeze Setup",content:buildM3L2()},
+      {id:3,title:"Reading SEC Filings",content:buildM3L3()},
+      {id:4,title:"Finding Float with Finviz",content:buildM3L4()},
+      {id:5,title:"Gap-and-Go vs Gap-and-Trap",content:buildM3L5()},
+      {id:6,title:"Halt and Resume Mechanics",content:buildM3L6()}
     ]
   },
   {
@@ -995,6 +995,170 @@ function buildM2L6() {
     p('Before entering any paper trade, run through this six-point scorecard. Give yourself one point for each factor that clearly supports your direction. Enter only when you score 4 or higher.') +
     dataTable(['Factor','Long trade check','Short trade check'],[['Catalyst','Tier 1 or 2 confirmed','S-3 filing, no catalyst, or fading'],['Float','Under 10M shares','Any float (be careful with shorts)'],['Level','Clear support, PMH breakout, or VWAP reclaim','Clear resistance or break below support'],['Volume','3x+ relative volume on the move','Low or declining volume'],['Structure','Higher highs/lows on 5-min','Lower highs/lows on 5-min'],['VWAP','Trading above VWAP','Trading below VWAP']]) +
     callout('green','Mentor note','In the first months of training, you will find that many scanner stocks fail this scorecard. That is the point. The scorecard trains you to be selective. Five well-qualified setups per week executed correctly teaches more than 20 daily trades on marginal setups.');
+}
+
+// ══ MODULE 3 LESSONS ══
+function buildM3L1() {
+  return obj('By the end of this lesson you will understand exactly how short selling works, what locate costs are, why short selling is riskier than buying, and why it matters even to traders who never short a stock.') +
+    h2('1.1 What is Short Selling?') +
+    p('When you buy a stock, you profit when the price goes up. Short selling is the opposite — you profit when the price goes down. Here is how it works step by step:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>You tell your broker you want to short 1,000 shares of XYZ at $10.00.</li>' +
+      '<li>Your broker borrows 1,000 shares from another client and immediately sells them for $10,000.</li>' +
+      '<li>You now owe 1,000 shares. You must eventually return them to the lender.</li>' +
+      '<li>If the stock drops to $7.00, you buy 1,000 shares for $7,000 and return them. Profit: $3,000 minus fees.</li>' +
+      '<li>If the stock rises to $14.00, you must buy 1,000 shares for $14,000. Loss: $4,000 plus fees.</li>' +
+    '</ol>' +
+    callout('amber','Key difference','When you buy a stock, your maximum loss is what you paid — the stock can only go to zero. When you short a stock, there is no ceiling. A stock can rise 500% and your loss is 500%. This is why short selling requires extreme risk management.') +
+    h2('1.2 Locate Costs and Borrow Fees') +
+    p('Before you can short a stock, your broker must locate shares to borrow. High-demand stocks may have very high borrow fees or be completely unavailable.') +
+    defTable([
+      ['Easy to borrow (ETB)','Shares readily available. Borrow fee minimal — 0.25-1% annually. Most large-cap stocks.'],
+      ['Hard to borrow (HTB)','Shares scarce. Borrow fee can be 50%, 100%, 200%+ annually — charged daily.'],
+      ['No locate','No shares available at all. Cannot short regardless of desire.'],
+      ['Locate cost','Daily fee for borrowing. Formula: (shares × price × annual rate) / 365.'],
+      ['Buy-in risk','Broker can force you to close your short at any time if the lender recalls shares.'],
+    ]) +
+    p('Example: You short 500 shares of a $5 stock at a 200% annual borrow rate. Daily cost = (500 × $5 × 2.00) / 365 = $13.70 per day. Three days = $41.10 in borrow fees before commissions.') +
+    h2('1.3 Why Short Selling Matters Even If You Never Short') +
+    p('Most CREDO students focus on long trades during the Foundation Course. But understanding short selling is essential because:') +
+    ul(['Short sellers create selling pressure you need to predict and trade around.','A heavily shorted stock is fuel for a short squeeze — one of the most powerful setups.','SEC filings reveal short interest, which tells you whether a squeeze is possible.','Understanding when short sellers are trapped helps you identify continuation moves after a breakout.']) +
+    callout('green','Key insight','The best long trades on small-cap stocks often occur when short sellers are wrong. A stock with 30% of its float sold short, a strong catalyst, and rising volume is a potential short squeeze. Knowing why short sellers panic-buy to cover is what makes this setup so powerful.') +
+    h2('1.4 The Short Interest Ratio') +
+    p('Short interest ratio (days to cover) = short interest divided by average daily volume. It tells you how many days it would take for all short sellers to buy back at normal volume.') +
+    dataTable(['Short interest ratio','Interpretation','Squeeze potential'],[['1-2 days','Light short interest','Low'],['3-5 days','Moderate short interest','Medium'],['6-10 days','Heavy short interest','High'],['10+ days','Extreme short interest','Very high']]) +
+    callout('red','Risk warning','High short interest does not guarantee a squeeze. A stock can be heavily shorted and keep falling for months if the catalyst is weak. Short interest is the fuel — the catalyst is the match.');
+}
+
+function buildM3L2() {
+  return obj('By the end of this lesson you will understand what causes a short squeeze, how to identify one pre-market, and what the price action looks like during and after a squeeze.') +
+    h2('2.1 What is a Short Squeeze?') +
+    p('A short squeeze occurs when a heavily shorted stock rises rapidly, forcing short sellers to buy back their shares to limit losses. Because short sellers must buy — they have no choice once their loss threshold is hit — this forced buying adds fuel to the upward move, causing even faster rises, forcing more shorts to cover. It becomes self-reinforcing.') +
+    p('Short squeezes on small-cap stocks can rise 100%, 200%, or 500% in a single morning. This is why they are both the most profitable setups and the most dangerous ones.') +
+    h2('2.2 The Anatomy of a Short Squeeze') +
+    dataTable(['Stage','What happens','What to watch for'],[['1. Setup','High short interest. Shorts are complacent.','Check short interest on Finviz before 7 AM.'],['2. Catalyst','Unexpected positive news hits pre-market.','Scan for news on Trade Ideas.'],['3. Gap up','Stock gaps up. Early short sellers underwater.','Gap % on scanner — look for 30%+ gaps on HTB stocks.'],['4. Panic covering','Shorts buy back to limit losses. Volume surges.','Pre-market volume spike — 3x+ normal.'],['5. Breakout','Stock breaks above PMH as covering accelerates.','Watch PMH level on 1-minute chart at open.'],['6. Continuation','New long buyers pile in. Price extends.','Clean higher highs with no red candles.'],['7. Exhaustion','Shorts fully covered. Longs take profits.','Shooting star or bearish engulfing at extension.']]) +
+    h2('2.3 Pre-Market Squeeze Checklist') +
+    p('Before the 9:30 AM open, run through all six:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Short interest above 20% of float — verify on Finviz (Short Float %).</li>' +
+      '<li>Stock is hard to borrow — if locate availability is limited, shorts are trapped.</li>' +
+      '<li>Gap of 20%+ — the overnight move must already hurt short sellers.</li>' +
+      '<li>Confirmed Tier 1 or 2 catalyst — not just volume.</li>' +
+      '<li>Pre-market volume at least 3x normal.</li>' +
+      '<li>Stock holding above pre-market high — if it cannot hold gains, squeeze may already be fading.</li>' +
+    '</ol>' +
+    callout('green','CREDO rule','A confirmed short squeeze setup requires all six checklist items. Missing any one — especially the catalyst — means you are chasing a move, not trading a setup.') +
+    h2('2.4 Trading the Squeeze vs Watching the Squeeze') +
+    p('As a beginner in the Foundation Course, your role during a short squeeze is to observe and document, not to trade. Entry timing is extremely difficult — the stock can move $2-3 in seconds. Exits are equally chaotic. The spread on a squeezing small-cap can widen to $0.50 or more.') +
+    callout('amber','Beginner instruction','During Phase 1 paper trading, observe and journal every short squeeze you see. Write down: the catalyst, the short interest, the gap %, the highest price, and what the reversal looked like. After 30+ observations you will have the pattern recognition to time these setups.');
+}
+
+function buildM3L3() {
+  return obj('By the end of this lesson you will be able to open any SEC filing for a small-cap stock, identify whether it is an S-1, S-3, or 8-K, and extract the information relevant to your trading decision in under 60 seconds.') +
+    h2('3.1 Why SEC Filings Matter to Day Traders') +
+    p('Most day traders ignore SEC filings. This is a mistake. For small-cap stocks, SEC filings are often the source of both the catalyst that creates a trading opportunity and the risk that destroys it. A stock can gap up 50% on an 8-K announcing a new contract and fall 80% on an S-3 announcing a dilutive stock offering. Knowing the difference takes two minutes and can save your account.') +
+    p('All SEC filings are public and free at sec.gov. You can also find them linked on Finviz and in the Trade Ideas news feed.') +
+    h2('3.2 The Three Filings You Must Know') +
+    h3('The 8-K — Current Report') +
+    p('An 8-K is filed whenever a company experiences a material event significant enough to affect the stock price. Must be filed within four business days. For small-cap trading, 8-Ks are the most common source of catalysts.') +
+    dataTable(['8-K event type','What it means','Trading implication'],[['Entry into a material agreement','New contract, partnership, or deal.','Bullish — check deal size vs market cap.'],['Results of operations','Earnings report or revenue update.','Bullish if beat, bearish if miss.'],['FDA or regulatory decision','Drug approval, rejection, or trial result.','Tier 1 catalyst — largest moves.'],['Changes in executive leadership','New CEO, CFO, or board.','Usually neutral unless major hire.'],['Amendment to articles','Changes to structure or share count.','Watch for share count increase.'],['Bankruptcy or insolvency','Company financial distress.','Immediate bearish — avoid.']]) +
+    h3('The S-3 — Shelf Registration') +
+    p('An S-3 gives the company permission to sell additional shares at any time. When a small-cap files an S-3, it is announcing its intention to dilute shareholders. This is one of the most bearish signals a small-cap can show.') +
+    callout('red','Critical risk rule','Never hold a long position in a small-cap stock with an active S-3 filing and registered shares not yet sold. The company can sell those shares while you are long — causing an immediate and severe price drop. Check for S-3 filings on every watchlist stock before the open.') +
+    h3('The S-1 — IPO Registration') +
+    p('An S-1 is filed when a company first registers to go public. For day traders, the S-1 contains detailed float, insider ownership, and lock-up expiry information not available anywhere else. Newly public small-caps often have volatile trading when early investor lock-ups expire.') +
+    h2('3.3 How to Read a Filing in 60 Seconds') +
+    p('You do not read SEC filings word for word. You scan for specific numbers and keywords:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Open the filing on sec.gov or click the Finviz link.</li>' +
+      '<li>Press Ctrl+F and search for: "shares", "offering", "dilut", "warrant", "convert".</li>' +
+      '<li>If you find an offering — e.g. "up to 5,000,000 shares" — compare to the float. Over 20% of float = major dilution risk.</li>' +
+      '<li>Search for the dollar amount of any deal. Compare to market cap. A $10M contract for a $50M company is significant.</li>' +
+      '<li>Check the date filed. Today or yesterday = active catalyst. Six months ago = old news.</li>' +
+    '</ol>' +
+    callout('green','Shortcut','On Trade Ideas, click the news headline directly. Most scanners link to the SEC filing or press release. You rarely need to go to sec.gov manually — but you must know how when the link is not available.');
+}
+
+function buildM3L4() {
+  return obj('By the end of this lesson you will be able to look up any stock\'s float, short interest, and insider ownership on Finviz in under 30 seconds, and understand what each number means for your trading decision.') +
+    h2('4.1 What Finviz Is') +
+    p('Finviz (Financial Visualizations) is a free stock screener at finviz.com. For day traders, it is the fastest way to access float, shares outstanding, short interest, and insider ownership — data not shown on most trading charts. No paid subscription is needed for the data we use.') +
+    h2('4.2 The Key Numbers to Check Before Every Trade') +
+    dataTable(['Data point','Where to find it','What to look for'],[['Float','Ticker page → "Float"','Under 10M for best setups. Under 5M = extreme volatility.'],['Short float %','Ticker page → "Short Float"','Above 20% = squeeze potential. Above 40% = explosive.'],['Shares outstanding','Ticker page → "Shares Outstanding"','Compare to float to calculate insider lockup percentage.'],['Avg volume','Ticker page → "Avg Volume"','Divide pre-market volume by this to get relative volume.'],['Market cap','Ticker page → "Market Cap"','Helps size catalyst significance relative to company value.']]) +
+    h2('4.3 Float Calculation from First Principles') +
+    p('Sometimes the Finviz float number is delayed after a recent S-3 or new offering. Calculate it yourself:') +
+    p('Float formula: Shares Outstanding minus Insider Shares minus Restricted Shares = Approximate Float.') +
+    p('Example: A biotech has 8,000,000 shares outstanding. The CEO owns 2,500,000 (locked up 180 days per the S-1). Another 500,000 are restricted. Float = 8,000,000 - 2,500,000 - 500,000 = 5,000,000 shares.') +
+    callout('amber','Important','Float changes after dilutive events. A stock with 3M float last week may now have 8M float after a 5M share offering. Always check the filing date vs the Finviz float. If an offering completed after the Finviz data was last updated, the displayed float is wrong — use the SEC filing number.') +
+    h2('4.4 The Finviz Pre-Market Checklist') +
+    p('For every stock on the pre-market watchlist, complete this in under 30 seconds:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Float — is it under 10M? Under 5M? Note the exact number.</li>' +
+      '<li>Short Float — is it above 20%? This determines squeeze potential.</li>' +
+      '<li>Any recent S-3 filing? If yes, check shares registered vs float.</li>' +
+      '<li>Average volume — divide pre-market volume by average to get relative volume.</li>' +
+      '<li>Market cap — is this company big enough to have real institutional interest?</li>' +
+    '</ol>' +
+    callout('green','Key insight','Finviz and Trade Ideas together give you everything you need for pre-market research. Finviz gives you the fundamental setup data. Trade Ideas gives you the real-time price and volume action. Use both — neither one alone is sufficient.');
+}
+
+function buildM3L5() {
+  return obj('By the end of this lesson you will be able to identify the pre-market and opening characteristics that distinguish a gap-and-go from a gap-and-trap before committing to a trade.') +
+    h2('5.1 The Two Most Common Small-Cap Opening Patterns') +
+    p('When a small-cap stock gaps up significantly on a catalyst, one of two things happens at 9:30 AM. It either continues its move — the gap-and-go — or it immediately reverses — the gap-and-trap. Learning to distinguish them before the market opens is one of the most valuable skills in small-cap day trading.') +
+    twoCol('Gap-and-go','The stock consolidates above the pre-market high, opens with strength, breaks to new highs with volume, and continues upward throughout power hour. Buyers are in control from the open.','Gap-and-trap','The stock spikes briefly at or above the pre-market high at the open, then immediately reverses as sellers overwhelm the initial buying. Late buyers who bought the spike are trapped.','green','red') +
+    h2('5.2 Pre-Market Signals of a Gap-and-Go') +
+    ul(['Stock holds above its pre-market high for at least 30 minutes before the open — buyers are defending the level.',
+        'Volume steadily increasing pre-market — sustained buying interest, not one spike.',
+        'Tier 1 or 2 catalyst confirmed — FDA decision, earnings beat, major contract.',
+        'Low float — under 10M shares.',
+        'High short interest — fuel for continuation as shorts are squeezed.',
+        'No S-3 filing — company is not trying to sell shares into the strength.']) +
+    h2('5.3 Pre-Market Signals of a Gap-and-Trap') +
+    ul(['Stock unable to hold above its pre-market high — sellers taking profits into the strength.',
+        'Pre-market volume came in one early spike then faded — initial reaction, not sustained interest.',
+        'Weak or Tier 3 catalyst — unusual volume with no confirmed news.',
+        'Recent S-3 filing — company has registered shares it can sell into any strength.',
+        'Stock already extended 100%+ on a thin catalyst — initial buyers may take profits at the open.',
+        'Market-makers widening the spread pre-market — sign of low liquidity.']) +
+    callout('amber','The hardest lesson','A gap-and-trap looks exactly like a gap-and-go for the first 10-30 seconds of trading. The spike above the pre-market high happens to both. The difference is what happens next. If you enter at the spike, you may be the trapped buyer. This is why the CREDO rule is to wait for a confirmed break above the PMH with volume — not the first tick above it.') +
+    h2('5.4 The Opening Range Breakout — Separating the Two') +
+    p('The opening range is the price range established in the first 1-5 minutes of trading. Use it to distinguish the two patterns:') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Let the first 1-2 minutes trade without entering. Watch where the stock finds support.</li>' +
+      '<li>If the stock dips on the open but holds above VWAP and consolidates — potential gap-and-go. Entry on the breakout.</li>' +
+      '<li>If the stock spikes above the PMH then fails back below it — gap-and-trap. Do not buy the first spike.</li>' +
+      '<li>The entry for a gap-and-go is the breakout above the opening range high — not the open itself.</li>' +
+    '</ol>' +
+    callout('green','CREDO entry rule','On a gap-and-go setup, the entry is after the opening range consolidation — not at the open. Wait for the stock to pull back slightly, find support above VWAP, then break to a new high of day with increasing volume. This misses the first move but catches the larger continuation with better risk/reward.');
+}
+
+function buildM3L6() {
+  return obj('By the end of this lesson you will understand what causes a trading halt, how long it lasts, what Level 2 and price action look like into and out of a halt, and why beginners should observe halts rather than trade them.') +
+    h2('6.1 What is a Trading Halt?') +
+    p('A trading halt is a temporary suspension of all trading in a specific stock. During a halt, no orders can be entered, modified, or cancelled. Any open orders are frozen. If you are in a position when a halt occurs, you cannot exit until it lifts. Your position is locked at whatever price it was when the halt triggered.') +
+    h2('6.2 LULD Halts — Limit Up / Limit Down') +
+    p('LULD halts are automatic circuit breakers designed to prevent runaway price moves. They are the most common halts on small-cap stocks.') +
+    dataTable(['Stock price range','LULD band','Example'],[['$0.25 - $3.00','20% in 5 minutes','$2 stock halts above $2.40 or below $1.60'],['$3.00 - $25.00','10% in 5 minutes','$10 stock halts above $11 or below $9'],['Above $25.00','5% in 5 minutes','$30 stock halts above $31.50 or below $28.50']]) +
+    p('When a stock triggers the LULD band, trading pauses for 5 minutes. After 5 minutes, trading resumes via a reopening auction. The reopening price can be dramatically different from the halt price — this is where the danger lies.') +
+    h2('6.3 The Halt-and-Resume Cycle') +
+    '<ol class="lesson-ul" style="list-style:decimal;">' +
+      '<li>Halt triggers. All trading freezes. Bid and ask removed from Level 2.</li>' +
+      '<li>During the halt, news may continue flowing. An S-3 or bad news can hit while you are stuck long.</li>' +
+      '<li>At T-minus 1 minute, a "quote-only" period begins. Limit orders can be entered but not filled.</li>' +
+      '<li>The reopening auction runs — the exchange matches all queued buy and sell orders to establish the opening price.</li>' +
+      '<li>Regular trading resumes. First few seconds are extremely high volatility.</li>' +
+    '</ol>' +
+    callout('amber','Beginner rule','Do not enter a new position in the 5 minutes before a potential halt (when a stock is approaching its LULD band) or in the first 30 seconds after a halt resumes. The reopening price is unpredictable and the spread is often enormous.') +
+    h2('6.4 Regulatory Halts') +
+    p('Regulatory halts (T1 or T2) are imposed by FINRA or the SEC and are not automatic. They occur when regulators have concerns about a stock — pending material news, abnormal trading activity, or questions about company disclosure.') +
+    twoCol('T1 halt','Pending news. The company has material information about to be released. Duration: minutes to hours. Stock typically resumes after news is published. Can be bullish or bearish.','T2 halt','Extraordinary market activity. Regulators see unusual trading patterns suggesting manipulation. Duration: hours to days. Often bearish when it lifts.','blue','red') +
+    h2('6.5 How to Identify a Halt Coming') +
+    ul(['Stock moving extremely fast — 15-20% in a single minute. LULD band may be approaching.',
+        'Volume spikes to 10x+ normal in a single candle.',
+        'Level 2 shows no asks (buy-side halt) or no bids (sell-side halt) — market makers stepping back.',
+        'Previous halts the same day — a stock that has halted once is more likely to halt again.']) +
+    callout('green','Observation homework','In your next 10 trading sessions, note every halt you observe on your watchlist stocks. Record: the stock, the price at halt, the catalyst, the halt duration, and the reopening price vs the halt price. After 10 observations you will have a real dataset of how halts affect price.');
 }
 </script>
 </body>
