@@ -808,6 +808,9 @@ function loadProgress(uid) {
     if (!userProgress[1]) userProgress[1] = { pct: 0, quizPassed: false, lessonsComplete: [] };
     if (!userProgress[1].lessonsComplete) userProgress[1].lessonsComplete = [];
     renderAll();
+  }).catch(function(e) {
+    console.error('Progress load error:', e);
+    renderAll(); // Still render even if progress load fails
   });
 }
 
@@ -846,7 +849,10 @@ function handleAuth() {
   }
 }
 function showErr(msg) {
-  var err = document.getElementById('modalError'); err.textContent = '! ' + msg; err.style.display = 'block';
+  var err = document.getElementById('modalError');
+  err.textContent = '! ' + msg;
+  err.style.color = 'var(--red)';
+  err.style.display = 'block';
   var btn = document.getElementById('authBtn'); btn.disabled = false;
   btn.textContent = document.getElementById('tabLogin').classList.contains('active') ? 'Sign In' : 'Create Account';
 }
@@ -858,7 +864,10 @@ function forgotPassword() {
   var email = document.getElementById('loginEmail').value.trim();
   if (!email) { showErr('Enter your email address first.'); return; }
   firebase.auth().sendPasswordResetEmail(email).then(function() {
-    var e = document.getElementById('modalError'); e.textContent = 'Reset email sent.'; e.style.color = 'var(--green)'; e.style.display = 'block';
+    var e = document.getElementById('modalError');
+    e.textContent = 'Reset email sent — check your inbox.';
+    e.style.color = 'var(--green)';
+    e.style.display = 'block';
   }).catch(function(e) { showErr(friendlyError(e.code)); });
 }
 

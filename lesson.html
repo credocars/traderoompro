@@ -555,41 +555,71 @@ function showTab(tab) {
   document.getElementById('formLogin').style.display = l ? 'flex' : 'none';
   document.getElementById('formRegister').style.display = l ? 'none' : 'flex';
   document.getElementById('authBtn').textContent = l ? 'Sign In' : 'Create Account';
+  document.getElementById('modalSubtitle').textContent = l ? 'Sign in to continue' : 'Create your TradeRoom account';
+  document.getElementById('modalError').style.display = 'none';
 }
 function setRole(r) {
   selectedRole = r;
   document.getElementById('roleStudent').classList.toggle('active', r === 'student');
   document.getElementById('roleInstructor').classList.toggle('active', r === 'instructor');
 }
+function friendlyError(code) {
+  var map = {
+    'auth/user-not-found': 'No account found with that email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/invalid-email': 'Please enter a valid email address.',
+    'auth/email-already-in-use': 'That email is already registered.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/too-many-requests': 'Too many attempts. Please wait a moment.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/network-request-failed': 'Network error. Please check your connection.'
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
 function handleAuth() {
   var err = document.getElementById('modalError'); err.style.display = 'none';
   var btn = document.getElementById('authBtn'); btn.textContent = '...'; btn.disabled = true;
   var isLogin = document.getElementById('tabLogin').classList.contains('active');
   if (isLogin) {
-    var email = document.getElementById('loginEmail').value.trim(), pass = document.getElementById('loginPassword').value;
+    var email = document.getElementById('loginEmail').value.trim();
+    var pass = document.getElementById('loginPassword').value;
     if (!email || !pass) { showErr('Please enter your email and password.'); return; }
-    firebase.auth().signInWithEmailAndPassword(email, pass).catch(function(e) { showErr(e.message); });
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+      .catch(function(e) { showErr(friendlyError(e.code)); });
   } else {
-    var name = document.getElementById('regName').value.trim(), email2 = document.getElementById('regEmail').value.trim(), pass2 = document.getElementById('regPassword').value;
+    var name = document.getElementById('regName').value.trim();
+    var email2 = document.getElementById('regEmail').value.trim();
+    var pass2 = document.getElementById('regPassword').value;
     if (!name || !email2 || !pass2) { showErr('Please fill in all fields.'); return; }
-    firebase.auth().createUserWithEmailAndPassword(email2, pass2).then(function(c) {
-      firebase.database().ref('traderoom/users/' + c.user.uid).set({ name: name, role: selectedRole, email: email2 });
-    }).catch(function(e) { showErr(e.message); });
+    if (pass2.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+    firebase.auth().createUserWithEmailAndPassword(email2, pass2)
+      .then(function(c) {
+        return firebase.database().ref('traderoom/users/' + c.user.uid)
+          .set({ name: name, role: selectedRole, email: email2 });
+      })
+      .catch(function(e) { showErr(friendlyError(e.code)); });
   }
 }
 function showErr(msg) {
-  var err = document.getElementById('modalError'); err.textContent = msg; err.style.display = 'block';
-  var btn = document.getElementById('authBtn'); btn.disabled = false;
+  var err = document.getElementById('modalError');
+  err.textContent = '! ' + msg;
+  err.style.color = 'var(--red)';
+  err.style.display = 'block';
+  var btn = document.getElementById('authBtn');
+  btn.disabled = false;
   btn.textContent = document.getElementById('tabLogin').classList.contains('active') ? 'Sign In' : 'Create Account';
 }
 function forgotPassword() {
   var email = document.getElementById('loginEmail').value.trim();
-  if (!email) { showErr('Enter your email first.'); return; }
-  firebase.auth().sendPasswordResetEmail(email).then(function() {
-    document.getElementById('modalError').textContent = 'Reset email sent.';
-    document.getElementById('modalError').style.color = 'var(--green)';
-    document.getElementById('modalError').style.display = 'block';
-  });
+  if (!email) { showErr('Enter your email address first.'); return; }
+  firebase.auth().sendPasswordResetEmail(email)
+    .then(function() {
+      var e = document.getElementById('modalError');
+      e.textContent = 'Reset email sent — check your inbox.';
+      e.style.color = 'var(--green)';
+      e.style.display = 'block';
+    })
+    .catch(function(e) { showErr(friendlyError(e.code)); });
 }
 
 firebase.auth().onAuthStateChanged(function(u) {
