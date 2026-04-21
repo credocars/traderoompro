@@ -214,6 +214,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .phase-teaser-title{font-size:14px;font-weight:700;color:var(--t2);margin-bottom:3px;}
 .phase-teaser-sub{font-size:14px;color:var(--t3);}
 .phase-lock-badge{margin-left:auto;font-size:10px;font-weight:700;padding:4px 12px;border-radius:5px;background:rgba(71,85,105,.15);color:var(--t3);border:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
+.pt-gate-notice{display:flex;align-items:center;gap:10px;background:rgba(71,85,105,.08);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:14px;color:var(--t3);}
+.pt-gate-notice.hidden{display:none;}
 
 /* ══ QUIZ MODAL ══ */
 .quiz-overlay{position:fixed;inset:0;z-index:8888;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;}
@@ -422,21 +424,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
       <!-- MODULE CARDS -->
       <div class="modules-grid" id="modulesGrid"></div>
 
-      <!-- PHASE 2 TEASER -->
-      <div class="section-hd">
-        <div class="section-hd-title">What Comes Next</div>
+      <!-- PAPER TRADING CURRICULUM -->
+      <div class="section-hd" id="ptSection">
+        <div class="section-hd-title">Phase 2 — Paper Trading Curriculum</div>
+        <div class="section-hd-badge" id="ptBadge">Locked</div>
         <div class="section-hd-line"></div>
       </div>
 
-      <div class="phase-teaser">
-        <div class="phase-lock-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </div>
-        <div>
-          <div class="phase-teaser-title">Phase 2 — Paper Trading Curriculum</div>
-          <div class="phase-teaser-sub">Pre-market thesis drills, called-shot trading, setup isolation, Sterling tape reading, TraderVue journaling. Unlocks after all 6 Foundation modules are complete.</div>
-        </div>
-        <div class="phase-lock-badge">Locked — Complete Foundation First</div>
+      <div class="pt-gate-notice" id="ptGateNotice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.7" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Complete all 6 Foundation Course modules and quizzes to unlock Paper Trading.</span>
+      </div>
+
+      <div class="modules-grid" id="ptGrid"></div>
+
+      <!-- PHASE 3 TEASER -->
+      <div class="section-hd" style="margin-top:12px;">
+        <div class="section-hd-title">What Comes Next</div>
+        <div class="section-hd-line"></div>
       </div>
 
       <div class="phase-teaser">
@@ -576,6 +581,64 @@ var MODULES = [
   }
 ];
 
+// ══ PAPER TRADING MODULES ══
+var PT_MODULES = [
+  {
+    id: 7, title: "Called-Shot Trading System",
+    lessons: ["What called-shot trading is","Writing your pre-market thesis","Posting to Discord before execution","Reviewing your called shots","Called-shot scorecard","Week 1 drill assignment"],
+    topics: "Thesis, Discord, accountability, pre-market",
+    hours: "2-3 hrs",
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+    color: "var(--green)", gradient: "rgba(34,197,94,.12),rgba(6,182,212,.08)",
+    quiz: []
+  },
+  {
+    id: 8, title: "Setup Isolation Drill",
+    lessons: ["Why you trade one setup only","Choosing your assigned setup","Logging setup-tagged trades","Calculating setup expectancy","30-trade milestone review","Advancing to a second setup"],
+    topics: "Setup tags, expectancy, TraderVue, discipline",
+    hours: "2-3 hrs",
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`,
+    color: "var(--blue)", gradient: "rgba(59,130,246,.12),rgba(139,92,246,.08)",
+    quiz: []
+  },
+  {
+    id: 9, title: "One-Trade-Per-Day Rule",
+    lessons: ["The purpose of one trade only","How to select the best trade","Sitting out vs forcing a trade","Journaling missed setups","Weeks 3-6 drill protocol","Evaluating your selectivity score"],
+    topics: "Selectivity, patience, setup quality, journaling",
+    hours: "2-3 hrs",
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/></svg>`,
+    color: "var(--orange)", gradient: "rgba(245,158,11,.12),rgba(239,68,68,.08)",
+    quiz: []
+  },
+  {
+    id: 10, title: "Asymmetric Review — Losers Only",
+    lessons: ["Why you only review losses","The three loss review questions","Identifying stop violations","Bracket order compliance check","Weekly group debrief format","Building your personal loss pattern list"],
+    topics: "Loss review, stops, bracket compliance, patterns",
+    hours: "2-3 hrs",
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><polyline points="23,18 13.5,8.5 8.5,13.5 1,6"/><polyline points="17,18 23,18 23,12"/></svg>`,
+    color: "var(--red)", gradient: "rgba(239,68,68,.12),rgba(245,158,11,.08)",
+    quiz: []
+  },
+  {
+    id: 11, title: "Tape Reading Drills",
+    lessons: ["Sterling Level 2 narration sessions","Reading bid and ask aggression","Identifying market maker stepping back","Tape reading during halts","15-minute observation protocol","Grading your tape reads"],
+    topics: "Sterling, Level 2, tape, market makers",
+    hours: "3-4 hrs",
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>`,
+    color: "var(--cyan)", gradient: "rgba(6,182,212,.12),rgba(59,130,246,.08)",
+    quiz: []
+  },
+  {
+    id: 12, title: "Phase 1 Progression Gate",
+    lessons: ["The 30 called-shot requirement","Positive expectancy on your setup","Zero daily limit breaches","Execution score 3-4 out of 4","On-list trade discipline check","Gate clearance and Phase 2 brief"],
+    topics: "Gate criteria, readiness, Phase 2 preview",
+    hours: "1-2 hrs",
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>`,
+    color: "var(--purple)", gradient: "rgba(139,92,246,.12),rgba(6,182,212,.08)",
+    quiz: []
+  },
+];
+
 // ══ STATE ══
 var currentUser = null;
 var currentRole = 'student';
@@ -666,6 +729,112 @@ function renderAll() {
 
   // Module cards
   renderCards(unlocked);
+
+  // Paper Trading section
+  renderPT(completed);
+}
+
+function renderPT(foundationComplete) {
+  var ptUnlocked = foundationComplete >= 6;
+  var badge = document.getElementById('ptBadge');
+  var gate = document.getElementById('ptGateNotice');
+  var grid = document.getElementById('ptGrid');
+  if (!grid) return;
+
+  if (badge) {
+    badge.textContent = ptUnlocked ? 'Unlocked' : 'Locked — Complete Foundation First';
+    badge.style.background = ptUnlocked ? 'rgba(34,197,94,.1)' : 'rgba(71,85,105,.15)';
+    badge.style.color = ptUnlocked ? 'var(--green)' : 'var(--t3)';
+    badge.style.border = ptUnlocked ? '1px solid rgba(34,197,94,.2)' : '1px solid var(--border)';
+  }
+  if (gate) gate.className = ptUnlocked ? 'pt-gate-notice hidden' : 'pt-gate-notice';
+
+  grid.innerHTML = '';
+  if (!ptUnlocked) {
+    // Show locked preview cards
+    PT_MODULES.forEach(function(mod) {
+      var card = document.createElement('div');
+      card.className = 'mod-card locked';
+      card.innerHTML =
+        '<div class="mod-header" style="background:linear-gradient(135deg,' + mod.gradient + ');">' +
+          '<div class="mod-num">Drill ' + (mod.id - 6) + ' · ' + mod.hours + '</div>' +
+          '<div class="mod-title">' + mod.title + '</div>' +
+          '<div class="mod-meta">' + mod.lessons.length + ' sessions</div>' +
+          '<div class="mod-icon" style="background:rgba(0,0,0,.25);color:var(--t3);opacity:0.4;">' + mod.icon + '</div>' +
+        '</div>' +
+        '<div class="mod-body">' +
+          '<div class="mod-topics">' + mod.topics + '</div>' +
+          '<div class="mod-lessons">' + mod.lessons.map(function(l) {
+            return '<div class="mod-lesson-row"><div class="mod-lesson-dot"></div><span>' + l + '</span></div>';
+          }).join('') + '</div>' +
+          '<button class="mod-btn locked-btn" disabled>🔒 Locked</button>' +
+        '</div>' +
+        '<div class="lock-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" width="12" height="12"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>';
+      grid.appendChild(card);
+    });
+    return;
+  }
+
+  // Unlocked — render live PT cards
+  var ptUnlockedCount = 1;
+  for (var i = 1; i < PT_MODULES.length; i++) {
+    var prev = userProgress[PT_MODULES[i-1].id];
+    if (prev && prev.quizPassed) ptUnlockedCount = i + 1;
+    else break;
+  }
+
+  PT_MODULES.forEach(function(mod, idx) {
+    var p = userProgress[mod.id] || { pct: 0, quizPassed: false };
+    var isLocked = idx >= ptUnlockedCount;
+    var isDone = p.quizPassed;
+    var doneLessons = p.lessonsComplete || [];
+    var pct = isDone ? 100 : (doneLessons.length > 0
+      ? Math.round(doneLessons.length / mod.lessons.length * 100)
+      : (p.pct || 0));
+    var isActive = !isLocked && !isDone;
+
+    var card = document.createElement('div');
+    card.className = 'mod-card' + (isLocked ? ' locked' : '') + (isActive && pct > 0 ? ' active-card' : '');
+
+    var btnClass, btnText, btnAction;
+    var ptIdx = idx + 6; // offset into lesson.html mod index
+    if (isLocked) { btnClass = 'locked-btn'; btnText = '🔒 Locked'; btnAction = ''; }
+    else if (isDone) { btnClass = 'done-btn'; btnText = '✓ Complete'; btnAction = ''; }
+    else if (pct === 0) { btnClass = 'start'; btnText = 'Start Drill →'; btnAction = 'startModule(' + ptIdx + ')'; }
+    else { btnClass = 'continue'; btnText = 'Continue →'; btnAction = 'startModule(' + ptIdx + ')'; }
+
+    var barColor = isDone ? 'var(--green)' : (isActive ? mod.color : 'var(--t3)');
+    var lessonDots = mod.lessons.map(function(lesson, li) {
+      var lessonId = li + 1;
+      var dotClass = 'mod-lesson-dot';
+      var lessonDone = isDone || doneLessons.indexOf(lessonId) !== -1;
+      var lessonActive = !lessonDone && isActive && doneLessons.length === li;
+      if (lessonDone) dotClass += ' done';
+      else if (lessonActive) dotClass += ' active';
+      return '<div class="mod-lesson-row"><div class="' + dotClass + '"></div><span>' + lesson + '</span></div>';
+    }).join('');
+
+    card.innerHTML =
+      '<div class="mod-header" style="background:linear-gradient(135deg,' + mod.gradient + ');">' +
+        '<div class="mod-num">Drill ' + (mod.id - 6) + ' · ' + mod.hours + '</div>' +
+        '<div class="mod-title">' + mod.title + '</div>' +
+        '<div class="mod-meta">' + mod.lessons.length + ' sessions</div>' +
+        '<div class="mod-icon" style="background:rgba(0,0,0,.25);color:' + (isLocked ? 'var(--t3)' : mod.color) + ';opacity:' + (isLocked ? '0.4' : '1') + ';">' + mod.icon + '</div>' +
+      '</div>' +
+      '<div class="mod-body">' +
+        '<div class="mod-progress-row">' +
+          '<div class="mod-bar-wrap"><div class="mod-bar" style="width:' + pct + '%;background:' + barColor + ';"></div></div>' +
+          '<span class="mod-pct" style="color:' + barColor + ';">' + (isLocked ? '—' : pct + '%') + '</span>' +
+        '</div>' +
+        '<div class="mod-topics">' + mod.topics + '</div>' +
+        '<div class="mod-lessons">' + lessonDots + '</div>' +
+        (btnAction ? '<button class="mod-btn ' + btnClass + '" onclick="' + btnAction + '">' + btnText + '</button>' :
+          '<button class="mod-btn ' + btnClass + '" disabled>' + btnText + '</button>') +
+      '</div>' +
+      (isLocked ? '<div class="lock-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" width="12" height="12"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>' : '');
+
+    grid.appendChild(card);
+  });
 }
 
 function renderCards(unlocked) {
