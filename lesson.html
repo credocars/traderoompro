@@ -379,72 +379,6 @@ var MODULES = [
       {id:5,title:"Emotional State Rating System",content:buildM6L5()},
       {id:6,title:"Monthly Self-Review Protocol",content:buildM6L6()}
     ]
-  },
-  {
-    id:7, title:"Called-Shot Trading System", hours:"2-3 hrs",
-    lessons:[
-      {id:1,title:"What Called-Shot Trading Is",content:buildPTL1_1()},
-      {id:2,title:"Writing Your Pre-Market Thesis",content:buildPTL1_2()},
-      {id:3,title:"Posting to Discord Before Execution",content:buildPTL1_3()},
-      {id:4,title:"Reviewing Your Called Shots",content:buildPTL1_4()},
-      {id:5,title:"Called-Shot Scorecard",content:buildPTL1_5()},
-      {id:6,title:"Week 1 Drill Assignment",content:buildPTL1_6()}
-    ]
-  },
-  {
-    id:8, title:"Setup Isolation Drill", hours:"2-3 hrs",
-    lessons:[
-      {id:1,title:"Why You Trade One Setup Only",content:buildPTL2_1()},
-      {id:2,title:"Choosing Your Assigned Setup",content:buildPTL2_2()},
-      {id:3,title:"Logging Setup-Tagged Trades",content:buildPTL2_3()},
-      {id:4,title:"Calculating Setup Expectancy",content:buildPTL2_4()},
-      {id:5,title:"30-Trade Milestone Review",content:buildPTL2_5()},
-      {id:6,title:"Advancing to a Second Setup",content:buildPTL2_6()}
-    ]
-  },
-  {
-    id:9, title:"One-Trade-Per-Day Rule", hours:"2-3 hrs",
-    lessons:[
-      {id:1,title:"The Purpose of One Trade Only",content:buildPTL3_1()},
-      {id:2,title:"How to Select the Best Trade",content:buildPTL3_2()},
-      {id:3,title:"Sitting Out vs Forcing a Trade",content:buildPTL3_3()},
-      {id:4,title:"Journaling Missed Setups",content:buildPTL3_4()},
-      {id:5,title:"Weeks 3-6 Drill Protocol",content:buildPTL3_5()},
-      {id:6,title:"Evaluating Your Selectivity Score",content:buildPTL3_6()}
-    ]
-  },
-  {
-    id:10, title:"Asymmetric Review — Losers Only", hours:"2-3 hrs",
-    lessons:[
-      {id:1,title:"Why You Only Review Losses",content:buildPTL4_1()},
-      {id:2,title:"The Three Loss Review Questions",content:buildPTL4_2()},
-      {id:3,title:"Identifying Stop Violations",content:buildPTL4_3()},
-      {id:4,title:"Bracket Order Compliance Check",content:buildPTL4_4()},
-      {id:5,title:"Weekly Group Debrief Format",content:buildPTL4_5()},
-      {id:6,title:"Building Your Personal Loss Pattern List",content:buildPTL4_6()}
-    ]
-  },
-  {
-    id:11, title:"Tape Reading Drills", hours:"3-4 hrs",
-    lessons:[
-      {id:1,title:"Sterling Level 2 Narration Sessions",content:buildPTL5_1()},
-      {id:2,title:"Reading Bid and Ask Aggression",content:buildPTL5_2()},
-      {id:3,title:"Identifying Market Maker Stepping Back",content:buildPTL5_3()},
-      {id:4,title:"Tape Reading During Halts",content:buildPTL5_4()},
-      {id:5,title:"15-Minute Observation Protocol",content:buildPTL5_5()},
-      {id:6,title:"Grading Your Tape Reads",content:buildPTL5_6()}
-    ]
-  },
-  {
-    id:12, title:"Phase 1 Progression Gate", hours:"1-2 hrs",
-    lessons:[
-      {id:1,title:"The Six Gate Criteria",content:buildPTL6_1()},
-      {id:2,title:"The 30 Called-Shot Requirement",content:buildPTL6_2()},
-      {id:3,title:"Expectancy and Execution Score",content:buildPTL6_3()},
-      {id:4,title:"Daily Limit, On-List and Thesis Discipline",content:buildPTL6_4()},
-      {id:5,title:"Gate Clearance Process",content:buildPTL6_5()},
-      {id:6,title:"Phase 2 Brief — What Changes",content:buildPTL6_6()}
-    ]
   }
 ];
 
@@ -462,7 +396,7 @@ function getParams() {
   if (isNaN(mod))    mod    = 0;
   if (isNaN(lesson)) lesson = 0;
   return {
-    mod:    Math.max(0, Math.min(11, mod)),
+    mod:    Math.max(0, Math.min(5, mod)),
     lesson: Math.max(0, Math.min(5, lesson))
   };
 }
@@ -786,7 +720,7 @@ function buildLesson1() {
     h2('1.3 What is the Stock Market?') +
     p('The stock market is a network of buyers and sellers who trade shares of public companies. Think of it like an auction — but instead of art or antiques, people are buying and selling pieces of companies. In the United States, the two main stock exchanges are:') +
     ul(['NYSE (New York Stock Exchange) — the oldest and largest exchange by market value. Home to large, established companies like JPMorgan and Exxon.','NASDAQ — technology-heavy exchange. Home to Apple, Microsoft, Tesla, and Amazon.']) +
-    p('The U.S. stock market is open Monday through Friday, 9:30 AM to 4:00 PM Eastern Time. There is also a pre-market session (4:00 AM–9:30 AM EST) and after-hours session (4:00 PM–8:00 PM EST). At CREDO, your primary focus will be on the pre-market and the first 90 minutes of the regular session.') +
+    p('The U.S. stock market is open Monday through Friday, 9:30 AM to 4:00 PM Eastern Time. There is also a pre-market session (4:00 AM–9:30 AM EST) and after-hours session (4:00 PM–8:00 PM EST). At TradeRoom PRO, your primary focus will be on the pre-market and the first 90 minutes of the regular session.') +
     h2('1.4 How Does a Stock Price Change?') +
     p('A stock price changes every second during market hours based on supply and demand. If more people want to buy a stock than sell it, the price goes up. If more people want to sell than buy, the price goes down. Every price movement comes down to this simple equation.') +
     p('What causes people to want to buy or sell?') +
@@ -798,7 +732,7 @@ function buildLesson2() {
   return obj('By the end of this lesson you will understand what a brokerage account is, what the bid and ask prices mean, and what the different types of orders do.') +
     h2('2.1 The Brokerage Account') +
     p('To buy and sell stocks you need a brokerage account. A broker is a company that connects you to the stock market. You deposit money into your brokerage account, and the broker allows you to place buy and sell orders on stock exchanges.') +
-    p('At CREDO Trading Academy we use Interactive Brokers (IB) as our brokerage. It is one of the most powerful and cost-effective platforms available for active traders. You will open and fund your IB account before beginning hands-on training.') +
+    p('At TradeRoom PRO Academy we use Interactive Brokers (IB) as our brokerage. It is one of the most powerful and cost-effective platforms available for active traders. You will open and fund your IB account before beginning hands-on training.') +
     callout('amber','Important — PDT Rule','U.S. regulations require day traders to maintain a minimum account balance of $25,000. This rule is called the Pattern Day Trader (PDT) rule. If your account falls below $25,000 you will be restricted from making more than 3 day trades in a rolling 5-day period. We will cover this in detail in Module 5.') +
     h2('2.2 The Bid and Ask') +
     p('Every stock has two prices at any given moment: the bid and the ask.') +
@@ -808,10 +742,10 @@ function buildLesson2() {
     h2('2.3 Types of Orders') +
     h3('Market Order') +
     p('A market order tells the broker to buy or sell immediately at whatever the current price is. It guarantees your order will be filled but does NOT guarantee the price. In a fast-moving small-cap stock, a market order can fill at a price far from what you expected. This is called slippage.') +
-    callout('red','Warning','Never use market orders on small-cap stocks during volatile periods. The price you see and the price you get can be dramatically different. At CREDO we use limit orders for all entries and exits.') +
+    callout('red','Warning','Never use market orders on small-cap stocks during volatile periods. The price you see and the price you get can be dramatically different. At TradeRoom PRO we use limit orders for all entries and exits.') +
     h3('Limit Order') +
     p('A limit order tells the broker to buy or sell only at a specific price or better. A buy limit order will only fill at your price or lower. A sell limit order will only fill at your price or higher. This protects you from slippage but means your order may not fill if the price does not reach your limit.') +
-    callout('green','CREDO standard','All student entries and exits must use limit orders. Bracket orders (entry + stop + target submitted together) are required from Week 3 of training onward.') +
+    callout('green','TradeRoom PRO standard','All student entries and exits must use limit orders. Bracket orders (entry + stop + target submitted together) are required from Week 3 of training onward.') +
     h3('Stop Order (Stop Loss)') +
     p('A stop order becomes a market order once the stock reaches a specified trigger price. Stop orders are used as stop losses — automatic exits that protect you when a trade goes wrong. When the stock hits your stop price, your shares are sold immediately to cut the loss.') +
     h3('Stop Limit Order') +
@@ -824,12 +758,12 @@ function buildLesson3() {
     h2('3.1 What is Market Capitalization?') +
     p('Market capitalization (market cap) is the total value of a company\'s outstanding shares. It is calculated simply: share price multiplied by total number of shares.') +
     dataTable(['Category','Market cap','Examples'],[['Mega-cap','Over $200B','Apple, Microsoft, Google'],['Large-cap','$10B – $200B','Ford, Nike, Starbucks'],['Mid-cap','$2B – $10B','Hasbro, Five Below'],['Small-cap','$300M – $2B','Regional companies, biotech'],['Micro-cap','Under $300M','Early-stage, speculative stocks']]) +
-    callout('amber','CREDO note','We use the term "small-cap" loosely to include micro-cap stocks. The stocks we trade typically have share prices between $1 and $20 and market caps under $500 million. This range produces the most predictable intraday price movements.') +
+    callout('amber','Mentor note','We use the term "small-cap" loosely to include micro-cap stocks. The stocks we trade typically have share prices between $1 and $20 and market caps under $500 million. This range produces the most predictable intraday price movements.') +
     h2('3.2 What is Float?') +
     p('Float is the number of shares available for public trading — not the total shares outstanding, but specifically the shares that are not locked up by insiders, institutions, or restricted stock agreements.') +
     p('Example: A company has 10,000,000 total shares outstanding. The CEO owns 4,000,000 (locked up). Another 1,000,000 are restricted. The float is 10,000,000 – 4,000,000 – 1,000,000 = 5,000,000 shares.') +
     twoCol('Low float (under 10M shares)','Fewer shares available means each buy or sell order has more impact on price. Stocks move faster and further. Large percentage moves are common — 10%, 50%, 100%+ in one day.','High float (over 50M shares)','More shares available means price is more stable. Large orders have less impact. Moves are smaller and slower. Less opportunity for day traders.','blue','green') +
-    callout('green','The CREDO edge','We focus on low-float stocks because they produce the biggest price moves in the shortest time. A stock with 2 million shares in float and a fresh catalyst can move 50–200% in a single morning.') +
+    callout('green','The TradeRoom PRO edge','We focus on low-float stocks because they produce the biggest price moves in the shortest time. A stock with 2 million shares in float and a fresh catalyst can move 50–200% in a single morning.') +
     h2('3.3 What Causes Small-Cap Stocks to Move?') +
     p('Small-cap stocks move on catalysts — news events that cause traders to buy or sell rapidly. Learning to identify catalysts is your first core skill as a trader.') +
     h3('Tier 1 Catalysts (strongest movers)') +
@@ -862,7 +796,7 @@ function buildLesson4() {
     p('Volume is the number of shares traded during a period. A price move on high volume is significant and likely to continue. A price move on low volume is weak and likely to reverse.') +
     twoCol('High volume + price rise','Strong buying pressure. Many traders are participating. Move is more likely to continue. This is the type of move we look to enter early.','Low volume + price rise','Weak buying pressure. Few traders participating. Move is likely to fade. These are traps that catch inexperienced traders.','green','blue') +
     p('Relative volume compares today\'s volume to the average volume for that time of day. A stock trading at 5x relative volume means it is trading five times more than normal — a signal that something significant is happening.') +
-    callout('green','CREDO scan rule','Our Trade Ideas scanner requires a minimum relative volume of 3x before we consider a stock for the watchlist. Low relative volume stocks are ignored regardless of price movement.');
+    callout('green','TradeRoom PRO scan rule','Our Trade Ideas scanner requires a minimum relative volume of 3x before we consider a stock for the watchlist. Low relative volume stocks are ignored regardless of price movement.');
 }
 
 function buildLesson5() {
@@ -875,7 +809,7 @@ function buildLesson5() {
       ['Flat','Having no open positions. "I am flat" means you are not in any trades.'],
       ['Entry','The price at which you bought or shorted a stock.'],
       ['Exit','The price at which you sold your position to close the trade.'],
-      ['Stop loss','The price level at which you will automatically exit a losing trade to limit loss. Non-negotiable at CREDO.'],
+      ['Stop loss','The price level at which you will automatically exit a losing trade to limit loss. Non-negotiable at TradeRoom PRO.'],
       ['Target','The price level at which you plan to take profit on a winning trade.'],
       ['R (Risk/Reward)','If you risk $100 and your target profits $200, your risk/reward is 2R (or 2:1). We require minimum 2:1 on all trades.'],
       ['P&L','Profit and Loss. Your daily P&L is total money made or lost that session.'],
@@ -899,7 +833,7 @@ function buildLesson5() {
 function buildLesson6() {
   return obj('Understand the daily rhythm of the market and establish the observation habits that all successful traders build before they ever place a real trade.') +
     h2('6.1 The Market Day — Hour by Hour') +
-    dataTable(['Time (EST)','Session','What happens'],[['4:00 AM','Pre-market opens','News begins flowing. Early movers appear on scanners.'],['6:30 AM','Economic data','Major reports often released (CPI, jobs, Fed statements).'],['7:00 AM','CREDO session begins','Trade Ideas scanner running. Mentor reviews gappers live.'],['7:00 – 9:15 AM','Pre-market prep','Thesis written and posted to Discord. Watchlist finalized by 9:15.'],['9:30 AM','Regular session opens','Highest volatility period of the day begins.'],['9:30 – 10:30 AM','Power hour','Most volume and biggest moves. Primary trading window.'],['10:30 – 11:30 AM','Tapering volume','Trades become more selective. Avoid chasing extended moves.'],['12:00 – 2:00 PM','Lunch hour','Very low volume. Unpredictable. Most experienced traders stop.'],['2:00 – 4:00 PM','Afternoon','Volume picks up. Occasional news-driven opportunities.'],['4:00 PM','Session closes','After-hours trading begins (limited liquidity).']]) +
+    dataTable(['Time (EST)','Session','What happens'],[['4:00 AM','Pre-market opens','News begins flowing. Early movers appear on scanners.'],['6:30 AM','Economic data','Major reports often released (CPI, jobs, Fed statements).'],['7:00 AM','TradeRoom PRO session begins','Trade Ideas scanner running. Mentor reviews gappers live.'],['7:00 – 9:15 AM','Pre-market prep','Thesis written and posted to Discord. Watchlist finalized by 9:15.'],['9:30 AM','Regular session opens','Highest volatility period of the day begins.'],['9:30 – 10:30 AM','Power hour','Most volume and biggest moves. Primary trading window.'],['10:30 – 11:30 AM','Tapering volume','Trades become more selective. Avoid chasing extended moves.'],['12:00 – 2:00 PM','Lunch hour','Very low volume. Unpredictable. Most experienced traders stop.'],['2:00 – 4:00 PM','Afternoon','Volume picks up. Occasional news-driven opportunities.'],['4:00 PM','Session closes','After-hours trading begins (limited liquidity).']]) +
     h2('6.2 Your Homework — Starting This Week') +
     p('Before you place a single paper trade, you must develop the habit of market observation. Each trading day for the next two weeks, complete the following:') +
     '<ol class="lesson-ul" style="list-style:decimal;">' +
@@ -948,9 +882,9 @@ function buildM2L1() {
 }
 
 function buildM2L2() {
-  return obj('By the end of this lesson you will be able to draw meaningful support and resistance levels on a chart, explain why they matter, and identify the key levels used in CREDO trading sessions.') +
+  return obj('By the end of this lesson you will be able to draw meaningful support and resistance levels on a chart, explain why they matter, and identify the key levels used in TradeRoom PRO trading sessions.') +
     h2('2.1 Why Support and Resistance Are the Foundation of All Trading') +
-    p('Every setup you will ever trade at CREDO is defined in relation to a key level. Your entry will be near a level. Your stop will be just beyond a level. Your target will be the next level. Without understanding how levels work, you cannot build a trade plan.') +
+    p('Every setup you will ever trade at TradeRoom PRO is defined in relation to a key level. Your entry will be near a level. Your stop will be just beyond a level. Your target will be the next level. Without understanding how levels work, you cannot build a trade plan.') +
     p('A support level is a price where buyers have historically stepped in and prevented further decline — a floor. A resistance level is a price where sellers have overwhelmed buyers and prevented further advance — a ceiling.') +
     callout('amber','Key concept','Support and resistance are zones, not exact prices. Draw a zone approximately $0.10 to $0.30 wide on a small-cap stock and think about whether price is respecting that zone, not whether it has touched a single price.') +
     h2('2.2 The Most Important Levels in Small-Cap Trading') +
@@ -962,7 +896,7 @@ function buildM2L2() {
     h3('Round Numbers') +
     p('Round numbers — $1, $2, $3, $5, $10, $20 — act as natural support and resistance because they are psychologically significant. Traders place orders at round numbers. Stops cluster around them. On a stock moving from $2.50 toward $5.00, the $5.00 level will almost always act as resistance.') +
     h3('Intraday Highs and Lows') +
-    p('As the trading day progresses, the high and low of the day become dynamic levels. A breakout above the high of day (HOD) is bullish. A break below the low of day (LOD) is bearish. In CREDO daily sessions, the mentor will call out HOD and LOD during live commentary.') +
+    p('As the trading day progresses, the high and low of the day become dynamic levels. A breakout above the high of day (HOD) is bullish. A break below the low of day (LOD) is bearish. In TradeRoom PRO daily sessions, the mentor will call out HOD and LOD during live commentary.') +
     h2('2.3 How to Draw Levels') +
     p('Drawing levels is a skill that improves with practice. Follow these steps for every watchlist stock:') +
     '<ol class="lesson-ul" style="list-style:decimal;">' +
@@ -983,7 +917,7 @@ function buildM2L3() {
     callout('amber','Why VWAP matters','Institutional traders — funds, market makers, algorithms — use VWAP as their execution benchmark. When a fund buys a large block, they try to buy at or below VWAP. This institutional activity makes VWAP a self-fulfilling line of support and resistance. Traders who understand VWAP trade in alignment with institutional order flow.') +
     h2('3.2 Trading Above vs Below VWAP') +
     defTable([['Price above VWAP','Stock is trading above the average price paid today. Buyers have been dominant. Bullish intraday structure — look for long setups.'],['Price below VWAP','Stock is trading below the average price paid today. Sellers have been dominant. Bearish intraday structure — look for short setups.'],['Price at VWAP','Stock is testing the average price. Highest-significance moment. Watch for direction — break above or below tells you who is winning.']]) +
-    h2('3.3 The VWAP Reclaim — A Core CREDO Setup') +
+    h2('3.3 The VWAP Reclaim — A Core TradeRoom PRO Setup') +
     p('The VWAP reclaim is one of the most reliable patterns in small-cap day trading:') +
     '<ol class="lesson-ul" style="list-style:decimal;">' +
       '<li>Stock gaps up strongly on a catalyst and opens above VWAP.</li>' +
@@ -994,7 +928,7 @@ function buildM2L3() {
     '</ol>' +
     callout('green','Key insight','The VWAP reclaim only works when the underlying catalyst is still valid. If the stock dipped below VWAP because bad news emerged or the market sold off, a reclaim has less significance. Always combine VWAP with catalyst awareness.') +
     h2('3.4 VWAP as a Stop Reference') +
-    p('VWAP is used as a stop reference for many CREDO setups. When you are long a stock above VWAP, your stop is often just below VWAP. The logic: if the stock loses VWAP, the intraday structure has shifted from bullish to bearish. Your thesis is no longer valid and you exit.') +
+    p('VWAP is used as a stop reference for many TradeRoom PRO setups. When you are long a stock above VWAP, your stop is often just below VWAP. The logic: if the stock loses VWAP, the intraday structure has shifted from bullish to bearish. Your thesis is no longer valid and you exit.') +
     callout('red','Beginner trap','Do not place your stop exactly at VWAP. On a volatile small-cap, price will cross VWAP many times, triggering your stop and then reversing. Place your stop a defined distance below VWAP — typically $0.10 to $0.20 — and look for a candle close below VWAP as confirmation.');
 }
 
@@ -1003,7 +937,7 @@ function buildM2L4() {
     h2('4.1 Why Timeframe Matters') +
     p('A candlestick chart is not a fixed view — it changes completely depending on the timeframe you choose. A 1-minute chart shows one candle for every minute of trading. A 5-minute chart shows one candle for every five minutes. The same stock at the same moment looks very different on each timeframe.') +
     twoCol('1-minute chart','High resolution. Shows every twist and turn. Used for precise entry and exit timing. Can appear chaotic and noisy on volatile stocks. The tree view.','5-minute chart','Medium resolution. Smooths out noise. Shows broader structure — is this a genuine uptrend or just chop? Used for setup identification and trend confirmation. The forest view.','blue','green') +
-    h2('4.2 How CREDO Uses Each Timeframe') +
+    h2('4.2 How TradeRoom PRO Uses Each Timeframe') +
     h3('5-Minute Chart: The Setup Chart') +
     p('The 5-minute chart is where you assess the overall structure of a move. Before entering any trade, look at the 5-minute chart and ask: Is this stock making higher highs and higher lows? Is it above VWAP? Has it consolidated near a key level, suggesting it is building energy for a move? A clean consolidation on the 5-minute chart is one of the strongest setup signals.') +
     h3('1-Minute Chart: The Entry Chart') +
@@ -1018,7 +952,7 @@ function buildM2L4() {
       '<li>1-minute entry: What is the specific trigger? What price do I enter at?</li>' +
       '<li>Stop and target: Where is my stop? What is the nearest resistance as my target?</li>' +
     '</ol>' +
-    callout('green','CREDO standard','Every trade must be verifiable on both timeframes. If you cannot articulate the 5-minute structure and the 1-minute entry trigger, you do not have a valid setup. You have a guess.') +
+    callout('green','TradeRoom PRO standard','Every trade must be verifiable on both timeframes. If you cannot articulate the 5-minute structure and the 1-minute entry trigger, you do not have a valid setup. You have a guess.') +
     h2('4.4 Reading the First 5 Minutes') +
     p('The first five minutes after 9:30 AM are the most important and most dangerous of the day. Here is how to approach them:') +
     ul(['Do not enter immediately at 9:30. Watch the first one to three candles form — the market is price-discovering in those first minutes.',
@@ -1036,7 +970,7 @@ function buildM2L5() {
     h2('5.2 Calculating Gap Percentage') +
     p('Gap percentage formula: (Pre-market price minus previous close) divided by previous close, multiplied by 100.') +
     p('Example: Stock closed at $3.00. Pre-market price is $4.20. Gap % = (4.20 - 3.00) / 3.00 x 100 = 40%.') +
-    defTable([['5-10%','Below CREDO minimum. Often fades at open. Weak catalyst or thin interest.'],['10-25%','Minimum for watchlist. Needs strong catalyst and low float.'],['25-50%','High priority. Strong interest. Likely volatile and tradeable.'],['50%+','Highest priority. Major catalyst. Most opportunity and most risk.']]) +
+    defTable([['5-10%','Below TradeRoom PRO minimum. Often fades at open. Weak catalyst or thin interest.'],['10-25%','Minimum for watchlist. Needs strong catalyst and low float.'],['25-50%','High priority. Strong interest. Likely volatile and tradeable.'],['50%+','Highest priority. Major catalyst. Most opportunity and most risk.']]) +
     callout('amber','Scanner reminder','Our Trade Ideas gap scanner is set to show only stocks with 10%+ gap, float under 20 million, and a confirmed news catalyst. This filter removes the vast majority of gappers and leaves only those worth building a thesis on.') +
     h2('5.3 Why Context Determines Level Significance') +
     p('Not all levels are equal. A level\'s significance is determined by: how many times price has tested it (more touches = stronger), how recent the tests were (recent levels are fresher), and what volume accompanied the tests (high-volume tests leave stronger levels).') +
@@ -1087,7 +1021,7 @@ function buildM3L1() {
     ]) +
     p('Example: You short 500 shares of a $5 stock at a 200% annual borrow rate. Daily cost = (500 × $5 × 2.00) / 365 = $13.70 per day. Three days = $41.10 in borrow fees before commissions.') +
     h2('1.3 Why Short Selling Matters Even If You Never Short') +
-    p('Most CREDO students focus on long trades during the Foundation Course. But understanding short selling is essential because:') +
+    p('Most TradeRoom PRO students focus on long trades during the Foundation Course. But understanding short selling is essential because:') +
     ul(['Short sellers create selling pressure you need to predict and trade around.','A heavily shorted stock is fuel for a short squeeze — one of the most powerful setups.','SEC filings reveal short interest, which tells you whether a squeeze is possible.','Understanding when short sellers are trapped helps you identify continuation moves after a breakout.']) +
     callout('green','Key insight','The best long trades on small-cap stocks often occur when short sellers are wrong. A stock with 30% of its float sold short, a strong catalyst, and rising volume is a potential short squeeze. Knowing why short sellers panic-buy to cover is what makes this setup so powerful.') +
     h2('1.4 The Short Interest Ratio') +
@@ -1113,7 +1047,7 @@ function buildM3L2() {
       '<li>Pre-market volume at least 3x normal.</li>' +
       '<li>Stock holding above pre-market high — if it cannot hold gains, squeeze may already be fading.</li>' +
     '</ol>' +
-    callout('green','CREDO rule','A confirmed short squeeze setup requires all six checklist items. Missing any one — especially the catalyst — means you are chasing a move, not trading a setup.') +
+    callout('green','TradeRoom PRO rule','A confirmed short squeeze setup requires all six checklist items. Missing any one — especially the catalyst — means you are chasing a move, not trading a setup.') +
     h2('2.4 Trading the Squeeze vs Watching the Squeeze') +
     p('As a beginner in the Foundation Course, your role during a short squeeze is to observe and document, not to trade. Entry timing is extremely difficult — the stock can move $2-3 in seconds. Exits are equally chaotic. The spread on a squeezing small-cap can widen to $0.50 or more.') +
     callout('amber','Beginner instruction','During Phase 1 paper trading, observe and journal every short squeeze you see. Write down: the catalyst, the short interest, the gap %, the highest price, and what the reversal looked like. After 30+ observations you will have the pattern recognition to time these setups.');
@@ -1187,7 +1121,7 @@ function buildM3L5() {
         'Recent S-3 filing — company has registered shares it can sell into any strength.',
         'Stock already extended 100%+ on a thin catalyst — initial buyers may take profits at the open.',
         'Market-makers widening the spread pre-market — sign of low liquidity.']) +
-    callout('amber','The hardest lesson','A gap-and-trap looks exactly like a gap-and-go for the first 10-30 seconds of trading. The spike above the pre-market high happens to both. The difference is what happens next. If you enter at the spike, you may be the trapped buyer. This is why the CREDO rule is to wait for a confirmed break above the PMH with volume — not the first tick above it.') +
+    callout('amber','The hardest lesson','A gap-and-trap looks exactly like a gap-and-go for the first 10-30 seconds of trading. The spike above the pre-market high happens to both. The difference is what happens next. If you enter at the spike, you may be the trapped buyer. This is why the TradeRoom PRO rule is to wait for a confirmed break above the PMH with volume — not the first tick above it.') +
     h2('5.4 The Opening Range Breakout — Separating the Two') +
     p('The opening range is the price range established in the first 1-5 minutes of trading. Use it to distinguish the two patterns:') +
     '<ol class="lesson-ul" style="list-style:decimal;">' +
@@ -1196,7 +1130,7 @@ function buildM3L5() {
       '<li>If the stock spikes above the PMH then fails back below it — gap-and-trap. Do not buy the first spike.</li>' +
       '<li>The entry for a gap-and-go is the breakout above the opening range high — not the open itself.</li>' +
     '</ol>' +
-    callout('green','CREDO entry rule','On a gap-and-go setup, the entry is after the opening range consolidation — not at the open. Wait for the stock to pull back slightly, find support above VWAP, then break to a new high of day with increasing volume. This misses the first move but catches the larger continuation with better risk/reward.');
+    callout('green','TradeRoom PRO entry rule','On a gap-and-go setup, the entry is after the opening range consolidation — not at the open. Wait for the stock to pull back slightly, find support above VWAP, then break to a new high of day with increasing volume. This misses the first move but catches the larger continuation with better risk/reward.');
 }
 
 function buildM3L6() {
@@ -1229,11 +1163,11 @@ function buildM3L6() {
 
 // ══ MODULE 4 LESSONS ══
 function buildM4L1() {
-  return obj('By the end of this lesson you will have built the CREDO pre-market gap scanner in Trade Ideas from scratch, with every filter set to the exact specifications used in daily sessions.') +
+  return obj('By the end of this lesson you will have built the TradeRoom PRO gap scanner in Trade Ideas from scratch, with every filter set to the exact specifications used in daily sessions.') +
     h2('1.1 What Trade Ideas Is') +
-    p('Trade Ideas is a real-time stock scanner that monitors thousands of stocks simultaneously and alerts you when any of them meet your specified criteria. For CREDO Trading Academy, Trade Ideas is the primary tool for finding pre-market gappers — the stocks with catalysts that will be on the watchlist each morning.') +
+    p('Trade Ideas is a real-time stock scanner that monitors thousands of stocks simultaneously and alerts you when any of them meet your specified criteria. For TradeRoom PRO Academy, Trade Ideas is the primary tool for finding pre-market gappers — the stocks with catalysts that will be on the watchlist each morning.') +
     p('Trade Ideas runs as a desktop application. You will have it open every morning by 7:00 AM EST, before the mentor session begins. The scanner is running before you sit down — by the time you open your laptop, stocks are already appearing.') +
-    h2('1.2 The CREDO Pre-Market Gap Scanner — Filter by Filter') +
+    h2('1.2 The TradeRoom PRO Gap Scanner — Filter by Filter') +
     p('Open Trade Ideas. Go to Alerts → New Alert Window. You will configure the following filters exactly:') +
     dataTable(['Filter','Setting','Why this setting'],
       [['Price','Min $1.00 / Max $20.00','Our trading range. Under $1 is too thin to trade. Over $20 requires more capital and moves less %.'],
@@ -1244,7 +1178,7 @@ function buildM4L1() {
        ['News','Required (Has News = Yes)','No catalyst = no trade. This filter removes purely technical moves and potential pumps.'],
        ['Market cap','Max $500,000,000','Keeps focus on small and micro-cap stocks in our target range.'],
        ['Country','USA only','Limits to US-listed stocks. Avoids ADRs and foreign listings with different halt rules.']]) +
-    callout('green','CREDO scanner name','Save this scanner as "CREDO Pre-Market Gapper" in Trade Ideas. Do not modify these settings without discussing with your mentor first. Every filter has a reason — changing one filter changes the entire quality of results.') +
+    callout('green','TradeRoom PRO scanner name','Save this scanner as "TradeRoom PRO Gapper" in Trade Ideas. Do not modify these settings without discussing with your mentor first. Every filter has a reason — changing one filter changes the entire quality of results.') +
     h2('1.3 Setting Up Alert Columns') +
     p('Once your filters are saved, configure the alert window columns so the most important data is visible at a glance:') +
     ul(['Symbol — the ticker','Last Price — current price','Gap % — how much it gapped from previous close','Volume — shares traded today so far','Relative Volume — today volume vs average','Float — shares in float (from Trade Ideas data)','News — headline summary','Market Cap — total company value']) +
@@ -1284,11 +1218,11 @@ function buildM4L2() {
 }
 
 function buildM4L3() {
-  return obj('By the end of this lesson you will have Sterling Trader Pro configured with the standard CREDO layout — montage, Level 2, time and sales, and chart — and understand what each component shows you.') +
+  return obj('By the end of this lesson you will have Sterling Trader Pro configured with the standard TradeRoom PRO layout — montage, Level 2, time and sales, and chart — and understand what each component shows you.') +
     h2('3.1 What Sterling Trader Pro Is') +
-    p('Sterling Trader Pro is a professional direct-access trading platform used by active traders and prop firms. It connects directly to market makers and electronic communication networks (ECNs), giving you faster order routing and better Level 2 data than most retail platforms. At CREDO, Sterling is used for Level 2 reading, tape reading, and execution in Phase 1 and beyond.') +
+    p('Sterling Trader Pro is a professional direct-access trading platform used by active traders and prop firms. It connects directly to market makers and electronic communication networks (ECNs), giving you faster order routing and better Level 2 data than most retail platforms. At TradeRoom PRO, Sterling is used for Level 2 reading, tape reading, and execution in Phase 1 and beyond.') +
     p('Important: Sterling Trader Pro requires a subscription through your broker or a third-party provider. Your mentor will provide setup instructions for the specific broker connection used in the program. This lesson covers the layout and how to read the data — the connection setup happens with your mentor directly.') +
-    h2('3.2 The Four Components of the CREDO Sterling Layout') +
+    h2('3.2 The Four Components of the TradeRoom PRO Sterling Layout') +
     h3('The Montage') +
     p('The montage is the central order entry panel. It shows the current bid and ask, your order entry fields (symbol, share size, order type, price), and your position and P&L for the current stock. This is where you execute trades.') +
     defTable([
@@ -1308,15 +1242,15 @@ function buildM4L3() {
     ul(['Green prints (at ask or above) — buyers are aggressive. Bullish tape.','Red prints (at bid or below) — sellers are aggressive. Bearish tape.','Large prints (10,000+ shares) — institutional or block orders. High significance.','Rapid small prints — momentum. Stock moving fast with many small orders hitting.']) +
     h3('Intraday Chart') +
     p('Sterling includes a built-in charting window. Configure it to show 1-minute and 5-minute candlestick charts with VWAP displayed. This chart updates in real time and syncs with the montage — when you switch symbols in the montage, the chart updates automatically.') +
-    callout('amber','Layout reminder','Save your Sterling layout immediately after configuring it. Sterling allows you to save named layouts — save one called "CREDO Standard". Load this layout every morning to ensure your panels are exactly where you expect them. Consistency in your platform reduces cognitive load during fast-moving markets.');
+    callout('amber','Layout reminder','Save your Sterling layout immediately after configuring it. Sterling allows you to save named layouts — save one called "TradeRoom PRO Standard". Load this layout every morning to ensure your panels are exactly where you expect them. Consistency in your platform reduces cognitive load during fast-moving markets.');
 }
 
 function buildM4L4() {
-  return obj('By the end of this lesson you will have your hotkeys configured in Sterling Trader Pro and be able to execute the six core CREDO hotkey actions in under 3 seconds each.') +
+  return obj('By the end of this lesson you will have your hotkeys configured in Sterling Trader Pro and be able to execute the six core TradeRoom PRO hotkey actions in under 3 seconds each.') +
     h2('4.1 Why Hotkeys Are Non-Negotiable') +
     p('In small-cap day trading, the difference between a good fill and a bad fill is often measured in seconds. When a stock is moving $0.50 per minute, the time it takes you to click through menus, type a share size, and submit an order can cost you $200 on a 400-share position. Hotkeys eliminate that delay.') +
-    p('Every CREDO student must pass the hotkey execution drill — each action completed in under 3 seconds — before advancing to live paper trading sessions. This lesson covers the configuration. The drilling happens daily in your pre-session routine.') +
-    h2('4.2 The Six Core CREDO Hotkeys') +
+    p('Every TradeRoom PRO student must pass the hotkey execution drill — each action completed in under 3 seconds — before advancing to live paper trading sessions. This lesson covers the configuration. The drilling happens daily in your pre-session routine.') +
+    h2('4.2 The Six Core TradeRoom PRO Hotkeys') +
     dataTable(['Action','Hotkey (default)','What it does'],
       [['Buy on ask','Shift + B','Sends a limit buy order at the current ask price for your default share size.'],
        ['Sell on bid','Shift + S','Sends a limit sell order at the current bid price for your default share size.'],
@@ -1332,7 +1266,7 @@ function buildM4L4() {
       '<li>Find "Sell on Bid". Press Shift + S. Apply.</li>' +
       '<li>Find "Cancel All Orders". Press Shift + C. Apply.</li>' +
       '<li>Find "Flatten Position". Press Shift + F. Apply.</li>' +
-      '<li>Click OK and save your configuration as "CREDO Hotkeys".</li>' +
+      '<li>Click OK and save your configuration as "TradeRoom PRO Hotkeys".</li>' +
     '</ol>' +
     h2('4.4 The Hotkey Drill') +
     p('Every day before the session begins, run through this drill five times:') +
@@ -1349,13 +1283,13 @@ function buildM4L4() {
 function buildM4L5() {
   return obj('By the end of this lesson you will have your Interactive Brokers paper trading account fully configured, understand how TWS is laid out, and know how to calculate commissions and track PDT status.') +
     h2('5.1 Why Interactive Brokers') +
-    p('Interactive Brokers (IB) is the brokerage CREDO uses for both paper trading and live trading. IB was chosen for three reasons: the lowest commissions of any major US broker for active traders, the most sophisticated risk management tools (Risk Navigator), and seamless integration with TraderVue via automatic trade import.') +
+    p('Interactive Brokers (IB) is the brokerage TradeRoom PRO uses for both paper trading and live trading. IB was chosen for three reasons: the lowest commissions of any major US broker for active traders, the most sophisticated risk management tools (Risk Navigator), and seamless integration with TraderVue via automatic trade import.') +
     p('You will open your IB paper trading account before beginning hands-on training. Paper trading uses simulated money but real market data — prices, fills, and spreads reflect actual market conditions. This is critical: paper trading on a delayed or synthetic data feed does not prepare you for real execution.') +
     h2('5.2 Opening Your Paper Trading Account') +
     p('Log in to your Interactive Brokers account at ibkr.com. Navigate to Account Management → Paper Trading → Open Paper Trading Account. IB will create a simulated account with $1,000,000 in virtual capital. You will not use all of this — you will configure your risk parameters to match the account size you plan to use in live trading.') +
-    callout('amber','Important','Do not configure your paper account as if you have $1,000,000 to trade. Configure it to match your intended live account size — typically $25,000-$50,000 for CREDO students. Trading as if you have 20x your real capital builds habits that do not transfer to live trading.') +
+    callout('amber','Important','Do not configure your paper account as if you have $1,000,000 to trade. Configure it to match your intended live account size — typically $25,000-$50,000 for TradeRoom PRO students. Trading as if you have 20x your real capital builds habits that do not transfer to live trading.') +
     h2('5.3 Trader Workstation (TWS) Layout') +
-    p('TWS is IB\'s desktop trading platform. Download and install it from the IB website. The CREDO TWS layout has four main areas:') +
+    p('TWS is IB\'s desktop trading platform. Download and install it from the IB website. The TradeRoom PRO TWS layout has four main areas:') +
     defTable([
       ['Watchlist panel','Top left. Add your daily watchlist stocks here. Shows real-time bid, ask, last, volume.'],
       ['Order entry panel','Center. Where you build and submit orders. Shows pending orders and their status.'],
@@ -1363,7 +1297,7 @@ function buildM4L5() {
       ['Risk Navigator','Separate window. Shows daily P&L, loss limit usage, and risk alerts. Keep this visible at all times.'],
     ]) +
     h2('5.4 Commission Calculation') +
-    p('IB charges commissions on a per-share basis for the Fixed pricing plan, which is the plan used at CREDO:') +
+    p('IB charges commissions on a per-share basis for the Fixed pricing plan, which is the plan used at Mentor note:') +
     p('Commission formula: $0.005 per share, minimum $1.00 per order, maximum 1% of trade value.') +
     p('Examples:') +
     ul(['500 shares × $0.005 = $2.50 commission per side. Round trip (buy + sell) = $5.00.',
@@ -1377,9 +1311,9 @@ function buildM4L5() {
 }
 
 function buildM4L6() {
-  return obj('By the end of this lesson you will have TraderVue fully configured for CREDO-standard journaling and understand the complete daily Discord workflow from pre-market thesis to post-session debrief.') +
+  return obj('By the end of this lesson you will have TraderVue fully configured for TradeRoom PRO-standard journaling and understand the complete daily Discord workflow from pre-market thesis to post-session debrief.') +
     h2('6.1 TraderVue — Your Trading Journal') +
-    p('TraderVue is a web-based trade journal that automatically imports your trades from Interactive Brokers. It calculates your statistics, shows your P&L by setup, time of day, and stock, and lets you add notes to each trade. At CREDO, TraderVue is mandatory from Day 1 — even during the observation phase before you place any paper trades.') +
+    p('TraderVue is a web-based trade journal that automatically imports your trades from Interactive Brokers. It calculates your statistics, shows your P&L by setup, time of day, and stock, and lets you add notes to each trade. At TradeRoom PRO, TraderVue is mandatory from Day 1 — even during the observation phase before you place any paper trades.') +
     h2('6.2 Setting Up TraderVue') +
     p('Sign up at tradervue.com. Choose the individual plan (Silver or Gold — Gold is recommended for the detailed analytics). Connect to Interactive Brokers:') +
     '<ol class="lesson-ul" style="list-style:decimal;">' +
@@ -1389,7 +1323,7 @@ function buildM4L6() {
       '<li>Copy the Flex Query token and paste it into TraderVue. Set auto-import to run daily at 5:00 PM EST.</li>' +
     '</ol>' +
     callout('green','Auto-import','Once set up, TraderVue automatically pulls your trades from IB every day at 5 PM. You never manually enter trades. This eliminates the most common journaling failure — forgetting to log a trade and then losing the details.') +
-    h2('6.3 CREDO Custom Fields in TraderVue') +
+    h2('6.3 TradeRoom PRO Custom Fields in TraderVue') +
     p('TraderVue allows custom tags and fields. Set up these four for every trade:') +
     defTable([
       ['Setup tag','Tag every trade with the setup name: VWAP Reclaim, Gap-and-Go, Opening Range Breakout, Short Squeeze, etc. This lets you filter your statistics by setup type and calculate true expectancy per setup.'],
@@ -1398,7 +1332,7 @@ function buildM4L6() {
       ['Thesis note','One sentence describing why you entered: "VWAP reclaim on AAON after gap-up on FDA approval, targeting PMH at $8.50." Written before entry, not after.'],
     ]) +
     h2('6.4 The Daily Discord Workflow') +
-    p('Discord is the real-time communication hub for all CREDO sessions. Here is the complete daily workflow:') +
+    p('Discord is the real-time communication hub for all TradeRoom PRO sessions. Here is the complete daily workflow:') +
     dataTable(['Time (EST)','Channel','Action'],
       [['7:00 AM','#scan-alerts','Trade Ideas webhook posts top pre-market gappers automatically. Review the list.'],
        ['7:00 - 9:15 AM','#pre-market-thesis','Write your thesis for each watchlist stock: catalyst, float, key levels, planned entry, stop, target.'],
@@ -1414,15 +1348,15 @@ function buildM4L6() {
 
 // ══ MODULE 5 LESSONS ══
 function buildM5L1() {
-  return obj('By the end of this lesson you will be able to calculate the correct share size for any trade using the CREDO position sizing formula, given any account size, risk percentage, and stop distance.') +
+  return obj('By the end of this lesson you will be able to calculate the correct share size for any trade using the TradeRoom PRO position sizing formula, given any account size, risk percentage, and stop distance.') +
     h2('1.1 Why Position Sizing Is the Foundation of Everything') +
     p('Position sizing is the single most important mechanical skill in trading. It answers one question before every trade: how many shares do I buy? Get this wrong — too many shares — and one bad trade can end your account. Get it right — every single time — and you can survive a long losing streak and still be in the game to recover.') +
     p('Most beginners think about trading in terms of price targets: "If this stock goes from $5 to $6, I make $1 per share." Professionals think about trading in terms of risk: "I am willing to lose $100 on this trade. How many shares does that allow me to buy?" The difference in approach is everything.') +
-    h2('1.2 The CREDO Position Sizing Formula') +
+    h2('1.2 The TradeRoom PRO Position Sizing Formula') +
     p('The formula has three inputs and one output:') +
     defTable([
       ['Account size','The total capital in your trading account. For paper trading, use your intended live account size — not the full $1M IB paper account.'],
-      ['Risk per trade %','The maximum percentage of your account you are willing to lose on a single trade. At CREDO: 0.5% for paper trading, up to 1% for live trading once approved.'],
+      ['Risk per trade %','The maximum percentage of your account you are willing to lose on a single trade. At Mentor note: 0.5% for paper trading, up to 1% for live trading once approved.'],
       ['Stop distance','The distance in dollars between your entry price and your stop loss price. This is the most critical input — it must be set before you size the trade.'],
     ]) +
     p('Formula: Share size = (Account size × Risk %) ÷ Stop distance') +
@@ -1439,10 +1373,10 @@ function buildM5L1() {
 }
 
 function buildM5L2() {
-  return obj('By the end of this lesson you will understand how daily loss limits work at CREDO, what happens when you hit them, and why they are a rule rather than a guideline.') +
+  return obj('By the end of this lesson you will understand how daily loss limits work at TradeRoom PRO, what happens when you hit them, and why they are a rule rather than a guideline.') +
     h2('2.1 What is a Daily Loss Limit?') +
-    p('A daily loss limit is the maximum amount you are allowed to lose in a single trading session. When you hit it, your trading day is over. No more trades — not one — until the next session. This is enforced at CREDO by the IB Risk Navigator (covered in Lesson 6) and monitored during live sessions by your mentor.') +
-    p('The CREDO daily loss limits:') +
+    p('A daily loss limit is the maximum amount you are allowed to lose in a single trading session. When you hit it, your trading day is over. No more trades — not one — until the next session. This is enforced at TradeRoom PRO by the IB Risk Navigator (covered in Lesson 6) and monitored during live sessions by your mentor.') +
+    p('The TradeRoom PRO daily loss limits:') +
     defTable([
       ['Paper trading limit','1.5% of your paper account size. On a $30,000 paper account: $450. When you have lost $450, the session ends.'],
       ['Live trading limit (Phase 2+)','2% of your live account size. On a $30,000 live account: $600. Enforced by IB Risk Navigator auto-flat.'],
@@ -1476,7 +1410,7 @@ function buildM5L3() {
        ['75%','300.0%','Effectively career-ending for most traders']]) +
     callout('red','The lesson','A 1.5% daily loss limit exists precisely to prevent the kind of drawdown that makes recovery impossible. One bad session capped at 1.5% is recoverable in a week of normal trading. One uncontrolled session at 20% may never be recovered. Protecting capital is not defensive thinking — it is the highest-priority trading skill.') +
     h2('3.3 The Weekly Loss Limit') +
-    p('In addition to the daily limit, CREDO has a weekly loss limit:') +
+    p('In addition to the daily limit, TradeRoom PRO has a weekly loss limit:') +
     defTable([
       ['Paper trading weekly limit','3% of account. On a $30,000 paper account: $900 per week.'],
       ['Live trading weekly limit','5% of account. On a $30,000 live account: $1,500 per week.'],
@@ -1526,10 +1460,10 @@ function buildM5L4() {
 }
 
 function buildM5L5() {
-  return obj('By the end of this lesson you will be able to build a complete bracket order in Interactive Brokers — entry, stop, and target submitted simultaneously — and understand why this is the only acceptable way to enter a trade at CREDO.') +
+  return obj('By the end of this lesson you will be able to build a complete bracket order in Interactive Brokers — entry, stop, and target submitted simultaneously — and understand why this is the only acceptable way to enter a trade at TradeRoom PRO.') +
     h2('5.1 What is a Bracket Order?') +
     p('A bracket order is three orders submitted simultaneously as a group: the entry order, a stop loss order that triggers if the trade goes against you, and a profit target order that closes the trade when your target is reached. Once submitted, whichever of the two exit orders fills first automatically cancels the other.') +
-    p('The bracket order is the foundation of CREDO risk management. It means that the moment you enter a trade, your maximum loss is already defined and your exit plan is already in the market — without any further action required from you.') +
+    p('The bracket order is the foundation of TradeRoom PRO risk management. It means that the moment you enter a trade, your maximum loss is already defined and your exit plan is already in the market — without any further action required from you.') +
     twoCol('Without a bracket order','You enter the trade. The stock moves against you. You hesitate — hoping it will recover. It drops further. You finally exit, having lost 3x your planned maximum. This is how accounts are blown.','With a bracket order','You enter the trade with a stop and target already set. If the stock drops to your stop, it sells automatically. If it reaches your target, it sells automatically. You cannot hold a loser past your planned exit.','red','green') +
     h2('5.2 Building a Bracket Order in IB TWS') +
     p('In Trader Workstation (TWS), bracket orders are built as follows:') +
@@ -1550,13 +1484,13 @@ function buildM5L5() {
       ['Scaling out','You may cancel the profit target on partial shares and sell them manually at a higher price while keeping the remainder in the bracket. This is an advanced technique — reviewed with your mentor before use.'],
       ['Full cancellation','If you decide to exit the trade early (e.g. you see a bearish candle developing), you may cancel the bracket and exit manually. Always exit the full position — do not leave partial shares without a bracket.'],
     ]) +
-    callout('red','Non-negotiable rule','At CREDO, every trade must be entered with a bracket order from Week 3 of training onward. Any trade entered without a simultaneous stop loss is a bracket violation. Bracket violations are reviewed in the next mentor call without exception. The rule is not about trust — it is about building the habit that protects your account when your emotions are running hot.');
+    callout('red','Non-negotiable rule','At TradeRoom PRO, every trade must be entered with a bracket order from Week 3 of training onward. Any trade entered without a simultaneous stop loss is a bracket violation. Bracket violations are reviewed in the next mentor call without exception. The rule is not about trust — it is about building the habit that protects your account when your emotions are running hot.');
 }
 
 function buildM5L6() {
-  return obj('By the end of this lesson you will have the IB Risk Navigator configured with your daily and weekly loss limits, understand what happens when each threshold is breached, and have signed the CREDO Risk Parameters document.') +
+  return obj('By the end of this lesson you will have the IB Risk Navigator configured with your daily and weekly loss limits, understand what happens when each threshold is breached, and have signed the TradeRoom PRO Risk Parameters document.') +
     h2('6.1 What is the IB Risk Navigator?') +
-    p('The IB Risk Navigator is a real-time risk monitoring tool built into Trader Workstation. It tracks your daily P&L across all positions and can automatically flatten (close) all positions when a predefined loss limit is reached. For CREDO students, the Risk Navigator is the mechanical enforcement of the daily loss limit — it removes the temptation to override the limit manually during a losing session.') +
+    p('The IB Risk Navigator is a real-time risk monitoring tool built into Trader Workstation. It tracks your daily P&L across all positions and can automatically flatten (close) all positions when a predefined loss limit is reached. For TradeRoom PRO students, the Risk Navigator is the mechanical enforcement of the daily loss limit — it removes the temptation to override the limit manually during a losing session.') +
     h2('6.2 Configuring the Risk Navigator') +
     p('In TWS: go to Risk → Risk Navigator → Open Risk Navigator. In the Risk Navigator window:') +
     '<ol class="lesson-ul" style="list-style:decimal;">' +
@@ -1573,8 +1507,8 @@ function buildM5L6() {
       [['50% of daily limit','-$225','Pause. Review last two trades in TraderVue. Ask: am I trading my plan?'],
        ['75% of daily limit','-$337','Mandatory 15-minute break. Leave the screen entirely. Return only if mentally clear.'],
        ['100% of daily limit','-$450','Session ends. Risk Navigator auto-flats all positions. Post in Discord. No more trading today.']]) +
-    h2('6.4 The CREDO Risk Parameters Sign-Off') +
-    p('Before beginning paper trading, every CREDO student signs a Risk Parameters document confirming they understand and accept the following:') +
+    h2('6.4 The TradeRoom PRO Risk Parameters Sign-Off') +
+    p('Before beginning paper trading, every TradeRoom PRO student signs a Risk Parameters document confirming they understand and accept the following:') +
     ul(['Daily loss limit of 1.5% (paper) / 2% (live) is a hard stop — not a guideline.',
         'Weekly loss limit of 3% (paper) / 5% (live). Written review required if breached.',
         'Every trade must use a bracket order with entry, stop, and target submitted simultaneously.',
@@ -1654,10 +1588,10 @@ function buildM6L4() {
     h2('4.1 Why Routine Matters More Than You Think') +
     p('Trading performance is not random. It correlates strongly with the state you are in when you sit down to trade. A trader who arrives at 9:28 AM having just woken up, skipped breakfast, and not reviewed the scanner is at a significant disadvantage compared to one who has been working since 7:00 AM with a completed watchlist, a written thesis, and a calm mental state.') +
     p('The pre-session routine is not preparation for trading. It IS the trading. By 9:30 AM, all the decisions that can be made in advance should already be made. What stock. What setup. What entry. What stop. What target. The open is execution — not research.') +
-    h2('4.2 The CREDO Pre-Session Routine (15-20 minutes)') +
+    h2('4.2 The TradeRoom PRO Pre-Session Routine (15-20 minutes)') +
     p('Begin at 7:00 AM. Work through this sequence:') +
     dataTable(['Time','Task','Output'],
-      [['7:00 - 7:15','Open Trade Ideas. Review scanner for pre-market gappers. Filter to top 3-5 candidates.','A shortlist of stocks meeting CREDO scanner criteria.'],
+      [['7:00 - 7:15','Open Trade Ideas. Review scanner for pre-market gappers. Filter to top 3-5 candidates.','A shortlist of stocks meeting TradeRoom PRO scanner criteria.'],
        ['7:15 - 7:45','For each candidate: Finviz check (float, short float), news review (catalyst tier, S-3 risk), chart review (key levels, gap %).','Watchlist reduced to 2-3 high-quality setups.'],
        ['7:45 - 8:30','For each watchlist stock: write the thesis. Catalyst, float, key levels, planned entry, stop distance, target, risk/reward.','Thesis document or Discord post drafted.'],
        ['8:30 - 9:00','Rate your emotional state (1-5). Review yesterday\'s TraderVue data briefly. Are you carrying anything from yesterday?','Honest self-assessment before markets open.'],
@@ -1733,7 +1667,7 @@ function buildM6L6() {
     '</ol>' +
     callout('green','Share it with your mentor','Submit your monthly one-page summary to your mentor in your private Discord channel before the first session of the following month. Your mentor will review it and bring specific observations to your next one-on-one call. This is the highest-leverage feedback loop in the program — the point where your personal data meets experienced pattern recognition.') +
     h2('6.3 Foundation Course Complete — What Comes Next') +
-    p('You have completed all six modules of the CREDO Foundation Course. This is not a small thing. Most aspiring traders never spend this much time learning before they risk real money. The fact that you have done so puts you ahead of the vast majority of people who attempt this career.') +
+    p('You have completed all six modules of the TradeRoom PRO Foundation Course. This is not a small thing. Most aspiring traders never spend this much time learning before they risk real money. The fact that you have done so puts you ahead of the vast majority of people who attempt this career.') +
     p('What you have now:') +
     ul(['A complete understanding of how small-cap stocks work and why they move.',
         'Chart reading skills — candlestick patterns, support and resistance, VWAP, timeframes.',
@@ -1741,505 +1675,8 @@ function buildM6L6() {
         'A fully configured platform — Trade Ideas, Sterling, IB, TraderVue, Discord.',
         'A mechanical risk management system that protects your capital with rules, not willpower.',
         'A psychology framework that names your vulnerabilities and gives you protocols to manage them.']) +
-    p('What comes next is Phase 1 — paper trading with real-time market data, live mentor sessions, called-shot trades, and the daily accountability structure of the CREDO program. You will trade small, with strict rules, under close supervision. The goal is not to make money in Phase 1. The goal is to build the habits that make money possible in Phase 2 and Phase 3.') +
+    p('What comes next is Phase 1 — paper trading with real-time market data, live mentor sessions, called-shot trades, and the daily accountability structure of the TradeRoom PRO program. You will trade small, with strict rules, under close supervision. The goal is not to make money in Phase 1. The goal is to build the habits that make money possible in Phase 2 and Phase 3.') +
     callout('green','A final note from your mentor','I built this Foundation Course because I wish someone had handed it to me before I started. The six years I spent learning what is in these lessons cost me real money — not because the market is unfair, but because I did not know what I did not know. You now know what I did not. Use it.');
-}
-
-// ══ PAPER TRADING CURRICULUM ══
-function buildPTL1_1() {
-  return obj('By the end of this session you will understand exactly what called-shot trading is, why it is the most important accountability structure in Phase 1, and what the rules are.') +
-    h2('What is Called-Shot Trading?') +
-    p('Called-shot trading means you declare every trade in Discord before you execute it. Entry price, setup name, stop, and target — all posted in #trade-calls before you click the buy button. No exceptions.') +
-    p('This one rule changes everything about how you trade. When you know your trade will be visible to your mentor and fellow students before you enter, you stop taking low-quality setups. You stop chasing. You stop revenge trading. The accountability is built into the process.') +
-    defTable([
-      ['What you post','Symbol, direction (long/short), entry price, stop price, target price, setup name.'],
-      ['When you post it','Before you click. Not while the order is filling. Not after. Before.'],
-      ['What happens if you trade without posting','That trade is flagged in the next mentor call. Three unposted trades in a month = back to observation-only for one week.'],
-      ['What the timestamp proves','That your thesis existed before the move — not after. This is what separates trading from storytelling.'],
-    ]) +
-    callout('green','Example called shot','"Long ABCD at $5.20, stop $4.90, target $5.80, Gap-and-Go setup. PMH = $5.30, float 4.2M, FDA approval catalyst." Post this in #trade-calls. Then execute.') +
-    h2('Why This Rule Exists') +
-    p('Most traders, when recounting their day, remember their winners in detail and their losers vaguely. Called-shot trading prevents this selective memory. Every trade exists on record with a timestamp. Your TraderVue data and your Discord history tell the same story — or they expose the difference.') +
-    callout('amber','Mindset shift','Called-shot trading will feel uncomfortable in the first two weeks. That discomfort is the feeling of your standards being raised. Trades you would previously have taken without thinking twice will now feel wrong to post. Trust that feeling. If you would not post it, you should not take it.');
-}
-
-function buildPTL1_2() {
-  return obj('By the end of this session you will be able to write a complete, well-structured pre-market thesis for any stock on your watchlist in under 5 minutes.') +
-    h2('The Anatomy of a Strong Thesis') +
-    p('A pre-market thesis is not a prediction. It is a plan. It answers five questions before the market opens:') +
-    defTable([
-      ['What is the catalyst?','Name the specific event: FDA approval, earnings beat, contract announcement. Tier 1, 2, or 3?'],
-      ['What is the float and short interest?','From Finviz. Float under 10M? Short float above 20%? Any active S-3?'],
-      ['What are the key levels?','Pre-market high, previous close, any round numbers between entry and 2x PMH.'],
-      ['What is my plan?','Entry trigger, stop price, target price. Risk/reward ratio.'],
-      ['What invalidates this thesis?','If X happens, I do not take this trade. Define the condition before the open.'],
-    ]) +
-    h2('Thesis Template') +
-    p('Copy this template into your Discord thesis post every morning:') +
-    callout('blue','Thesis template','SYMBOL: [ticker] | CATALYST: [event and tier] | FLOAT: [number]M | SHORT FLOAT: [%] | KEY LEVELS: PMH $X, PDC $Y | ENTRY: $X on [trigger] | STOP: $X | TARGET: $X | R/R: [ratio] | INVALIDATION: [condition]') +
-    h2('What Makes a Thesis Strong vs Weak') +
-    twoCol('Strong thesis','Specific catalyst named and tiered. Float and short interest verified on Finviz this morning. Entry has a clear trigger (PMH breakout, VWAP reclaim). Stop is at a technical level, not a round number. Invalidation condition is specific.','Weak thesis','Vague catalyst ("stock is moving"). Float not verified. Entry is "around $5." Stop is "if it goes down." No invalidation condition. Could not be graded by someone who had never heard of the stock.','green','red') +
-    callout('amber','The 9:15 AM rule','Thesis posted after 9:15 AM does not count for that day. A thesis written after you have already seen pre-market price action is not a thesis — it is rationalization. Post before 9:15 or mark the day as no-thesis.');
-}
-
-function buildPTL1_3() {
-  return obj('By the end of this session you will have posted your first called shot in Discord and understand the exact workflow from scanner alert to Discord post to order execution.') +
-    h2('The Called-Shot Workflow Step by Step') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>Scanner alert fires on Trade Ideas. Stock meets CREDO criteria.</li>' +
-      '<li>Open Finviz. Check float, short float, any S-3. Takes 30 seconds.</li>' +
-      '<li>Check news. Identify catalyst tier. Takes 60 seconds.</li>' +
-      '<li>Map key levels on chart. PMH, PDC, round numbers. Takes 60 seconds.</li>' +
-      '<li>Calculate position size using the formula. Entry, stop, target, share size.</li>' +
-      '<li>Type the called shot in #trade-calls. Post it. Do not execute yet.</li>' +
-      '<li>Wait for your entry trigger. When price hits your trigger — execute.</li>' +
-      '<li>Your bracket order is already configured. Transmit.</li>' +
-    '</ol>' +
-    callout('red','The most common violation','Executing the trade while composing the Discord post. The order goes in at 9:31:04. The Discord post appears at 9:31:12. This is not a called shot — it is a post-hoc rationalization with an 8-second gap. Post first. Execute second. The order of operations matters.') +
-    h2('What Happens After You Post') +
-    p('Once your called shot is posted, two things can happen: the trade triggers and you execute, or the trade does not trigger and you do not execute. Both are acceptable outcomes. What is not acceptable: posting a called shot, not executing it, and then taking a different trade without posting.') +
-    callout('green','Missed entry is a win','If you post a called shot at $5.20 and the stock opens at $5.60 — never touching your entry — you did not miss a trade. You avoided a FOMO entry. Your called shot record shows a correctly identified setup that did not provide a clean entry. That is good trading, not a failure.');
-}
-
-function buildPTL1_4() {
-  return obj('By the end of this session you will understand how to review your called shots in TraderVue and Discord together, and what metrics reveal whether your pre-market process is producing quality setups.') +
-    h2('The Two-Source Review') +
-    p('Your called shot review requires two sources: your Discord history (what you said before the trade) and your TraderVue data (what actually happened). The comparison between these two tells you whether your pre-market process matches reality.') +
-    defTable([
-      ['Called vs executed','How many of your called shots did you actually execute? Low % = missing entries. High % but poor results = entries need tightening.'],
-      ['Planned entry vs actual fill','Did you enter at your posted price or chase above it? Consistent chasing means your entry discipline needs work.'],
-      ['Stop adherence','Did you honor the stop posted in Discord? Widening stops after the fact is a bracket violation.'],
-      ['Target hit rate','What % of your called shots reached the posted target? Under 30% suggests targets are too ambitious for the setups.'],
-    ]) +
-    h2('Weekly Called-Shot Metrics') +
-    p('Every Friday, run these four numbers from your TraderVue and Discord data:') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>Called-shot execution rate: trades executed / calls posted.</li>' +
-      '<li>Entry accuracy: trades filled within $0.05 of posted entry / total executed.</li>' +
-      '<li>Stop adherence: trades exited at or before posted stop / total losing trades.</li>' +
-      '<li>Target hit rate: trades reaching posted target / total winning trades.</li>' +
-    '</ol>' +
-    callout('green','What good metrics look like','After 4 weeks: execution rate 60-80% (you are selective), entry accuracy 70%+, stop adherence 90%+, target hit rate 40%+. If stop adherence is below 90% — that is the only metric that matters until it is fixed.');
-}
-
-function buildPTL1_5() {
-  return obj('By the end of this session you will be able to complete the CREDO called-shot scorecard for any trade and understand how each factor is graded.') +
-    h2('The Called-Shot Scorecard') +
-    p('Every executed called shot is graded on four criteria. Each is worth one point. Maximum score: 4. Minimum passing score: 3.') +
-    dataTable(['Criterion','1 point if...','0 points if...'],
-      [['Setup validity','The trade matches one of the defined CREDO setups with a valid catalyst.','No clear setup. Entered on price action only or vague thesis.'],
-       ['Entry execution','Entry within $0.05 of the price posted in Discord.','Chased more than $0.05 above posted entry.'],
-       ['Stop placement','Stop at the posted technical level. Bracket order used.','Stop moved after entry. No bracket order. Stop wider than posted.'],
-       ['Exit discipline','Exited at posted stop (loss) or posted target (win). No improvisation.','Held past stop hoping for recovery. Took profit early without reason.']]) +
-    callout('green','The key insight','A trade that loses money can score 4/4. A trade that makes money can score 0/4. This is the entire point of process-based evaluation. After 30 scored trades, your average scorecard grade is a more reliable predictor of future performance than your P&L.') +
-    h2('Tracking Your Score') +
-    p('Add a custom field in TraderVue called "Scorecard (0-4)". Enter the score immediately after each trade while the details are fresh. Your weekly average should trend upward as your execution improves. A week where your average drops below 2.5 triggers a written review before the following Monday.');
-}
-
-function buildPTL1_6() {
-  return obj('This is your Week 1 drill assignment. Complete it before your next mentor call.') +
-    h2('Week 1 Called-Shot Drill Assignment') +
-    p('This week you will post called shots every day regardless of whether you execute. The goal is to build the habit of declaring before acting — even if the market provides no clean entries.') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>Every morning, identify at least one stock that meets CREDO scanner criteria.</li>' +
-      '<li>Write a complete thesis using the template from Session 2. Post in #pre-market-thesis by 9:15 AM.</li>' +
-      '<li>If the entry triggers during the session, post a called shot in #trade-calls before executing.</li>' +
-      '<li>After the session, post one observation in #daily-review — something you noticed in the market today.</li>' +
-      '<li>At end of week: count your thesis posts, called shots, and executed trades. Report in #weekly-debrief.</li>' +
-    '</ol>' +
-    callout('amber','Week 1 target','5 thesis posts (one per day). At least 3 called shots posted (regardless of whether they filled). At least 1 executed trade with a complete scorecard. This is the minimum. More is better.') +
-    callout('green','You are ready','Completing the Foundation Course and posting your first called shots is the transition from student to trader-in-training. The habits you build in the next 30 sessions are the habits that will determine your results for years. Start with discipline. The skill comes after.');
-}
-
-function buildPTL2_1() {
-  return obj('By the end of this session you will understand why trading one setup for 30+ trades produces better learning than trading five setups across 6 trades each.') +
-    h2('Why Setup Isolation Works') +
-    p('Imagine you are learning to throw a baseball. Your coach could have you practice four different pitches in your first week — fastball, curveball, slider, changeup. You would be mediocre at all of them. Or your coach could have you throw 200 fastballs. You would become genuinely good at one thing.') +
-    p('Setup isolation applies the same principle to trading. In the first 4-6 weeks of Phase 1, you trade ONE assigned setup. Only that setup. Every trade is tagged with that setup in TraderVue. After 30+ trades, you have real expectancy data — not a feeling, but a calculation.') +
-    defTable([
-      ['Expectancy','(Win rate × average winner) minus (loss rate × average loser). The only statistic that matters for a single setup.'],
-      ['Sample size','Under 10 trades: meaningless. 10-20 trades: directional. 20-30 trades: statistically meaningful. 30+ trades: reliable.'],
-      ['Setup mastery','The ability to identify the setup in real time, enter at the correct trigger, and manage it according to the rules — without hesitation.'],
-    ]) +
-    callout('green','The goal of isolation','After 30 trades on your assigned setup, you should be able to answer: What is my win rate on this setup? What is my average winner? What is my average loser? What is my expectancy? If you cannot answer these questions from memory, you have not paid close enough attention to your data.');
-}
-
-function buildPTL2_2() {
-  return obj('By the end of this session you will have been assigned your primary setup and understand the exact criteria that define it.') +
-    h2('How Your Setup is Assigned') +
-    p('Your primary setup for Phase 1 is assigned by your mentor based on two factors: which setup best matches the market conditions during your training period, and which setup you showed the most natural aptitude for during the Foundation Course observation period.') +
-    p('The four most common Phase 1 setups at CREDO:') +
-    dataTable(['Setup','Entry trigger','Stop placement','Target'],
-      [['Gap-and-Go','Break above opening range high with 3x+ relative volume','Below opening range low','PMH extension — typically 1.5-2x the opening range'],
-       ['VWAP Reclaim','First clean close above VWAP after a dip, with volume','Below VWAP on a 1-minute close','Previous resistance — typically 2:1 risk/reward minimum'],
-       ['Opening Range Breakout','Break above the 5-minute opening range high with volume','Below opening range low','Measured move — ORH + (ORH - ORL)'],
-       ['First Red Day','First red daily candle after a multi-day runner, short entry','Above the day\'s high','VWAP — typically quick 5-10% downside move']]) +
-    callout('amber','Mentor assignment','Your mentor will assign your primary setup in your first Phase 1 one-on-one call. Do not self-assign. The assignment is based on your observation journal data and discussion. Come to that call with your top two setup preferences and the reason for each.');
-}
-
-function buildPTL2_3() {
-  return obj('By the end of this session you will have your TraderVue setup tags configured correctly and understand how to ensure every trade is tagged before the session ends.') +
-    h2('Setup Tagging in TraderVue') +
-    p('Every trade in TraderVue must be tagged with your assigned setup name. This is not optional — untagged trades cannot be included in your expectancy calculation, which means they are invisible to the review process.') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>In TraderVue, go to Settings → Tags → Add Tag.</li>' +
-      '<li>Create tags for each CREDO setup: "Gap-and-Go", "VWAP Reclaim", "Opening Range Breakout", "First Red Day", "Unplanned".</li>' +
-      '<li>After each session, open your TraderVue trade list. Tag every trade before closing the browser.</li>' +
-      '<li>Any trade that does not match a defined setup gets tagged "Unplanned". Track your unplanned trade rate weekly.</li>' +
-    '</ol>' +
-    callout('red','The unplanned trade tag','The "Unplanned" tag is not neutral — it is a warning flag. Trades tagged Unplanned are taken outside your pre-market thesis, outside your setup criteria, and therefore outside the system. Your goal: zero unplanned trades by Week 6 of Phase 1.') +
-    callout('green','Why tagging matters','After 30 tagged trades, filter TraderVue by your assigned setup. The statistics page shows your win rate, average P&L, and expectancy for that specific setup. This data is the foundation of your Phase 1 review and the gate clearance checklist.');
-}
-
-function buildPTL2_4() {
-  return obj('By the end of this session you will be able to calculate expectancy for any setup using your TraderVue data and interpret what the number means.') +
-    h2('Calculating Setup Expectancy') +
-    p('Expectancy formula: (Win rate × average winner) minus (Loss rate × average loser)') +
-    p('Example: 20 trades on your Gap-and-Go setup. 12 winners (60% win rate), average winner $85. 8 losers (40% loss rate), average loser $55.') +
-    p('Expectancy = (0.60 × $85) minus (0.40 × $55) = $51 minus $22 = $29 per trade.') +
-    p('A positive expectancy of $29 means that on average, each Gap-and-Go trade you take produces $29 in profit. Over 100 trades: $2,900 expected profit — assuming you continue executing with the same quality.') +
-    dataTable(['Expectancy','Interpretation','Action'],
-      [['+$20 or higher','Strong edge. Setup is working well for you.','Continue. Consider adding a second setup.'],
-       ['+$1 to +$19','Positive edge but thin. Execution is costing you.','Review entry and stop adherence. Small improvements have large impact.'],
-       ['Near zero','No edge. Setup may be right but execution is poor, or setup is wrong for current market.','Review with mentor. Consider setup change.'],
-       ['Negative','Losing setup. Either wrong setup choice or execution problems.','Pause trading this setup. Full review required.']]) +
-    callout('amber','Sample size warning','Expectancy calculated on fewer than 20 trades is not statistically reliable. A 5-trade sample showing +$200 expectancy is meaningless. Run the calculation only when you have 20+ trades on the same setup with consistent tagging.');
-}
-
-function buildPTL2_5() {
-  return obj('By the end of this session you will understand what the 30-trade milestone means, how to review it with your mentor, and what qualifies as a complete milestone review.') +
-    h2('The 30-Trade Milestone') +
-    p('After 30 tagged, called-shot trades on your assigned setup, you reach the first major milestone of Phase 1. This is not a celebration — it is an evaluation. The 30-trade review determines whether your setup has real edge and whether your execution is consistent enough to justify continuing.') +
-    h2('What the Milestone Review Covers') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>Expectancy calculation on all 30 trades. Must be positive to continue with this setup.</li>' +
-      '<li>Entry accuracy review: what % of entries were within $0.05 of called price?</li>' +
-      '<li>Stop adherence: what % of losing trades were exited at or before the posted stop?</li>' +
-      '<li>Unplanned trade count: how many of the 30 were tagged Unplanned?</li>' +
-      '<li>Scorecard average: what is the average 4-point scorecard grade across all 30 trades?</li>' +
-    '</ol>' +
-    callout('green','Passing the milestone','Positive expectancy + stop adherence above 85% + scorecard average above 2.5 = milestone passed. Your mentor approves continued trading of this setup and schedules a discussion about adding a second setup in Weeks 5-6.') +
-    callout('amber','Not passing','Negative expectancy or stop adherence below 85% = milestone not passed. You continue on the same setup for another 15 trades before re-evaluating. This is not failure — it is the system working. Most traders need 45-60 trades before their first setup shows reliable edge.');
-}
-
-function buildPTL2_6() {
-  return obj('By the end of this session you will understand the criteria for advancing to a second setup and how the introduction of a second setup changes your daily process.') +
-    h2('When You Are Ready for a Second Setup') +
-    p('The criteria for introducing a second setup are specific. All of the following must be true:') +
-    ul(['30+ called-shot trades on your primary setup with positive expectancy.',
-        'Scorecard average of 3.0 or higher across the last 15 trades.',
-        'Zero daily loss limit breaches in the last 30 days.',
-        'Stop adherence of 90% or higher.',
-        'Mentor approval after milestone review.']) +
-    callout('red','The most common mistake','Introducing a second setup before fully mastering the first. The data never lies: students who add a second setup before meeting all five criteria almost always see their expectancy on both setups decline. The discipline to wait is the discipline that produces results.') +
-    h2('Introducing the Second Setup') +
-    p('When you begin trading a second setup, it gets its own tag in TraderVue and its own 30-trade isolation period. You do not mix the analysis. Expectancy on Setup 1 and expectancy on Setup 2 are calculated separately and reviewed separately.') +
-    p('The goal by the end of Phase 1 is to have two setups with positive expectancy, consistent execution scores, and a daily process that feels like second nature — so that Phase 2 (live capital) is not a change in what you do, only a change in the stakes.');
-}
-
-function buildPTL3_1() {
-  return obj('By the end of this session you will understand why the one-trade-per-day rule exists, what it forces you to do, and how it will change your relationship with setups you previously would have taken without thinking.') +
-    h2('Why One Trade?') +
-    p('In Weeks 3-6 of Phase 1, you are limited to one paper trade per session. Not one trade per setup. One trade per day total. This rule sounds simple. It is, in practice, one of the hardest disciplines in the program.') +
-    p('The one-trade rule forces extreme selectivity. When you know you only get one bullet, you stop pulling the trigger on anything that looks decent. You wait for the best setup of the day. You evaluate each candidate against all the others. You learn what it feels like to pass on a mediocre setup in favor of a great one.') +
-    twoCol('Before the one-trade rule','Three trades: one gap-and-go (A setup), one VWAP reclaim (B setup), one you took because you were bored (C setup). Average quality: B. You cannot isolate which trades are producing your results.','After the one-trade rule','One trade: the best gap-and-go of the day. Full position size. Full attention. Full process. You learn the difference between your A setup and everything else.','green','blue') +
-    callout('amber','The discomfort is the lesson','You will watch stocks move without you during the one-trade period. This is intentional. The ability to watch a B setup run 20% without trading it — knowing you are holding your one bullet for an A setup — is one of the most valuable skills a trader can develop. It does not come naturally. It is built through exactly this kind of repetition.');
-}
-
-function buildPTL3_2() {
-  return obj('By the end of this session you will have a framework for selecting your single best trade each day from the full watchlist.') +
-    h2('The Selection Framework') +
-    p('When the one-trade rule is active and you have three stocks on your watchlist, how do you decide which one gets your one trade? Use this framework:') +
-    dataTable(['Factor','A setup','B setup','C setup — skip'],
-      [['Catalyst tier','Tier 1','Tier 2','Tier 3 or none'],
-       ['Float','Under 5M','5-10M','Over 10M'],
-       ['Short float','Over 30%','15-30%','Under 15%'],
-       ['Relative volume','5x+','2-5x','Under 2x'],
-       ['Chart structure','Clean — clear PMH, consolidating','Moderate — some chop','Messy — wide range, no clear level'],
-       ['Your setup match','Exact criteria match','Close match','Marginal']]) +
-    p('The stock with the most A-column answers gets your one trade. If two stocks tie, choose the lower float. If still tied, pass both and take no trade today.') +
-    callout('green','The no-trade day','A day where you see no A setup and take no trade is a successful day. Log it in TraderVue as "No trade — no A setup available." Over 20 sessions, your no-trade days are some of your most educational data points. They show you what it costs to wait — which is usually nothing, or negative cost.');
-}
-
-function buildPTL3_3() {
-  return obj('By the end of this session you will understand the difference between sitting out by choice and being forced out by indecision, and have a protocol for the hardest part of the one-trade rule.') +
-    h2('Sitting Out vs Forcing a Trade') +
-    p('There are two kinds of "no trade" days:') +
-    twoCol('Sitting out by choice','You reviewed the watchlist. You applied the selection framework. No stock met A-setup criteria. You closed your platform at 10:00 AM. This is disciplined selectivity — one of the most valuable trading skills.','Forced out by indecision','You could not decide between three mediocre setups. You kept waiting for a better one that never came. The session ended with no trade not because there was no opportunity, but because you could not commit. This is paralysis, not discipline.','green','red') +
-    p('The distinction matters because they require different responses. Sitting out by choice: log the day, note what you saw, move on. Forced out by indecision: review why — was your thesis incomplete? Was your selection framework unclear? Write the answer in TraderVue before closing.') +
-    callout('amber','The hardest hour','The period from 9:45 to 10:30 AM — after the first rush of the open — is when most forced no-trades happen. The best setups have often played out. What remains is noise. The discipline is to recognize that the session may be over at 9:45 AM and be at peace with that. Some of your best "trades" will be the sessions you close early with no position.');
-}
-
-function buildPTL3_4() {
-  return obj('By the end of this session you will be logging missed setups in TraderVue and understand what this data reveals about your selection process over time.') +
-    h2('Why Log Trades You Did Not Take?') +
-    p('A missed setup log is one of the most underused tools in trading. When you write down every setup you considered but did not trade — along with the reason you passed and what the stock did after — you build a dataset that answers the most important question: am I passing on good trades or bad ones?') +
-    defTable([
-      ['Missed setup log entry','Symbol, setup type, your reason for passing, outcome (what the stock did from your potential entry to your target).'],
-      ['What it reveals over time','If your missed setups would have been profitable 70% of the time — your entry criteria are too strict. If they would have lost 70% of the time — your filter is working correctly.'],
-      ['The most painful entry','Stocks you passed because they did not quite meet criteria, that then ran 50%+ without you. Log these. They are the most instructive entries in your journal.'],
-    ]) +
-    callout('green','In TraderVue','Add a "Missed Setup" tag. For each session, log every stock you considered seriously but did not trade. After 20 sessions you will have a meaningful dataset of your filtering decisions and their real-world outcomes. This data — not your P&L — tells you whether your pre-trade process has edge.');
-}
-
-function buildPTL3_5() {
-  return obj('By the end of this session you will understand the full Weeks 3-6 one-trade protocol, including the daily workflow, weekly review format, and what advancing past this phase looks like.') +
-    h2('The Weeks 3-6 Protocol') +
-    p('During Weeks 3-6, the one-trade rule applies to every session. Here is the complete daily workflow:') +
-    dataTable(['Time','Action'],
-      [['7:00 - 9:15 AM','Normal pre-market routine. Build full watchlist. Write thesis for every candidate.'],
-       ['9:15 AM','Thesis posted. Apply selection framework. Identify the single best candidate.'],
-       ['9:30 - 9:45 AM','Watch the open. Does your selected stock provide a clean entry? Does it still meet A-setup criteria after the open?'],
-       ['9:45 AM','Decision point. Take the trade if clean. Pass if the setup has degraded. Log either outcome.'],
-       ['9:45 - 10:30 AM','If in a trade: manage it. If not: observation only. No second-guessing. No late entries.'],
-       ['Post-session','Log result in TraderVue. Complete called-shot scorecard if you traded. Log missed setups.']]) +
-    callout('amber','The 9:45 cutoff','After 9:45 AM, you may not enter a new trade during Weeks 3-6. If you have not found an A setup by 9:45, the session is observation-only. This prevents the common pattern of forcing a trade late in power hour out of impatience.');
-}
-
-function buildPTL3_6() {
-  return obj('By the end of this session you will have a clear understanding of your selectivity score and what it tells you about the quality of your trade selection over the one-trade period.') +
-    h2('Your Selectivity Score') +
-    p('At the end of Weeks 3-6, calculate your selectivity score:') +
-    p('Selectivity score = A-setup trades taken / total sessions × 100') +
-    p('Example: 20 sessions. You took 12 trades. Of those 12, 9 were A setups by scorecard criteria, 3 were B setups you forced. Score = 9/20 = 45%.') +
-    dataTable(['Score','Interpretation'],
-      [['70%+','Excellent. You are waiting for quality consistently.'],
-       ['50-70%','Good. Some forcing, mostly disciplined.'],
-       ['30-50%','Needs work. Too many B and C setups being taken.'],
-       ['Under 30%','Significant issue. Review selection framework with mentor before advancing.']]) +
-    callout('green','The metric that predicts Phase 2 success','Of all the Phase 1 metrics, selectivity score is the strongest predictor of Phase 2 performance. Traders with selectivity scores above 60% in Phase 1 show dramatically better results when they begin live trading. The habit of waiting for quality does not switch on automatically when money becomes real. It must already be built.');
-}
-
-function buildPTL4_1() {
-  return obj('By the end of this session you will understand the principle behind asymmetric review and why reviewing only losing trades — not winners — produces faster improvement.') +
-    h2('Why Losers Only?') +
-    p('Most traders review their winners and losers equally. Some review their winners more — replaying the trades that felt good, confirming their instincts, building confidence. This is the wrong approach.') +
-    p('Winners tell you very little. A trade can win for reasons you did not plan — a halt during your position, a market-wide move, a coincidence of timing. Winners that come from poor process are the most dangerous trades you can have, because they teach you to repeat bad behavior.') +
-    p('Losers are different. Every losing trade either: (1) followed the process correctly and lost because markets are probabilistic, or (2) violated the process and lost because of a mistake. Only type 2 is worth analyzing in depth. Type 1 is expected. Type 2 is a data point that tells you exactly where to improve.') +
-    twoCol('Review winners to...','Feel good. Build narrative confidence. Confirm existing beliefs.','Review losers to...','Find process violations. Identify patterns. Make specific improvements that change future results.','red','green') +
-    callout('amber','The counterintuitive rule','A losing trade that followed the process perfectly is not worth more than 60 seconds of review. A losing trade that violated the process — entered without a thesis, stop not honored, no bracket order — is worth 15 minutes of written analysis. The size of the loss is irrelevant. The presence of a process violation is everything.');
-}
-
-function buildPTL4_2() {
-  return obj('By the end of this session you will be able to answer the three loss review questions for any losing trade in under 5 minutes.') +
-    h2('The Three Questions') +
-    p('For every losing trade, answer these three questions before you close TraderVue:') +
-    defTable([
-      ['Question 1: Was the setup valid?','Did this trade meet the criteria for my assigned setup at the time of entry? Not in hindsight — at the moment I entered. If yes: the loss was acceptable. If no: this was an unplanned trade and must be tagged and reviewed separately.'],
-      ['Question 2: Was the stop correct?','Was my stop placed at the correct technical level — below support, below VWAP, below the opening range? Or did I place it at a round number or based on a dollar amount I was comfortable losing? A stop placed for comfort rather than technical reason is always wrong.'],
-      ['Question 3: Was the loss within declared max?','Did I lose exactly what I said I would lose in my called shot — or more? If I declared a $90 risk and lost $180, where did the extra $90 come from? A bracket order violation, a slip, or a decision to hold past my stop?'],
-    ]) +
-    callout('green','The three-answer log','In TraderVue, add your three answers as a note on every losing trade. Over 20 sessions, patterns emerge: "Q1 — No" appearing frequently means you are trading outside your setup. "Q3 — No" frequently means bracket discipline needs work. The data shows you exactly what to fix.');
-}
-
-function buildPTL4_3() {
-  return obj('By the end of this session you will be able to identify stop violations in your TraderVue data and understand the three most common forms they take.') +
-    h2('What is a Stop Violation?') +
-    p('A stop violation occurs any time a losing trade exits at a price worse than the stop declared in your called shot. There are three forms:') +
-    defTable([
-      ['Hard stop violation','You had a bracket order set at $4.90. The stock hit $4.89 and your stop triggered — but you cancelled the stop order before it filled because you thought the stock would recover. You exited manually at $4.60. Loss: $0.60 instead of $0.30.'],
-      ['Soft stop violation','You had no bracket order. You planned to exit at $4.90 "mentally." When the stock hit $4.90 you did not sell, telling yourself you would give it "one more candle." You exited at $4.65.'],
-      ['Stop widening','You entered with a stop at $4.90. When the stock reached $4.95 and looked weak, you moved your stop down to $4.70 to "give it more room." This is a violation regardless of the final exit price.'],
-    ]) +
-    callout('red','Stop violations compound','A single stop violation that doubles your loss on one trade seems small. But a pattern of stop violations — where every loss is 1.5-2x your planned risk — completely destroys the expectancy of any setup. A setup with 55% win rate, 2:1 planned R/R, and consistent 1.5x stop violations has negative expectancy. The math is unforgiving.');
-}
-
-function buildPTL4_4() {
-  return obj('By the end of this session you will understand how to run a bracket order compliance check on your weekly TraderVue data.') +
-    h2('The Bracket Order Compliance Check') +
-    p('Every week, run this check on your TraderVue data before the Friday debrief:') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>Pull all trades for the week in TraderVue.</li>' +
-      '<li>For every losing trade: did the exit match the stop declared in the Discord called shot within $0.05?</li>' +
-      '<li>For every winning trade: did the exit match the target declared in the Discord called shot within $0.05, or was there a documented reason for early exit?</li>' +
-      '<li>Count violations: any exit more than $0.05 from declared stop or target without documentation.</li>' +
-      '<li>Report your violation count in #weekly-debrief: "Bracket compliance this week: X violations out of Y trades."</li>' +
-    '</ol>' +
-    callout('green','Target','Zero bracket violations. Every week. This is not aspirational — it is mechanical. Bracket orders entered before the trade is submitted make violation impossible by default. If you have violations, you are not using bracket orders. Fix the root cause, not the symptom.');
-}
-
-function buildPTL4_5() {
-  return obj('By the end of this session you will understand the weekly group debrief format, your role in it, and what to bring to each session.') +
-    h2('The Weekly Group Debrief — Friday 10:30 AM') +
-    p('Every Friday, the CREDO session extends to 11:00 AM for the group debrief. All students present. The format is structured — not a free discussion.') +
-    dataTable(['Segment','Duration','Content'],
-      [['Mentor P&L summary','5 min','Mentor shares the week\'s aggregate group stats: win rate, average R, notable setups.'],
-       ['Student loss review','15 min','Each student presents their single biggest losing trade of the week: setup, entry, stop, exit, three-question review, what they would do differently.'],
-       ['Bear case challenge','5 min','Mentor picks one winning trade from the week and asks the student: "What was the bear case?" Tests for confirmation bias.'],
-       ['Setup expectancy update','5 min','Each student reports their running expectancy on their assigned setup.'],
-       ['Next week focus','5 min','Mentor identifies one specific improvement area for each student based on the week\'s data.']]) +
-    callout('amber','Loss presentation rule','When you present your losing trade, you are not explaining why the market was wrong or why the setup should have worked. You are answering: what did I do, did it follow the process, and what specifically will I do differently. Self-pity and market blame are not permitted in the debrief.');
-}
-
-function buildPTL4_6() {
-  return obj('By the end of this session you will have built your personal loss pattern list — the recurring mistakes that appear in your TraderVue data.') +
-    h2('Your Personal Loss Pattern List') +
-    p('After 4+ weeks of asymmetric review, patterns emerge. Every trader has their version of the same two or three mistakes that account for the majority of their excess losses — the losses above and beyond the planned maximum.') +
-    p('Your personal loss pattern list is a running document where you record these patterns as they appear. Not every trade. The patterns.') +
-    defTable([
-      ['Pattern format','Name the pattern. Describe the trigger. Describe what you do. Describe the cost. Write the rule that prevents it.'],
-      ['Example entry','Pattern: "Late entry FOMO." Trigger: stock breaks PMH without me. What I do: buy $0.30+ above PMH. Cost: entry is already above first target, R/R is negative. Rule: if I miss the PMH break, I do not enter.'],
-    ]) +
-    p('Build this list in your private Discord channel or TraderVue notes. Share it with your mentor. Review it every Monday morning before the session. Your list is your personal trading rulebook — written in your own words, earned through your own mistakes.') +
-    callout('green','The compounding effect','A trader who identifies and eliminates their top three recurring mistakes improves their expectancy more than a trader who finds a new setup. Most trading performance problems are not about finding better setups. They are about stopping the same mistakes. The loss pattern list is how you stop them.');
-}
-
-function buildPTL5_1() {
-  return obj('By the end of this session you will understand what a tape reading narration session is, how it is structured, and what you are training your brain to see.') +
-    h2('What is a Tape Reading Narration Session?') +
-    p('A tape reading narration session is 15 minutes of live market observation during which you narrate everything you see in Sterling Trader Pro — out loud or in writing — without placing any trades. You describe the Level 2, the time and sales, and the price action as if you are a sports commentator calling the game.') +
-    p('The purpose is to build a direct connection between what you see on the tape and what it means. Most beginning traders look at Level 2 and see numbers. Experienced traders look at Level 2 and see intent — who is buying aggressively, who is stepping back, where the large orders are sitting.') +
-    defTable([
-      ['What you narrate','Current bid and ask prices. Size at best bid and ask. Whether recent prints are on the bid (red) or ask (green). Whether market makers are adding or pulling size. Whether the tape is accelerating or slowing.'],
-      ['What you are training','Pattern recognition. The ability to read the tape in real time without thinking — the same way you read words on a page without sounding out each letter.'],
-      ['How long it takes','Most students need 20+ narration sessions before the tape starts to feel readable. Do not judge early sessions by what you understand — judge them by whether you are showing up.'],
-    ]) +
-    callout('amber','No trades during narration','The narration session is observation only. No bracket orders. No positions. The moment you have a position open, your narration becomes biased — you start seeing what you want to see. The tape reading skill requires neutral observation to develop correctly.');
-}
-
-function buildPTL5_2() {
-  return obj('By the end of this session you will be able to identify aggressive buying and selling on the tape and describe what each tells you about short-term price direction.') +
-    h2('Bid vs Ask Aggression') +
-    p('Every trade on the tape executes at either the bid, the ask, or between them. Where a trade executes tells you who was aggressive — who wanted in or out badly enough to take the market price rather than wait for a better one.') +
-    twoCol('Green prints (at ask or above)','Buyers are aggressive. They are willing to pay the asking price rather than wait for sellers to come to them. When green prints are large and frequent, buyers are in control. Price is likely to continue upward.','Red prints (at bid or below)','Sellers are aggressive. They are willing to sell at the bid rather than wait for buyers to come to them. When red prints are large and frequent, sellers are in control. Price is likely to continue downward.','green','red') +
-    p('The shift to watch for: a stock making new highs but with increasing red prints on the tape. Price is still rising but sellers are becoming more aggressive. This is often the first warning sign of an impending reversal — visible on the tape before it appears on the chart.') +
-    callout('green','The key signal','Large prints (10,000+ shares) at the ask during a consolidation period signal institutional accumulation. Large prints at the bid during a rally signal institutional distribution. Follow the large prints, not the price.');
-}
-
-function buildPTL5_3() {
-  return obj('By the end of this session you will be able to identify when market makers are stepping back in Level 2 and understand what this typically precedes.') +
-    h2('Market Makers Stepping Back') +
-    p('In Level 2, market makers post their bids and asks. When a stock is moving normally, you see multiple market makers and ECNs stacked on both sides at various price levels. When market makers step back, the depth disappears — the bid and ask sizes collapse and the number of participants visible shrinks dramatically.') +
-    p('Market makers step back in two situations:') +
-    defTable([
-      ['Pre-halt stepping back','In the seconds before a LULD halt triggers, market makers withdraw their quotes because they do not want to be filled at an extreme price during the halt. The Level 2 empties out. This is one of the most reliable early-warning signals that a halt is imminent.'],
-      ['Pre-reversal stepping back','On the bid side before a sharp sell-off, market makers who were supporting the price remove their bids. The bid stack thins from the bottom up. Sellers have no support and price can drop rapidly to find the next level of buyers.'],
-    ]) +
-    callout('amber','What to do when you see it','Market maker stepping back is not a trading signal on its own — it is a warning to review your position. If you are long and the bid stack is thinning rapidly, ask yourself: is my stop in place? Is my bracket active? This is not the moment to add to the position.');
-}
-
-function buildPTL5_4() {
-  return obj('By the end of this session you will understand how to read the tape during a halt and use the pre-resume order book to prepare for the reopening.') +
-    h2('Tape Reading During Halts') +
-    p('During a LULD halt, the time and sales window goes dark — no prints are occurring. But Level 2 is still partially active during the quote-only period in the final minute before resume. Understanding what happens in this window helps you prepare for the reopening auction.') +
-    p('During the quote-only period:') +
-    ul(['Limit orders can be entered but not filled. The order book is building.','Watch the bid side: if large buy orders are stacking — strong demand, reopening likely higher than halt price.','Watch the ask side: if large sell orders are stacking — supply waiting to hit the open, reopening may be lower.','Watch the spread: extremely wide spread (e.g. bid $4.50, ask $6.00) signals high uncertainty — the market cannot agree on value.']) +
-    callout('red','Do not trade the first print','The first trade after a halt resume is almost always at an extreme price that quickly corrects. Whether it opens up or down, the first few seconds of post-halt trading are the most dangerous. Wait for at least 3-5 prints to establish direction before considering any action.');
-}
-
-function buildPTL5_5() {
-  return obj('By the end of this session you will have completed 10 tape reading narration sessions and understand the 15-minute observation protocol.') +
-    h2('The 15-Minute Observation Protocol') +
-    p('Run this protocol on any stock that appears on your watchlist during the power hour open:') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>Open Sterling. Pull up the stock on your montage and Level 2. Do not place any orders.</li>' +
-      '<li>Set a 15-minute timer.</li>' +
-      '<li>Narrate continuously — either out loud or in a running text document. Every bid/ask change, every large print, every moment where the Level 2 thins or deepens.</li>' +
-      '<li>At the end of 15 minutes, write three observations: (a) who was in control — buyers or sellers? (b) was there a moment where control shifted? (c) where did large prints cluster?</li>' +
-      '<li>Compare your observations to what the 1-minute chart shows for that same 15-minute window. Did the tape tell the story before the chart showed it?</li>' +
-    '</ol>' +
-    callout('green','The 10-session milestone','After 10 completed narration sessions, most students begin to notice patterns without consciously thinking about them — a natural shift in how they perceive Level 2 data. This is the beginning of tape reading skill. It does not arrive on day one. It arrives after consistent, deliberate repetition.');
-}
-
-function buildPTL5_6() {
-  return obj('By the end of this session you will understand how your tape reading sessions are graded and what a passing grade looks like.') +
-    h2('Grading Your Tape Reads') +
-    p('After each narration session, your mentor grades your written observations on three criteria:') +
-    dataTable(['Criterion','Full credit','No credit'],
-      [['Directionality','Correctly identified whether buyers or sellers were in control for the session.','Described price movement without identifying who was driving it.'],
-       ['Inflection point','Identified at least one moment where control shifted — with the tape signal that preceded it.','No inflection point identified, or identified one that did not align with tape signals.'],
-       ['Large print reading','Noted at least one significant large print and described what it suggested about institutional activity.','No large prints noted, or print size not mentioned.']]) +
-    p('Share your three written observations in your private Discord channel after each narration session. Your mentor reviews within 24 hours and provides one specific observation or correction per session.') +
-    callout('amber','The long game','Tape reading is the most experienced-dependent skill in trading. It cannot be rushed. The narration sessions are not graded for correctness in the early weeks — they are graded for engagement. Are you seeing things and naming them? That is enough at the start. Correctness comes after.');
-}
-
-function buildPTL6_1() {
-  return obj('By the end of this session you will have a complete understanding of all six Phase 1 progression gate criteria and what each requires to clear.') +
-    h2('The Phase 1 Progression Gate') +
-    p('Before any CREDO student advances to Phase 2 — live trading with real capital — they must demonstrate all six of the following. No exceptions. No partial credit.') +
-    dataTable(['Criterion','Requirement','How it is verified'],
-      [['30 called-shot trades','Minimum 30 trades logged in TraderVue with timestamps matching Discord declarations.','Discord history + TraderVue export cross-referenced by mentor.'],
-       ['Positive expectancy','Positive expectancy on assigned setup calculated from 30+ tagged trades.','TraderVue setup filter + expectancy formula.'],
-       ['Zero daily limit breaches','No daily loss limit breaches across entire Phase 1 paper trading period.','IB Risk Navigator log reviewed by mentor.'],
-       ['Execution score','Scorecard average of 3.0 or higher (out of 4) across last 15 trades.','TraderVue scorecard custom field.'],
-       ['On-list discipline','Every executed trade traceable to pre-market watchlist. Zero unplanned trades in final 2 weeks.','Discord #pre-market-thesis + TraderVue unplanned tag count.'],
-       ['Thesis discipline','Zero missed 9:15 AM thesis deadlines across final 4 weeks.','Discord #pre-market-thesis timestamps.']]) +
-    callout('amber','Why all six','Missing one criterion means the gate is not cleared — regardless of how well you are doing on the other five. The gate exists because Phase 2 involves real capital. Every criterion protects you from specific risks that become much more costly when money is real.');
-}
-
-function buildPTL6_2() {
-  return obj('By the end of this session you will understand the 30 called-shot requirement in detail — what counts, what does not count, and how to ensure your trades qualify.') +
-    h2('What Counts as a Qualifying Called Shot') +
-    p('Not every trade in TraderVue counts toward the 30-trade requirement. A qualifying called shot must have all four of the following:') +
-    ul(['Discord post in #trade-calls with the full thesis (symbol, direction, entry, stop, target, setup name) timestamped before the trade executed.',
-        'TraderVue entry for the same trade, auto-imported from IB, with the same symbol and date.',
-        'Setup tag applied in TraderVue matching the setup named in Discord.',
-        'Complete scorecard (0-4) filled in TraderVue on the same day as the trade.']) +
-    p('Trades that do not qualify:') +
-    ul(['Trades without a pre-execution Discord post.',
-        'Trades tagged "Unplanned" in TraderVue.',
-        'Trades where the Discord post timestamp is after the IB execution timestamp.',
-        'Trades missing a scorecard entry.']) +
-    callout('green','Start counting from Day 1 of paper trading','Every trade that meets the four criteria counts — even trades from Week 1 when your execution was rough. The 30-trade count is about building the habit of the full process, not about achieving a specific performance level. A 0/4 scorecard trade still counts if the process was followed.');
-}
-
-function buildPTL6_3() {
-  return obj('By the end of this session you will understand the expectancy and execution score requirements in detail and how they are calculated for gate clearance.') +
-    h2('Expectancy Requirement') +
-    p('Your assigned setup must show positive expectancy calculated from your TraderVue data. The calculation:') +
-    p('Expectancy = (Win rate × average winner) minus (Loss rate × average loser)') +
-    p('This must be calculated on trades tagged with your assigned setup only — not your overall account P&L. A student can have overall negative P&L and still clear this criterion if their assigned setup has positive expectancy, because the negative P&L came from unplanned trades.') +
-    callout('amber','Minimum sample size','The expectancy calculation must be based on at least 20 trades on your assigned setup. If you have only 15 tagged setup trades out of 30 total, you need more setup-tagged trades before this criterion can be evaluated.') +
-    h2('Execution Score Requirement') +
-    p('Your scorecard average across the last 15 qualifying trades must be 3.0 or higher out of 4. This is a trailing metric — it applies to the 15 most recent trades, not your all-time average. This means a student who starts poorly but improves consistently can clear this criterion even if their early scores were low.') +
-    callout('green','What 3.0 average means','A 3.0 average across 15 trades means you are scoring 3 or 4 on most trades and only occasionally scoring 2. It means your entry, stop, and exit execution is consistently near the defined standard. It does not mean perfection — a 4/4 trade every time is the goal but not the gate.');
-}
-
-function buildPTL6_4() {
-  return obj('By the end of this session you will understand the daily limit breach, on-list discipline, and thesis deadline criteria in detail.') +
-    h2('Zero Daily Limit Breaches') +
-    p('Your IB Risk Navigator log must show zero instances where the daily loss limit was reached and trading continued — or where the auto-flat triggered and trades were entered afterward the same day.') +
-    p('The key word is "continues." A student who hits the daily limit and immediately stops trading — posts in Discord, closes their platform — has not breached the criterion. The breach occurs if trading continues after the limit is hit, or if the limit was bypassed by adjusting the Risk Navigator threshold mid-session.') +
-    h2('On-List Trade Discipline') +
-    p('For the final two weeks of Phase 1, every executed trade must be traceable to a stock that appeared in your #pre-market-thesis post that day. Zero unplanned trades.') +
-    p('This does not mean you can only trade stocks on your morning list. It means every stock you trade must have been on your morning list. If a new scanner alert appears at 9:45 AM that was not in your pre-market thesis — you cannot trade it. Update your list the following morning if it remains interesting.') +
-    h2('Thesis Deadline Discipline') +
-    p('For the final four weeks of Phase 1, every session must have a #pre-market-thesis post timestamped before 9:15 AM. Missing even one session resets this four-week window.') +
-    callout('green','The spirit of these rules','These three criteria — no breaches, on-list only, thesis before 9:15 — all test the same underlying trait: the ability to operate within a defined system consistently over time. This is the trait that separates traders who last from traders who blow up. It is not talent. It is discipline.');
-}
-
-function buildPTL6_5() {
-  return obj('By the end of this session you will understand the gate clearance process, what the mentor review covers, and what to expect in your Phase 2 orientation.') +
-    h2('The Gate Clearance Process') +
-    p('When you believe you have met all six criteria, notify your mentor in your private Discord channel: "I believe I have cleared the Phase 1 gate. Requesting review."') +
-    p('Your mentor will:') +
-    '<ol class="lesson-ul" style="list-style:decimal;">' +
-      '<li>Pull your TraderVue export for the Phase 1 period. Verify called-shot count, setup expectancy, scorecard average.</li>' +
-      '<li>Cross-reference with your Discord history. Verify thesis timestamps, called-shot timestamps, and daily review posts.</li>' +
-      '<li>Review your IB Risk Navigator log. Confirm zero daily limit breaches.</li>' +
-      '<li>Schedule a 30-minute gate clearance call within 48 hours of your request.</li>' +
-    '</ol>' +
-    callout('amber','If you do not clear','A gate clearance review that finds unmet criteria results in a specific written list of what remains to complete. No judgment. No setback. You continue Phase 1 until the criteria are met. Most students need 10-30 more sessions. Some need a setup change. All of it is normal.') +
-    callout('green','When you clear','Gate cleared means your mentor schedules the Phase 2 orientation call. You will discuss live account funding, position sizing for real capital, and the risk parameters that change when money is real. This is the moment the program transitions from training to trading.');
-}
-
-function buildPTL6_6() {
-  return obj('This is your Phase 2 preview — what changes when you begin live trading with real capital and what stays exactly the same.') +
-    h2('What Changes in Phase 2') +
-    p('One thing changes in Phase 2: the money is real. Your losses come from your live account. Your wins add to it. Everything else — the process, the rules, the structure — stays exactly the same.') +
-    defTable([
-      ['Position sizing','Stays the same formula. Same risk % per trade. The only difference: the dollar amounts are real.'],
-      ['Daily loss limit','Changes from 1.5% (paper) to 2% (live). The Risk Navigator is reconfigured before your first live session.'],
-      ['Weekly loss limit','Changes from 3% (paper) to 5% (live).'],
-      ['Called-shot requirement','Stays exactly the same. Every trade declared before execution.'],
-      ['Thesis deadline','Stays 9:15 AM. No exceptions.'],
-      ['Bracket orders','Required for every trade. Non-negotiable.'],
-      ['Mentor call frequency','Increases. Daily 20-minute calls Monday through Thursday, 30 minutes Friday.'],
-    ]) +
-    h2('What Stays the Same') +
-    p('The habits, the process, the rules — all of it carries forward. This is why Phase 1 matters so much. If you built the habits correctly in Phase 1, Phase 2 is not a psychological cliff. It is the same thing with real stakes.') +
-    p('The traders who struggle in Phase 2 are the ones who cut corners in Phase 1 — who gamed the called-shot count, who padded their scorecard, who avoided the weekly debrief. The traders who thrive in Phase 2 are the ones who built the habits honestly.') +
-    callout('green','A final note','You have now completed both the Foundation Course and the Paper Trading Curriculum. What comes next is real. The skills are real. The process is real. The only thing that changes is the number on the account statement. Trade the process. The results follow.');
 }
 </script>
 </body>
