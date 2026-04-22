@@ -524,9 +524,9 @@ var MODULES = [
     hours: "8-10 hrs", icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/></svg>`,
     color: "var(--purple)", gradient: "rgba(139,92,246,.12),rgba(59,130,246,.08)",
     quiz: [
-      { q: "What is the minimum gap percentage required by the TradeRoom PRO gap scanner?", opts: ["5%","10%","15%","20%"], ans: 1 },
-      { q: "What does a relative volume of 3.0 mean?", opts: ["The stock has traded 3,000 shares today","The stock is trading at 3x its normal volume for this time of day","The stock has gapped up 3%","The stock has 3 times its float in short interest"], ans: 1 },
-      { q: "What is the maximum float allowed in the TradeRoom PRO scanner filter?", opts: ["5 million","10 million","20 million","50 million"], ans: 2 },
+      { q: "What is the minimum gap percentage required by the TradeRoom PRO pre-market gap scanner?", opts: ["5%","10%","15%","20%"], ans: 3 },
+      { q: "How does TradeRoom PRO assess volume strength in pre-market (instead of using a RelVol filter)?", opts: ["By requiring RelVol above 2.0 in Trade Ideas","By watching whether volume is increasing candle by candle through pre-market","By requiring 3x RelVol before any entry","By checking the volume column once at 9:00 AM"], ans: 1 },
+      { q: "What is the float range used in the TradeRoom PRO gap scanner?", opts: ["Under 10 million shares","2 million to 30 million shares","Under 20 million shares","5 million to 50 million shares"], ans: 1 },
       { q: "In Sterling Trader Pro, what does the Time and Sales window show?", opts: ["Yesterday's closing prices for watchlist stocks","Every trade as it executes — time, price, and size in real time","The news feed for the current symbol","Your daily P&L summary"], ans: 1 },
       { q: "What does a green print on the tape indicate?", opts: ["The stock closed up for the day","A trade executed at the ask or above — buyers are aggressive","A trade executed at the bid — sellers are aggressive","The stock has no short interest"], ans: 1 },
       { q: "What is the IB commission for 500 shares using the Fixed pricing plan?", opts: ["$1.00","$2.50","$5.00","$10.00"], ans: 1 },
