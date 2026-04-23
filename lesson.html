@@ -377,7 +377,8 @@ var MODULES = [
       {id:3,title:"VWAP in Depth",content:buildM2L3()},
       {id:4,title:"The 1-Minute and 5-Minute Timeframes",content:buildM2L4()},
       {id:5,title:"Pre-Market High, Previous Close, and Level Context",content:buildM2L5()},
-      {id:6,title:"Recognizing Strong vs Weak Setups",content:buildM2L6()}
+      {id:6,title:"Recognizing Strong vs Weak Setups",content:buildM2L6()},
+      {id:7,title:"Max's Entry System — Long and Short",content:buildM2L7()}
     ]
   },
   {
@@ -756,6 +757,51 @@ function toggleSidebar() {
 })();
 function handleLogout() {
   firebase.auth().signOut().then(function() { window.location.href = 'index.html'; });
+}
+
+function buildM2L7() {
+  return obj('By the end of this lesson you will understand Max\'s personal entry and exit system for both long and short positions.') +
+    h2('7.1 The Core Principle') +
+    p('Every trade starts with a momentum event — a high-volume surge on a real catalyst. The system waits for the pullback after the surge and enters with discipline, never chasing.') +
+    callout('blue','Why 30% size to start','Starting small controls risk during the most uncertain moment. Size up only when the market proves the trade is working.') +
+   
+    '<div style="margin:24px 0;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">' +
+    '<svg viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg" width="100%">\n<rect width="820" height="380" fill="#f8fafc"/>\n<rect width="820" height="52" fill="#1e293b"/>\n<text x="410" y="26" font-family="Arial" font-weight="700" font-size="20" fill="#f1f5f9" text-anchor="middle">Entry System Overview</text>\n<text x="410" y="46" font-family="Arial" font-size="16" fill="#94a3b8" text-anchor="middle">Both trades start with 30% size and scale into confirmation</text>\n<rect x="10" y="60" width="394" height="300" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>\n<text x="207" y="88" font-family="Arial" font-weight="700" font-size="17" fill="#15803d" text-anchor="middle">LONG — Momentum Pullback</text>\n<text x="22" y="116" font-family="Arial" font-weight="700" font-size="16" fill="#15803d">1. Trigger</text><text x="22" y="136" font-family="Arial" font-size="16" fill="#334155">1M+ vol surge on positive news</text>\n<text x="22" y="166" font-family="Arial" font-weight="700" font-size="16" fill="#15803d">2. Entry</text><text x="22" y="186" font-family="Arial" font-size="16" fill="#334155">30% size on pullback after surge</text>\n<text x="22" y="216" font-family="Arial" font-weight="700" font-size="16" fill="#15803d">3. Stop</text><text x="22" y="236" font-family="Arial" font-size="16" fill="#334155">Below 1-min candle low or VWAP</text>\n<text x="22" y="266" font-family="Arial" font-weight="700" font-size="16" fill="#15803d">4. Scale</text><text x="22" y="286" font-family="Arial" font-size="16" fill="#334155">Add on next pullback, move stop to avg</text>\n<text x="22" y="316" font-family="Arial" font-weight="700" font-size="16" fill="#15803d">5. Exit</text><text x="22" y="336" font-family="Arial" font-size="16" fill="#334155">Resistance breakout OR 9-MA break</text>\n<rect x="416" y="60" width="394" height="300" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>\n<text x="613" y="88" font-family="Arial" font-weight="700" font-size="17" fill="#b91c1c" text-anchor="middle">SHORT — Resistance Exhaustion</text>\n<text x="428" y="116" font-family="Arial" font-weight="700" font-size="16" fill="#b91c1c">1. Trigger</text><text x="428" y="136" font-family="Arial" font-size="16" fill="#334155">Surge into PMH or resistance zone</text>\n<text x="428" y="166" font-family="Arial" font-weight="700" font-size="16" fill="#b91c1c">2. Entry</text><text x="428" y="186" font-family="Arial" font-size="16" fill="#334155">30% size short into the surge</text>\n<text x="428" y="216" font-family="Arial" font-weight="700" font-size="16" fill="#b91c1c">3. Stop</text><text x="428" y="236" font-family="Arial" font-size="16" fill="#334155">Exit 100% if PMH breaks — no exceptions</text>\n<text x="428" y="266" font-family="Arial" font-weight="700" font-size="16" fill="#b91c1c">4. Target</text><text x="428" y="286" font-family="Arial" font-size="16" fill="#334155">50% spike retrace OR prev day close</text>\n<text x="428" y="316" font-family="Arial" font-weight="700" font-size="16" fill="#b91c1c">5. Exit</text><text x="428" y="336" font-family="Arial" font-size="16" fill="#334155">2 green candles + falling volatility</text>\n</svg>' +
+    '</div>' +
+    h2('7.2 Long Position — Step by Step') +
+    callout('green','Step 1 — Trigger','At least 1 million shares traded in a surge driven by confirmed positive news catalyst on the current trading day.') +
+    callout('green','Step 2 — Entry','Wait for the pullback after the surge. Enter 30% of normal position size during the price pullback — not into momentum.') +
+    callout('green','Step 3 — Stop Loss','Place stop just below the low of the 1-minute entry candle, OR just below VWAP — whichever is closer to price.') +
+    callout('green','Step 4 — Scale In','If the stock holds and pulls back a second time, add a small increment to the position. Confirm the trend is real before adding size.') +
+    callout('green','Step 5 — Adjust Stop','After scaling in, move stop to average entry price across both lots. Then trail the stop up to just below each subsequent pullback low as the trend continues.') +
+    callout('green','Step 6 — Exit','Exit on: (1) breakout toward resistance level — take profits at or before the level, OR (2) price breaks below the 9-period MA on the 1-minute chart — uptrend is over, exit immediately.') +
+    h2('7.3 Short Position — Step by Step') +
+    callout('red','Step 1 — Trigger','Stock surges hard into a known resistance zone such as the pre-market high, prior day high, or a round number. You are shorting exhaustion at resistance, not shorting strength.') +
+    callout('red','Step 2 — Entry','Enter short with 30% of normal size as the stock pushes into resistance. Small size because the stock is still moving up and you are early.') +
+    callout('red','Step 3 — Stop Loss: EXIT 100% AT PMH','Stop is set at the pre-market high (PMH). This is an absolute rule: if price breaks and closes above PMH after the market open, exit 100% of your short position immediately — no partial exits, no waiting. 99% of the time when a stock breaks above PMH with conviction, the uptrend continues and the short trade is over. One second of hesitation at PMH can turn a manageable loss into a serious one.') +
+    callout('red','Step 4 — Scale In','If the stock stalls and rolls over at resistance, add to the short. Now you have price confirmation. Increase size toward normal position size as the reversal develops.') +
+    callout('red','Step 5 — Target','Two targets: (1) Minimum 50% retrace of the entire spike move measured from pre-surge low to spike high. (2) Previous day closing price — a natural support level after a spike fades.') +
+    callout('red','Step 6 — Exit Signal','Cover the short when you see two consecutive green candles on the 1-minute or 5-minute chart with decreasing volatility. This signals buyers stepping back in and the downtrend losing momentum.') +
+    h2('7.4 The 9-Period MA Rule') +
+    p('The 9-period moving average on the 1-minute chart governs hold decisions for long trades. Price above the 9-MA making higher lows — hold. Price crosses below the 9-MA — exit the long. Use this on the 1-minute timeframe only, not the 5-minute.') +
+    callout('amber','For students in training','You will observe this system applied in real time during morning sessions. Do not trade it with real money until you have watched at least 20 live applications and can identify each step in real time without referring to notes.') +
+    callout('blue','Connection to the Scorecard','Every trade in this system still requires a score of 4 or higher on the setup scorecard from Lesson 6. Volume surge does not override a weak setup. Catalyst quality, float, level, and VWAP alignment must all support the direction.') +
+    h2('7.5 The 10:30 Rule — Safest Beginner Long Setup') +
+    p('This is the safest long trade in the TradeRoom PRO system and the recommended starting point for new students. It runs after the high-risk morning session closes. No pre-market catalyst reading, no competing with momentum traders at the open. Just patience and one clean condition.') +
+    callout('amber','Who this trade is for','Designed specifically for beginners. After 10:30 AM the session is closed, short sellers are covering, volatility is falling, and the risk-reward on a long from below VWAP to VWAP is clean and mechanical.') +
+    h3('7.5.1 The Setup Condition') +
+    p('After 10:30 AM look for stocks trading below VWAP. Short sellers drove price down during the morning session and are now beginning to close their positions. When shorts cover they buy shares — that buying pressure pushes price back up toward VWAP.') +
+    twoCol('Why price returns to VWAP','VWAP is the volume-weighted average for the day. Institutional orders are benchmarked to it. When price is below VWAP natural buying pressure pulls it back. This is a structural tendency of the market — not a prediction.','Why 10:30 specifically','The TradeRoom PRO session ends at 10:30 AM. Morning momentum is over. Short sellers who opened positions during the 9:30-10:30 window begin covering. Their buying creates the upward pressure that makes this trade work.','blue','green') +
+    h3('7.5.2 Entry Rules') +
+    ul(['Wait until after 10:30 AM — never enter during the morning session',
+        'Stock must be below VWAP — if already above VWAP this setup does not apply',
+        'Look for reversal signal: two consecutive green candles with decreasing volatility on 1-min or 5-min',
+        'Enter long with 30% of normal size on the first confirmed green candle after reversal',
+        'Stop loss: just below the daily low — the lowest price traded today',
+        'Target: VWAP line — exit 100% of position when price touches VWAP']) +
+    callout('green','Why the daily low is the stop','The daily low is the strongest support level of the day. If price breaks below it after 10:30 AM sellers are still in control and the reversal is wrong. The loss is small because entry is near the daily low — this is what makes the risk-reward favorable.') +
+    callout('green','Risk-reward on this trade','Entry near daily low. Stop just below it — a small distance. Target is VWAP — often 20 to 50 cents higher. Risk a few cents to make 20-50 cents. This is why it is the recommended first live trade for TradeRoom PRO students.') +
+    callout('red','The 10:30 Rule — Short Side','This rule applies to short sellers only: after 10:30 AM the dynamic reverses. What was a short-dominated downtrend becomes a long opportunity as shorts cover. Do NOT short after 10:30 AM into a stock already beaten down below VWAP — the risk is against you. After 10:30 the bias is long with VWAP as target.');
 }
 
 // ══ CONTENT HELPERS ══
