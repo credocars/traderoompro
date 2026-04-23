@@ -1566,7 +1566,30 @@ function buildM5L2() {
     dataTable(['Threshold','Action required'],
       [['50% of daily limit ($225 on $30K paper)','Slow down. Review your last two trades in TraderVue. Are you trading your plan or chasing?'],
        ['75% of daily limit ($337 on $30K paper)','Mandatory 15-minute break. Step away from the screen. Come back with fresh eyes or end the session.'],
-       ['100% of daily limit ($450 on $30K paper)','Session ends immediately. Flatten all positions. Post in Discord. No exceptions.']]);
+       ['100% of daily limit ($450 on $30K paper)','Session ends immediately. Flatten all positions. Post in Discord. No exceptions.']]) +
+    h2('2.4 The Golden Rule — Broker-Level Hard Stop') +
+    callout('red','GOLDEN RULE: Set your daily loss limit directly in the broker — not just in your head','This is the single most important risk management rule in trading. Every trader — beginner or experienced — must configure a hard dollar stop-loss at the broker level through IB Risk Navigator. When this limit is hit the broker automatically closes ALL open positions. You do not get to decide. The machine decides. This protects you from yourself.') +
+    p('Here is why this rule exists. When a trade goes against you, the human brain does not accept the loss immediately. Instead it does something dangerous — it expects the price to come back. This is not logic. This is emotion. And while you are waiting and hoping, the position continues to move against you. What started as a manageable $200 loss becomes $500, then $1,000, then account-threatening.') +
+    p('Professional traders have blown up accounts this way. Experienced traders have blown up accounts this way. The broker hard stop removes the choice entirely. When the limit is hit — it is over. The machine closes the position. You cannot override it in the moment.') +
+    h3('How to Set the Daily Loss Limit') +
+    ul([
+        'Open IB Trader Workstation and navigate to Risk Navigator',
+        'Set the daily P&L limit to your chosen dollar amount',
+        'When your account reaches that loss for the day IB automatically flattens all positions',
+        'You cannot re-enter trades for the remainder of the session',
+        'Verify this is active every morning before the session begins — it resets daily'
+    ]) +
+    h3('How to Calculate Your Limit') +
+    twoCol(
+        'The Formula',
+        'Your daily loss limit should be set to 1 to 2 times your average profitable day. If your average winning day is $1,000 — your broker stop is set between $1,000 and $2,000 maximum loss. You are not allowed to lose more than 1 to 2 good days in a single bad day.',
+        'Example — $1,000 avg profitable day',
+        'Broker hard stop: $1,000 to $2,000 loss limit. If you lose $1,500 in one session the broker closes everything. You keep your remaining capital. You trade again tomorrow. Without this rule one bad session could wipe out a week or a month of gains.',
+        'blue','green'
+    ) +
+    callout('red','What happens without a broker stop','You are in a losing position. Your brain says wait — it will come back. The price goes further against you. You freeze. You cannot bring yourself to click the button. Minutes pass. The loss doubles. You finally close — but now you have lost 3, 4, or 5 average winning days in one session. Some traders have lost their entire account balance and owed additional money to the broker in margin fees. This is not hypothetical. This happens to real traders every week.') +
+    callout('amber','Experienced traders too','This rule is not only for beginners. Experienced traders who skip the broker stop are the ones most at risk — because their position sizes are larger. One bad morning without a hard stop at the broker level can erase months of profitable work. Max uses this rule every single session regardless of how many years of experience he has.') +
+    callout('green','The right mindset','The broker stop is not a sign of weakness. It is the professional approach. Every serious trading firm has automated risk controls. You are building the same discipline. Capital preservation is the only skill that keeps you in the game long enough to become consistently profitable.');
 }
 
 function buildM5L3() {
@@ -1666,6 +1689,8 @@ function buildM5L5() {
 
 function buildM5L6() {
   return obj('By the end of this lesson you will have the IB Risk Navigator configured with your daily and weekly loss limits, understand what happens when each threshold is breached, and have signed the TradeRoom PRO Risk Parameters document.') +
+    
+    callout('red','GOLDEN RULE — Verify This Every Morning','Before any platform opens confirm your IB Risk Navigator daily loss limit is active. Set it to 1-2x your average profitable day. The broker closes ALL positions automatically when this limit is hit. This is non-negotiable for every trader at every experience level. See Module 5 Lesson 2 for the full calculation method.') +
     h2('6.1 What is the IB Risk Navigator?') +
     p('The IB Risk Navigator is a real-time risk monitoring tool built into Trader Workstation. It tracks your daily P&L across all positions and can automatically flatten (close) all positions when a predefined loss limit is reached. For TradeRoom PRO students, the Risk Navigator is the mechanical enforcement of the daily loss limit — it removes the temptation to override the limit manually during a losing session.') +
     h2('6.2 Configuring the Risk Navigator') +
