@@ -167,7 +167,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .col-box{border-radius:8px;padding:16px 18px;font-size:15px;line-height:1.8;}
 .col-box.blue{background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;}
 .col-box.green{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;}
-.col-box-title{font-weight:700;margin-bottom:6px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;}
+.col-box.red{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;}
+.col-box.amber{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+.col-box-title{font-weight:700;margin-bottom:6px;font-size:16px;letter-spacing:.02em;text-transform:uppercase;}
+.col-box p,.col-box-body{color:#334155 !important;font-size:16px;line-height:1.7;}
 
 /* definition table */
 .def-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px;}
@@ -766,7 +769,10 @@ function callout(type, title, body) {
   return '<div class="callout ' + type + '"><div class="callout-icon">' + icons[type] + '</div><div class="callout-body"><div class="callout-title">' + title + '</div><div class="callout-text">' + body + '</div></div></div>';
 }
 function twoCol(leftTitle, leftBody, rightTitle, rightBody, leftType, rightType) {
-  return '<div class="two-col"><div class="col-box ' + (leftType||'blue') + '"><div class="col-box-title">' + leftTitle + '</div>' + leftBody + '</div><div class="col-box ' + (rightType||'green') + '"><div class="col-box-title">' + rightTitle + '</div>' + rightBody + '</div></div>';
+  return '<div class="two-col">' +
+    '<div class="col-box ' + (leftType||'blue') + '"><div class="col-box-title">' + leftTitle + '</div><div class="col-box-body" style="color:#334155;font-size:16px;line-height:1.7;">' + leftBody + '</div></div>' +
+    '<div class="col-box ' + (rightType||'green') + '"><div class="col-box-title">' + rightTitle + '</div><div class="col-box-body" style="color:#334155;font-size:16px;line-height:1.7;">' + rightBody + '</div></div>' +
+    '</div>';
 }
 function defTable(rows) {
   var html = '<table class="def-table"><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody>';
