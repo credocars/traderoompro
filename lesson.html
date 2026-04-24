@@ -1384,7 +1384,8 @@ function buildM4L1() {
     p('Once your filters are saved, configure the alert window columns so the most important data is visible at a glance:') +
     ul(['Symbol — the ticker','Last Price — current price','Gap % — how much it gapped from previous close','Volume — shares traded today so far','Relative Volume — today volume vs average','Float — shares in float (from Trade Ideas data)','News — headline summary','Market Cap — total company value']) +
     p('Sort the window by Gap % descending. The biggest gappers appear at the top. Scroll down to see smaller gappers that may have better setups. A 200% gap on a 2M float stock may be more tradeable than a 15% gap on a 15M float stock.') +
-    callout('amber','Important','Trade Ideas float data can lag SEC filings by 1-2 days. Always cross-reference with Finviz for any stock where a recent offering or S-3 has occurred. The scanner is your starting point — not your final answer.');
+    callout('amber','Important','Trade Ideas float data can lag SEC filings by 1-2 days. Always cross-reference with Finviz for any stock where a recent offering or S-3 has occurred. The scanner is your starting point — not your final answer.') +
+    callout('red','IMPORTANT — Short Selling Float Requirement','To short a stock the float must be a minimum of 2 million shares. Stocks with floats under 2M are too thinly traded for safe short selling — borrow availability is extremely limited, the spread is wide, and a small buy order can trigger a violent squeeze against your position. Do not attempt to short any stock with a float below 2M shares under any circumstances.');
 }
 
 function buildM4L2() {
