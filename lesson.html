@@ -189,6 +189,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .mod-btn{flex:1;min-width:28px;padding:5px 4px;border:1px solid var(--border-hi);border-radius:6px;background:var(--card2);color:var(--t3);font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;font-family:Arial,sans-serif;}
 .mod-btn:hover{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green);}
 .mod-btn.active{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green);}
+.mod-btn.locked{cursor:not-allowed;color:var(--t3);}
+.mod-btn.locked:hover{background:var(--card2);border-color:var(--border-hi);color:var(--t3);}
 
 /* ── LESSON FOOTER ── */
 .lesson-footer{padding:24px 48px;border-top:1px solid #e2e8f0;display:flex;align-items:center;gap:16px;flex-shrink:0;background:#f8fafc;}
@@ -463,23 +465,44 @@ function setParams(mod, lesson) {
 }
 
 // ══ RENDER ══
+
+function isModuleUnlocked(modIdx) {
+  // Module 0 (Welcome) and Module 1 are always unlocked
+  if (modIdx <= 1) return true;
+  if (modIdx >= MODULES.length) return false;
+  // Otherwise, the PREVIOUS module's quiz must be passed
+  var prevMod = MODULES[modIdx - 1];
+  var prevProgress = userProgress[prevMod.id];
+  return !!(prevProgress && prevProgress.quizPassed);
+}
+
 function renderModSwitcher() {
   var sw = document.getElementById('modSwitcher');
   if (!sw) return;
   sw.innerHTML = '';
   MODULES.forEach(function(mod, i) {
+    var unlocked = isModuleUnlocked(i);
     var btn = document.createElement('button');
-    btn.className = 'mod-btn' + (i === currentModIdx ? ' active' : '');
-    btn.textContent = mod.id === 0 ? '👋' : 'M' + mod.id;
-    btn.title = mod.title;
-    (function(idx) {
+    btn.className = 'mod-btn' + (i === currentModIdx ? ' active' : '') + (unlocked ? '' : ' locked');
+    btn.textContent = unlocked
+      ? (mod.id === 0 ? '👋' : 'M' + mod.id)
+      : '🔒';
+    btn.title = unlocked
+      ? mod.title
+      : mod.title + ' — locked. Pass Module ' + (mod.id - 1) + ' quiz to unlock.';
+    if (!unlocked) btn.style.opacity = '0.5';
+    (function(idx, isUnlocked, modTitle, prevModId) {
       btn.onclick = function() {
+        if (!isUnlocked) {
+          alert(modTitle + ' is locked.\n\nComplete Module ' + prevModId + ' and pass its quiz to unlock this module.');
+          return;
+        }
         currentModIdx = idx;
         currentLessonIdx = 0;
         setParams(currentModIdx, currentLessonIdx);
         renderPage();
       };
-    })(i);
+    })(i, unlocked, mod.title, mod.id - 1);
     sw.appendChild(btn);
   });
 }
@@ -487,6 +510,14 @@ function renderModSwitcher() {
 function renderPage() {
   // Safety guards
   if (currentModIdx < 0 || currentModIdx >= MODULES.length) currentModIdx = 0;
+  // Lock guard — if module is locked, drop back to highest unlocked
+  if (!isModuleUnlocked(currentModIdx)) {
+    for (var __i = currentModIdx - 1; __i >= 0; __i--) {
+      if (isModuleUnlocked(__i)) { currentModIdx = __i; break; }
+    }
+    currentLessonIdx = 0;
+    setParams(currentModIdx, currentLessonIdx);
+  }
   if (currentLessonIdx < 0 || currentLessonIdx >= MODULES[currentModIdx].lessons.length) currentLessonIdx = 0;
 
   var mod = MODULES[currentModIdx];
