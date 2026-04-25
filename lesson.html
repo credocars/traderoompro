@@ -523,7 +523,7 @@ function renderPage() {
 
   // Content
   document.getElementById('lessonBody').innerHTML =
-    '<div class="lesson-num">Lesson ' + (currentLessonIdx+1) + ' of ' + mod.lessons.length + '</div>' +
+    '<div class="lesson-num">Lesson ' + (mod.id === 0 ? currentLessonIdx : currentLessonIdx+1) + ' of ' + mod.lessons.length + '</div>' +
     '<div class="lesson-h1">' + lesson.title + '</div>' +
     lesson.content;
 
@@ -531,11 +531,15 @@ function renderPage() {
   var isDoneCurrent = done.indexOf(lesson.id) !== -1;
   var isLastLesson = currentLessonIdx === mod.lessons.length - 1;
   document.getElementById('footerInfo').innerHTML =
-    '<span>' + mod.title + '</span> · Lesson ' + (currentLessonIdx+1) + ' of ' + mod.lessons.length;
+    '<span>' + mod.title + '</span> · Lesson ' + (mod.id === 0 ? currentLessonIdx : currentLessonIdx+1) + ' of ' + mod.lessons.length;
   document.getElementById('prevBtn').disabled = currentModIdx === 0 && currentLessonIdx === 0;
 
   var nextBtn = document.getElementById('nextBtn');
-  if (isDoneCurrent) {
+  if (mod.id === 0) {
+    // Welcome module — always shows "Begin Module 1"
+    nextBtn.textContent = 'Begin Module 1 →';
+    nextBtn.className = 'next-btn';
+  } else if (isDoneCurrent) {
     if (isLastLesson) {
       nextBtn.textContent = 'Go to Quiz →';
       nextBtn.className = 'next-btn finish';
@@ -603,6 +607,14 @@ function nextLesson() {
 
   var isLastLesson = currentLessonIdx === mod.lessons.length - 1;
   if (isLastLesson) {
+    // For Module 0 (Welcome), advance to Module 1 Lesson 1
+    if (mod.id === 0 && currentModIdx + 1 < MODULES.length) {
+      currentModIdx++;
+      currentLessonIdx = 0;
+      setParams(currentModIdx, currentLessonIdx);
+      renderPage();
+      return;
+    }
     // All lessons done — go back to courses page for quiz
     window.location.href = 'courses.html';
     return;
