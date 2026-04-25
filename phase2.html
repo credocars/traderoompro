@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Phase 2 — Paper Trading Curriculum · TradeRoom PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--bg2:#1e293b;--card:#1e293b;--card2:#293548;--border:#334155;--border-hi:#475569;--t1:#f1f5f9;--t2:#cbd5e1;--t3:#94a3b8;--green:#22c55e;--green-bg:rgba(34,197,94,.1);--blue:#3b82f6;--cyan:#06b6d4;--purple:#8b5cf6;--amber:#f59e0b;--red:#ef4444;}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden;display:flex;margin:0;}
+
+/* SIDEBAR (matches lesson.html) */
+.sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .2s;}
+.sidebar.collapsed{width:60px;}
+.sb-top{padding:20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.sb-logo{width:32px;height:32px;background:var(--green-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-wordmark{font-weight:800;font-size:14px;letter-spacing:.5px;}
+.sb-wordmark span{color:var(--green);}
+.sidebar.collapsed .sb-wordmark,.sidebar.collapsed .sb-label,.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
+.sb-collapse-btn{margin-left:auto;background:transparent;border:none;color:var(--t3);cursor:pointer;padding:4px;border-radius:4px;}
+.sb-collapse-btn:hover{background:var(--card2);color:var(--t1);}
+.sb-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+.sb-section-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 6px 8px;}
+.sb-link{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:7px;color:var(--t2);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.sb-link:hover{background:var(--card);color:var(--t1);}
+.sb-link.active{background:var(--green-bg);color:var(--green);}
+.sb-link-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.sb-label{font-size:13px;}
+.sb-bottom{padding:16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,.15);color:#8b5cf6;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-uname{font-size:13px;font-weight:600;color:var(--t1);}
+.sb-urole{font-size:11px;color:var(--t3);}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+.header{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.header-left{display:flex;align-items:center;gap:14px;}
+.header-title{font-size:14px;font-weight:600;color:var(--t1);}
+.header-title .accent{color:var(--cyan);}
+.header-right{display:flex;align-items:center;gap:14px;}
+.session-clock{font-family:'Inter',monospace;font-size:13px;color:var(--t3);background:var(--card2);padding:4px 10px;border-radius:5px;}
+.user-chip{font-size:13px;font-weight:600;color:var(--t1);padding:4px 10px;background:var(--card2);border-radius:6px;}
+.logout-btn{background:transparent;border:1px solid var(--border-hi);color:var(--t3);font-size:11px;padding:5px 10px;border-radius:5px;cursor:pointer;font-family:inherit;font-weight:500;}
+.logout-btn:hover{color:var(--red);border-color:var(--red);}
+
+/* CONTENT AREA */
+.content{flex:1;overflow-y:auto;padding:0;}
+.content::-webkit-scrollbar{width:8px;}
+.content::-webkit-scrollbar-track{background:var(--bg);}
+.content::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:4px;}
+
+/* HERO / CURRICULUM MAP */
+.hero{background:linear-gradient(135deg,#0c1424 0%,#1e3a5f 100%);padding:36px 56px 28px;border-bottom:1px solid var(--border);}
+.hero-eyebrow{font-size:12px;font-weight:700;color:var(--cyan);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-size:30px;font-weight:800;color:var(--t1);margin-bottom:10px;}
+.hero-sub{font-size:15px;color:var(--t2);max-width:760px;line-height:1.6;}
+
+.curriculum-map{padding:28px 56px;background:var(--bg);border-bottom:1px solid var(--border);}
+.cmap-title{font-size:13px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;}
+.cmap-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px;}
+.cmap-month{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 12px;text-align:center;}
+.cmap-month-num{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.5px;}
+.cmap-month-label{font-size:13px;color:var(--t1);font-weight:700;margin-top:4px;}
+.cmap-month-focus{font-size:11px;color:var(--t3);margin-top:6px;line-height:1.4;}
+.cmap-month.foundation{border-color:var(--cyan);background:rgba(6,182,212,.05);}
+.cmap-month.specialization{border-color:var(--blue);background:rgba(59,130,246,.05);}
+.cmap-month.gate-push{border-color:var(--amber);background:rgba(245,158,11,.05);}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:var(--bg);border-bottom:1px solid var(--border);padding:0 56px;}
+.tab{background:transparent;border:none;color:var(--t3);padding:14px 22px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;gap:8px;}
+.tab:hover{color:var(--t1);}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.tab-icon{font-size:16px;}
+.tab-count{background:var(--card2);color:var(--t3);font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;margin-left:4px;}
+.tab.active .tab-count{background:rgba(6,182,212,.2);color:var(--cyan);}
+
+/* TAB CONTENT */
+.tab-content{padding:28px 56px;display:none;}
+.tab-content.active{display:block;}
+
+/* DRILL CARDS */
+.drill-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+.drill-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.drill-head{padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);cursor:pointer;}
+.drill-head:hover{background:var(--card2);}
+.drill-icon{font-size:24px;width:42px;height:42px;background:var(--bg2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.drill-titles{flex:1;min-width:0;}
+.drill-title{font-size:15px;font-weight:700;color:var(--t1);}
+.drill-meta{font-size:12px;color:var(--t3);margin-top:2px;display:flex;align-items:center;gap:10px;}
+.drill-cat{padding:1px 8px;background:rgba(6,182,212,.15);color:var(--cyan);border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.4px;}
+.drill-freq{padding:1px 8px;background:var(--card2);color:var(--t2);border-radius:4px;font-size:10px;font-weight:600;}
+.drill-status{display:flex;align-items:center;gap:8px;}
+.drill-status-pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;}
+.drill-status-pill.todo{background:var(--card2);color:var(--t3);}
+.drill-status-pill.done{background:rgba(34,197,94,.15);color:var(--green);}
+.drill-toggle{color:var(--t3);font-size:14px;transition:transform .2s;}
+.drill-card.expanded .drill-toggle{transform:rotate(180deg);}
+.drill-body{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s;}
+.drill-card.expanded .drill-body{padding:18px 20px 20px;max-height:1500px;}
+.drill-section{margin-bottom:16px;}
+.drill-section:last-child{margin-bottom:0;}
+.drill-section-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.drill-purpose{font-size:14px;color:var(--t2);line-height:1.6;background:var(--bg2);border-left:3px solid var(--cyan);padding:12px 16px;border-radius:0 6px 6px 0;}
+.drill-list{font-size:14px;color:var(--t2);line-height:1.7;padding-left:22px;margin:0;}
+.drill-list li{margin-bottom:4px;}
+.drill-rubric{width:100%;border-collapse:collapse;font-size:13px;}
+.drill-rubric td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+.drill-rubric tr:last-child td{border-bottom:none;}
+.drill-rubric td:first-child{font-weight:700;color:var(--t1);width:34%;}
+.drill-rubric td:last-child{color:var(--t2);}
+.drill-mentor{font-size:13px;color:var(--t2);background:rgba(245,158,11,.06);border-left:3px solid var(--amber);padding:10px 14px;border-radius:0 6px 6px 0;}
+.drill-actions{margin-top:14px;display:flex;gap:10px;}
+.drill-log-btn{background:var(--green);color:#0f172a;border:none;padding:9px 16px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+.drill-log-btn:hover{filter:brightness(1.1);}
+.drill-log-btn.done{background:var(--card2);color:var(--t3);cursor:default;}
+
+/* PLAYBOOK */
+.pb-grid{display:grid;grid-template-columns:1fr;gap:18px;}
+.pb-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.pb-card.long{border-left:4px solid var(--green);}
+.pb-card.short{border-left:4px solid var(--red);}
+.pb-head{padding:18px 22px;display:flex;align-items:center;gap:14px;background:var(--bg2);border-bottom:1px solid var(--border);}
+.pb-icon{font-size:22px;}
+.pb-title{font-size:16px;font-weight:700;color:var(--t1);}
+.pb-cat{font-size:10px;font-weight:700;letter-spacing:.6px;padding:3px 9px;border-radius:5px;text-transform:uppercase;margin-left:auto;}
+.pb-cat.long{background:rgba(34,197,94,.15);color:var(--green);}
+.pb-cat.short{background:rgba(239,68,68,.15);color:var(--red);}
+.pb-body{padding:18px 22px;}
+.pb-summary{font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:18px;background:var(--bg2);padding:12px 16px;border-radius:6px;}
+.pb-grid-rules{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.pb-rule-block{background:var(--bg2);padding:14px 16px;border-radius:7px;}
+.pb-rule-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.pb-rule-list{font-size:13px;color:var(--t2);line-height:1.6;margin:0;padding-left:18px;}
+.pb-rule-list li{margin-bottom:3px;}
+.pb-disq{background:rgba(239,68,68,.06);border-left:3px solid var(--red);padding:12px 16px;border-radius:0 6px 6px 0;}
+.pb-disq-label{font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.pb-disq-list{font-size:13px;color:var(--t2);line-height:1.6;margin:0;padding-left:18px;}
+.pb-disq-list li{margin-bottom:3px;}
+
+/* DASHBOARD */
+.dash-intro{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:22px;}
+.dash-intro-title{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:8px;}
+.dash-intro-text{font-size:13px;color:var(--t2);line-height:1.6;}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.metric-cat{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;}
+.metric-name{font-size:16px;font-weight:700;color:var(--t1);margin-bottom:12px;}
+.metric-row{margin-bottom:10px;}
+.metric-row-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.metric-row-value{font-size:13px;color:var(--t2);line-height:1.5;}
+.metric-input-row{display:flex;gap:8px;align-items:center;margin-top:12px;padding-top:14px;border-top:1px dashed var(--border);}
+.metric-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;color:var(--t1);font-size:13px;}
+.metric-input:focus{outline:none;border-color:var(--cyan);}
+.metric-save-btn{background:var(--cyan);color:#0f172a;border:none;padding:7px 14px;border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+
+/* GATE CRITERIA */
+.gate-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+.gate-item{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:18px 22px;display:flex;gap:16px;align-items:flex-start;}
+.gate-num{width:36px;height:36px;background:var(--bg2);color:var(--cyan);font-weight:800;font-size:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gate-content{flex:1;min-width:0;}
+.gate-req{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.gate-cat{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--amber);margin-bottom:8px;}
+.gate-detail{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:8px;}
+.gate-measure{font-size:12px;color:var(--t3);font-style:italic;}
+
+/* AUTH MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:420px;padding:32px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden;}
+.modal-box::before{content:'';position:absolute;inset:0;background:radial-gradient(at 0% 0%,rgba(34,197,94,.08) 0%,transparent 60%);pointer-events:none;}
+.modal-logo{display:flex;align-items:center;gap:14px;}
+.modal-logo-mark{width:40px;height:40px;background:var(--green-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.modal-title{font-size:18px;font-weight:800;color:var(--t1);}
+.modal-title span{color:var(--green);}
+.modal-sub{font-size:12px;color:var(--t3);}
+.modal-divider{height:1px;background:var(--border);}
+.tab-row{display:flex;gap:0;background:var(--card);border:1px solid var(--border-hi);border-radius:8px;overflow:hidden;}
+.auth-tab{flex:1;background:transparent;border:none;color:var(--t3);padding:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.auth-tab.active{background:var(--card2);color:var(--t1);}
+.modal-input-group{display:flex;flex-direction:column;gap:10px;}
+.modal-input{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-family:inherit;color:var(--t1);font-size:14px;}
+.modal-input:focus{outline:none;border-color:var(--green);}
+.modal-role-row{display:flex;gap:8px;}
+.role-btn{flex:1;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px;border-radius:7px;border:1px solid var(--border-hi);background:var(--card);color:var(--t3);cursor:pointer;transition:all .15s;text-align:center;}
+.role-btn.active{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green);}
+.modal-btn{background:var(--green);color:#0f172a;border:none;padding:12px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.modal-btn:disabled{opacity:.6;cursor:not-allowed;}
+.modal-err{font-size:12px;color:var(--red);margin-top:-4px;}
+.forgot-link{text-align:right;}
+.forgot-link span{font-size:11px;color:var(--blue);cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <div class="modal-logo-mark"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M4 6h16M4 12h10M4 18h13" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#22c55e"/></svg></div>
+      <div><div class="modal-title">TradeRoom <span>PRO</span></div><div class="modal-sub" id="modalSubtitle">Phase 2 — Sign in to continue</div></div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="tab-row">
+      <button id="tabLogin" class="auth-tab active" onclick="showTab('login')">Sign In</button>
+      <button id="tabRegister" class="auth-tab" onclick="showTab('register')">Create Account</button>
+    </div>
+    <div id="formLogin" class="modal-input-group">
+      <input class="modal-input" id="loginEmail" type="text" placeholder="Email address" inputmode="email" onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <input class="modal-input" id="loginPassword" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <div class="forgot-link"><span onclick="forgotPassword()">Forgot password?</span></div>
+    </div>
+    <div id="formRegister" class="modal-input-group" style="display:none;">
+      <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24"/>
+      <input class="modal-input" id="regEmail" type="text" placeholder="Email address" inputmode="email"/>
+      <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" minlength="6"/>
+      <div class="modal-role-row">
+        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
+        <button class="role-btn" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      </div>
+    </div>
+    <div id="errMsg" class="modal-err" style="display:none;"></div>
+    <button id="authBtn" class="modal-btn" onclick="handleAuth()">Enter Trading Room →</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M4 6h16M4 12h10M4 18h13" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#22c55e"/></svg></div>
+    <div class="sb-wordmark">TradeRoom <span>PRO</span></div>
+    <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 18l-6-6 6-6"/></svg></button>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section-label">Phase 1 — Foundation</div>
+    <a href="courses.html" class="sb-link"><span class="sb-link-icon">📚</span><span class="sb-label">Course Modules</span></a>
+    <div class="sb-section-label">Phase 2 — Paper Trading</div>
+    <a href="phase2.html" class="sb-link active"><span class="sb-link-icon">🎯</span><span class="sb-label">Curriculum</span></a>
+    <div class="sb-section-label">Tools</div>
+    <a href="https://www.tradervue.com" target="_blank" class="sb-link"><span class="sb-link-icon">📓</span><span class="sb-label">TraderVue</span></a>
+    <a href="https://www.trade-ideas.com" target="_blank" class="sb-link"><span class="sb-link-icon">🔍</span><span class="sb-label">Trade Ideas</span></a>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-avatar" id="sbAvatar">—</div>
+    <div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-uname" id="sbName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div><div class="sb-urole" id="sbRole">—</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-title">Phase 2 <span class="accent">·</span> Paper Trading Curriculum</div>
+    </div>
+    <div class="header-right">
+      <div class="session-clock" id="sessionTime">--:--:--</div>
+      <div class="user-chip" id="userChip">—</div>
+      <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">Months 4–9 · Paper Trading with Live Mentor Sessions</div>
+      <div class="hero-title">Welcome to Phase 2</div>
+      <div class="hero-sub">Foundation gave you the rules. Phase 2 is where they become reflex. For the next six months you trade paper — every morning, with the mentor, with full accountability — until the habits that make money possible are automatic. The goal is not P&amp;L. The goal is to graduate to Phase 3 ready.</div>
+    </div>
+
+    <!-- CURRICULUM MAP -->
+    <div class="curriculum-map">
+      <div class="cmap-title">6-Month Curriculum Map</div>
+      <div class="cmap-strip">
+        <div class="cmap-month foundation">
+          <div class="cmap-month-num">MONTH 4</div>
+          <div class="cmap-month-label">Drilling Fundamentals</div>
+          <div class="cmap-month-focus">Daily routine, hotkey speed, thesis writing, rule compliance</div>
+        </div>
+        <div class="cmap-month foundation">
+          <div class="cmap-month-num">MONTH 5</div>
+          <div class="cmap-month-label">Drilling Fundamentals</div>
+          <div class="cmap-month-focus">All drills at level 3, journaling quality, rule compliance 100%</div>
+        </div>
+        <div class="cmap-month specialization">
+          <div class="cmap-month-num">MONTH 6</div>
+          <div class="cmap-month-label">Setup Specialization</div>
+          <div class="cmap-month-focus">Pick 2 setups to master, deep-dive playbook, 15+ trades each</div>
+        </div>
+        <div class="cmap-month specialization">
+          <div class="cmap-month-num">MONTH 7</div>
+          <div class="cmap-month-label">Setup Specialization</div>
+          <div class="cmap-month-focus">Refine the 2 setups, achieve positive expectancy on each</div>
+        </div>
+        <div class="cmap-month gate-push">
+          <div class="cmap-month-num">MONTH 8</div>
+          <div class="cmap-month-label">Gate Criteria Push</div>
+          <div class="cmap-month-focus">Full daily routine, all drills sustained at level 3+</div>
+        </div>
+        <div class="cmap-month gate-push">
+          <div class="cmap-month-num">MONTH 9</div>
+          <div class="cmap-month-label">Gate Criteria Push</div>
+          <div class="cmap-month-focus">Hit all 8 graduation criteria, mentor exit interview</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" data-tab="drills" onclick="switchTab('drills')"><span class="tab-icon">📋</span>Daily Drills<span class="tab-count" id="drillsCount">0/10</span></button>
+      <button class="tab" data-tab="playbook" onclick="switchTab('playbook')"><span class="tab-icon">📖</span>Setup Playbook<span class="tab-count">5</span></button>
+      <button class="tab" data-tab="dashboard" onclick="switchTab('dashboard')"><span class="tab-icon">📊</span>Performance Dashboard</button>
+      <button class="tab" data-tab="gate" onclick="switchTab('gate')"><span class="tab-icon">🎯</span>Phase Gate Criteria<span class="tab-count">8</span></button>
+    </div>
+
+    <!-- DRILLS TAB -->
+    <div class="tab-content active" id="tab-drills">
+      <div style="background:rgba(6,182,212,.06);border-left:3px solid var(--cyan);padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">How drills work</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;">Each drill builds a specific habit. Click a drill to expand instructions, scoring rubric, and mentor sign-off requirements. Click "Mark today's session complete" after performing the drill to log it. Mentor reviews and grades — the log shows your completion streak.</div>
+      </div>
+      <div class="drill-grid" id="drillGrid"></div>
+    </div>
+
+    <!-- PLAYBOOK TAB -->
+    <div class="tab-content" id="tab-playbook">
+      <div style="background:rgba(34,197,94,.06);border-left:3px solid var(--green);padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Five tradeable setups</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;">Each playbook covers catalyst requirements, entry trigger, stop placement, target rules, and the disqualifiers that mean SKIP. During Months 6–7, you will pick two of these to specialize in.</div>
+      </div>
+      <div class="pb-grid" id="pbGrid"></div>
+    </div>
+
+    <!-- DASHBOARD TAB -->
+    <div class="tab-content" id="tab-dashboard">
+      <div class="dash-intro">
+        <div class="dash-intro-title">Track Your Numbers Manually</div>
+        <div class="dash-intro-text">Phase 2 dashboard is intentionally manual — the act of typing your weekly stats forces you to look at them. Pull data from TraderVue every Friday after market close, enter the values below, and review trends with your mentor. The weekly entries save automatically and build a history you can review during monthly self-review.</div>
+      </div>
+      <div class="metric-grid" id="metricGrid"></div>
+    </div>
+
+    <!-- GATE TAB -->
+    <div class="tab-content" id="tab-gate">
+      <div style="background:rgba(245,158,11,.06);border-left:3px solid var(--amber);padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Graduation requirements</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;">Eight criteria stand between you and Phase 3 (live capital). All must be satisfied AND the mentor must approve. Numerical criteria are necessary but not sufficient — the final decision is the mentor's after a 60-minute exit interview.</div>
+      </div>
+      <div class="gate-grid" id="gateGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339"});
+</script>
+
+<script>
+// ══ PHASE 2 DATA ══
+
+var DRILLS = [
+  {
+    id: 1, title: "Pre-Market Thesis", icon: "📝", freq: "Daily",
+    category: "Preparation",
+    purpose: "Lock in your trade plan in writing before the open. Forces clarity. If you cannot write the thesis in 5 minutes, you do not have one.",
+    instructions: [
+      "By 6:45 AM EST, post a written thesis in your Discord #premarket channel.",
+      "Format: TICKER — catalyst — setup — entry zone — stop — target — invalidation.",
+      "Maximum 5 sentences. If you need more, the setup is unclear.",
+      "Submit before any market data influences your bias."
+    ],
+    rubric: [
+      ["1 — None", "No thesis posted or posted after 6:45 AM"],
+      ["2 — Vague", "Posted on time but missing entry, stop, or invalidation"],
+      ["3 — Acceptable", "Complete format, executable plan"],
+      ["4 — Strong", "Specific levels, clear catalyst link, identifies what makes it INVALID"],
+      ["5 — Excellent", "Above + acknowledges the bear case + has a Plan B if Plan A fails"]
+    ],
+    mentorSignoff: "Mentor reviews on the 7:00 AM open. Score recorded. Three consecutive 4s required to pass this drill."
+  },
+  {
+    id: 2, title: "Setup Identification", icon: "🎯", freq: "Daily",
+    category: "Pattern Recognition",
+    purpose: "Train your eye to instantly recognize which scanner alerts fit Max\'s system and which do not. The market gives 30+ alerts per morning. Only 1-3 are real setups.",
+    instructions: [
+      "From the morning scanner output, pick 5 stocks alerting before 9:00 AM.",
+      "For each, in 30 seconds: write LONG / SHORT / SKIP and one-line reason.",
+      "After the open, mark which actually played out as predicted.",
+      "Track your hit rate weekly — target 70%+ on SKIP calls and 50%+ on directional calls."
+    ],
+    rubric: [
+      ["1 — Random", "Coin-flip hit rate, no consistent reasoning"],
+      ["2 — Pattern emerging", "Can identify SKIP correctly but directional is hit-or-miss"],
+      ["3 — Solid filter", "70%+ SKIP accuracy"],
+      ["4 — Reading well", "70% SKIP + 50%+ directional"],
+      ["5 — Trader\'s eye", "Consistent 80% SKIP + 60% directional, can articulate WHY"]
+    ],
+    mentorSignoff: "Submit weekly tally to mentor by Friday EOD. Two consecutive weeks at level 3+ required."
+  },
+  {
+    id: 3, title: "Bracket Order Speed", icon: "⚡", freq: "Daily",
+    category: "Execution",
+    purpose: "When the trade triggers, you have seconds. Your bracket must be muscle memory — if you fumble the entry, you miss the move or take a worse fill.",
+    instructions: [
+      "Open IB TWS in paper-trading mode before 9:30 AM.",
+      "Pick a stock from your watchlist. Use your hotkey to place a full bracket order: entry limit + stop + profit target.",
+      "Time yourself. Target: under 30 seconds from decision to all three orders placed.",
+      "Repeat 3x with different stocks each morning."
+    ],
+    rubric: [
+      ["1 — Fumbling", "Over 60s, frequent corrections, hotkeys not memorized"],
+      ["2 — Slow", "30-60s, occasional re-entry"],
+      ["3 — Competent", "Consistently 25-30s, no errors"],
+      ["4 — Fast", "Under 20s, hotkeys are automatic"],
+      ["5 — Pro", "Under 15s, no thinking — pure reflex"]
+    ],
+    mentorSignoff: "Mentor observes once per week during 7:00 AM session. Three consecutive level 3+ observations required."
+  },
+  {
+    id: 4, title: "Tape Reading", icon: "📊", freq: "3x per week",
+    category: "Pattern Recognition",
+    purpose: "Time and sales (the tape) shows real intent in real time — the size, speed, and pattern of trades reveals which side is winning before the chart does. Tape readers see the move 5-15 seconds before chart traders.",
+    instructions: [
+      "Pick a 5-minute time window from a recorded session (Sterling replay).",
+      "Watch the tape only — no chart, no L2.",
+      "Pause every 60 seconds. Predict: next 60 seconds bullish / bearish / chop?",
+      "Reveal chart, score yourself.",
+      "Sessions to watch: explosive opens, halts and resumes, parabolic exhaustion, VWAP reclaims."
+    ],
+    rubric: [
+      ["1 — Confused", "Cannot distinguish buying from selling pressure"],
+      ["2 — Reading basics", "Can spot heavy buying vs heavy selling"],
+      ["3 — Reading patterns", "Notices changes in pace, large prints, hidden size"],
+      ["4 — Reading context", "Connects tape pattern to chart outcome reliably"],
+      ["5 — Reading flow", "Can call moves 30+ seconds in advance from tape alone"]
+    ],
+    mentorSignoff: "Submit 5 written tape predictions per week with outcomes. Mentor reviews accuracy."
+  },
+  {
+    id: 5, title: "Risk Limit Verification", icon: "🛡️", freq: "Daily",
+    category: "Risk Discipline",
+    purpose: "The Golden Rule: the broker enforces your daily loss limit, not you. Before you trade ONE share, verify the limit is set correctly in IB Risk Navigator. This drill makes verification a non-negotiable habit.",
+    instructions: [
+      "Before 7:00 AM, open IB Risk Navigator.",
+      "Confirm: daily P&L limit set to 1.5% of account ($450 on $30K paper account).",
+      "Confirm: weekly P&L limit set to 3% ($900).",
+      "Confirm: max position size matches your sizing formula output.",
+      "Take a screenshot of the configuration screen.",
+      "Post screenshot in #risk-check Discord channel BEFORE trading."
+    ],
+    rubric: [
+      ["1 — Skipped", "Did not verify or did not post"],
+      ["2 — Late", "Verified after 7:00 AM session start"],
+      ["3 — On time", "Posted before 7:00 AM, configuration correct"],
+      ["4 — Habit", "10 consecutive on-time posts"],
+      ["5 — Automatic", "30 consecutive on-time posts — verification is now reflex"]
+    ],
+    mentorSignoff: "Discord post is the verification record. Missed posts log automatically."
+  },
+  {
+    id: 6, title: "Level Mapping", icon: "📏", freq: "Daily",
+    category: "Preparation",
+    purpose: "Trades are made AT levels — pre-market high, previous close, VWAP, key S/R. If you do not have these mapped before the open, you will not see them when price arrives.",
+    instructions: [
+      "For each stock on your morning watchlist, mark on the chart:",
+      "→ Pre-market high (PMH)",
+      "→ Previous trading day close",
+      "→ Daily VWAP anchor",
+      "→ Two strongest S/R zones from past 5 days",
+      "Save the marked-up chart.",
+      "Post the watchlist + marked charts in Discord by 9:00 AM."
+    ],
+    rubric: [
+      ["1 — Skipped", "No charts posted"],
+      ["2 — Partial", "Charts posted but missing PMH or VWAP"],
+      ["3 — Complete", "All required levels marked, posted on time"],
+      ["4 — Thoughtful", "Adds notes on which level is most likely to be tested first"],
+      ["5 — Strategic", "Above + identifies WHICH level break would invalidate the setup"]
+    ],
+    mentorSignoff: "Mentor reviews charts in 7:00 AM session. Two consecutive weeks at level 3+ required."
+  },
+  {
+    id: 7, title: "Trade Journal Quality", icon: "📓", freq: "Daily",
+    category: "Reflection",
+    purpose: "Every trade logged in detail by noon. Without journal entries you cannot learn from mistakes. Without quality journal entries, the data is useless.",
+    instructions: [
+      "By 12:00 PM each trading day, log every trade in TraderVue:",
+      "→ Pre-trade thesis (copy from your premarket post)",
+      "→ Entry rationale (what triggered the entry?)",
+      "→ Exit rationale (target hit, stop hit, manual exit?)",
+      "→ Screenshot at entry and exit",
+      "→ Tag with setup type, emotional state, and one lesson learned"
+    ],
+    rubric: [
+      ["1 — Missing", "Trade not logged or logged after noon"],
+      ["2 — Bare", "Logged but no rationale, no screenshots"],
+      ["3 — Standard", "All required fields, screenshots present"],
+      ["4 — Reflective", "Above + clear lesson learned section"],
+      ["5 — Insightful", "Above + identifies pattern across multiple trades"]
+    ],
+    mentorSignoff: "Mentor reviews random sample weekly. Five consecutive level 3+ entries required."
+  },
+  {
+    id: 8, title: "Setup Disqualifier Drill", icon: "🚫", freq: "2x per week",
+    category: "Pattern Recognition",
+    purpose: "Knowing what makes a setup INVALID is harder — and more profitable — than knowing what makes it valid. This drill builds the skip-trade reflex.",
+    instructions: [
+      "Mentor (or pre-built archive) provides a setup that LOOKS tradeable: gap, volume, news.",
+      "You have 30 seconds to identify what disqualifies it (or confirm it is valid).",
+      "Common disqualifiers: float over 30M, market cap over $250M, weak relative volume, China-based, active S-3 with ATM, reverse split, bid/ask spread over 2%."
+    ],
+    rubric: [
+      ["1 — Trades anything", "Misses obvious disqualifiers"],
+      ["2 — Catches major", "Spots float and market cap issues"],
+      ["3 — Comprehensive", "Catches dilution, spread, structural issues"],
+      ["4 — Forensic", "Identifies multi-factor disqualifiers (e.g. acceptable float but bad spread + active ATM)"],
+      ["5 — Defensive instinct", "Skips correctly even on emotionally compelling setups"]
+    ],
+    mentorSignoff: "12 archive setups graded each week. 80%+ accuracy required."
+  },
+  {
+    id: 9, title: "Emotional State Rating", icon: "🌡️", freq: "Daily",
+    category: "Psychology",
+    purpose: "Your psychological state IS your edge or your downfall. Rating before the session forces awareness. Following rating-based size rules removes emotion from sizing.",
+    instructions: [
+      "Before 7:00 AM, rate emotional state 1-5 (see M6L5 for the rating system).",
+      "Log the rating + one-sentence trigger note (slept poorly, fight with spouse, big P&L day yesterday, etc).",
+      "Apply the size rule for that rating: 1=do not trade, 2=50% size, 3=normal, 4=normal, 5=normal but watch for tilt.",
+      "End-of-day: review whether the rating predicted your performance."
+    ],
+    rubric: [
+      ["1 — Ignoring", "No rating logged or rating ignored when sizing"],
+      ["2 — Rating only", "Rates but does not adjust size"],
+      ["3 — Following rules", "Rates and follows size adjustment rules"],
+      ["4 — Predictive", "Notices rating-performance correlation in own data"],
+      ["5 — Master", "Self-coaches: improves rating with sleep / breaks / breathwork"]
+    ],
+    mentorSignoff: "Discord daily-rating channel auto-tracks. Mentor reviews monthly correlation."
+  },
+  {
+    id: 10, title: "Weekly Self-Review", icon: "📋", freq: "Friday",
+    category: "Reflection",
+    purpose: "Daily and monthly reviews are different timeframes. Weekly catches patterns that escape the daily view but resolves before the monthly. The 15-minute Friday cadence (M6L6 protocol) is the bridge.",
+    instructions: [
+      "Every Friday, after market close, allocate 15 minutes.",
+      "Answer 4 questions in writing: (1) Did I follow my rules this week? Yes/no per rule. (2) What is my best trade this week and why? Process, not P&L. (3) What is my worst trade and why? Process, not P&L. (4) What single rule do I focus on next week?",
+      "Post in #weekly-review Discord channel before EOD Friday.",
+      "Pin the answer to question 4 on your monitor for the entire next week."
+    ],
+    rubric: [
+      ["1 — Skipped", "No review posted"],
+      ["2 — Surface", "Posted but answers superficial"],
+      ["3 — Thoughtful", "Honest answers, specific examples, real focus rule for next week"],
+      ["4 — Pattern hunting", "Notices recurring themes across weeks"],
+      ["5 — Self-coaching", "Past focus rules show measurable improvement"]
+    ],
+    mentorSignoff: "Mentor reads weekly. Four consecutive level 3+ reviews required."
+  }
+];
+
+
+var PLAYBOOKS = [
+  {
+    id: 1, title: "Long Entry — Gap-and-Go", icon: "📈", category: "Long",
+    summary: "The classic small-cap squeeze: stock gaps up 20%+ on real catalyst with explosive volume, holds VWAP, and breaks pre-market high after opening range consolidation.",
+    catalyst: ["Earnings beat", "FDA approval", "Contract win", "Buyout / takeover talks", "Sector momentum"],
+    entry: [
+      "Wait for opening range (first 5-10 minutes) to complete",
+      "Stock must hold above VWAP throughout opening range",
+      "Look for tight consolidation just below pre-market high",
+      "Enter on break of pre-market high WITH increasing volume on the breakout candle",
+      "Initial entry: 30% of full position size"
+    ],
+    stop: [
+      "Below the consolidation low OR",
+      "Below VWAP — whichever is closer",
+      "Maximum risk: 1R (your daily risk allocation per trade)"
+    ],
+    target: [
+      "First target: 2R (sell 50% of position, move stop to entry)",
+      "Second target: round number resistance OR daily R3 pivot",
+      "If trend extends: switch to trailing stop after 2R achieved (M5L1)"
+    ],
+    disqualifiers: [
+      "Float over 30M shares (move too slow for the setup)",
+      "Stock LOST VWAP during opening range",
+      "Volume DECLINING into the breakout (false breakout signal)",
+      "Active S-3 + ATM offering visible (company will sell into your strength)",
+      "Spread wider than 2% of price (cost too high)"
+    ]
+  },
+  {
+    id: 2, title: "Long Entry — VWAP Reclaim", icon: "🎯", category: "Long",
+    summary: "Stock that gapped up but sold off below VWAP recovers, breaks back above VWAP with conviction. Lower-probability setup than gap-and-go, but high R:R when it works.",
+    catalyst: ["Same as gap-and-go (real catalyst required)", "Plus: failed selling pressure visible on tape"],
+    entry: [
+      "Stock has been below VWAP for at least 15 minutes",
+      "Wait for first GREEN volume candle that closes ABOVE VWAP",
+      "Confirmation: 1-min retest of VWAP holds (does not lose it again)",
+      "Enter on the retest hold with 20% size (smaller because lower probability)"
+    ],
+    stop: [
+      "Below the retest low (very tight)",
+      "Maximum risk: 0.75R (smaller than gap-and-go)"
+    ],
+    target: [
+      "First target: pre-market high or opening high (whichever is closer)",
+      "Second target: 2R if first hits with momentum"
+    ],
+    disqualifiers: [
+      "Failed reclaims earlier in session (multiple attempts = no edge)",
+      "VWAP reclaim with declining volume",
+      "Stock has been below VWAP for over 60 minutes (trend established)",
+      "Outside the 7:30-9:30 AM window (after 9:30, see 10:30 Rule)"
+    ]
+  },
+  {
+    id: 3, title: "Short Entry — PMH Rejection", icon: "📉", category: "Short",
+    summary: "Stock surges into pre-market high, fails to break it cleanly, shows rejection candles. The classic short into strength setup.",
+    catalyst: ["Stock has reached PMH or prior day high", "Volume LOWER than initial pre-market spike", "Tape showing absorption (large prints not moving price up)"],
+    entry: [
+      "Stock approaches PMH from below",
+      "Watch for: rejection candle (long upper wick), bearish engulfing, or doji at the level",
+      "Volume on the rejection should equal or exceed prior up-candle volume",
+      "Enter short into the failed-breakout candle close",
+      "Initial entry: 30% of full position size"
+    ],
+    stop: [
+      "ABOVE pre-market high (no exceptions)",
+      "If PMH breaks during the trade — EXIT 100% IMMEDIATELY",
+      "99% of the time, the uptrend continues after PMH break"
+    ],
+    target: [
+      "First target: VWAP (cover 50%, move stop to entry)",
+      "Second target: opening range low OR previous day close",
+      "Trail remaining position with $0.20 trail in trending sell-offs"
+    ],
+    disqualifiers: [
+      "Float under 2M shares (squeeze risk too high)",
+      "Heavy short interest already (room is gone)",
+      "First test of PMH (often breaks on first try, second test is the setup)",
+      "Strong news catalyst still active (do not short into fresh news)",
+      "Stock is on Reg SHO threshold list (locate failed = move on)"
+    ]
+  },
+  {
+    id: 4, title: "Short Entry — Gap-Fill", icon: "🔻", category: "Short",
+    summary: "Stock gaps up on weak catalyst, immediately starts selling off. Trade is short into the bounce, target previous day close (the gap fill).",
+    catalyst: ["Stock gapped 10-30% on weak / no catalyst", "First 5-min candle closes RED below VWAP", "No follow-through buying"],
+    entry: [
+      "After first 5-min red candle closes below VWAP",
+      "Wait for the bounce (typical: into VWAP or PMH retest)",
+      "Enter short on the bounce failure (next red candle confirms)",
+      "Position size: 30% of full size"
+    ],
+    stop: [
+      "Above the bounce high OR pre-market high — whichever is closer",
+      "Hard stop: never let stop drift higher than PMH"
+    ],
+    target: [
+      "Primary target: previous day close (the gap fill)",
+      "Take 50% at the close, trail rest if momentum continues"
+    ],
+    disqualifiers: [
+      "Real catalyst exists (gap-fill works on weak catalysts only)",
+      "Stock has reclaimed VWAP in first 15 minutes (failed gap-fill)",
+      "Pre-market volume was strong (suggests real demand exists)",
+      "Float under 2M (squeeze risk on bounce)"
+    ]
+  },
+  {
+    id: 5, title: "10:30 Rule — Beginner Long", icon: "⏰", category: "Long",
+    summary: "Conservative beginner-friendly long setup that activates only after 10:30 AM, requires stock to be below VWAP, and targets a VWAP reclaim. Lower R:R but higher win rate.",
+    catalyst: ["Stock has been below VWAP", "First 60 minutes of trading complete", "Selling pressure exhausted (volume declining)"],
+    entry: [
+      "After 10:30 AM only — never before",
+      "Stock must be BELOW VWAP",
+      "Look for 2 consecutive green 1-min candles AND falling 1-min ATR",
+      "Enter long on close of second green candle",
+      "Position size: 30% — this is a beginner setup, do not oversize"
+    ],
+    stop: [
+      "Below the daily low (just established before reversal)",
+      "Maximum risk: 0.75R"
+    ],
+    target: [
+      "Single target: VWAP",
+      "Take full position at VWAP — do not get greedy",
+      "Higher-probability low-reward setup, do not turn it into something it is not"
+    ],
+    disqualifiers: [
+      "Before 10:30 AM (RULE — no exceptions)",
+      "Stock has been chopping at low all morning (no exhaustion = no setup)",
+      "Catalyst news breaking (volatile, unpredictable)",
+      "Prior trading day showed similar pattern that failed (avoid repeat failures)",
+      "ALSO: Do NOT short the same stock after 10:30 if already below VWAP"
+    ]
+  }
+];
+
+
+var METRICS = [
+  {
+    id: "trades_per_week", name: "Trades Per Week", category: "Activity",
+    formula: "Count all completed trades from Monday open to Friday close.",
+    target: "10–25 per week (scaled to setup frequency, not forced)",
+    why: "Quality over quantity. More than 25 = forcing trades. Less than 10 = either too selective or sitting out winners."
+  },
+  {
+    id: "win_rate", name: "Win Rate %", category: "Performance",
+    formula: "(Number of profitable trades ÷ Total trades) × 100",
+    target: "45–60% (Phase 2 paper minimum)",
+    why: "Below 45% means setup selection is poor. Above 60% may indicate cutting winners too early."
+  },
+  {
+    id: "avg_r", name: "Average R per Trade", category: "Performance",
+    formula: "Sum of (P&L per trade ÷ initial risk per trade) ÷ Total trades. Result is a multiple of risk units.",
+    target: "Positive — even 0.2R average is profitable long-term",
+    why: "Captures both win rate AND payoff size. A 40% win rate with 1.5R average wins is better than 60% with 0.5R wins."
+  },
+  {
+    id: "expectancy", name: "Expectancy", category: "Performance",
+    formula: "(Win rate × Average win in $) − (Loss rate × Average loss in $)",
+    target: "Positive ($) — even small positive number is the goal",
+    why: "Single number that tells you whether your system has an edge. Negative expectancy = stop trading and review setups."
+  },
+  {
+    id: "max_drawdown", name: "Maximum Drawdown %", category: "Risk",
+    formula: "(Peak account value − Trough account value) ÷ Peak account value × 100, measured peak-to-trough during week or month.",
+    target: "Less than 10% in any rolling 30-day window",
+    why: "Drawdown is unavoidable. Drawdown over 10% means risk per trade is too high or sizing rules being violated."
+  },
+  {
+    id: "rule_compliance", name: "Rule Compliance %", category: "Discipline",
+    formula: "(Days where ALL hard rules followed ÷ Total trading days) × 100. Hard rules: thesis posted on time, bracket order used, no trades after 10:30 (unless 10:30 Rule), all flat by close.",
+    target: "100% — discipline failures are non-negotiable",
+    why: "More important than profit during Phase 2. If compliance drops below 100%, expand the question: which rule, why, what changed?"
+  },
+  {
+    id: "drill_completion", name: "Drill Completion %", category: "Discipline",
+    formula: "(Drills completed at level 3+ ÷ Drills required) × 100, weekly.",
+    target: "100% — every required drill at level 3 or higher",
+    why: "Drills are the workout. Skipping drills means skipping the practice that makes Phase 3 possible."
+  },
+  {
+    id: "weekly_pnl", name: "Weekly P&L $", category: "Performance",
+    formula: "Sum of trade P&L Monday open through Friday close.",
+    target: "Positive at end of any 4-week rolling window",
+    why: "Single weeks fluctuate. The 4-week rolling number tells you whether the system is working."
+  }
+];
+
+
+var GATE_CRITERIA = [
+  {
+    id: 1, requirement: "30+ Logged Trades", category: "Volume",
+    detail: "Minimum 30 completed trades logged in TraderVue with full journal quality (Drill 7 level 3+).",
+    measure: "Count of qualifying trade entries in TraderVue across Phase 2 paper period."
+  },
+  {
+    id: 2, requirement: "Positive Expectancy on Assigned Setups", category: "Performance",
+    detail: "Two of the five setups in the Playbook show positive expectancy across at least 15 trades each.",
+    measure: "TraderVue setup-tagged expectancy report. Mentor verifies."
+  },
+  {
+    id: 3, requirement: "Zero Daily Risk Limit Violations", category: "Discipline",
+    detail: "Across the entire Phase 2 period, the daily 1.5% loss limit was never breached. Zero exceptions.",
+    measure: "IB Risk Navigator log + daily rule compliance check (Drill 5)."
+  },
+  {
+    id: 4, requirement: "Execution Quality 3-4 Sustained 2 Weeks", category: "Skill",
+    detail: "Execution quality scores (mentor-graded) at level 3 or 4 maintained across two consecutive weeks.",
+    measure: "Mentor weekly grading log."
+  },
+  {
+    id: 5, requirement: "100% On-List Trade Discipline", category: "Discipline",
+    detail: "Every trade taken came from a stock that was on the morning watchlist. No off-list / impulsive trades. Zero exceptions.",
+    measure: "TraderVue trades cross-referenced against daily Discord watchlist posts."
+  },
+  {
+    id: 6, requirement: "All 10 Drills at Level 3+", category: "Skill",
+    detail: "Every drill in the library completed at level 3 (or specified higher level for some) for the required consecutive periods.",
+    measure: "Drill log in this dashboard. Mentor sign-off recorded."
+  },
+  {
+    id: 7, requirement: "16+ Weekly Self-Reviews Submitted", category: "Reflection",
+    detail: "Across the 6-month Phase 2 period, at least 16 of the ~24 possible weekly reviews submitted at level 3+.",
+    measure: "Discord #weekly-review post count + mentor scoring."
+  },
+  {
+    id: 8, requirement: "Mentor Approval", category: "Final",
+    detail: "After all numerical criteria met, mentor conducts a final 60-min Phase 2 exit interview. Decision is mentor\'s — meeting numerical criteria is necessary but not sufficient.",
+    measure: "Final mentor sign-off."
+  }
+];
+
+
+// ══ STATE ══
+var currentUser = null;
+var currentRole = 'student';
+var phase2Data = { drillsCompleted: {}, stats: {} };
+var activeTab = 'drills';
+var selectedRole = 'student';
+
+// ══ DATE HELPERS ══
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function thisWeekStr() {
+  var d = new Date();
+  var year = d.getFullYear();
+  var firstDay = new Date(year, 0, 1);
+  var day = Math.floor((d - firstDay) / 86400000);
+  var week = Math.ceil((day + firstDay.getDay() + 1) / 7);
+  return year + '-W' + String(week).padStart(2,'0');
+}
+
+// ══ TAB SWITCHING ══
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
+  document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.toggle('active', c.id === 'tab-' + tab); });
+}
+
+// ══ SIDEBAR ══
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+// ══ RENDER DRILLS ══
+function renderDrills() {
+  var grid = document.getElementById('drillGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  var todayCompletions = phase2Data.drillsCompleted || {};
+  var doneToday = 0;
+
+  DRILLS.forEach(function(drill) {
+    var dates = todayCompletions[drill.id] || [];
+    var doneToday_drill = dates.indexOf(todayStr()) !== -1;
+    if (doneToday_drill) doneToday++;
+
+    var card = document.createElement('div');
+    card.className = 'drill-card';
+    card.id = 'drill-' + drill.id;
+
+    var rubricRows = drill.rubric.map(function(r) {
+      return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+    }).join('');
+
+    var instrItems = drill.instructions.map(function(i) { return '<li>' + i + '</li>'; }).join('');
+
+    card.innerHTML =
+      '<div class="drill-head" onclick="toggleDrill(' + drill.id + ')">' +
+        '<div class="drill-icon">' + drill.icon + '</div>' +
+        '<div class="drill-titles">' +
+          '<div class="drill-title">' + drill.title + '</div>' +
+          '<div class="drill-meta"><span class="drill-cat">' + drill.category + '</span><span class="drill-freq">' + drill.freq + '</span><span>' + dates.length + ' total sessions logged</span></div>' +
+        '</div>' +
+        '<div class="drill-status">' +
+          '<span class="drill-status-pill ' + (doneToday_drill ? 'done' : 'todo') + '">' +
+            (doneToday_drill ? '✓ Done today' : 'Pending') +
+          '</span>' +
+          '<span class="drill-toggle">▼</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="drill-body">' +
+        '<div class="drill-section"><div class="drill-section-label">Purpose</div><div class="drill-purpose">' + drill.purpose + '</div></div>' +
+        '<div class="drill-section"><div class="drill-section-label">Instructions</div><ol class="drill-list">' + instrItems + '</ol></div>' +
+        '<div class="drill-section"><div class="drill-section-label">Scoring Rubric</div><table class="drill-rubric">' + rubricRows + '</table></div>' +
+        '<div class="drill-section"><div class="drill-section-label">Mentor Sign-off</div><div class="drill-mentor">' + drill.mentorSignoff + '</div></div>' +
+        '<div class="drill-actions">' +
+          '<button class="drill-log-btn ' + (doneToday_drill ? 'done' : '') + '" onclick="event.stopPropagation();logDrill(' + drill.id + ');" ' + (doneToday_drill ? 'disabled' : '') + '>' +
+            (doneToday_drill ? '✓ Logged for today' : '+ Mark today complete') +
+          '</button>' +
+        '</div>' +
+      '</div>';
+
+    grid.appendChild(card);
+  });
+
+  document.getElementById('drillsCount').textContent = doneToday + '/10';
+}
+
+function toggleDrill(id) {
+  var card = document.getElementById('drill-' + id);
+  if (card) card.classList.toggle('expanded');
+}
+
+function logDrill(id) {
+  if (!phase2Data.drillsCompleted) phase2Data.drillsCompleted = {};
+  if (!phase2Data.drillsCompleted[id]) phase2Data.drillsCompleted[id] = [];
+  var today = todayStr();
+  if (phase2Data.drillsCompleted[id].indexOf(today) === -1) {
+    phase2Data.drillsCompleted[id].push(today);
+    saveProgress();
+    renderDrills();
+  }
+}
+
+// ══ RENDER PLAYBOOK ══
+function renderPlaybook() {
+  var grid = document.getElementById('pbGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  PLAYBOOKS.forEach(function(pb) {
+    var card = document.createElement('div');
+    card.className = 'pb-card ' + pb.category.toLowerCase();
+
+    var entryItems = pb.entry.map(function(i) { return '<li>' + i + '</li>'; }).join('');
+    var stopItems = pb.stop.map(function(i) { return '<li>' + i + '</li>'; }).join('');
+    var targetItems = pb.target.map(function(i) { return '<li>' + i + '</li>'; }).join('');
+    var disqItems = pb.disqualifiers.map(function(i) { return '<li>' + i + '</li>'; }).join('');
+    var catItems = pb.catalyst.map(function(i) { return '<li>' + i + '</li>'; }).join('');
+
+    card.innerHTML =
+      '<div class="pb-head">' +
+        '<div class="pb-icon">' + pb.icon + '</div>' +
+        '<div class="pb-title">' + pb.title + '</div>' +
+        '<div class="pb-cat ' + pb.category.toLowerCase() + '">' + pb.category + '</div>' +
+      '</div>' +
+      '<div class="pb-body">' +
+        '<div class="pb-summary">' + pb.summary + '</div>' +
+        '<div class="pb-grid-rules">' +
+          '<div class="pb-rule-block"><div class="pb-rule-label">Catalyst Required</div><ul class="pb-rule-list">' + catItems + '</ul></div>' +
+          '<div class="pb-rule-block"><div class="pb-rule-label">Entry Trigger</div><ul class="pb-rule-list">' + entryItems + '</ul></div>' +
+        '</div>' +
+        '<div class="pb-grid-rules">' +
+          '<div class="pb-rule-block"><div class="pb-rule-label">Stop Placement</div><ul class="pb-rule-list">' + stopItems + '</ul></div>' +
+          '<div class="pb-rule-block"><div class="pb-rule-label">Target Rules</div><ul class="pb-rule-list">' + targetItems + '</ul></div>' +
+        '</div>' +
+        '<div class="pb-disq"><div class="pb-disq-label">Disqualifiers — SKIP if any apply</div><ul class="pb-disq-list">' + disqItems + '</ul></div>' +
+      '</div>';
+
+    grid.appendChild(card);
+  });
+}
+
+// ══ RENDER DASHBOARD ══
+function renderDashboard() {
+  var grid = document.getElementById('metricGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  var weekKey = thisWeekStr();
+  var weekStats = (phase2Data.stats && phase2Data.stats[weekKey]) || {};
+
+  METRICS.forEach(function(metric) {
+    var card = document.createElement('div');
+    card.className = 'metric-card';
+    var currentValue = weekStats[metric.id] !== undefined ? weekStats[metric.id] : '';
+
+    card.innerHTML =
+      '<div class="metric-cat">' + metric.category + '</div>' +
+      '<div class="metric-name">' + metric.name + '</div>' +
+      '<div class="metric-row"><div class="metric-row-label">Formula</div><div class="metric-row-value">' + metric.formula + '</div></div>' +
+      '<div class="metric-row"><div class="metric-row-label">Target</div><div class="metric-row-value">' + metric.target + '</div></div>' +
+      '<div class="metric-row"><div class="metric-row-label">Why it matters</div><div class="metric-row-value">' + metric.why + '</div></div>' +
+      '<div class="metric-input-row">' +
+        '<input class="metric-input" id="metric-' + metric.id + '" type="text" placeholder="Enter this week\'s value" value="' + currentValue + '"/>' +
+        '<button class="metric-save-btn" onclick="saveMetric(\'' + metric.id + '\')">Save</button>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+function saveMetric(metricId) {
+  var input = document.getElementById('metric-' + metricId);
+  if (!input) return;
+  var weekKey = thisWeekStr();
+  if (!phase2Data.stats) phase2Data.stats = {};
+  if (!phase2Data.stats[weekKey]) phase2Data.stats[weekKey] = {};
+  phase2Data.stats[weekKey][metricId] = input.value;
+  saveProgress();
+  // Visual feedback
+  var btn = input.nextElementSibling;
+  var orig = btn.textContent;
+  btn.textContent = '✓ Saved';
+  setTimeout(function() { btn.textContent = orig; }, 1500);
+}
+
+// ══ RENDER GATE ══
+function renderGate() {
+  var grid = document.getElementById('gateGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  GATE_CRITERIA.forEach(function(g) {
+    var item = document.createElement('div');
+    item.className = 'gate-item';
+    item.innerHTML =
+      '<div class="gate-num">' + g.id + '</div>' +
+      '<div class="gate-content">' +
+        '<div class="gate-cat">' + g.category + '</div>' +
+        '<div class="gate-req">' + g.requirement + '</div>' +
+        '<div class="gate-detail">' + g.detail + '</div>' +
+        '<div class="gate-measure">How measured: ' + g.measure + '</div>' +
+      '</div>';
+    grid.appendChild(item);
+  });
+}
+
+// ══ FIREBASE PROGRESS ══
+function saveProgress() {
+  if (!currentUser) return;
+  firebase.database().ref('traderoom/users/' + currentUser.uid + '/phase2').set(phase2Data);
+}
+function loadProgress(uid, callback) {
+  firebase.database().ref('traderoom/users/' + uid + '/phase2').get().then(function(snap) {
+    if (snap.exists()) phase2Data = snap.val() || { drillsCompleted: {}, stats: {} };
+    if (!phase2Data.drillsCompleted) phase2Data.drillsCompleted = {};
+    if (!phase2Data.stats) phase2Data.stats = {};
+    callback();
+  }).catch(function() { callback(); });
+}
+
+// ══ AUTH ══
+function showTab(tab) {
+  document.getElementById('formLogin').style.display = tab === 'login' ? 'flex' : 'none';
+  document.getElementById('formRegister').style.display = tab === 'register' ? 'flex' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('authBtn').textContent = tab === 'login' ? 'Sign in →' : 'Create account →';
+  document.getElementById('errMsg').style.display = 'none';
+}
+function setRole(r) {
+  selectedRole = r;
+  document.getElementById('roleStudent').classList.toggle('active', r === 'student');
+  document.getElementById('roleInstructor').classList.toggle('active', r === 'instructor');
+}
+function friendlyError(code) {
+  var map = { 'auth/invalid-credential':'Wrong email or password', 'auth/user-not-found':'No account with that email', 'auth/wrong-password':'Wrong password', 'auth/email-already-in-use':'Email already registered — sign in instead', 'auth/weak-password':'Password too short (min 6)', 'auth/invalid-email':'Invalid email format' };
+  return map[code] || 'Authentication failed';
+}
+function showErr(msg) {
+  var el = document.getElementById('errMsg');
+  el.textContent = msg; el.style.display = 'block';
+}
+function handleAuth() {
+  var btn = document.getElementById('authBtn');
+  btn.disabled = true;
+  document.getElementById('errMsg').style.display = 'none';
+  var isLogin = document.getElementById('tabLogin').classList.contains('active');
+
+  if (isLogin) {
+    var email = document.getElementById('loginEmail').value.trim();
+    var pw = document.getElementById('loginPassword').value;
+    if (!email || !pw) { showErr('Email and password required'); btn.disabled = false; return; }
+    firebase.auth().signInWithEmailAndPassword(email, pw)
+      .catch(function(e) { showErr(friendlyError(e.code)); btn.disabled = false; });
+  } else {
+    var name = document.getElementById('regName').value.trim();
+    var email2 = document.getElementById('regEmail').value.trim();
+    var pw2 = document.getElementById('regPassword').value;
+    if (!name || !email2 || !pw2) { showErr('All fields required'); btn.disabled = false; return; }
+    firebase.auth().createUserWithEmailAndPassword(email2, pw2)
+      .then(function(cred) {
+        return firebase.database().ref('traderoom/users/' + cred.user.uid)
+          .set({ name: name, role: selectedRole, email: email2 });
+      })
+      .catch(function(e) { showErr(friendlyError(e.code)); btn.disabled = false; });
+  }
+}
+function forgotPassword() {
+  var email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showErr('Enter your email above first'); return; }
+  firebase.auth().sendPasswordResetEmail(email)
+    .then(function() { alert('Password reset email sent to ' + email); })
+    .catch(function(e) { showErr(friendlyError(e.code)); });
+}
+function handleLogout() {
+  firebase.auth().signOut().then(function() { window.location.reload(); });
+}
+
+// ══ CLOCK ══
+function updateClock() { document.getElementById('sessionTime').textContent = new Date().toTimeString().slice(0,8); }
+setInterval(updateClock, 1000); updateClock();
+
+// ══ INIT ══
+firebase.auth().onAuthStateChanged(function(u) {
+  if (!u) {
+    document.getElementById('loginModal').classList.remove('hidden');
+    return;
+  }
+  currentUser = u;
+  document.getElementById('loginModal').classList.add('hidden');
+
+  firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
+    var p = snap.exists() ? snap.val() : null;
+    var name = p ? p.name : u.email.split('@')[0];
+    var role = p ? p.role : 'student';
+    currentRole = role;
+    var chip = document.getElementById('userChip');
+    if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+    var sbA = document.getElementById('sbAvatar'), sbN = document.getElementById('sbName'), sbR = document.getElementById('sbRole');
+    if (sbN) sbN.textContent = name;
+    if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
+    if (sbA) {
+      sbA.textContent = name.slice(0,2).toUpperCase();
+      sbA.style.background = role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)';
+      sbA.style.color = role==='instructor'?'#06b6d4':'#8b5cf6';
+    }
+    loadProgress(u.uid, function() {
+      renderDrills();
+      renderPlaybook();
+      renderDashboard();
+      renderGate();
+    });
+  });
+});
+</script>
+</body>
+</html>
