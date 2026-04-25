@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Phase 3 — Independence (Live Capital) · TradeRoom PRO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--bg2:#1e293b;--card:#1e293b;--card2:#293548;--border:#334155;--border-hi:#475569;--t1:#f1f5f9;--t2:#cbd5e1;--t3:#94a3b8;--green:#22c55e;--green-bg:rgba(34,197,94,.1);--blue:#3b82f6;--cyan:#06b6d4;--purple:#8b5cf6;--amber:#f59e0b;--red:#ef4444;--gold:#fbbf24;}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden;display:flex;margin:0;}
+
+/* SIDEBAR (matches lesson.html / phase2.html) */
+.sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .2s;}
+.sidebar.collapsed{width:60px;}
+.sb-top{padding:20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.sb-logo{width:32px;height:32px;background:rgba(251,191,36,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-wordmark{font-weight:800;font-size:14px;letter-spacing:.5px;}
+.sb-wordmark span{color:var(--green);}
+.sidebar.collapsed .sb-wordmark,.sidebar.collapsed .sb-label,.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
+.sb-collapse-btn{margin-left:auto;background:transparent;border:none;color:var(--t3);cursor:pointer;padding:4px;border-radius:4px;}
+.sb-collapse-btn:hover{background:var(--card2);color:var(--t1);}
+.sb-nav{flex:1;padding:16px 12px;overflow-y:auto;}
+.sb-section-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 6px 8px;}
+.sb-link{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:7px;color:var(--t2);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.sb-link:hover{background:var(--card);color:var(--t1);}
+.sb-link.active{background:rgba(251,191,36,.12);color:var(--gold);}
+.sb-link-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.sb-label{font-size:13px;}
+.sb-bottom{padding:16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,.15);color:#8b5cf6;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-uname{font-size:13px;font-weight:600;color:var(--t1);}
+.sb-urole{font-size:11px;color:var(--t3);}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+.header{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.header-left{display:flex;align-items:center;gap:14px;}
+.header-title{font-size:14px;font-weight:600;color:var(--t1);}
+.header-title .accent{color:var(--gold);}
+.header-right{display:flex;align-items:center;gap:14px;}
+.session-clock{font-family:'Inter',monospace;font-size:13px;color:var(--t3);background:var(--card2);padding:4px 10px;border-radius:5px;}
+.user-chip{font-size:13px;font-weight:600;color:var(--t1);padding:4px 10px;background:var(--card2);border-radius:6px;}
+.logout-btn{background:transparent;border:1px solid var(--border-hi);color:var(--t3);font-size:11px;padding:5px 10px;border-radius:5px;cursor:pointer;font-family:inherit;font-weight:500;}
+.logout-btn:hover{color:var(--red);border-color:var(--red);}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:0;}
+.content::-webkit-scrollbar{width:8px;}
+.content::-webkit-scrollbar-track{background:var(--bg);}
+.content::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:4px;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1f1408 0%,#3d2811 100%);padding:36px 56px 28px;border-bottom:1px solid var(--border);}
+.hero-eyebrow{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-size:30px;font-weight:800;color:var(--t1);margin-bottom:10px;}
+.hero-sub{font-size:15px;color:var(--t2);max-width:760px;line-height:1.6;}
+.hero-warn{margin-top:18px;background:rgba(239,68,68,.08);border-left:3px solid var(--red);padding:14px 18px;border-radius:0 6px 6px 0;color:var(--t2);font-size:13px;line-height:1.6;max-width:760px;}
+.hero-warn strong{color:#fca5a5;}
+
+/* TIMELINE */
+.timeline{padding:28px 56px;background:var(--bg);border-bottom:1px solid var(--border);}
+.timeline-title{font-size:13px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;}
+.timeline-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.timeline-month{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.timeline-month-num{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.5px;}
+.timeline-month-label{font-size:14px;color:var(--t1);font-weight:700;margin-top:4px;}
+.timeline-month-focus{font-size:12px;color:var(--t3);margin-top:8px;line-height:1.5;}
+.timeline-month-mentor{font-size:11px;color:var(--gold);margin-top:8px;font-weight:600;}
+.timeline-month.m10{border-color:var(--gold);background:rgba(251,191,36,.04);}
+.timeline-month.m11{border-color:var(--amber);background:rgba(245,158,11,.04);}
+.timeline-month.m12{border-color:var(--green);background:rgba(34,197,94,.04);}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:var(--bg);border-bottom:1px solid var(--border);padding:0 56px;overflow-x:auto;}
+.tab{background:transparent;border:none;color:var(--t3);padding:14px 20px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;gap:7px;white-space:nowrap;}
+.tab:hover{color:var(--t1);}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-icon{font-size:15px;}
+.tab-count{background:var(--card2);color:var(--t3);font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:2px;}
+.tab.active .tab-count{background:rgba(251,191,36,.2);color:var(--gold);}
+
+.tab-content{padding:28px 56px;display:none;}
+.tab-content.active{display:block;}
+
+.tab-intro{padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:24px;border-left:3px solid;}
+.tab-intro.gold{background:rgba(251,191,36,.06);border-color:var(--gold);}
+.tab-intro.gold .tab-intro-label{color:var(--gold);}
+.tab-intro.amber{background:rgba(245,158,11,.06);border-color:var(--amber);}
+.tab-intro.amber .tab-intro-label{color:var(--amber);}
+.tab-intro.red{background:rgba(239,68,68,.06);border-color:var(--red);}
+.tab-intro.red .tab-intro-label{color:var(--red);}
+.tab-intro.green{background:rgba(34,197,94,.06);border-color:var(--green);}
+.tab-intro.green .tab-intro-label{color:var(--green);}
+.tab-intro-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+.tab-intro-text{font-size:13px;color:var(--t2);line-height:1.6;}
+
+/* TRANSITION TAB */
+.tp-grid{display:flex;flex-direction:column;gap:16px;}
+.tp-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.tp-card.blue{border-left:4px solid var(--blue);}
+.tp-card.amber{border-left:4px solid var(--amber);}
+.tp-card.green{border-left:4px solid var(--green);}
+.tp-head{padding:18px 22px;display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--border);background:var(--bg2);}
+.tp-weeks-block{flex-shrink:0;text-align:center;}
+.tp-weeks{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.6px;text-transform:uppercase;}
+.tp-phase-label{font-size:14px;font-weight:800;color:var(--t1);margin-top:2px;}
+.tp-size-circle{width:54px;height:54px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid;}
+.tp-card.blue .tp-size-circle{border-color:var(--blue);color:var(--blue);}
+.tp-card.amber .tp-size-circle{border-color:var(--amber);color:var(--amber);}
+.tp-card.green .tp-size-circle{border-color:var(--green);color:var(--green);}
+.tp-titles{flex:1;min-width:0;}
+.tp-size-name{font-size:15px;font-weight:700;color:var(--t1);}
+.tp-goal{font-size:13px;color:var(--t2);margin-top:4px;font-style:italic;}
+.tp-body{padding:18px 22px;}
+.tp-desc{font-size:14px;color:var(--t2);line-height:1.65;margin-bottom:16px;}
+.tp-section-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.tp-success-list{font-size:13px;color:var(--t2);line-height:1.65;padding-left:22px;margin:0;}
+.tp-success-list li{margin-bottom:4px;}
+.tp-failure{margin-top:14px;background:rgba(239,68,68,.06);border-left:3px solid var(--red);padding:11px 15px;border-radius:0 6px 6px 0;font-size:13px;color:var(--t2);line-height:1.55;}
+.tp-failure strong{color:#fca5a5;}
+
+/* SCALING TAB */
+.scaling-section{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+.scaling-section-head{padding:14px 22px;background:var(--bg2);border-bottom:1px solid var(--border);}
+.scaling-section-title{font-size:14px;font-weight:700;color:var(--t1);}
+.scaling-section-body{padding:18px 22px;}
+.gates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;}
+.gate-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+.gate-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.gate-num{width:24px;height:24px;background:rgba(251,191,36,.15);color:var(--gold);font-weight:800;font-size:12px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gate-label{font-size:13px;font-weight:700;color:var(--t1);}
+.gate-detail{font-size:12px;color:var(--t2);line-height:1.55;margin-bottom:6px;}
+.gate-measure{font-size:11px;color:var(--t3);font-style:italic;}
+.proj-table{width:100%;border-collapse:collapse;font-size:13px;}
+.proj-table th{background:var(--bg2);padding:9px 14px;text-align:left;color:var(--t3);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.proj-table td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--t2);}
+.proj-table td:first-child{font-weight:700;color:var(--t1);}
+.proj-table td.amount{font-family:'Inter',monospace;color:var(--gold);font-weight:700;}
+.proj-row.realistic td{background:rgba(245,158,11,.05);}
+.rules-list{display:flex;flex-direction:column;gap:11px;}
+.rule-card{background:var(--bg2);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:12px 16px;}
+.rule-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.rule-detail{font-size:12px;color:var(--t2);line-height:1.55;}
+
+/* HARD RULES TAB */
+.hr-grid{display:flex;flex-direction:column;gap:11px;}
+.hr-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;border-left:4px solid var(--red);}
+.hr-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:10px;}
+.hr-num{width:32px;height:32px;background:rgba(239,68,68,.15);color:var(--red);font-weight:800;font-size:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hr-content{flex:1;min-width:0;}
+.hr-cat{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--red);margin-bottom:4px;}
+.hr-rule{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.hr-paper{font-size:11px;color:var(--t3);font-style:italic;}
+.hr-detail{font-size:13px;color:var(--t2);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);}
+.hr-enforce{font-size:11px;color:var(--gold);margin-top:6px;}
+
+/* CRISIS TAB */
+.crisis-grid{display:flex;flex-direction:column;gap:16px;}
+.crisis-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.crisis-head{padding:18px 22px;display:flex;align-items:flex-start;gap:14px;background:var(--bg2);border-bottom:1px solid var(--border);}
+.crisis-icon{font-size:26px;width:46px;height:46px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.crisis-titles{flex:1;min-width:0;}
+.crisis-title{font-size:15px;font-weight:700;color:var(--t1);}
+.crisis-when{font-size:12px;color:var(--t3);margin-top:3px;}
+.crisis-severity{font-size:11px;font-weight:700;color:var(--red);margin-top:6px;text-transform:uppercase;letter-spacing:.4px;}
+.crisis-body{padding:18px 22px;}
+.crisis-section-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.crisis-steps{font-size:13px;color:var(--t2);line-height:1.65;padding-left:24px;margin:0 0 14px 0;}
+.crisis-steps li{margin-bottom:6px;}
+.crisis-insight{background:rgba(34,197,94,.06);border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:11px 15px;font-size:13px;color:var(--t2);line-height:1.6;}
+.crisis-insight strong{color:#86efac;}
+
+/* GRADUATION TAB */
+.grad-grid{display:flex;flex-direction:column;gap:11px;}
+.grad-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 22px;display:flex;gap:16px;align-items:flex-start;}
+.grad-num{width:38px;height:38px;background:var(--bg2);color:var(--gold);font-weight:800;font-size:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.grad-content{flex:1;min-width:0;}
+.grad-cat{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.grad-req{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:6px;}
+.grad-detail{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:8px;}
+.grad-measure{font-size:12px;color:var(--t3);font-style:italic;}
+
+/* CAPITAL TRACKER TAB */
+.ct-row{display:grid;grid-template-columns:2fr 1fr;gap:18px;align-items:start;}
+.ct-form{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;}
+.ct-form-title{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:14px;}
+.ct-field{margin-bottom:13px;}
+.ct-field-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.ct-input,.ct-select,.ct-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:9px 12px;font-family:inherit;color:var(--t1);font-size:13px;}
+.ct-input:focus,.ct-select:focus,.ct-textarea:focus{outline:none;border-color:var(--gold);}
+.ct-textarea{min-height:64px;resize:vertical;}
+.ct-save-btn{background:var(--gold);color:#0f172a;border:none;padding:11px 22px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-top:6px;}
+.ct-save-btn:hover{filter:brightness(1.05);}
+.ct-aggs{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.ct-aggs-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:14px;}
+.ct-agg-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px dashed var(--border);font-size:12px;}
+.ct-agg-row:last-child{border-bottom:none;}
+.ct-agg-label{color:var(--t3);}
+.ct-agg-value{font-family:'Inter',monospace;color:var(--gold);font-weight:700;font-size:13px;}
+.ct-recent{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-top:16px;}
+.ct-recent-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:14px;}
+.ct-recent-table{width:100%;border-collapse:collapse;font-size:12px;}
+.ct-recent-table th{background:var(--bg2);padding:8px 10px;text-align:left;color:var(--t3);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.ct-recent-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--t2);}
+.ct-recent-table td.pos{color:var(--green);font-weight:700;}
+.ct-recent-table td.neg{color:var(--red);font-weight:700;}
+.ct-empty{color:var(--t3);font-size:13px;font-style:italic;text-align:center;padding:24px;}
+
+/* AUTH MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:420px;padding:32px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden;}
+.modal-box::before{content:'';position:absolute;inset:0;background:radial-gradient(at 0% 0%,rgba(251,191,36,.08) 0%,transparent 60%);pointer-events:none;}
+.modal-logo{display:flex;align-items:center;gap:14px;}
+.modal-logo-mark{width:40px;height:40px;background:rgba(251,191,36,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.modal-title{font-size:18px;font-weight:800;color:var(--t1);}
+.modal-title span{color:var(--green);}
+.modal-sub{font-size:12px;color:var(--t3);}
+.modal-divider{height:1px;background:var(--border);}
+.tab-row{display:flex;gap:0;background:var(--card);border:1px solid var(--border-hi);border-radius:8px;overflow:hidden;}
+.auth-tab{flex:1;background:transparent;border:none;color:var(--t3);padding:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.auth-tab.active{background:var(--card2);color:var(--t1);}
+.modal-input-group{display:flex;flex-direction:column;gap:10px;}
+.modal-input{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-family:inherit;color:var(--t1);font-size:14px;}
+.modal-input:focus{outline:none;border-color:var(--gold);}
+.modal-role-row{display:flex;gap:8px;}
+.role-btn{flex:1;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px;border-radius:7px;border:1px solid var(--border-hi);background:var(--card);color:var(--t3);cursor:pointer;transition:all .15s;text-align:center;}
+.role-btn.active{border-color:var(--gold);background:rgba(251,191,36,.1);color:var(--gold);}
+.modal-btn{background:var(--gold);color:#0f172a;border:none;padding:12px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.modal-btn:disabled{opacity:.6;cursor:not-allowed;}
+.modal-err{font-size:12px;color:var(--red);margin-top:-4px;}
+.forgot-link{text-align:right;}
+.forgot-link span{font-size:11px;color:var(--blue);cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <div class="modal-logo-mark"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><path d="M4 6h16M4 12h10M4 18h13" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#fbbf24"/></svg></div>
+      <div><div class="modal-title">TradeRoom <span>PRO</span></div><div class="modal-sub" id="modalSubtitle">Phase 3 — Sign in to continue</div></div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="tab-row">
+      <button id="tabLogin" class="auth-tab active" onclick="showTab('login')">Sign In</button>
+      <button id="tabRegister" class="auth-tab" onclick="showTab('register')">Create Account</button>
+    </div>
+    <div id="formLogin" class="modal-input-group">
+      <input class="modal-input" id="loginEmail" type="text" placeholder="Email address" inputmode="email" onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <input class="modal-input" id="loginPassword" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <div class="forgot-link"><span onclick="forgotPassword()">Forgot password?</span></div>
+    </div>
+    <div id="formRegister" class="modal-input-group" style="display:none;">
+      <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24"/>
+      <input class="modal-input" id="regEmail" type="text" placeholder="Email address" inputmode="email"/>
+      <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" minlength="6"/>
+      <div class="modal-role-row">
+        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
+        <button class="role-btn" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      </div>
+    </div>
+    <div id="errMsg" class="modal-err" style="display:none;"></div>
+    <button id="authBtn" class="modal-btn" onclick="handleAuth()">Enter Trading Room →</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M4 6h16M4 12h10M4 18h13" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#fbbf24"/></svg></div>
+    <div class="sb-wordmark">TradeRoom <span>PRO</span></div>
+    <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 18l-6-6 6-6"/></svg></button>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section-label">Phase 1 — Foundation</div>
+    <a href="courses.html" class="sb-link"><span class="sb-link-icon">📚</span><span class="sb-label">Course Modules</span></a>
+    <div class="sb-section-label">Phase 2 — Paper Trading</div>
+    <a href="phase2.html" class="sb-link"><span class="sb-link-icon">🎯</span><span class="sb-label">Curriculum</span></a>
+    <div class="sb-section-label">Phase 3 — Live Capital</div>
+    <a href="phase3.html" class="sb-link active"><span class="sb-link-icon">🏆</span><span class="sb-label">Independence</span></a>
+    <div class="sb-section-label">Tools</div>
+    <a href="https://www.tradervue.com" target="_blank" class="sb-link"><span class="sb-link-icon">📓</span><span class="sb-label">TraderVue</span></a>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-avatar" id="sbAvatar">—</div>
+    <div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-uname" id="sbName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div><div class="sb-urole" id="sbRole">—</div></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-title">Phase 3 <span class="accent">·</span> Independence (Live Capital)</div>
+    </div>
+    <div class="header-right">
+      <div class="session-clock" id="sessionTime">--:--:--</div>
+      <div class="user-chip" id="userChip">—</div>
+      <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">Months 10–12 · Live Capital with Real Consequences</div>
+      <div class="hero-title">Phase 3 — Independence</div>
+      <div class="hero-sub">Phase 1 taught you what to do. Phase 2 made you do it on paper, every day, until the habits became automatic. Phase 3 is where it becomes real money. Real wins. Real losses. Real psychology. The structure tightens. The size starts small. The mentor stays close, then steps back. Your job is to graduate from this phase as a trader who can survive without us.</div>
+      <div class="hero-warn">
+        <strong>Before you trade one share live:</strong> you have completed Phase 2 with all 8 graduation criteria met. Your mentor has approved you for Phase 3. Your live trading account is funded with capital you can afford to lose. You have read every section of this page in full. If any of those is not true, return to where you came from — Phase 3 is not the place to take shortcuts.
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="timeline">
+      <div class="timeline-title">3-Month Phase 3 Timeline</div>
+      <div class="timeline-strip">
+        <div class="timeline-month m10">
+          <div class="timeline-month-num">MONTH 10</div>
+          <div class="timeline-month-label">Live Transition</div>
+          <div class="timeline-month-focus">Weeks 1–4 of transition protocol. Micro size → 25% size. First real loss + first real win.</div>
+          <div class="timeline-month-mentor">Mentor: Daily session + 1-on-1 every day</div>
+        </div>
+        <div class="timeline-month m11">
+          <div class="timeline-month-num">MONTH 11</div>
+          <div class="timeline-month-label">Sustained Discipline</div>
+          <div class="timeline-month-focus">Weeks 5–8 transition. 50% size. Habit testing under real money pressure.</div>
+          <div class="timeline-month-mentor">Mentor: Daily session + 1-on-1 twice per week</div>
+        </div>
+        <div class="timeline-month m12">
+          <div class="timeline-month-num">MONTH 12</div>
+          <div class="timeline-month-label">Graduation Push</div>
+          <div class="timeline-month-focus">Weeks 9–12. 100% size + Size Scaling Formula activates. Final 8 criteria push.</div>
+          <div class="timeline-month-mentor">Mentor: Daily session + 1-on-1 once per week + exit interview</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" data-tab="transition" onclick="switchTab('transition')"><span class="tab-icon">🚀</span>Transition Protocol<span class="tab-count">4</span></button>
+      <button class="tab" data-tab="scaling" onclick="switchTab('scaling')"><span class="tab-icon">📈</span>Size Scaling</button>
+      <button class="tab" data-tab="rules" onclick="switchTab('rules')"><span class="tab-icon">⚠️</span>Hard Rules<span class="tab-count">8</span></button>
+      <button class="tab" data-tab="crisis" onclick="switchTab('crisis')"><span class="tab-icon">🆘</span>Crisis Playbook<span class="tab-count">6</span></button>
+      <button class="tab" data-tab="grad" onclick="switchTab('grad')"><span class="tab-icon">🎓</span>Graduation<span class="tab-count">8</span></button>
+      <button class="tab" data-tab="capital" onclick="switchTab('capital')"><span class="tab-icon">💰</span>Capital Tracker</button>
+    </div>
+
+    <!-- TRANSITION TAB -->
+    <div class="tab-content active" id="tab-transition">
+      <div class="tab-intro gold">
+        <div class="tab-intro-label">12-Week Live Capital Transition</div>
+        <div class="tab-intro-text">Four phases over 12 weeks, ramping from micro size to full size. Each phase has a goal, success criteria, and a failure signal. The mentor decides when you advance — meeting numerical criteria is necessary but not sufficient.</div>
+      </div>
+      <div class="tp-grid" id="tpGrid"></div>
+    </div>
+
+    <!-- SCALING TAB -->
+    <div class="tab-content" id="tab-scaling">
+      <div class="tab-intro gold">
+        <div class="tab-intro-label">+1% Per Qualifying Week</div>
+        <div class="tab-intro-text">After completing the transition protocol (Tab 1), the size scaling formula governs further growth. Size grows by +1% only when you EARN it — meaning every one of the 4 gates was met for the previous week. Failing a gate triggers a 5% pullback. The system compounds slowly so your psychology grows with the size.</div>
+      </div>
+      <div class="scaling-section" id="scalingGates"></div>
+      <div class="scaling-section" id="scalingProjection"></div>
+      <div class="scaling-section" id="scalingRules"></div>
+    </div>
+
+    <!-- HARD RULES TAB -->
+    <div class="tab-content" id="tab-rules">
+      <div class="tab-intro red">
+        <div class="tab-intro-label">Live Trading Hard Rules — Tightened From Phase 2</div>
+        <div class="tab-intro-text">Real money requires tighter rules than paper. Limits move from 1.5% daily / 3% weekly / 0.5% per trade in Phase 2 to 2% / 5% / 1% in Phase 3. Three new rules also activate (3-loss walk-away, daily-limit cooldown, drawdown mentor call) plus the cash-up rule for monthly profits.</div>
+      </div>
+      <div class="hr-grid" id="hrGrid"></div>
+    </div>
+
+    <!-- CRISIS TAB -->
+    <div class="tab-content" id="tab-crisis">
+      <div class="tab-intro red">
+        <div class="tab-intro-label">When Things Go Wrong — Pre-Written Protocols</div>
+        <div class="tab-intro-text">Every protocol on this tab exists because real traders have lost real money panicking in real-time. The protocols work because they remove decisions from the moment of crisis — you decide once, calmly, in advance. When the crisis hits, you execute the protocol. No thinking required.</div>
+      </div>
+      <div class="crisis-grid" id="crisisGrid"></div>
+    </div>
+
+    <!-- GRADUATION TAB -->
+    <div class="tab-content" id="tab-grad">
+      <div class="tab-intro gold">
+        <div class="tab-intro-label">8 Requirements for Graduation</div>
+        <div class="tab-intro-text">Eight criteria stand between you and graduation from the program. Six are numerical and verifiable. Two are subjective psychological demonstrations. The mentor exit interview is the final gate — and the mentor's decision is final, regardless of numerical compliance.</div>
+      </div>
+      <div class="grad-grid" id="gradGrid"></div>
+    </div>
+
+    <!-- CAPITAL TRACKER TAB -->
+    <div class="tab-content" id="tab-capital">
+      <div class="tab-intro gold">
+        <div class="tab-intro-label">Daily Capital Tracker</div>
+        <div class="tab-intro-text">Log every trading day — including no-trade days. The streak of consecutive logged days is itself a graduation criterion. Aggregates calculate automatically from your daily entries. Be honest about violations; the tracker exists to help you graduate, not to look good.</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-form">
+          <div class="ct-form-title">📝 Log Today's Session</div>
+          <div id="ctFields"></div>
+          <button class="ct-save-btn" onclick="saveCapitalEntry()">Save Daily Entry</button>
+        </div>
+        <div class="ct-aggs">
+          <div class="ct-aggs-title">📊 Aggregates</div>
+          <div id="ctAggs"></div>
+        </div>
+      </div>
+      <div class="ct-recent">
+        <div class="ct-recent-title">🗓️ Last 14 Trading Days</div>
+        <div id="ctRecent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339"});
+</script>
+
+<script>
+// ══ PHASE 3 DATA ══
+
+var TRANSITION_PHASES = [
+  {
+    id: 1, weeks: "Weeks 1–2", phaseLabel: "MICRO SIZE",
+    sizeName: "Smallest possible (often 1 share)",
+    sizePercent: 1,
+    color: "blue",
+    goal: "PROVE you can place real orders without freezing.",
+    description: "The first two weeks are about overcoming the psychological wall between paper and real money. Most traders freeze at the order entry screen the first time real dollars are at stake. Going micro removes the financial pressure so you can practice the mechanics — placing the bracket, hitting the hotkey, accepting the fill — without your brain hijacking you over a $50 P&L swing.",
+    successCriteria: [
+      "Place at least 5 real-money trades — even if size is 1 share",
+      "Bracket order placed correctly (entry + stop + target) every time",
+      "No skipped trades due to anxiety (if a setup hits, take it)",
+      "All trades logged in TraderVue with full journal entry"
+    ],
+    failureSignal: "If you skip 3+ qualifying setups due to anxiety, return to paper for one more week of size-up drills. No shame — better to find this now than after a real loss."
+  },
+  {
+    id: 2, weeks: "Weeks 3–4", phaseLabel: "25% SIZE",
+    sizeName: "25% of planned full size",
+    sizePercent: 25,
+    color: "blue",
+    goal: "Take your first real loss. Take your first real win. Survive both without breaking rules.",
+    description: "Now there is real P&L — enough to feel something, not enough to ruin you. Almost every trader experiences either a 'red baptism' (first significant loss) or a 'green tilt' (first significant win) in this phase. How you respond to BOTH is the test. The trader who can lose $200 and walk away calmly is more graduated than the trader who hasn't lost yet.",
+    successCriteria: [
+      "Take at least 10 trades at 25% size",
+      "Survive the first significant loss without revenge trading",
+      "Survive the first significant win without doubling size next trade",
+      "Daily loss limit honored — broker enforces it via IB Risk Navigator",
+      "Mentor weekly check-in: psychological state assessed"
+    ],
+    failureSignal: "Two daily-loss-limit hits in two weeks = stay at 25% for another full week. Three hits = drop back to micro size."
+  },
+  {
+    id: 3, weeks: "Weeks 5–8", phaseLabel: "50% SIZE",
+    sizeName: "50% of planned full size",
+    sizePercent: 50,
+    color: "amber",
+    goal: "Sustained discipline through P&L swings.",
+    description: "Four weeks at half size is where habits get tested by real money for the first time. By now you have had multiple wins and losses. The question becomes: are your Phase 2 habits still intact when the dollars are bigger? Most traders see at least one rule violation in this phase — not a daily loss limit hit, but a smaller transgression like placing a bracket order late or trading after 10:30 without setup confirmation. This is where you find out which habits stuck and which were just paper-trade compliance.",
+    successCriteria: [
+      "20+ trades at 50% size across the 4 weeks",
+      "Zero hard-rule violations across the full 4 weeks",
+      "Win rate within ±10% of Phase 2 baseline",
+      "Avg R within ±20% of Phase 2 baseline",
+      "Drawdown stays under 8% peak-to-trough"
+    ],
+    failureSignal: "Hard-rule violation = automatic pullback to 25% size for 2 weeks before re-attempting 50%. Three violations across all of Phase 3 = mentor reassesses readiness for live trading."
+  },
+  {
+    id: 4, weeks: "Weeks 9–12", phaseLabel: "100% SIZE",
+    sizeName: "Full planned size (if all gates passed)",
+    sizePercent: 100,
+    color: "green",
+    goal: "Graduate from transition. From this point, the Size Scaling Formula governs growth.",
+    description: "If you reach week 9 having met all prior criteria, you are ready to trade at the size that was determined as your full-size target by your mentor. This is also the point where the +1%-per-qualifying-week scaling formula activates. From now until graduation, your size only grows when you earn the right to grow it.",
+    successCriteria: [
+      "30+ trades at full size across the 4 weeks",
+      "Zero hard-rule violations through week 12",
+      "Positive R-expectancy across the entire 4-week stretch",
+      "Mentor weekly check-in: confirms graduation from transition",
+      "Begin Size Scaling Formula (Tab 2) on first qualifying week"
+    ],
+    failureSignal: "Failing to reach 100% by week 12 is not a failure — many students need 14-16 weeks. Mentor extends transition with no penalty."
+  }
+];
+
+
+var SCALING_GATES = [
+  {
+    id: 1, label: "Positive R-Expectancy",
+    detail: "The previous week ended with positive R-multiple expectancy across all trades taken. Even +0.1R counts. Negative or flat = no scaling.",
+    measure: "TraderVue weekly expectancy report"
+  },
+  {
+    id: 2, label: "Zero Hard-Rule Violations",
+    detail: "Across every trading day in the previous week, every hard rule was followed. One late bracket order, one off-list trade, one revenge trade = no scaling this week.",
+    measure: "Self-check + mentor review during Friday call"
+  },
+  {
+    id: 3, label: "Win Rate Within ±10% of Paper Baseline",
+    detail: "Your win rate from Phase 2 paper trading is your baseline (e.g. 52%). Live win rate must stay within ±10 percentage points (42-62% in the example). Drift outside that band = setups not transferring.",
+    measure: "Compare current week win rate to Phase 2 baseline in TraderVue"
+  },
+  {
+    id: 4, label: "Mentor Approval",
+    detail: "Mentor reviews the weekly numbers AND your psychological state during Friday check-in. Numerical pass alone is not enough — mentor decides if scaling is appropriate this week.",
+    measure: "Friday weekly mentor call (15-30 min)"
+  }
+];
+
+var SCALING_PROJECTION = [
+  { week: 1, baseRisk: 100.00, label: "Starting baseline" },
+  { week: 4, baseRisk: 103.03, label: "After 1 month (4 qualifying weeks)" },
+  { week: 13, baseRisk: 113.81, label: "After 1 quarter" },
+  { week: 26, baseRisk: 129.53, label: "After 6 months" },
+  { week: 52, baseRisk: 167.77, label: "After 1 year (100% qualify)" },
+  { week: 52, baseRisk: 140.00, label: "After 1 year (75% qualify rate — realistic)", realistic: true },
+  { week: 100, baseRisk: 270.48, label: "After ~2 years" }
+];
+
+var SCALING_RULES = [
+  {
+    rule: "Starting Size",
+    detail: "Phase 3 begins at the size determined by your mentor based on your account capital and proven Phase 2 metrics. This is your 100% baseline — also referred to as 'full size'."
+  },
+  {
+    rule: "Scaling Trigger",
+    detail: "Size up by +1% only if the previous week met ALL FOUR gates listed above. Three of four = no scaling. The 1% compounds — week N risk = previous week × 1.01."
+  },
+  {
+    rule: "Pullback Rule",
+    detail: "If any week fails ANY gate: revert size by 5% (one step back). You must complete THREE successful trades at the lower size before next scaling attempt."
+  },
+  {
+    rule: "Size Cap",
+    detail: "Cannot grow above 100% of full size without explicit mentor sign-off. Above-100% scaling requires a quarterly review and an account capital increase justification."
+  },
+  {
+    rule: "Hard Ceiling",
+    detail: "Never above 1% risk per trade in Phase 3 regardless of size scaling. The 1% per-trade ceiling is the absolute risk limit — scaling formula must respect it."
+  },
+  {
+    rule: "Size-Up Tilt Warning",
+    detail: "At week 26 you are risking 30% more than week 1. Your brain may still expect week-1 P&L emotional impact. Be alert: a -2R loss at week-26 size feels different than the same R-multiple felt at week-1 size."
+  }
+];
+
+
+var HARD_RULES_LIVE = [
+  {
+    id: 1, category: "Capital Preservation",
+    rule: "Daily Loss Limit: 2.0% of account",
+    paperRule: "Phase 2: 1.5% paper",
+    detail: "On a $50,000 live account, that is $1,000 maximum daily loss. Set this in IB Risk Navigator BEFORE every session. The broker enforces it. If hit, all positions auto-flatten and trading stops for the rest of the day.",
+    enforcement: "IB Risk Navigator (broker-side, automatic)"
+  },
+  {
+    id: 2, category: "Capital Preservation",
+    rule: "Weekly Loss Limit: 5.0% of account",
+    paperRule: "Phase 2: 3% paper",
+    detail: "Tracked manually but reviewed in Friday mentor call. If hit, no trading until Monday's mentor approval. On a $50K account, $2,500 weekly loss = stop until Monday call.",
+    enforcement: "Manual tracking + mentor enforcement"
+  },
+  {
+    id: 3, category: "Per-Trade Risk",
+    rule: "Maximum Risk Per Trade: 1.0%",
+    paperRule: "Phase 2: 0.5% paper",
+    detail: "On a $50K account, $500 maximum risk per trade. This is the HARD ceiling — your scaling formula and all bracket orders must respect this. 1% is not a target, it is a maximum.",
+    enforcement: "Position sizing formula + IB max-position-size limit"
+  },
+  {
+    id: 4, category: "Discipline",
+    rule: "Three Losses In A Row = Walk Away",
+    paperRule: "New in Phase 3",
+    detail: "Three consecutive losing trades in a single session, regardless of total $ lost = stop trading for the rest of the session. No fourth trade to 'make it back'. The third loss is the signal that your read is off today, not just the trade.",
+    enforcement: "Self-enforced + Discord post required after the third loss"
+  },
+  {
+    id: 5, category: "Discipline",
+    rule: "Daily Limit Hit = No Trading Tomorrow",
+    paperRule: "New in Phase 3",
+    detail: "If your daily loss limit hits, you do NOT trade the next session either. Use the day for review, journal study, mentor call. The 24-hour cooldown breaks the revenge cycle that destroys traders after a bad day.",
+    enforcement: "Self-enforced + mentor verification next session"
+  },
+  {
+    id: 6, category: "Discipline",
+    rule: "Weekly Drawdown >5% = Call Mentor Before Monday",
+    paperRule: "New in Phase 3",
+    detail: "If you finish a week down 5% or more, you must speak with your mentor before placing any trade Monday morning. The mentor decides whether you trade Monday at all, and at what size if so. This is non-negotiable.",
+    enforcement: "Mandatory pre-Monday mentor call"
+  },
+  {
+    id: 7, category: "Capital Management",
+    rule: "Cash-Up Rule: Move 50% of Monthly Profit Out",
+    paperRule: "New in Phase 3",
+    detail: "At the end of every profitable month, transfer 50% of the month profit out of the trading account to a separate savings account. This is non-negotiable. Compounding 100% in the trading account is how blowups happen — the account grows beyond your psychological tolerance, then one bad week wipes months of work.",
+    enforcement: "Monthly transfer record submitted to mentor"
+  },
+  {
+    id: 8, category: "Discipline",
+    rule: "All Phase 1 + Phase 2 Rules Still Apply",
+    paperRule: "Carried over",
+    detail: "No overnight positions. No China stocks. Scanner minimums unchanged. Short-selling float minimum 2M. Short stop above PMH. Golden Rule (broker daily limit verified before each session). All paper-phase rules still in force.",
+    enforcement: "Same as Phase 2"
+  }
+];
+
+
+var CRISIS_PROTOCOLS = [
+  {
+    id: 1, icon: "💔", title: "First Real Loss Protocol",
+    when: "Your first significant losing trade with real money. Usually happens in Weeks 3-4.",
+    severity: "Important — sets pattern for all future losses",
+    steps: [
+      "Close the position at the planned stop. Do not negotiate with yourself.",
+      "Step away from the screen for 10 minutes. Walk, get water, do anything not market-related.",
+      "When you return, do NOT take another trade for at least 30 minutes — even if a perfect setup appears.",
+      "After 30 minutes, journal the trade IMMEDIATELY in TraderVue: thesis, execution, exit reasoning, emotional state at each point.",
+      "Post a one-sentence summary in #first-loss Discord channel — not for sympathy, but to mark the milestone. Other traders have been here."
+    ],
+    keyInsight: "Your goal in this moment is NOT to make the money back. Your goal is to demonstrate to yourself that you can lose without spiraling. That demonstration is worth far more than the money lost."
+  },
+  {
+    id: 2, icon: "🎉", title: "First Real Win / Winner's Tilt Protocol",
+    when: "Your first significant winning trade with real money. Often equally dangerous as a first loss.",
+    severity: "Critical — winner's tilt is the #1 killer of new traders",
+    steps: [
+      "Close the position at the planned target. Do NOT extend the trade because it is going well.",
+      "Take a 10-minute break before considering the next trade.",
+      "DO NOT increase position size on the next trade. The temptation to 'press the edge' is extreme. Resist it.",
+      "Journal the win in TraderVue with the same depth as a loss — what made this work, what was the setup, was the exit at target?",
+      "Tell yourself out loud (audibly, not silently): 'One trade. The next one is independent. Same size.'"
+    ],
+    keyInsight: "Winner's tilt destroys more accounts than losing streaks. After a big win, your brain releases dopamine and your risk tolerance temporarily increases. You feel invincible. The very next trade is statistically the most dangerous trade of your career. Treat it as such."
+  },
+  {
+    id: 3, icon: "⛔", title: "Three-Loss Recovery Routine",
+    when: "Three consecutive losing trades in a single session.",
+    severity: "Mandatory walk-away",
+    steps: [
+      "Close any open position immediately. No exceptions.",
+      "Power down the trading platform. Do not lurk on the chart.",
+      "Step physically away from the computer for at least 30 minutes.",
+      "Use the time for: short walk, brief workout, meal, anything that breaks the trading mindset.",
+      "When you return, you may review trades for journaling — but you cannot place a new trade for the rest of the session.",
+      "Post the three trades and one lesson learned in #three-loss Discord channel before EOD."
+    ],
+    keyInsight: "Three losses in a row is the market telling you that your read is OFF today, not that the next trade will work. Trying to force a fourth trade in this state has a much higher probability of becoming loss #4 than reversing your fortune."
+  },
+  {
+    id: 4, icon: "📞", title: "Drawdown >5% Mentor Call",
+    when: "Any week where you finish 5% or more in drawdown.",
+    severity: "Mandatory before next Monday's open",
+    steps: [
+      "Calculate your week-end equity vs week-start equity. If down 5% or more, this protocol activates.",
+      "Email or DM your mentor BEFORE Sunday EOD with: weekly trade list, R-multiple summary, three-question self-review answers.",
+      "Schedule a 30-min Monday pre-market call (before 7:00 AM session).",
+      "DO NOT place any trade Monday until the mentor explicitly approves.",
+      "Mentor decides: trade as normal, trade at reduced size, or skip Monday entirely."
+    ],
+    keyInsight: "A single bad week is usually noise. But a bad week where you also broke rules is a pattern beginning. The mentor call is to identify which one this is — and to prevent the pattern from compounding."
+  },
+  {
+    id: 5, icon: "🌪️", title: "Tilt Detection — 30-Min Recovery Routine",
+    when: "Any time you notice you are trading from emotion: rushing entries, oversizing, chasing, ignoring rules.",
+    severity: "Stop now, before the next trade",
+    steps: [
+      "Close any open position at current market price. Do not wait for a 'better' exit.",
+      "Walk away from the computer immediately. Set a 30-minute timer.",
+      "First 10 min: physical movement (walk, push-ups, stretching). Get blood flowing away from the trading-anxiety state.",
+      "Middle 10 min: hydrate, eat something with protein, breathe slowly (4-7-8 breathing — inhale 4, hold 7, exhale 8).",
+      "Final 10 min: write down what triggered the tilt. Was it a specific loss? A frustration? Sleep? Family stress? Identify the source.",
+      "When timer ends, decide honestly: am I clear-headed? If yes, you may resume — but at 50% size for the rest of session. If no, done for the day."
+    ],
+    keyInsight: "Tilt is not weakness. Tilt is biology — your brain in fight-or-flight mode, making decisions designed for predators not P&L charts. The 30-minute routine works because that is roughly how long it takes for cortisol to clear. You cannot 'will' yourself out of tilt — you have to wait it out chemically."
+  },
+  {
+    id: 6, icon: "🆘", title: "Account Down >15% in a Month",
+    when: "Monthly drawdown exceeds 15% from prior month-end equity.",
+    severity: "Trading halt — mentor decision required",
+    steps: [
+      "STOP TRADING IMMEDIATELY. Do not place any more trades that month.",
+      "Schedule emergency mentor call within 48 hours.",
+      "Pull complete trade log from the month, all journal entries, all rule compliance records.",
+      "Mentor and you conduct full review: what went wrong, when did it start, was it a strategy issue or a discipline issue?",
+      "Mentor determines the path forward: extended pause, return to paper trading, return to smaller size, or continue (rare).",
+      "DO NOT make this decision yourself. Your judgment in a 15% drawdown is not reliable — that is the entire point of having a mentor."
+    ],
+    keyInsight: "A 15% monthly drawdown is the line where most retail traders blow up — they try to revenge-trade their way out. The protocol exists because you literally cannot trust your own decision-making at this point. Outsource the decision to your mentor; that is what they are for."
+  }
+];
+
+
+var GRADUATION_CRITERIA = [
+  {
+    id: 1, requirement: "60+ Live Trades Logged",
+    category: "Volume",
+    detail: "Minimum 60 completed live trades logged in TraderVue with full journal quality (matching Phase 2 Drill 7 standards). Volume requirement ensures sample size large enough to evaluate edge.",
+    measure: "TraderVue trade count + mentor verification of journal quality"
+  },
+  {
+    id: 2, requirement: "Positive Expectancy on Two Setups",
+    category: "Performance",
+    detail: "Two of the five setups from the Phase 2 Playbook show positive expectancy across at least 20 live trades each. The two setups must be the ones you specialized in during Phase 2 Months 6-7.",
+    measure: "TraderVue setup-tagged expectancy report. Mentor verifies."
+  },
+  {
+    id: 3, requirement: "Zero Hard-Rule Violations Last 30 Days",
+    category: "Discipline",
+    detail: "Across the most recent 30 calendar days of Phase 3, no hard-rule violations recorded. Daily loss limit honored. Weekly limit honored. Per-trade risk honored. No off-list trades. No after-10:30 long entries except qualifying 10:30 Rule setups.",
+    measure: "30-day audit conducted by mentor before exit interview"
+  },
+  {
+    id: 4, requirement: "Demonstrated Recovery From Real Losing Streak",
+    category: "Psychology",
+    detail: "At some point in Phase 3, you experienced 3+ consecutive losses or a -5% week. Your response is on record: protocol followed, mentor call completed, journal entries reflective, no rule violations during recovery, return to normal trading was disciplined.",
+    measure: "Mentor reviews the response episode in detail. Subjective judgment."
+  },
+  {
+    id: 5, requirement: "Demonstrated Recovery From Winner's Tilt",
+    category: "Psychology",
+    detail: "At some point in Phase 3, you had a significant green week or a single big winner. Your subsequent trades show: no size increase outside the scaling formula, no 'pressing' behavior, normal emotional state on next trade, journal entries acknowledge the temptation honestly.",
+    measure: "Mentor reviews the response episode. Equally important as the loss-recovery demonstration."
+  },
+  {
+    id: 6, requirement: "Self-Coaching Pattern Recognition",
+    category: "Independence",
+    detail: "Monthly self-reviews show you identifying patterns in your own trading WITHOUT mentor prompting. You spot recurring mistakes, recurring successes, behavioral correlations (sleep, day of week, market conditions). The mentor sees evidence of self-coaching beginning to replace external coaching.",
+    measure: "Mentor reads your last 3 monthly self-reviews and judges quality of self-observation."
+  },
+  {
+    id: 7, requirement: "Capital Tracker Daily Log Complete",
+    category: "Discipline",
+    detail: "Capital tracker (Tab 6) shows daily entries for at least the last 60 trading days: date, P&L, trade count, R-multiple, rule violations (yes/no), notes. Entries that show '$0 P&L' on no-trade days are still entries — they document discipline.",
+    measure: "Tab 6 audit. Streak of consecutive logged days reviewed."
+  },
+  {
+    id: 8, requirement: "Mentor Exit Interview Pass",
+    category: "Final",
+    detail: "After all numerical criteria are met, the mentor conducts a 60-minute Phase 3 exit interview. Topics: trading philosophy, why your edge works, how you handle psychological pressure, plans for size growth post-graduation, awareness of personal weaknesses. The mentor decides — meeting numerical criteria is necessary but not sufficient.",
+    measure: "Final mentor sign-off. Decision is mentor's."
+  }
+];
+
+
+var CAPITAL_FIELDS = [
+  { id: "date", label: "Date", type: "date", placeholder: "YYYY-MM-DD" },
+  { id: "pnl", label: "P&L ($)", type: "number", placeholder: "e.g. 234.50 or -180" },
+  { id: "trades", label: "Number of Trades", type: "number", placeholder: "0 if no trades today" },
+  { id: "rMultiple", label: "Sum of R-Multiple", type: "number", placeholder: "e.g. 2.5 or -1.5", step: "0.1" },
+  { id: "violations", label: "Rule Violations Today?", type: "select", options: ["No — clean day", "Yes — minor (one)", "Yes — multiple"] },
+  { id: "notes", label: "Notes (key observation)", type: "textarea", placeholder: "One sentence per day. What was the lesson?" }
+];
+
+var CAPITAL_AGGREGATES = [
+  { id: "weekPnL", label: "This Week P&L", calc: "Sum P&L for last 5 trading days" },
+  { id: "weekTrades", label: "This Week Trades", calc: "Sum of trade counts" },
+  { id: "weekR", label: "This Week R-Total", calc: "Sum of R-multiples" },
+  { id: "monthPnL", label: "This Month P&L", calc: "Sum P&L month-to-date" },
+  { id: "monthTrades", label: "This Month Trades", calc: "Sum of trade counts" },
+  { id: "violations30d", label: "Violations Last 30 Days", calc: "Count of days marked Yes — for graduation criterion 3" },
+  { id: "loggingStreak", label: "Logging Streak", calc: "Consecutive trading days with entry — for graduation criterion 7" },
+  { id: "drawdown", label: "Max Drawdown 30d", calc: "Peak-to-trough equity decline in last 30 days" }
+];
+
+
+// ══ STATE ══
+var currentUser = null;
+var currentRole = 'student';
+var phase3Data = { capitalLog: {} }; // { capitalLog: { 'YYYY-MM-DD': { pnl, trades, rMultiple, violations, notes } } }
+var activeTab = 'transition';
+var selectedRole = 'student';
+
+// ══ DATE HELPERS ══
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function daysAgoStr(n) {
+  var d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmtMoney(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  var sign = n < 0 ? '-' : (n > 0 ? '+' : '');
+  return sign + '$' + Math.abs(n).toFixed(2);
+}
+
+// ══ TAB SWITCHING ══
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
+  document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.toggle('active', c.id === 'tab-' + tab); });
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+// ══ RENDER TRANSITION TAB ══
+function renderTransition() {
+  var grid = document.getElementById('tpGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  TRANSITION_PHASES.forEach(function(p) {
+    var card = document.createElement('div');
+    card.className = 'tp-card ' + p.color;
+    var successItems = p.successCriteria.map(function(c) { return '<li>' + c + '</li>'; }).join('');
+    card.innerHTML =
+      '<div class="tp-head">' +
+        '<div class="tp-weeks-block">' +
+          '<div class="tp-weeks">' + p.weeks + '</div>' +
+          '<div class="tp-phase-label">' + p.phaseLabel + '</div>' +
+        '</div>' +
+        '<div class="tp-size-circle">' + p.sizePercent + '%</div>' +
+        '<div class="tp-titles">' +
+          '<div class="tp-size-name">' + p.sizeName + '</div>' +
+          '<div class="tp-goal">Goal: ' + p.goal + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tp-body">' +
+        '<div class="tp-desc">' + p.description + '</div>' +
+        '<div class="tp-section-label">Success Criteria</div>' +
+        '<ul class="tp-success-list">' + successItems + '</ul>' +
+        '<div class="tp-failure"><strong>Failure signal:</strong> ' + p.failureSignal + '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+// ══ RENDER SCALING TAB ══
+function renderScaling() {
+  var gates = document.getElementById('scalingGates');
+  if (gates) {
+    var gateCards = SCALING_GATES.map(function(g) {
+      return '<div class="gate-card">' +
+        '<div class="gate-header"><div class="gate-num">' + g.id + '</div><div class="gate-label">' + g.label + '</div></div>' +
+        '<div class="gate-detail">' + g.detail + '</div>' +
+        '<div class="gate-measure">Measured by: ' + g.measure + '</div>' +
+      '</div>';
+    }).join('');
+    gates.innerHTML =
+      '<div class="scaling-section-head"><div class="scaling-section-title">The 4 Gates — All Must Be Met to Scale Up</div></div>' +
+      '<div class="scaling-section-body"><div class="gates-grid">' + gateCards + '</div></div>';
+  }
+
+  var proj = document.getElementById('scalingProjection');
+  if (proj) {
+    var rows = SCALING_PROJECTION.map(function(p) {
+      return '<tr class="proj-row' + (p.realistic ? ' realistic' : '') + '">' +
+        '<td>Week ' + p.week + '</td>' +
+        '<td class="amount">$' + p.baseRisk.toFixed(2) + '</td>' +
+        '<td>' + p.label + '</td>' +
+      '</tr>';
+    }).join('');
+    proj.innerHTML =
+      '<div class="scaling-section-head"><div class="scaling-section-title">Compound Growth Projection ($100 starting risk)</div></div>' +
+      '<div class="scaling-section-body">' +
+        '<table class="proj-table"><thead><tr><th>Time</th><th>Risk Per Trade</th><th>Scenario</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>' +
+        '<div style="font-size:11px;color:var(--t3);margin-top:10px;font-style:italic;">' +
+        'Realistic case (highlighted): 75% qualify rate — 25% of weeks fail a gate, triggering 5% pullbacks. This is what most traders actually experience.' +
+        '</div>' +
+      '</div>';
+  }
+
+  var rules = document.getElementById('scalingRules');
+  if (rules) {
+    var ruleCards = SCALING_RULES.map(function(r) {
+      return '<div class="rule-card">' +
+        '<div class="rule-name">' + r.rule + '</div>' +
+        '<div class="rule-detail">' + r.detail + '</div>' +
+      '</div>';
+    }).join('');
+    rules.innerHTML =
+      '<div class="scaling-section-head"><div class="scaling-section-title">The 6 Scaling Rules</div></div>' +
+      '<div class="scaling-section-body"><div class="rules-list">' + ruleCards + '</div></div>';
+  }
+}
+
+// ══ RENDER HARD RULES TAB ══
+function renderHardRules() {
+  var grid = document.getElementById('hrGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  HARD_RULES_LIVE.forEach(function(r) {
+    var card = document.createElement('div');
+    card.className = 'hr-card';
+    card.innerHTML =
+      '<div class="hr-head">' +
+        '<div class="hr-num">' + r.id + '</div>' +
+        '<div class="hr-content">' +
+          '<div class="hr-cat">' + r.category + '</div>' +
+          '<div class="hr-rule">' + r.rule + '</div>' +
+          '<div class="hr-paper">' + r.paperRule + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hr-detail">' + r.detail + '</div>' +
+      '<div class="hr-enforce">Enforced by: ' + r.enforcement + '</div>';
+    grid.appendChild(card);
+  });
+}
+
+// ══ RENDER CRISIS TAB ══
+function renderCrisis() {
+  var grid = document.getElementById('crisisGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  CRISIS_PROTOCOLS.forEach(function(c) {
+    var card = document.createElement('div');
+    card.className = 'crisis-card';
+    var stepItems = c.steps.map(function(s) { return '<li>' + s + '</li>'; }).join('');
+    card.innerHTML =
+      '<div class="crisis-head">' +
+        '<div class="crisis-icon">' + c.icon + '</div>' +
+        '<div class="crisis-titles">' +
+          '<div class="crisis-title">' + c.title + '</div>' +
+          '<div class="crisis-when">When: ' + c.when + '</div>' +
+          '<div class="crisis-severity">' + c.severity + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="crisis-body">' +
+        '<div class="crisis-section-label">Protocol Steps</div>' +
+        '<ol class="crisis-steps">' + stepItems + '</ol>' +
+        '<div class="crisis-insight"><strong>Key insight:</strong> ' + c.keyInsight + '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+// ══ RENDER GRADUATION TAB ══
+function renderGraduation() {
+  var grid = document.getElementById('gradGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  GRADUATION_CRITERIA.forEach(function(g) {
+    var card = document.createElement('div');
+    card.className = 'grad-card';
+    card.innerHTML =
+      '<div class="grad-num">' + g.id + '</div>' +
+      '<div class="grad-content">' +
+        '<div class="grad-cat">' + g.category + '</div>' +
+        '<div class="grad-req">' + g.requirement + '</div>' +
+        '<div class="grad-detail">' + g.detail + '</div>' +
+        '<div class="grad-measure">How measured: ' + g.measure + '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+// ══ RENDER CAPITAL TRACKER TAB ══
+function renderCapital() {
+  var fields = document.getElementById('ctFields');
+  if (fields) {
+    var html = '';
+    CAPITAL_FIELDS.forEach(function(f) {
+      var defaultVal = f.id === 'date' ? todayStr() : '';
+      html += '<div class="ct-field"><div class="ct-field-label">' + f.label + '</div>';
+      if (f.type === 'select') {
+        html += '<select class="ct-select" id="ct-' + f.id + '">';
+        f.options.forEach(function(o) { html += '<option>' + o + '</option>'; });
+        html += '</select>';
+      } else if (f.type === 'textarea') {
+        html += '<textarea class="ct-textarea" id="ct-' + f.id + '" placeholder="' + f.placeholder + '"></textarea>';
+      } else {
+        var step = f.step ? ' step="' + f.step + '"' : '';
+        var valAttr = defaultVal ? ' value="' + defaultVal + '"' : '';
+        html += '<input class="ct-input" type="' + f.type + '" id="ct-' + f.id + '" placeholder="' + (f.placeholder || '') + '"' + valAttr + step + '/>';
+      }
+      html += '</div>';
+    });
+    fields.innerHTML = html;
+  }
+
+  renderAggregates();
+  renderRecentEntries();
+}
+
+function renderAggregates() {
+  var aggsEl = document.getElementById('ctAggs');
+  if (!aggsEl) return;
+
+  var log = phase3Data.capitalLog || {};
+  var entries = Object.keys(log).map(function(k) { return Object.assign({date: k}, log[k]); });
+
+  // Calculate aggregates
+  function inLastN(date, n) {
+    var d = new Date(date);
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - n);
+    return d >= cutoff;
+  }
+  function pnl(e) { return parseFloat(e.pnl) || 0; }
+  function trades(e) { return parseInt(e.trades) || 0; }
+  function rMul(e) { return parseFloat(e.rMultiple) || 0; }
+
+  var lastWeek = entries.filter(function(e) { return inLastN(e.date, 7); });
+  var lastMonth = entries.filter(function(e) { return inLastN(e.date, 30); });
+
+  var aggs = {
+    weekPnL: lastWeek.reduce(function(s,e) { return s + pnl(e); }, 0),
+    weekTrades: lastWeek.reduce(function(s,e) { return s + trades(e); }, 0),
+    weekR: lastWeek.reduce(function(s,e) { return s + rMul(e); }, 0),
+    monthPnL: lastMonth.reduce(function(s,e) { return s + pnl(e); }, 0),
+    monthTrades: lastMonth.reduce(function(s,e) { return s + trades(e); }, 0),
+    violations30d: lastMonth.filter(function(e) { return e.violations && e.violations.indexOf('Yes') === 0; }).length,
+    loggingStreak: calcStreak(log),
+    drawdown: calcDrawdown(lastMonth)
+  };
+
+  function fmtVal(id, v) {
+    if (id === 'weekR') return (v >= 0 ? '+' : '') + v.toFixed(2) + 'R';
+    if (id.indexOf('PnL') >= 0) return fmtMoney(v);
+    if (id === 'drawdown') return v.toFixed(1) + '%';
+    return String(v);
+  }
+
+  var html = CAPITAL_AGGREGATES.map(function(a) {
+    return '<div class="ct-agg-row">' +
+      '<div class="ct-agg-label">' + a.label + '</div>' +
+      '<div class="ct-agg-value">' + fmtVal(a.id, aggs[a.id]) + '</div>' +
+    '</div>';
+  }).join('');
+  aggsEl.innerHTML = html;
+}
+
+function calcStreak(log) {
+  // Count consecutive days back from today that have an entry
+  var streak = 0;
+  for (var i = 0; i < 365; i++) {
+    var d = daysAgoStr(i);
+    var dayOfWeek = new Date(d).getUTCDay(); // 0=Sun, 6=Sat
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // skip weekends
+    if (log[d]) streak++;
+    else if (i > 0) break; // first miss after at least 1 found
+  }
+  return streak;
+}
+
+function calcDrawdown(entries) {
+  if (!entries.length) return 0;
+  var sorted = entries.slice().sort(function(a,b) { return a.date.localeCompare(b.date); });
+  var cum = 0, peak = 0, maxDd = 0;
+  sorted.forEach(function(e) {
+    cum += parseFloat(e.pnl) || 0;
+    if (cum > peak) peak = cum;
+    var dd = peak - cum;
+    if (peak > 0) {
+      var ddPct = (dd / Math.max(peak, 1)) * 100;
+      if (ddPct > maxDd) maxDd = ddPct;
+    }
+  });
+  return maxDd;
+}
+
+function renderRecentEntries() {
+  var el = document.getElementById('ctRecent');
+  if (!el) return;
+  var log = phase3Data.capitalLog || {};
+  var dates = Object.keys(log).sort().reverse().slice(0, 14);
+
+  if (dates.length === 0) {
+    el.innerHTML = '<div class="ct-empty">No entries yet. Log your first trading day above.</div>';
+    return;
+  }
+
+  var rows = dates.map(function(d) {
+    var e = log[d];
+    var pnlNum = parseFloat(e.pnl) || 0;
+    var pnlClass = pnlNum > 0 ? 'pos' : (pnlNum < 0 ? 'neg' : '');
+    var rNum = parseFloat(e.rMultiple) || 0;
+    var rStr = (rNum >= 0 ? '+' : '') + rNum.toFixed(2) + 'R';
+    return '<tr>' +
+      '<td>' + d + '</td>' +
+      '<td class="' + pnlClass + '">' + fmtMoney(pnlNum) + '</td>' +
+      '<td>' + (e.trades || 0) + '</td>' +
+      '<td>' + rStr + '</td>' +
+      '<td>' + (e.violations || '—') + '</td>' +
+    '</tr>';
+  }).join('');
+
+  el.innerHTML = '<table class="ct-recent-table"><thead><tr>' +
+    '<th>Date</th><th>P&L</th><th>Trades</th><th>R</th><th>Violations</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>';
+}
+
+function saveCapitalEntry() {
+  var entry = {};
+  CAPITAL_FIELDS.forEach(function(f) {
+    var el = document.getElementById('ct-' + f.id);
+    if (el) entry[f.id] = el.value;
+  });
+  if (!entry.date) { alert('Date is required'); return; }
+
+  if (!phase3Data.capitalLog) phase3Data.capitalLog = {};
+  phase3Data.capitalLog[entry.date] = {
+    pnl: entry.pnl,
+    trades: entry.trades,
+    rMultiple: entry.rMultiple,
+    violations: entry.violations,
+    notes: entry.notes
+  };
+  saveProgress();
+  renderAggregates();
+  renderRecentEntries();
+
+  // Visual feedback
+  var btn = document.querySelector('.ct-save-btn');
+  if (btn) {
+    var orig = btn.textContent;
+    btn.textContent = '✓ Saved';
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  }
+
+  // Clear notes for next entry
+  var notesEl = document.getElementById('ct-notes');
+  if (notesEl) notesEl.value = '';
+}
+
+// ══ FIREBASE PROGRESS ══
+function saveProgress() {
+  if (!currentUser) return;
+  firebase.database().ref('traderoom/users/' + currentUser.uid + '/phase3').set(phase3Data);
+}
+function loadProgress(uid, callback) {
+  firebase.database().ref('traderoom/users/' + uid + '/phase3').get().then(function(snap) {
+    if (snap.exists()) phase3Data = snap.val() || { capitalLog: {} };
+    if (!phase3Data.capitalLog) phase3Data.capitalLog = {};
+    callback();
+  }).catch(function() { callback(); });
+}
+
+// ══ AUTH ══
+function showTab(tab) {
+  document.getElementById('formLogin').style.display = tab === 'login' ? 'flex' : 'none';
+  document.getElementById('formRegister').style.display = tab === 'register' ? 'flex' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('authBtn').textContent = tab === 'login' ? 'Sign in →' : 'Create account →';
+  document.getElementById('errMsg').style.display = 'none';
+}
+function setRole(r) {
+  selectedRole = r;
+  document.getElementById('roleStudent').classList.toggle('active', r === 'student');
+  document.getElementById('roleInstructor').classList.toggle('active', r === 'instructor');
+}
+function friendlyError(code) {
+  var map = { 'auth/invalid-credential':'Wrong email or password', 'auth/user-not-found':'No account with that email', 'auth/wrong-password':'Wrong password', 'auth/email-already-in-use':'Email already registered — sign in instead', 'auth/weak-password':'Password too short (min 6)', 'auth/invalid-email':'Invalid email format' };
+  return map[code] || 'Authentication failed';
+}
+function showErr(msg) { var el = document.getElementById('errMsg'); el.textContent = msg; el.style.display = 'block'; }
+function handleAuth() {
+  var btn = document.getElementById('authBtn'); btn.disabled = true;
+  document.getElementById('errMsg').style.display = 'none';
+  var isLogin = document.getElementById('tabLogin').classList.contains('active');
+  if (isLogin) {
+    var email = document.getElementById('loginEmail').value.trim();
+    var pw = document.getElementById('loginPassword').value;
+    if (!email || !pw) { showErr('Email and password required'); btn.disabled = false; return; }
+    firebase.auth().signInWithEmailAndPassword(email, pw)
+      .catch(function(e) { showErr(friendlyError(e.code)); btn.disabled = false; });
+  } else {
+    var name = document.getElementById('regName').value.trim();
+    var email2 = document.getElementById('regEmail').value.trim();
+    var pw2 = document.getElementById('regPassword').value;
+    if (!name || !email2 || !pw2) { showErr('All fields required'); btn.disabled = false; return; }
+    firebase.auth().createUserWithEmailAndPassword(email2, pw2)
+      .then(function(cred) {
+        return firebase.database().ref('traderoom/users/' + cred.user.uid)
+          .set({ name: name, role: selectedRole, email: email2 });
+      })
+      .catch(function(e) { showErr(friendlyError(e.code)); btn.disabled = false; });
+  }
+}
+function forgotPassword() {
+  var email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showErr('Enter your email above first'); return; }
+  firebase.auth().sendPasswordResetEmail(email)
+    .then(function() { alert('Password reset email sent to ' + email); })
+    .catch(function(e) { showErr(friendlyError(e.code)); });
+}
+function handleLogout() { firebase.auth().signOut().then(function() { window.location.reload(); }); }
+
+// ══ CLOCK ══
+function updateClock() { var el = document.getElementById('sessionTime'); if (el) el.textContent = new Date().toTimeString().slice(0,8); }
+setInterval(updateClock, 1000); updateClock();
+
+// ══ INIT ══
+firebase.auth().onAuthStateChanged(function(u) {
+  if (!u) { document.getElementById('loginModal').classList.remove('hidden'); return; }
+  currentUser = u;
+  document.getElementById('loginModal').classList.add('hidden');
+  firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
+    var p = snap.exists() ? snap.val() : null;
+    var name = p ? p.name : u.email.split('@')[0];
+    var role = p ? p.role : 'student';
+    currentRole = role;
+    var chip = document.getElementById('userChip');
+    if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+    var sbA = document.getElementById('sbAvatar'), sbN = document.getElementById('sbName'), sbR = document.getElementById('sbRole');
+    if (sbN) sbN.textContent = name;
+    if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
+    if (sbA) {
+      sbA.textContent = name.slice(0,2).toUpperCase();
+      sbA.style.background = role==='instructor'?'rgba(251,191,36,.15)':'rgba(139,92,246,.15)';
+      sbA.style.color = role==='instructor'?'#fbbf24':'#8b5cf6';
+    }
+    loadProgress(u.uid, function() {
+      renderTransition();
+      renderScaling();
+      renderHardRules();
+      renderCrisis();
+      renderGraduation();
+      renderCapital();
+    });
+  });
+});
+</script>
+</body>
+</html>
