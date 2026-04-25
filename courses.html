@@ -256,9 +256,75 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .quiz-result-score.fail{color:var(--red);}
 .quiz-result-label{font-size:15px;font-weight:600;color:var(--t2);margin-bottom:4px;}
 .quiz-result-sub{font-size:15px;color:var(--t3);}
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE  (added v14 — drawer sidebar + stacked panels)
+   Desktop layout unchanged. Activates at <=880px.
+   ═════════════════════════════════════════════════════════════════ */
+.mobile-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;}
+.mobile-backdrop.show{display:block;opacity:1;}
+.menu-btn{display:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--green);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;}
+.menu-btn svg{width:18px;height:18px;}
+.menu-btn:hover{background:rgba(34,197,94,.12);}
+
+@media (max-width:880px){
+  body{height:auto;min-height:100vh;overflow:hidden;}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;width:260px;transform:translateX(-100%);box-shadow:8px 0 24px rgba(0,0,0,.5);z-index:200;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar.collapsed{width:260px;}
+  .sb-toggle-btn{display:none;}
+  .menu-btn{display:flex;}
+  .main-content{width:100%;height:100vh;}
+  .header{padding:0 12px;gap:8px;}
+  .header-title{font-size:15px;}
+  .market-pill > span:not(.ms-dot){display:none;}
+  .username-chip{display:none;}
+  .firebase-status{display:none;}
+  .session-clock{font-size:12px;padding:3px 8px;}
+  .header-right{gap:6px;}
+  /* Dashboard panels stack on mobile, with Chat first */
+  .content-row{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .dash-area{padding:10px 10px 16px;overflow-y:visible;height:auto;}
+  .panels-grid{grid-template-columns:1fr;height:auto;flex:none;gap:10px;}
+  .dash-panel{min-height:380px;}
+  .panels-grid > .dash-panel:nth-child(1){order:3;}
+  .panels-grid > .dash-panel:nth-child(2){order:2;}
+  .panels-grid > .dash-panel:nth-child(3){order:4;}
+  .panels-grid > .dash-panel:nth-child(4){order:1;}
+  /* Courses + lesson + side pages */
+  .modules-grid{grid-template-columns:1fr;gap:12px;}
+  .page-content{padding:14px 12px 20px;gap:14px;}
+  .page-card-header{padding:13px 14px 11px;}
+  .page-card-body{padding:14px;}
+  .two-col,.three-col{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .mod-title{font-size:17px;}
+  .mod-header{padding:14px 16px 12px;}
+  .mod-body{padding:14px 16px 16px;}
+  /* Phase 2 / 3 specific grids */
+  .drill-grid{grid-template-columns:1fr;}
+  .tab-grid{grid-template-columns:1fr;}
+  .metric-grid{grid-template-columns:1fr 1fr;}
+  .pb-grid-rules{grid-template-columns:1fr;}
+  /* index.html marketing layout */
+  .features-grid{grid-template-columns:1fr;}
+  .hero-sub{font-size:14px;}
+}
+
+@media (max-width:420px){
+  .header-title{font-size:14px;}
+  .live-badge{font-size:8px;padding:2px 7px;}
+  .session-clock{font-size:11px;padding:3px 7px;}
+  .market-pill{display:none;}
+  .dash-area{padding:8px 8px 14px;}
+  .panels-grid{gap:8px;}
+  .metric-grid{grid-template-columns:1fr;}
+}
+
 </style>
 </head>
 <body>
+<div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="loginModal">
@@ -369,6 +435,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 <!-- MAIN -->
 <div class="main-content">
   <div class="header">
+      <button class="menu-btn" onclick="openSidebar()" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
     <div class="header-title">Foundation Course</div>
     <div class="live-badge">LIVE</div>
     <div class="market-pill"><span class="ms-dot open"></span><span id="marketStatusText">Market Open</span></div>
@@ -485,7 +552,12 @@ var MODULES = [
       { q: "What is VWAP?", opts: ["Volume-Weighted Average Price","A chart pattern","The highest price in pre-market","A regulatory halt trigger"], ans: 0 },
       { q: "What is the PDT rule?", opts: ["Requires limit orders only","Limits to 3 trades per week","Requires $25,000 minimum for unlimited day trading","Prevents short selling"], ans: 2 },
       { q: "Which is a Tier 1 catalyst?", opts: ["A technical breakout with no news","An FDA drug approval decision","High relative volume with no news","A Reddit post going viral"], ans: 1 },
-      { q: "When does the most volume and biggest moves occur?", opts: ["12:00 PM – 2:00 PM","2:00 PM – 4:00 PM","9:30 AM – 10:30 AM","4:00 AM – 7:00 AM"], ans: 2 }
+      { q: "When does the most volume and biggest moves occur?", opts: ["12:00 PM – 2:00 PM","2:00 PM – 4:00 PM","9:30 AM – 10:30 AM","4:00 AM – 7:00 AM"], ans: 2 },
+      { q: "What is the key difference between a Cash account and a Margin account?", opts: ["Cash accounts allow more leverage than margin accounts","Cash accounts settle in T+2 days and prohibit shorting; margin accounts allow same-day reuse of funds and short selling","Margin accounts cost less to open than cash accounts","Cash accounts can short stocks, but margin accounts cannot"], ans: 1 },
+      { q: "Which type of brokerage account does TradeRoom PRO require for the program?", opts: ["A retirement IRA account","A cash account with $10,000 minimum","A margin account with at least $25,000 (PDT compliance)","Any brokerage that accepts credit cards"], ans: 2 },
+      { q: "A bracket order combines which three components?", opts: ["A market order plus two stop orders","An entry, a stop loss, and a profit target — all linked","Three limit orders at different prices","An entry plus only a profit target"], ans: 1 },
+      { q: "Why does TradeRoom PRO refuse to short stocks with float below 2 million shares?", opts: ["The broker will not allow it","The risk of an extreme short squeeze is too high — borrows can vanish and price can spike violently","Float under 2M means the company is bankrupt","Float under 2M is illegal to short under SEC rules"], ans: 1 },
+      { q: "Why does the TradeRoom PRO scanner exclude stocks with Float Held by Insiders/Institutions above 50%?", opts: ["Because insiders make the stock impossible to buy","Because high insider ownership reduces the actual tradeable float and creates artificial volatility","Because the SEC prohibits trading these stocks","Because the broker charges higher fees for them"], ans: 1 }
     ]
   },
   {
@@ -504,7 +576,12 @@ var MODULES = [
       { q: "A stock closed at $4.00 yesterday and is trading at $6.20 pre-market. What is the gap percentage?", opts: ["35%","55%","64.5%","220%"], ans: 1 },
       { q: "Which of the following is a sign of a WEAK setup that should be avoided?", opts: ["3x+ relative volume on the breakout","Stock trading above VWAP with clear catalyst","Price moving on high volume with no confirmed news catalyst","Bullish engulfing at a key support level"], ans: 2 },
       { q: "Using the setup scorecard, what is the minimum score required before entering a paper trade?", opts: ["2 out of 6","3 out of 6","4 out of 6","All 6 factors must be present"], ans: 2 },
-      { q: "What does a doji candlestick signal when it appears after a strong upward move?", opts: ["The upward move is likely to accelerate","Volume is extremely high","Buyers and sellers are equally matched — momentum has stalled and reversal is possible","The stock is about to gap up the following day"], ans: 2 }
+      { q: "What does a doji candlestick signal when it appears after a strong upward move?", opts: ["The upward move is likely to accelerate","Volume is extremely high","Buyers and sellers are equally matched — momentum has stalled and reversal is possible","The stock is about to gap up the following day"], ans: 2 },
+      { q: "What does it take to draw a valid trend line on a chart?", opts: ["A trend line can be drawn through any two price points","A minimum of two points connecting major swing highs (downtrend) or swing lows (uptrend)","Trend lines must connect the open and close of the same candle","Only horizontal lines count as valid trend lines"], ans: 1 },
+      { q: "In a bull flag chart pattern, what creates the trade entry signal?", opts: ["The flag forming below the prior high","A breakout above the flag's upper trend line on increased volume","The volume falling to zero","Two consecutive red candles inside the flag"], ans: 1 },
+      { q: "In Max's long entry system, what fraction of full position size is the initial entry?", opts: ["100% — full size on the first entry","50% — half size first","30% — small initial position with planned scale-ins","10% — only token exposure first"], ans: 2 },
+      { q: "What time of day does the 10:30 Rule activate as a beginner-friendly long setup?", opts: ["Pre-market (before 9:30 AM)","Right at the open (9:30 AM)","Only after 10:30 AM, when stock is below VWAP and shows reversal signal","End of day (after 3:30 PM)"], ans: 2 },
+      { q: "What is a head-and-shoulders pattern, and what does it typically signal?", opts: ["A continuation pattern signaling more upside","A reversal pattern with three peaks (middle higher than the two sides) signaling a top is in","A volume pattern unrelated to price","A support pattern signaling a bullish breakout"], ans: 1 }
     ]
   },
   {
@@ -523,7 +600,12 @@ var MODULES = [
       { q: "A $5.00 stock triggers a LULD halt. What is the approximate percentage move that caused it?", opts: ["5%","10%","15%","20%"], ans: 1 },
       { q: "During a trading halt, what can you do with an open long position?", opts: ["Sell immediately at market price","Close it with a limit order","Nothing — all trading is frozen until the halt lifts","Cancel through your broker's customer service"], ans: 2 },
       { q: "What is the TradeRoom PRO entry rule for a gap-and-go setup?", opts: ["Buy at the market open as soon as the stock appears","Enter on the first tick above the pre-market high","Wait for the opening range consolidation, then buy the breakout above the high with volume","Enter during pre-market to get the best price"], ans: 2 },
-      { q: "A stock files an 8-K for an FDA approval with 3M float and 35% short float, gapping up 80% pre-market. Which statement is most accurate?", opts: ["Too risky — avoid completely","Possible gap-and-trap — already moved too much","Strong short squeeze candidate — Tier 1 catalyst, low float, high short interest","Only worth trading if above $10"], ans: 2 }
+      { q: "A stock files an 8-K for an FDA approval with 3M float and 35% short float, gapping up 80% pre-market. Which statement is most accurate?", opts: ["Too risky — avoid completely","Possible gap-and-trap — already moved too much","Strong short squeeze candidate — Tier 1 catalyst, low float, high short interest","Only worth trading if above $10"], ans: 2 },
+      { q: "Why is a stock that recently completed a reverse split a major red flag?", opts: ["Reverse splits always cause prices to fall the next day","Reverse splits typically signal a struggling company keeping its share price above delisting thresholds, often followed by dilutive offerings","Reverse splits are illegal under U.S. law","The SEC requires the stock to halt for 30 days after a reverse split"], ans: 1 },
+      { q: "What is an ATM (At-The-Market) offering and why does it threaten long traders?", opts: ["A profitable trading method used by institutions","A dilution mechanism allowing a company to sell shares directly into open-market strength, suppressing price","A type of stop loss order","An automated trading machine used by market makers"], ans: 1 },
+      { q: "A small-cap stock spikes hard on news of a 'merger' with a previously dormant shell company. What is the primary concern?", opts: ["Mergers always increase share value","Reverse mergers often involve dilution, restricted-share unlocks, and pump-and-dump dynamics — high risk of trap","Shell company mergers are tax-free events","Reverse mergers are guaranteed to result in a NASDAQ uplisting"], ans: 1 },
+      { q: "What is the Reg SHO threshold list and why does it matter to short sellers?", opts: ["A list of stocks recommended for shorting","A list of stocks with persistent failure-to-deliver issues — borrows are unreliable, locate may fail mid-trade","A list of stocks the SEC has banned from trading","A list of stocks with the highest short interest"], ans: 1 },
+      { q: "A stock gapped up 25% on weak news and is sliding back toward the prior day close. What setup does this describe?", opts: ["Gap-and-go long entry","Gap-fill short entry — short into the bounce, target the prior day close","VWAP reclaim long","10:30 Rule long"], ans: 1 }
     ]
   },
   {
@@ -542,7 +624,12 @@ var MODULES = [
       { q: "What is the Flatten hotkey used for?", opts: ["Buying shares at the ask","Cancelling all pending orders","Closing your entire position immediately","Switching to a different symbol"], ans: 2 },
       { q: "What is the PDT rule?", opts: ["You must hold every position for at least one day","Accounts under $25,000 are limited to 3 day trades in any rolling 5-business-day period","You must use pattern day trading software","Accounts must maintain a 25% margin at all times"], ans: 1 },
       { q: "What is the TradeRoom PRO pre-market thesis deadline?", opts: ["7:00 AM","8:30 AM","9:15 AM","9:29 AM"], ans: 2 },
-      { q: "In TraderVue, what does the 'planned vs unplanned' custom field track?", opts: ["Whether the trade was profitable","Whether the trade was on your pre-market watchlist before the open","Whether you used a hotkey or clicked manually","Whether the stock was hard to borrow"], ans: 1 }
+      { q: "In TraderVue, what does the 'planned vs unplanned' custom field track?", opts: ["Whether the trade was profitable","Whether the trade was on your pre-market watchlist before the open","Whether you used a hotkey or clicked manually","Whether the stock was hard to borrow"], ans: 1 },
+      { q: "On Sterling Trader Pro Level 2, you see ARCA refreshing 1,000-share orders at the same bid price five times after fills. What does this pattern most likely indicate?", opts: ["A spoofing or layering manipulation attempt","An iceberg order — a patient large buyer accumulating shares without revealing total size","Random retail noise","A market maker error that will be cancelled"], ans: 1 },
+      { q: "What single test reliably distinguishes an iceberg order from a spoofed bid?", opts: ["The MMID's location on the screen","Whether actual executions occur (prints on tape) at the price — icebergs execute and refresh; spoofs cancel as price approaches","The size of the visible order","The time of day the order appears"], ans: 1 },
+      { q: "During a fast move, the count of MMIDs at the inside bid drops from 8 to 2 within 10 seconds while the spread widens to $0.10+. What action does TradeRoom PRO require?", opts: ["Hold the position to capture more upside","Exit the position immediately — market makers stepping back is a halt warning","Add to the position aggressively","Wait for a confirming green candle"], ans: 1 },
+      { q: "What is the purpose of the Backup Connectivity Plan taught in M4L5?", opts: ["To download more historical data","A documented fallback (mobile hotspot, secondary device, mentor phone) so a trader can flatten or manage open positions if primary internet fails","To get faster order routing","To keep multiple brokerage accounts synced"], ans: 1 },
+      { q: "On the Sterling tape, you see 5.51 × 2,000 print green, then 5.51 × 1,500 green, while a multi-MMID cluster sits stacked on the bid. What is this combined L2+tape signal telling you?", opts: ["Selling pressure — exit longs","Real demand — buyers lifting the offer with active fills, supported by a real wall on the bid; bullish","Spoofing — fake orders manipulating price","Halt is imminent"], ans: 1 }
     ]
   },
   {
@@ -561,7 +648,12 @@ var MODULES = [
       { q: "What is a bracket order?", opts: ["An order that brackets the current price with a bid and ask","Entry, stop loss, and profit target submitted simultaneously as a group","An order that only fills if the price stays within a defined range","A type of limit order used during halts"], ans: 1 },
       { q: "In a bracket order, what happens when the profit target fills?", opts: ["Nothing — you must cancel the stop manually","The stop loss order is automatically cancelled","Both orders remain active","The broker charges an extra fee"], ans: 1 },
       { q: "What does the IB Risk Navigator auto-flat feature do?", opts: ["Automatically moves your stop to break-even","Closes all positions when your daily loss limit is reached","Cancels all pending orders at market close","Reduces your position size as losses accumulate"], ans: 1 },
-      { q: "What is the TradeRoom PRO weekly loss limit for paper trading?", opts: ["1.5%","2%","3%","5%"], ans: 2 }
+      { q: "What is the TradeRoom PRO weekly loss limit for paper trading?", opts: ["1.5%","2%","3%","5%"], ans: 2 },
+      { q: "What is the core principle of a trailing stop?", opts: ["It moves both up and down with price","It moves only in the direction of profit (up for longs, down for shorts) and never reverses, locking in gains as the trade goes your way","It triggers at the end of the trading day","It moves randomly based on volume"], ans: 1 },
+      { q: "TradeRoom PRO's 'Golden Rule' for risk management is what?", opts: ["Never trade on Mondays","Set the broker's daily loss limit in IB Risk Navigator before every session — broker enforcement, not willpower","Always use 2:1 risk-to-reward","Trade only the first 30 minutes of the session"], ans: 1 },
+      { q: "On a $30,000 paper account with a 0.5% per-trade risk limit, what is the maximum dollar risk per trade?", opts: ["$50","$150","$300","$600"], ans: 1 },
+      { q: "When should a trailing stop be activated rather than left at the original stop?", opts: ["Immediately on entry, before price moves","After the first profit target is reached (typically 1R or 2R) and price continues in your favor — protects gains while letting trends extend","Only at the end of the trading day","Never — fixed stops are always better"], ans: 1 },
+      { q: "Why does TradeRoom PRO require IB Risk Navigator configuration verified BEFORE every session, not just set up once?", opts: ["Because IB resets the limits every night automatically","Because human verification is the discipline — checking forces awareness of the daily/weekly state of account, prevents drift","Because IB Risk Navigator costs money per session","Because the SEC requires verification logs"], ans: 1 }
     ]
   },
   {
@@ -580,7 +672,12 @@ var MODULES = [
       { q: "What is the TradeRoom PRO pre-market thesis deadline?", opts: ["7:00 AM","8:30 AM","9:15 AM","9:29 AM"], ans: 2 },
       { q: "What emotional state rating requires you to reduce position size by 50% and stop after the first loss?", opts: ["Rating 1","Rating 2","Rating 3","Rating 4"], ans: 1 },
       { q: "In the monthly self-review, what is expectancy?", opts: ["Your total P&L divided by number of trades","(Win rate × average winner) minus (loss rate × average loser) — positive means the setup has edge","The ratio of your largest winner to your largest loser","Your planned trades as a percentage of total trades"], ans: 1 },
-      { q: "What are the three mandatory post-session review questions?", opts: ["What did I make, what did I lose, what is my account balance?","Did I trade my plan, what was my best decision, what is the one thing I would do differently?","Which stocks did I trade, which setups did I use, what was my win rate?","What is my week-to-date P&L, my month-to-date P&L, my year-to-date P&L?"], ans: 1 }
+      { q: "What are the three mandatory post-session review questions?", opts: ["What did I make, what did I lose, what is my account balance?","Did I trade my plan, what was my best decision, what is the one thing I would do differently?","Which stocks did I trade, which setups did I use, what was my win rate?","What is my week-to-date P&L, my month-to-date P&L, my year-to-date P&L?"], ans: 1 },
+      { q: "What is the purpose of the Weekly Friday Mini-Review (M6L6 protocol)?", opts: ["To calculate weekly P&L for tax purposes","A 15-minute Friday EOD review answering 4 questions to bridge daily and monthly review cadence — catches patterns escaping daily view","To plan the next week's trades in advance","To submit performance data to regulators"], ans: 1 },
+      { q: "A trader rates their pre-session emotional state as 2 out of 5. What size adjustment does TradeRoom PRO require?", opts: ["Trade as normal — emotional state does not affect performance","Trade at 50% size — emotional state below baseline reduces decision quality, smaller size limits damage","Skip the day entirely","Increase size to recover the prior day's loss"], ans: 1 },
+      { q: "What is 'winner's tilt' and why is it as dangerous as losing tilt?", opts: ["The feeling of relief after a winning trade","Overconfidence after a win that triggers oversizing or chasing on the next trade — destroys more accounts than losing streaks","The bonus paid by brokers for profitable months","A type of order that triggers on a winning streak"], ans: 1 },
+      { q: "By what time must a written pre-market thesis be submitted to Discord under the daily routine?", opts: ["Anytime before 9:30 AM","By 6:45 AM EST — before the 7:00 AM session and before market data influences bias","After the open, by 10:00 AM","Friday only, summarizing the week"], ans: 1 },
+      { q: "By what time must trade journal entries be completed in TraderVue each trading day?", opts: ["End of week (Friday EOD)","By 12:00 PM EST the same day — while details are still fresh and emotions accessible for honest reflection","Within 7 days of the trade","Only when the trade is closed"], ans: 1 }
     ]
   }
 ];
@@ -1022,5 +1119,32 @@ function handleLogout() {
 userProgress = { 1: { pct: 0, quizPassed: false, lessonsComplete: [] } };
 renderAll();
 </script>
+
+<script>
+/* Mobile drawer controls — added v14 */
+function openSidebar(){
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('mobileBackdrop');
+  if (sb) sb.classList.add('open');
+  if (bd) bd.classList.add('show');
+}
+function closeSidebar(){
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('mobileBackdrop');
+  if (sb) sb.classList.remove('open');
+  if (bd) bd.classList.remove('show');
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeSidebar(); });
+/* Close drawer when a sidebar item is tapped on mobile */
+document.addEventListener('DOMContentLoaded', function(){
+  var items = document.querySelectorAll('#sidebar .sb-item');
+  for (var i = 0; i < items.length; i++){
+    items[i].addEventListener('click', function(){
+      if (window.innerWidth <= 880) closeSidebar();
+    });
+  }
+});
+</script>
+
 </body>
 </html>

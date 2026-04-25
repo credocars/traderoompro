@@ -68,7 +68,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 
 /* ══ SIDEBAR ══ */
 .sidebar{width:240px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;}
-.sb-logo-area{height:52px;padding:0 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
+.sb-logo-area{padding:20px 18px 18px;border-bottom:1px solid var(--border);}
 .sb-logo{display:flex;align-items:center;gap:10px;}
 .sb-logo-mark{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
 .sb-logo-mark svg{width:24px;height:24px;}
@@ -126,7 +126,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 
 /* BOTTOM PANELS GRID */
 .panels-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;flex:1;min-height:0;height:100%;}
-.dash-panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative;}.dash-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);z-index:1;}
+.dash-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative;}.dash-panel::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);z-index:1;}
 .dp-header{display:flex;align-items:center;gap:8px;padding:13px 16px 11px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .dp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .dp-dot.g{background:var(--green);animation:pulse 2s ease-in-out infinite;}
@@ -140,7 +140,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .chat-clear-btn:hover{background:rgba(239,68,68,.15);}
 
 /* NOTES */
-.notes-body{flex:1;overflow-y:auto;min-height:0;padding:10px 13px;display:flex;flex-direction:column;gap:7px;background:var(--panel);}
+.notes-body{flex:1;overflow-y:auto;min-height:0;padding:10px 13px;display:flex;flex-direction:column;gap:7px;}
 .notes-body::-webkit-scrollbar{width:3px;}.notes-body::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
 .note-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:20px;}
 .note-placeholder-icon{opacity:.18;color:var(--t2);}
@@ -166,7 +166,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .chat-tab.active{background:rgba(34,197,94,.1);color:var(--green);border-radius:6px;}
 .tab-pane{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden;}
 .tab-pane.active{display:flex;}
-.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-height:0;background:var(--panel);}
+.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;min-height:0;}
 .chat-messages::-webkit-scrollbar{width:3px;}
 .chat-messages::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
 .chat-msg{display:flex;gap:7px;align-items:flex-start;animation:msgIn .2s ease-out;position:relative;}
@@ -200,10 +200,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .send-btn:hover{opacity:.85;}
 .send-btn:disabled{opacity:.4;cursor:not-allowed;}
 .notif-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red);margin-left:4px;vertical-align:middle;}
-.panel-body{flex:1;overflow-y:auto;padding:12px;background:var(--panel);}
+.panel-body{flex:1;overflow-y:auto;padding:12px;}
 
 /* COMMUNITY FEED */
-.feed-body{flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--panel);}
+.feed-body{flex:1;overflow-y:auto;min-height:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
 .feed-body::-webkit-scrollbar{width:0;}
 .feed-composer{border-top:1px solid var(--border);padding:8px 12px;display:flex;flex-direction:row;align-items:center;gap:8px;flex-shrink:0;}
 .feed-textarea{font-family:'Inter',sans-serif;font-size:13px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:8px 11px;border-radius:7px;outline:none;resize:none;transition:border-color .15s;flex:1;min-width:0;}
@@ -266,11 +266,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .page-content{flex:1;min-width:0;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px;}
 .page-content::-webkit-scrollbar{width:3px;}
 .page-content::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:2px;}
-.page-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;}
+.page-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;}
 .page-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border-hi),transparent);}
-.page-card-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:var(--panel);}
+.page-card-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
 .page-card-title{font-size:15px;font-weight:700;color:var(--t1);flex:1;}
-.page-card-body{padding:20px;background:var(--panel);}
+.page-card-body{padding:20px;}
 .pg-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.05em;text-transform:uppercase;}
 .pg-badge.green{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
 .pg-badge.blue{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
@@ -317,13 +317,74 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .empty-sub{font-size:13px;color:var(--t3);max-width:360px;line-height:1.7;}
 
 
-.sb-logout-btn{display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:auto;flex-shrink:0;border-radius:7px;border:none;background:transparent;cursor:pointer;color:var(--t3);transition:all .15s;}
-.sb-logout-btn:hover{background:rgba(239,68,68,.1);color:var(--red);}
-.sb-logout-btn svg{pointer-events:none;}
-.sidebar.collapsed .sb-logout-btn{margin:0 auto;}
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE  (added v14 — drawer sidebar + stacked panels)
+   Desktop layout unchanged. Activates at <=880px.
+   ═════════════════════════════════════════════════════════════════ */
+.mobile-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;}
+.mobile-backdrop.show{display:block;opacity:1;}
+.menu-btn{display:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--green);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;}
+.menu-btn svg{width:18px;height:18px;}
+.menu-btn:hover{background:rgba(34,197,94,.12);}
+
+@media (max-width:880px){
+  body{height:auto;min-height:100vh;overflow:hidden;}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;width:260px;transform:translateX(-100%);box-shadow:8px 0 24px rgba(0,0,0,.5);z-index:200;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar.collapsed{width:260px;}
+  .sb-toggle-btn{display:none;}
+  .menu-btn{display:flex;}
+  .main-content{width:100%;height:100vh;}
+  .header{padding:0 12px;gap:8px;}
+  .header-title{font-size:15px;}
+  .market-pill > span:not(.ms-dot){display:none;}
+  .username-chip{display:none;}
+  .firebase-status{display:none;}
+  .session-clock{font-size:12px;padding:3px 8px;}
+  .header-right{gap:6px;}
+  /* Dashboard panels stack on mobile, with Chat first */
+  .content-row{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .dash-area{padding:10px 10px 16px;overflow-y:visible;height:auto;}
+  .panels-grid{grid-template-columns:1fr;height:auto;flex:none;gap:10px;}
+  .dash-panel{min-height:380px;}
+  .panels-grid > .dash-panel:nth-child(1){order:3;}
+  .panels-grid > .dash-panel:nth-child(2){order:2;}
+  .panels-grid > .dash-panel:nth-child(3){order:4;}
+  .panels-grid > .dash-panel:nth-child(4){order:1;}
+  /* Courses + lesson + side pages */
+  .modules-grid{grid-template-columns:1fr;gap:12px;}
+  .page-content{padding:14px 12px 20px;gap:14px;}
+  .page-card-header{padding:13px 14px 11px;}
+  .page-card-body{padding:14px;}
+  .two-col,.three-col{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .mod-title{font-size:17px;}
+  .mod-header{padding:14px 16px 12px;}
+  .mod-body{padding:14px 16px 16px;}
+  /* Phase 2 / 3 specific grids */
+  .drill-grid{grid-template-columns:1fr;}
+  .tab-grid{grid-template-columns:1fr;}
+  .metric-grid{grid-template-columns:1fr 1fr;}
+  .pb-grid-rules{grid-template-columns:1fr;}
+  /* index.html marketing layout */
+  .features-grid{grid-template-columns:1fr;}
+  .hero-sub{font-size:14px;}
+}
+
+@media (max-width:420px){
+  .header-title{font-size:14px;}
+  .live-badge{font-size:8px;padding:2px 7px;}
+  .session-clock{font-size:11px;padding:3px 7px;}
+  .market-pill{display:none;}
+  .dash-area{padding:8px 8px 14px;}
+  .panels-grid{gap:8px;}
+  .metric-grid{grid-template-columns:1fr;}
+}
+
 </style>
 </head>
 <body>
+<div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
@@ -373,7 +434,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
     </div>
   </div>
   <div class="sb-scroll">
-    <div class="sb-item" onclick="window.location.href='trading-dashboard.html'">
+    <div class="sb-section">Rooms</div>
+    <div class="sb-item" onclick="setNav(this)">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg></span><span class="sb-label">Pro Mentor</span>
+      <span class="sb-badge-live">Live</span>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-section">Tools</div>
+    <div class="sb-item">
       <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></span><span class="sb-label">Dashboard</span>
     </div>
     <div class="sb-item" onclick="window.location.href='scanners.html'">
@@ -401,10 +469,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
   <div class="sb-bottom">
     <div class="sb-user">
       <div class="sb-avatar" id="sbAvatar">?</div>
-      <div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-uname" id="sbName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div><div class="sb-urole" id="sbRole">—</div></div>
-      <button class="sb-logout-btn" onclick="handleLogout()" title="Sign Out">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      </button>
+      <div><div class="sb-uname" id="sbName">—</div><div class="sb-urole" id="sbRole">—</div></div>
     </div>
   </div>
   <button class="sb-toggle-btn" id="collapseBtn" onclick="toggleSidebar()" title="Collapse sidebar">
@@ -418,51 +483,24 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 <!-- ══ MAIN ══ -->
 <div class="main-content">
   <div class="header">
+      <button class="menu-btn" onclick="openSidebar()" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
     <div class="header-title">Tradervue</div>
     <div class="live-badge">LIVE</div>
     <div class="market-pill"><span class="ms-dot open"></span><span id="marketStatusText">Market Open</span></div>
     <span class="username-chip" id="userChip">⭐ Instructor</span>
     <div class="header-right">
+      <span class="firebase-status" id="fbStatus"></span>
+      <input type="date" id="datePicker" onchange="loadData()" style="font-family:Inter,sans-serif;font-size:12px;padding:5px 10px;border-radius:7px;border:1px solid var(--border-hi);background:var(--card);color:var(--t1);outline:none;"/>
+      <button onclick="loadData()" style="font-family:Inter,sans-serif;font-size:12px;font-weight:700;padding:5px 14px;border-radius:7px;border:1px solid var(--border-hi);background:var(--card);color:var(--t2);cursor:pointer;">↻ Refresh</button>
       <div class="session-clock" id="sessionTime">09:32:14</div>
     </div>
   </div>
   <div class="content-row">
     <div class="page-content" id="mainContent">
-
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;">
-
-        <div style="text-align:center;">
-          <div style="font-size:48px;margin-bottom:16px;">📊</div>
-          <div style="font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:8px;">Open Tradervue</div>
-          <div style="font-size:14px;color:var(--t3);max-width:400px;line-height:1.7;">
-            Click below to open Tradervue in a new window — view your trade journal, performance stats and analysis.
-          </div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
-          <button onclick="openTradervue()" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:700;padding:16px 48px;border-radius:12px;border:none;background:var(--green);color:#000;cursor:pointer;transition:opacity .15s;letter-spacing:.02em;display:flex;align-items:center;gap:10px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg>
-            Open Tradervue
-          </button>
-          <div style="font-size:11px;color:var(--t3);">Opens in a new tab • Sign in with your Tradervue account</div>
-        </div>
-
-        <!-- Instructor: set custom Tradervue URL -->
-        <div id="tvUrlCard" style="display:none;background:var(--card);border:1px solid var(--border-hi);border-radius:12px;padding:20px;width:100%;max-width:500px;position:relative;overflow:hidden;">
-          <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(6,182,212,.4),transparent);"></div>
-          <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">⚙ Instructor — Set Tradervue URL</div>
-          <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6;">Paste your Tradervue link. All students will open this URL when they click the button.</div>
-          <div style="display:flex;gap:8px;">
-            <input id="tvUrlInput" placeholder="https://app.tradervue.com/..."
-              style="flex:1;font-family:'Inter',sans-serif;font-size:12px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t1);padding:8px 12px;border-radius:8px;outline:none;"
-              onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-hi)'"/>
-            <button onclick="saveTvUrl()" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;background:var(--green);color:#000;cursor:pointer;white-space:nowrap;">Save</button>
-          </div>
-          <div id="tvUrlStatus" style="font-size:11px;color:var(--t3);margin-top:6px;"></div>
-        </div>
-
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <div style="font-size:13px;">Connecting…</div>
       </div>
-
     </div>
   </div>
 </div>
@@ -475,83 +513,349 @@ function updateClock(){document.getElementById('sessionTime').textContent=new Da
 setInterval(updateClock,1000);updateClock();
 </script>
 <script>
-function setNav(el){document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active');});el.classList.add('active');}
-function updateMarketStatus(){var et=new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));var mins=et.getHours()*60+et.getMinutes(),day=et.getDay();var dot=document.querySelector('.ms-dot'),txt=document.getElementById('marketStatusText');if(!dot)return;if(day===0||day===6){dot.className='ms-dot closed';txt.textContent='Weekend';}else if(mins>=240&&mins<570){dot.className='ms-dot pre';txt.textContent='Pre-Market';}else if(mins>=570&&mins<960){dot.className='ms-dot open';txt.textContent='Market Open';}else if(mins>=960&&mins<1200){dot.className='ms-dot pre';txt.textContent='After Hours';}else{dot.className='ms-dot closed';txt.textContent='Market Closed';}}
-setInterval(updateMarketStatus,30000);updateMarketStatus();
-function updateClock(){document.getElementById('sessionTime').textContent=new Date().toTimeString().slice(0,8);}
-setInterval(updateClock,1000);updateClock();
-
-var selectedRole='student';
-function showTab(tab){var l=tab==='login';document.getElementById('tabLogin').classList.toggle('active',l);document.getElementById('tabRegister').classList.toggle('active',!l);document.getElementById('formLogin').style.display=l?'flex':'none';document.getElementById('formRegister').style.display=l?'none':'flex';document.getElementById('authBtn').textContent=l?'Sign In':'Create Account';document.getElementById('modalSubtitle').textContent=l?'Sign in to join the live session':'Create your TradeRoom account';document.getElementById('modalError').style.display='none';}
-function setRole(r){selectedRole=r;document.getElementById('roleStudent').classList.toggle('active',r==='student');document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');}
-function handleAuth(){var err=document.getElementById('modalError');err.style.display='none';var btn=document.getElementById('authBtn');btn.textContent='…';btn.disabled=true;var isLogin=document.getElementById('tabLogin').classList.contains('active');var auth=firebase.auth();if(isLogin){var email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value;if(!email||!pass){showErr('Please enter your email and password.');return;}auth.signInWithEmailAndPassword(email,pass).catch(function(e){showErr(friendlyError(e.code));});}else{var name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPassword').value;if(!name||!email||!pass){showErr('Please fill in all fields.');return;}if(pass.length<6){showErr('Password must be at least 6 characters.');return;}auth.createUserWithEmailAndPassword(email,pass).then(function(c){firebase.database().ref('traderoom/users/'+c.user.uid).set({name:name,role:selectedRole,email:email});}).catch(function(e){showErr(friendlyError(e.code));});}}
-function showErr(msg){var err=document.getElementById('modalError');err.textContent='⚠ '+msg;err.style.display='block';var btn=document.getElementById('authBtn');btn.disabled=false;btn.textContent=document.getElementById('tabLogin').classList.contains('active')?'Sign In':'Create Account';}
-function friendlyError(code){var map={'auth/user-not-found':'No account found with that email.','auth/wrong-password':'Incorrect password.','auth/invalid-email':'Please enter a valid email address.','auth/email-already-in-use':'That email is already registered.','auth/weak-password':'Password must be at least 6 characters.','auth/too-many-requests':'Too many attempts. Please wait.','auth/invalid-credential':'Incorrect email or password.'};return map[code]||'Something went wrong. Please try again.';}
-function forgotPassword(){var email=document.getElementById('loginEmail').value.trim();if(!email){showErr('Enter your email address first.');return;}firebase.auth().sendPasswordResetEmail(email).then(function(){var e=document.getElementById('modalError');e.textContent='✅ Reset email sent.';e.style.color='var(--green)';e.style.display='block';}).catch(function(e){showErr(friendlyError(e.code));});}
-
-firebase.auth().onAuthStateChanged(function(u) {
-  if (!u) return;
-  try {
-    firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
-      var p    = snap.exists() ? snap.val() : null;
-      var name = p ? p.name : u.email.split('@')[0];
-      var role = p ? p.role : 'student';
-      var modal = document.getElementById('loginModal');
-      if (modal) modal.classList.add('hidden');
-      var chip = document.getElementById('userChip');
-      if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
-      var sbA = document.getElementById('sbAvatar');
-      var sbN = document.getElementById('sbName');
-      var sbR = document.getElementById('sbRole');
-      if (sbN) sbN.textContent = name;
-      if (sbR) sbR.textContent = role === 'instructor' ? 'Instructor' : 'Student';
-      if (sbA) { sbA.textContent = name.slice(0,2).toUpperCase(); sbA.style.background = role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)'; sbA.style.color = role==='instructor'?'#06b6d4':'#8b5cf6'; }
-    
-    });
-  } catch(e) { console.error('Auth error:', e); }
-});
-</script>
-
-<script>
 const auth = firebase.auth(), db = firebase.database();
 let currentUser = null;
+const TV_PROXY = '/.netlify/functions/tradervue';
+const TV_CONFIG_PATH = 'traderoom/tvConfig';
+let tvConfig = null;
+let expandedUsers = new Set();
 
-var tvUrl = "https://app.tradervue.com/";
-
-function openTradervue() {
-  window.open(tvUrl, "_blank");
+/* ── AUTH ── */
+function showTab(t) {
+  const isLogin = t === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('formLogin').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('formRegister').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('authBtn').textContent = isLogin ? 'Sign In' : 'Create Account';
+  document.getElementById('formError').style.display = 'none';
 }
-
-function saveTvUrl() {
-  var inp = document.getElementById("tvUrlInput");
-  if (!inp || !inp.value.trim()) return;
-  tvUrl = inp.value.trim();
-  firebase.database().ref("traderoom/tradervue/url").set(tvUrl);
-  var st = document.getElementById("tvUrlStatus");
-  if (st) { st.textContent = "✅ Saved — students will open this URL."; st.style.color = "var(--green)"; }
-}
-
-/* Firebase sync */
-firebase.database().ref("traderoom/tradervue/url").on("value", function(snap) {
-  if (snap.val()) {
-    tvUrl = snap.val();
-    var inp = document.getElementById("tvUrlInput");
-    if (inp) inp.value = tvUrl;
+function handleAuth() {
+  const err = document.getElementById('formError'); err.style.display = 'none';
+  const btn = document.getElementById('authBtn'); btn.textContent = '…'; btn.disabled = true;
+  const isLogin = document.getElementById('tabLogin').classList.contains('active');
+  if (isLogin) {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    if (!email || !pass) { showErr('Please enter email and password.'); return; }
+    auth.signInWithEmailAndPassword(email, pass).catch(e => showErr(friendlyErr(e.code)));
+  } else {
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPassword').value;
+    if (!name || !email || !pass) { showErr('Please fill all fields.'); return; }
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then(c => db.ref('traderoom/users/' + c.user.uid).set({ name, role: 'student', email }))
+      .catch(e => showErr(friendlyErr(e.code)));
   }
+}
+function showErr(msg) {
+  const e = document.getElementById('formError'); e.textContent = '⚠ ' + msg; e.style.display = 'block';
+  const btn = document.getElementById('authBtn'); btn.disabled = false;
+  btn.textContent = document.getElementById('tabLogin').classList.contains('active') ? 'Sign In' : 'Create Account';
+}
+function friendlyErr(code) {
+  const m = { 'auth/user-not-found': 'No account found.', 'auth/wrong-password': 'Incorrect password.', 'auth/invalid-credential': 'Incorrect email or password.', 'auth/email-already-in-use': 'Already registered.', 'auth/weak-password': 'Password too short.' };
+  return m[code] || 'Something went wrong.';
+}
+function forgotPassword() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showErr('Enter your email first.'); return; }
+  auth.sendPasswordResetEmail(email).then(() => {
+    const e = document.getElementById('formError'); e.textContent = '✅ Reset email sent!'; e.style.color = '#34c759'; e.style.display = 'block';
+  }).catch(e => showErr(friendlyErr(e.code)));
+}
+
+auth.onAuthStateChanged(async u => {
+  if (!u) return;
+  const snap = await db.ref('traderoom/users/' + u.uid).get();
+  const p = snap.exists() ? snap.val() : null;
+  const name = p?.name || u.email.split('@')[0];
+  const role = p?.role || 'student';
+  currentUser = { name, role, uid: u.uid, email: u.email };
+  document.getElementById('loginModal').classList.add('hidden');
+  document.getElementById('sbName').textContent = name;
+  document.getElementById('sbRole').textContent = role === 'instructor' ? 'Instructor' : 'Student';
+  const av=document.getElementById('sbAvatar');
+  av.textContent=name.slice(0,2).toUpperCase();
+  av.style.background=role==='instructor'?'rgba(6,182,212,.15)':'rgba(139,92,246,.15)';
+  av.style.color=role==='instructor'?'#06b6d4':'#8b5cf6';
+  afterAuth();
 });
 
-function pageInstructorSetup(role) {
-  if (role === "instructor") {
-    var card = document.getElementById("tvUrlCard");
-    if (card) card.style.display = "block";
+/* ── MAIN ── */
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+function afterAuth() {
+  // Set date picker to today
+  const dp = document.getElementById('datePicker');
+  dp.value = todayStr();
+  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+
+  // Only instructors can use this page
+  if (currentUser.role !== 'instructor') {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔒</div>
+        <div class="empty-title">Instructor Only</div>
+        <div class="empty-sub">This page is for instructors to monitor student performance.</div>
+      </div>`;
+    return;
+  }
+
+  // Load Tradervue config from Firebase
+  db.ref(TV_CONFIG_PATH).get().then(snap => {
+    if (snap.exists()) {
+      tvConfig = snap.val();
+      loadData();
+    } else {
+      renderSetup();
+    }
+  });
+}
+
+/* ── SETUP ── */
+function renderSetup(msg) {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="setup-card">
+      <div class="setup-title">⚙️ Tradervue API Setup</div>
+      <div style="font-size:13px;color:var(--t2);margin-top:-4px;">Enter your Tradervue organization admin credentials. Stored securely in Firebase — never shared with students.</div>
+      <div class="setup-grid">
+        <div class="setup-field">
+          <label>Organization URL</label>
+          <input id="tvOrgUrl" type="text" placeholder="e.g. your-org.tradervue.com" value="${tvConfig?.orgUrl || ''}"/>
+        </div>
+        <div class="setup-field">
+          <label>Admin Username</label>
+          <input id="tvUser" type="text" placeholder="Tradervue username" value="${tvConfig?.username || ''}"/>
+        </div>
+        <div class="setup-field">
+          <label>Admin Password</label>
+          <input id="tvPass" type="password" placeholder="Tradervue password" value="${tvConfig?.password || ''}"/>
+        </div>
+      </div>
+      <div class="setup-actions">
+        <button class="btn-save" onclick="saveConfig()">Save & Connect</button>
+        ${tvConfig ? '<button class="btn-secondary" onclick="loadData()">Cancel</button>' : ''}
+        ${msg ? `<span class="setup-status err">⚠ ${msg}</span>` : ''}
+      </div>
+      <div class="setup-note">
+        <strong>Setup required:</strong> You also need to deploy a Netlify serverless function to proxy API calls.<br>
+        1. Add <code>/netlify/functions/tradervue.js</code> to your Netlify repo<br>
+        2. Set <code>TV_USERNAME</code>, <code>TV_PASSWORD</code>, <code>TV_BASE_URL</code> in Netlify → Site Settings → Environment Variables<br>
+        3. Redeploy — then paste your org URL above and save
+      </div>
+    </div>`;
+}
+
+function saveConfig() {
+  const orgUrl  = document.getElementById('tvOrgUrl').value.trim().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  const username = document.getElementById('tvUser').value.trim();
+  const password = document.getElementById('tvPass').value;
+  if (!orgUrl || !username || !password) { alert('Please fill in all fields.'); return; }
+  tvConfig = { orgUrl, username, password };
+  db.ref(TV_CONFIG_PATH).set(tvConfig).then(() => loadData());
+}
+
+/* ── DATA LOADING ── */
+async function loadData() {
+  if (!tvConfig) { renderSetup(); return; }
+  const date = document.getElementById('datePicker').value || todayStr();
+  document.getElementById('mainContent').innerHTML = `
+    <div class="loading-state"><div class="spinner"></div><div>Loading student performance…</div></div>`;
+
+  try {
+    // 1. Fetch all users in org
+    const usersRes = await tvFetch('/users');
+    if (usersRes.error) { renderError(usersRes.error); return; }
+    const users = usersRes.users || [];
+
+    if (users.length === 0) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="empty-state"><div class="empty-icon">👥</div>
+        <div style="font-size:15px;font-weight:700;">No students found</div>
+        <div style="font-size:13px;color:var(--t3);margin-top:6px;">Make sure students are in your Tradervue organization.</div></div>`;
+      return;
+    }
+
+    // 2. Fetch trades for each user on selected date
+    const studentData = await Promise.all(users.map(u => fetchStudentData(u, date)));
+
+    renderDashboard(studentData, date);
+
+  } catch (err) {
+    renderError(err.message);
   }
 }
-</script>
-<script>
-function handleLogout() {
-  firebase.auth().signOut().then(function() {
-    window.location.href = 'index.html';
-  }).catch(function(err) { console.error('Logout error:', err); });
+
+async function fetchStudentData(user, date) {
+  try {
+    const data = await tvFetch('/trades', user.id, { startdate: date, enddate: date, max_trades: 100 });
+    const trades = data.trades || [];
+    const totalPL  = trades.reduce((s, t) => s + (parseFloat(t.gross_pl) || 0), 0);
+    const winners  = trades.filter(t => (parseFloat(t.gross_pl) || 0) > 0).length;
+    const winRate  = trades.length > 0 ? Math.round((winners / trades.length) * 100) : null;
+    const best     = trades.reduce((b, t) => (parseFloat(t.gross_pl)||0) > (parseFloat(b?.gross_pl)||0) ? t : b, null);
+    const worst    = trades.reduce((w, t) => (parseFloat(t.gross_pl)||0) < (parseFloat(w?.gross_pl)||0) ? t : w, null);
+    return { user, trades, totalPL, winRate, winners, best, worst };
+  } catch {
+    return { user, trades: [], totalPL: 0, winRate: null, winners: 0, best: null, worst: null, error: true };
+  }
+}
+
+async function tvFetch(endpoint, userId, params = {}) {
+  const qs = new URLSearchParams({ endpoint, ...(userId ? { userId } : {}), ...params }).toString();
+  const res = await fetch(`${TV_PROXY}?${qs}`);
+  return res.json();
+}
+
+/* ── RENDER ── */
+function renderDashboard(students, date) {
+  const totalPL    = students.reduce((s, d) => s + d.totalPL, 0);
+  const totalTrades = students.reduce((s, d) => s + d.trades.length, 0);
+  const winners    = students.filter(d => d.totalPL > 0).length;
+  const bestStudent = students.reduce((b, d) => d.totalPL > (b?.totalPL || -Infinity) ? d : b, null);
+
+  const plClass = totalPL > 0 ? 'green' : totalPL < 0 ? 'red' : '';
+  const plStr   = (totalPL >= 0 ? '+' : '') + '$' + Math.abs(totalPL).toFixed(2);
+
+  let html = `
+    <div class="summary-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-val blue">${students.length}</div>
+        <div class="stat-sub">${totalTrades} trades today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Combined P&amp;L</div>
+        <div class="stat-val ${plClass}">${plStr}</div>
+        <div class="stat-sub">All students combined</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Profitable Students</div>
+        <div class="stat-val green">${winners}</div>
+        <div class="stat-sub">of ${students.length} total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Top Performer</div>
+        <div class="stat-val purple" style="font-size:16px;">${bestStudent?.user?.username || '—'}</div>
+        <div class="stat-sub">${bestStudent && bestStudent.totalPL !== 0 ? (bestStudent.totalPL > 0 ? '+' : '') + '$' + bestStudent.totalPL.toFixed(2) : 'No trades'}</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Student Performance</div>
+        <div class="table-count">${students.length} students — ${new Date(date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+        <button class="btn-secondary" style="margin-left:auto;font-size:11px;padding:5px 12px;" onclick="renderSetup()">⚙ Settings</button>
+      </div>
+      <table class="tv-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Trades</th>
+            <th>P&amp;L</th>
+            <th>Win Rate</th>
+            <th>Best Trade</th>
+            <th>Worst Trade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="studentsTableBody">
+          ${students.map(d => renderStudentRow(d)).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function renderStudentRow(d) {
+  const { user, trades, totalPL, winRate, best, worst } = d;
+  const plStr  = trades.length === 0 ? '—' : (totalPL >= 0 ? '+' : '') + '$' + Math.abs(totalPL).toFixed(2);
+  const plCls  = totalPL > 0 ? 'pl-pos' : totalPL < 0 ? 'pl-neg' : 'pl-zero';
+  const wrStr  = winRate !== null ? winRate + '%' : '—';
+  const wrCls  = winRate === null ? '' : winRate >= 60 ? 'win-high' : winRate >= 40 ? 'win-mid' : 'win-low';
+  const bestStr  = best ? ((parseFloat(best.gross_pl)||0) >= 0 ? '+' : '') + '$' + Math.abs(parseFloat(best.gross_pl)||0).toFixed(2) + ' ' + (best.symbol||'') : '—';
+  const worstStr = worst ? ((parseFloat(worst.gross_pl)||0) >= 0 ? '+' : '') + '$' + Math.abs(parseFloat(worst.gross_pl)||0).toFixed(2) + ' ' + (worst.symbol||'') : '—';
+
+  return `
+    <tr class="student-row" onclick="toggleStudent('${user.id}', this)" id="row-${user.id}">
+      <td><div class="student-name">${user.username}</div><div class="student-email">${user.email || ''}</div></td>
+      <td>${trades.length}</td>
+      <td class="${plCls}">${plStr}</td>
+      <td>${winRate !== null ? `<span class="win-pill ${wrCls}">${wrStr}</span>` : '—'}</td>
+      <td style="color:var(--green);">${bestStr}</td>
+      <td style="color:var(--red);">${worstStr}</td>
+      <td><button class="expand-btn" id="expbtn-${user.id}">${trades.length > 0 ? '▸ Trades' : 'No trades'}</button></td>
+    </tr>
+    <tr class="detail-row" id="detail-${user.id}" style="display:none;">
+      <td colspan="7">${renderTradeDetail(user, trades)}</td>
+    </tr>`;
+}
+
+function renderTradeDetail(user, trades) {
+  if (trades.length === 0) {
+    return `<div class="detail-inner"><div class="no-trades">No trades on this day</div></div>`;
+  }
+  const rows = trades.map(t => {
+    const pl = parseFloat(t.gross_pl) || 0;
+    const plStr = (pl >= 0 ? '+' : '') + '$' + Math.abs(pl).toFixed(2);
+    const plCls = pl > 0 ? 'pl-pos' : pl < 0 ? 'pl-neg' : 'pl-zero';
+    const side  = (t.side || '').toUpperCase();
+    return `
+      <tr>
+        <td><strong>${t.symbol || '—'}</strong></td>
+        <td><span class="trade-row-badge ${side === 'L' ? 'badge-L' : 'badge-S'}">${side === 'L' ? 'LONG' : 'SHORT'}</span></td>
+        <td>${t.quantity || '—'}</td>
+        <td>${t.entry_price != null ? '$' + parseFloat(t.entry_price).toFixed(2) : '—'}</td>
+        <td>${t.exit_price != null ? '$' + parseFloat(t.exit_price).toFixed(2) : '—'}</td>
+        <td class="${plCls}">${plStr}</td>
+        <td style="color:var(--t2);font-size:11px;">${t.tags ? t.tags.join(', ') : ''}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <div class="detail-inner">
+      <div class="detail-title">📋 ${user.username}'s trades</div>
+      <table class="trades-mini">
+        <thead>
+          <tr><th>Symbol</th><th>Side</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Tags</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function toggleStudent(userId, row) {
+  const detail = document.getElementById('detail-' + userId);
+  const btn    = document.getElementById('expbtn-' + userId);
+  if (!detail) return;
+  const isOpen = detail.style.display !== 'none';
+  detail.style.display = isOpen ? 'none' : 'table-row';
+  btn.textContent = isOpen ? '▸ Trades' : '▾ Close';
+}
+
+function renderError(msg) {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="setup-card" style="border-color:rgba(255,59,48,.25);">
+      <div class="setup-title" style="color:var(--red);">⚠ Connection Error</div>
+      <div style="font-size:13px;color:var(--t2);">${msg}</div>
+      <div class="setup-actions">
+        <button class="btn-save" style="background:var(--red);" onclick="loadData()">Retry</button>
+        <button class="btn-secondary" onclick="renderSetup()">Edit Settings</button>
+      </div>
+      <div class="setup-note">
+        <strong>Common issues:</strong><br>
+        • Netlify function not deployed — add <code>/netlify/functions/tradervue.js</code> to your repo<br>
+        • Environment variables missing — set <code>TV_USERNAME</code> and <code>TV_PASSWORD</code> in Netlify<br>
+        • Wrong org URL — check your Tradervue organization URL<br>
+        • Organization API not enabled — contact Tradervue support
+      </div>
+    </div>`;
 }
 </script>
 <script>
@@ -574,5 +878,32 @@ function toggleSidebar() {
   }
 })();
 </script>
+
+<script>
+/* Mobile drawer controls — added v14 */
+function openSidebar(){
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('mobileBackdrop');
+  if (sb) sb.classList.add('open');
+  if (bd) bd.classList.add('show');
+}
+function closeSidebar(){
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('mobileBackdrop');
+  if (sb) sb.classList.remove('open');
+  if (bd) bd.classList.remove('show');
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeSidebar(); });
+/* Close drawer when a sidebar item is tapped on mobile */
+document.addEventListener('DOMContentLoaded', function(){
+  var items = document.querySelectorAll('#sidebar .sb-item');
+  for (var i = 0; i < items.length; i++){
+    items[i].addEventListener('click', function(){
+      if (window.innerWidth <= 880) closeSidebar();
+    });
+  }
+});
+</script>
+
 </body>
 </html>
