@@ -420,6 +420,12 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
 /* ═════════════════════════════════════════════════════════════════
    MENTORSHIP PAGE — $15K / 12-month program block
    ═════════════════════════════════════════════════════════════════ */
+/* Prevent flex container from shrinking cards — let them be their natural height */
+.page-content > .mp-hero,
+.page-content > .page-card,
+.page-content > .honest-card,
+.page-content > .cta-card{flex-shrink:0;}
+
 .mp-hero{background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(6,182,212,.04) 60%,transparent);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;position:relative;overflow:hidden;}
 .mp-hero::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,.5),rgba(6,182,212,.3),transparent);}
 .mp-hero-eyebrow{font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
