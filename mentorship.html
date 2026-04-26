@@ -416,6 +416,92 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
   .mod-switcher{flex-wrap:wrap;gap:4px;}
 }
 
+
+/* ═════════════════════════════════════════════════════════════════
+   MENTORSHIP PAGE — $15K / 12-month program block
+   ═════════════════════════════════════════════════════════════════ */
+.mp-hero{background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(6,182,212,.04) 60%,transparent);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;position:relative;overflow:hidden;}
+.mp-hero::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,.5),rgba(6,182,212,.3),transparent);}
+.mp-hero-eyebrow{font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+.mp-hero-title{font-size:32px;font-weight:800;letter-spacing:-.5px;margin-bottom:12px;line-height:1.15;color:var(--t1);}
+.mp-hero-title .accent{color:var(--green);}
+.mp-hero-sub{font-size:15px;color:var(--t2);line-height:1.65;max-width:680px;margin-bottom:22px;}
+.mp-price-row{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-top:8px;padding-top:22px;border-top:1px solid var(--border);}
+.mp-price-block{display:flex;flex-direction:column;}
+.mp-price-label{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.mp-price-value{font-size:42px;font-weight:800;color:var(--t1);letter-spacing:-1px;line-height:1;}
+.mp-price-value .currency{color:var(--t3);font-weight:700;font-size:24px;vertical-align:top;margin-right:2px;}
+.mp-duration{font-size:14px;color:var(--t2);font-weight:500;margin-bottom:6px;}
+.mp-duration strong{color:var(--t1);font-weight:700;}
+.mp-cohort{font-size:12px;color:var(--t3);}
+.mp-cohort-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.phases-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.phase-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+.phase-card.p1{border-color:rgba(34,197,94,.25);}
+.phase-card.p2{border-color:rgba(6,182,212,.25);}
+.phase-card.p3{border-color:rgba(251,191,36,.3);}
+.phase-num{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.phase-card.p1 .phase-num{color:var(--green);}
+.phase-card.p2 .phase-num{color:var(--cyan);}
+.phase-card.p3 .phase-num{color:var(--gold,#fbbf24);}
+.phase-title{font-size:18px;font-weight:700;color:var(--t1);margin-bottom:4px;line-height:1.25;}
+.phase-months{font-size:12px;color:var(--t3);font-weight:600;margin-bottom:14px;}
+.phase-desc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px;}
+.phase-features{display:flex;flex-direction:column;gap:8px;}
+.phase-feat{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--t2);line-height:1.5;}
+.phase-feat-dot{flex-shrink:0;width:5px;height:5px;border-radius:50%;margin-top:7px;}
+.phase-card.p1 .phase-feat-dot{background:var(--green);}
+.phase-card.p2 .phase-feat-dot{background:var(--cyan);}
+.phase-card.p3 .phase-feat-dot{background:var(--gold,#fbbf24);}
+
+.included-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.included-row{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;}
+.included-icon{flex-shrink:0;width:36px;height:36px;border-radius:9px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;color:var(--green);}
+.included-text-title{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:3px;}
+.included-text-sub{font-size:12px;color:var(--t3);line-height:1.5;}
+
+.honest-card{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.18);border-radius:12px;padding:22px;border-left:3px solid var(--red);}
+.honest-title{font-size:13px;font-weight:700;color:var(--red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+.honest-body{font-size:13px;color:var(--t2);line-height:1.7;}
+.honest-body strong{color:var(--t1);}
+
+.fit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fit-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.fit-card.yes{border-left:3px solid var(--green);}
+.fit-card.no{border-left:3px solid var(--t3);}
+.fit-title{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;}
+.fit-card.yes .fit-title{color:var(--green);}
+.fit-card.no .fit-title{color:var(--t3);}
+.fit-list{display:flex;flex-direction:column;gap:8px;}
+.fit-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--t2);line-height:1.5;}
+.fit-mark{flex-shrink:0;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+.fit-card.yes .fit-mark{color:var(--green);}
+.fit-card.no .fit-mark{color:var(--t3);}
+
+.cta-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;}
+.cta-eyebrow{font-size:11px;color:var(--cyan);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.cta-title{font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px;}
+.cta-text{font-size:14px;color:var(--t2);line-height:1.6;max-width:540px;margin:0 auto;}
+
+@media (max-width:880px){
+  .mp-hero{padding:22px 18px;}
+  .mp-hero-title{font-size:26px;}
+  .mp-hero-sub{font-size:16px;}
+  .mp-price-value{font-size:36px;}
+  .phases-grid,.included-grid,.fit-grid{grid-template-columns:1fr;}
+  .phase-card{padding:18px;}
+  .phase-title{font-size:18px;}
+  .phase-desc{font-size:16px;}
+  .phase-feat{font-size:16px;}
+  .included-text-title{font-size:16px;}
+  .included-text-sub{font-size:15px;}
+  .fit-item{font-size:16px;}
+  .honest-body{font-size:16px;}
+  .cta-text{font-size:16px;}
+}
+
 </style>
 </head>
 <body>
@@ -524,71 +610,154 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
   </div>
   <div class="content-row">
     <div class="page-content">
-<div class="two-col">
-  <div class="page-card">
-    <div class="page-card-header">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.7" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <div class="page-card-title">Book a 1-on-1 Session</div>
-      <span class="pg-badge green">Available</span>
+<div class="mp-hero">
+  <div class="mp-hero-eyebrow">12-Month Mentorship Program</div>
+  <h1 class="mp-hero-title">From foundation to <span class="accent">live capital</span> — one trader at a time</h1>
+  <p class="mp-hero-sub">A structured year-long mentorship for serious traders. Three phases — Foundation, Paper Trading, Live Capital — with daily live sessions, drills, and 1-on-1 mentor accountability until the rules become reflex.</p>
+  <div class="mp-price-row">
+    <div class="mp-price-block">
+      <div class="mp-price-label">Program Tuition</div>
+      <div class="mp-price-value"><span class="currency">$</span>15,000</div>
     </div>
-    <div class="page-card-body" style="display:flex;flex-direction:column;gap:12px;">
-      <div style="font-size:13px;color:var(--t2);line-height:1.7;">Get personalized coaching directly with the instructor. Sessions cover chart review, trade planning, and strategy development.</div>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="background:var(--card2);border-radius:8px;padding:12px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="font-size:22px;">⏱</div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--t1);">30-Minute Session</div><div style="font-size:11px;color:var(--t3);">Quick chart review or Q&A</div></div>
-          <div style="margin-left:auto;font-size:14px;font-weight:800;color:var(--green);">$97</div>
-        </div>
-        <div style="background:var(--card2);border-radius:8px;padding:12px 14px;border:1px solid var(--green);display:flex;align-items:center;gap:12px;cursor:pointer;background:rgba(34,197,94,.04);">
-          <div style="font-size:22px;">🎯</div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--t1);">60-Minute Deep Dive</div><div style="font-size:11px;color:var(--t3);">Full trade plan + strategy review</div></div>
-          <div style="margin-left:auto;"><span style="font-size:9px;font-weight:700;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;">Popular</span><div style="font-size:14px;font-weight:800;color:var(--green);text-align:right;margin-top:2px;">$177</div></div>
-        </div>
-        <div style="background:var(--card2);border-radius:8px;padding:12px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="font-size:22px;">🚀</div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--t1);">Monthly Mentorship</div><div style="font-size:11px;color:var(--t3);">4 sessions + Discord access</div></div>
-          <div style="margin-left:auto;font-size:14px;font-weight:800;color:var(--cyan);">$497</div>
-        </div>
-      </div>
-      <button style="width:100%;font-family:Inter,sans-serif;font-size:14px;font-weight:700;padding:12px;border-radius:9px;border:none;background:var(--green);color:#000;cursor:pointer;">Book a Session →</button>
+    <div class="mp-price-block" style="flex:1;min-width:200px;">
+      <div class="mp-duration"><strong>12 months</strong> · 7:00&ndash;10:30 AM EST · Mon&ndash;Fri</div>
+      <div class="mp-cohort"><span class="mp-cohort-dot"></span>3&ndash;5 students per cohort &middot; By referral only</div>
     </div>
   </div>
-  <div style="display:flex;flex-direction:column;gap:14px;">
-    <div class="page-card">
-      <div class="page-card-header">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.7" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <div class="page-card-title">Upcoming Sessions</div>
-      </div>
-      <div class="page-card-body" style="display:flex;flex-direction:column;gap:8px;">
-        <div style="background:var(--card2);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;">
-          <div style="text-align:center;background:var(--green);width:36px;height:36px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:9px;font-weight:700;color:#000;line-height:1;">APR</div><div style="font-size:14px;font-weight:800;color:#000;line-height:1;">22</div></div>
-          <div><div style="font-size:13px;font-weight:600;color:var(--t1);">Chart Review — John D.</div><div style="font-size:11px;color:var(--t3);">10:00 AM ET · 60 min</div></div>
-          <span style="margin-left:auto;font-size:10px;font-weight:700;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);padding:3px 8px;border-radius:5px;">Confirmed</span>
+</div>
+
+<div class="page-card">
+  <div class="page-card-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    <div class="page-card-title">Program Structure</div>
+    <span class="pg-badge cyan">3 Phases &middot; 12 Months</span>
+  </div>
+  <div class="page-card-body">
+    <div class="phases-grid">
+      <div class="phase-card p1">
+        <div class="phase-num">Phase 1</div>
+        <div class="phase-title">Foundation</div>
+        <div class="phase-months">Months 1&ndash;3</div>
+        <div class="phase-desc">Learn how the market actually works. Six modules with built-in 90-question quiz coverage. Sequential unlocks &mdash; no skipping.</div>
+        <div class="phase-features">
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Markets, charts, small-caps, platforms, risk, psychology</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Trade-Ideas scanner setup, Sterling Trader Pro, IB TWS</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Hotkey drills until execution is reflex</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Daily live session &mdash; watch the instructor trade</div></div>
         </div>
-        <div style="background:var(--card2);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;">
-          <div style="text-align:center;background:var(--blue);width:36px;height:36px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:9px;font-weight:700;color:#fff;line-height:1;">APR</div><div style="font-size:14px;font-weight:800;color:#fff;line-height:1;">25</div></div>
-          <div><div style="font-size:13px;font-weight:600;color:var(--t1);">Strategy Session — Maria R.</div><div style="font-size:11px;color:var(--t3);">2:00 PM ET · 30 min</div></div>
-          <span style="margin-left:auto;font-size:10px;font-weight:700;background:rgba(245,158,11,.1);color:var(--orange);border:1px solid rgba(245,158,11,.2);padding:3px 8px;border-radius:5px;">Pending</span>
+      </div>
+      <div class="phase-card p2">
+        <div class="phase-num">Phase 2</div>
+        <div class="phase-title">Paper Trading</div>
+        <div class="phase-months">Months 4&ndash;9</div>
+        <div class="phase-desc">$30,000 paper account. Six months of live drilling under real session conditions until the habits that make money are automatic.</div>
+        <div class="phase-features">
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>10 daily drills &mdash; thesis, setup ID, bracket speed, journaling</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>5 setup playbooks &mdash; Gap-and-Go, VWAP Reclaim, PMH Rejection, Gap-Fill, 10:30 Rule</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>8-metric performance dashboard with Firebase tracking</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Phase Gate: must hit 8 criteria to advance</div></div>
         </div>
       </div>
-    </div>
-    <div class="page-card">
-      <div class="page-card-header">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.7" width="18" height="18"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/></svg>
-        <div class="page-card-title">Student Reviews</div>
-      </div>
-      <div class="page-card-body" style="display:flex;flex-direction:column;gap:10px;">
-        <div style="background:var(--card2);border-radius:8px;padding:10px 14px;">
-          <div style="font-size:12px;color:var(--t1);line-height:1.6;margin-bottom:6px;">"Best investment I made. My win rate went from 45% to 72% in 3 months."</div>
-          <div style="font-size:10px;color:var(--t3);">— Alex M. · ⭐⭐⭐⭐⭐</div>
-        </div>
-        <div style="background:var(--card2);border-radius:8px;padding:10px 14px;">
-          <div style="font-size:12px;color:var(--t1);line-height:1.6;margin-bottom:6px;">"The chart review session alone was worth 10x the price. Highly recommend."</div>
-          <div style="font-size:10px;color:var(--t3);">— Sarah K. · ⭐⭐⭐⭐⭐</div>
+      <div class="phase-card p3">
+        <div class="phase-num">Phase 3</div>
+        <div class="phase-title">Live Capital</div>
+        <div class="phase-months">Months 10&ndash;12</div>
+        <div class="phase-desc">Real money. Tightened rules. 12-week supervised ramp from micro size to full size with daily mentor check-ins, tapering to weekly by graduation.</div>
+        <div class="phase-features">
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>12-week ramp &mdash; Micro &rarr; 25% &rarr; 50% &rarr; 100% size</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Daily 2% / weekly 5% loss limits, max 1% per trade</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Crisis &amp; Recovery playbook &mdash; first loss, tilt, 3-loss rule</div></div>
+          <div class="phase-feat"><div class="phase-feat-dot"></div><div>Mentor tapering: M10 daily &rarr; M11 2x/wk &rarr; M12 1x/wk + exit interview</div></div>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<div class="page-card">
+  <div class="page-card-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+    <div class="page-card-title">What's Included</div>
+    <span class="pg-badge green">Full Access</span>
+  </div>
+  <div class="page-card-body">
+    <div class="included-grid">
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg></div>
+        <div><div class="included-text-title">Daily Live Trading Room</div><div class="included-text-sub">7:00&ndash;10:30 AM EST, Mon&ndash;Fri. Watch real entries, exits, and decisions in real time.</div></div>
+      </div>
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div><div class="included-text-title">1-on-1 Mentorship</div><div class="included-text-sub">Direct mentor access tapering from daily (M10) to weekly (M12) plus exit interview.</div></div>
+      </div>
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <div><div class="included-text-title">Foundation Course + Quizzes</div><div class="included-text-sub">6 modules, 90 quiz questions, sequential unlock. Mastery-based progression.</div></div>
+      </div>
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div><div class="included-text-title">Phase 2 Paper Tracking</div><div class="included-text-sub">$30K paper account, 10 daily drills, 8-metric dashboard, all logged to Firebase.</div></div>
+      </div>
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="included-text-title">Phase 3 Live Capital Tracker</div><div class="included-text-sub">Daily P&amp;L logging, 14-day history, drawdown alerts, mentor sign-off.</div></div>
+      </div>
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div><div class="included-text-title">Real-time Chat &amp; Community</div><div class="included-text-sub">Cohort of 3&ndash;5 traders, instructor presence, real-time during sessions.</div></div>
+      </div>
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div><div class="included-text-title">Trade-Ideas Scanner Stack</div><div class="included-text-sub">Pre-configured Gap &amp; Go, High Relative Volume, Low Float Momentum scanners.</div></div>
+      </div>
+      <div class="included-row">
+        <div class="included-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <div><div class="included-text-title">Tradervue Journal</div><div class="included-text-sub">Trade tagging and review built into the daily routine &mdash; every trade logged.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-card">
+  <div class="page-card-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    <div class="page-card-title">Is This Program For You?</div>
+  </div>
+  <div class="page-card-body">
+    <div class="fit-grid">
+      <div class="fit-card yes">
+        <div class="fit-title">A good fit if you</div>
+        <div class="fit-list">
+          <div class="fit-item"><div class="fit-mark">&#10003;</div><div>Treat trading as a profession, not a hobby</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10003;</div><div>Can commit 7:00&ndash;10:30 AM EST, Mon&ndash;Fri, for 12 months</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10003;</div><div>Have $30K+ for Phase 3 live capital (separate from tuition)</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10003;</div><div>Want a structured curriculum, not "tips and signals"</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10003;</div><div>Are willing to follow rules even when you disagree</div></div>
+        </div>
+      </div>
+      <div class="fit-card no">
+        <div class="fit-title">Not a fit if you</div>
+        <div class="fit-list">
+          <div class="fit-item"><div class="fit-mark">&#10007;</div><div>Want a get-rich-quick or "secret strategy" course</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10007;</div><div>Cannot make morning sessions consistently</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10007;</div><div>Trade swing or options &mdash; this is small-cap day trading only</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10007;</div><div>Resist accountability or rule-following</div></div>
+          <div class="fit-item"><div class="fit-mark">&#10007;</div><div>Need flexible self-paced learning &mdash; this is cohort-based</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="honest-card">
+  <div class="honest-title">&#9888; Honest Expectations</div>
+  <div class="honest-body">Day trading is hard. <strong>Most people who attempt it lose money</strong> &mdash; that statistic is real and not excluded by signing up here. This program is designed to give serious traders a structured shot at consistency, not a guaranteed outcome. The 12-month structure exists because building professional trading habits takes time. <strong>Phase 3 requires its own real capital separate from tuition.</strong> If those facts deter you, this isn't your program &mdash; and that's OK.</div>
+</div>
+
+<div class="cta-card">
+  <div class="cta-eyebrow">Enrollment</div>
+  <div class="cta-title">By referral only</div>
+  <div class="cta-text">New cohorts are filled through referrals from current and past students. If you've been referred, your sponsor will introduce you directly. We keep cohorts small (3&ndash;5 traders) so every student gets meaningful mentor time throughout the 12 months.</div>
 </div></div>
   </div>
 </div>
