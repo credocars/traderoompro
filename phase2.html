@@ -15,11 +15,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 /* SIDEBAR (matches lesson.html) */
 .sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .2s;}
 .sidebar.collapsed{width:60px;}
+.sidebar.collapsed .sb-top{padding:20px 8px;justify-content:center;gap:0;}
+.sidebar.collapsed .sb-logo{display:none;}
+.sidebar.collapsed .sb-collapse-btn{margin-left:0;}
+.sidebar.collapsed .sb-collapse-btn svg{transform:rotate(180deg);}
+.sidebar.collapsed .sb-bottom{padding:16px 8px;justify-content:center;}
+.sidebar.collapsed .sb-link{justify-content:center;padding:10px 0;}
+.sb-collapse-btn svg{transition:transform .2s;}
 .sb-top{padding:20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
 .sb-logo{width:32px;height:32px;background:var(--green-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .sb-wordmark{font-weight:800;font-size:14px;letter-spacing:.5px;}
 .sb-wordmark span{color:var(--green);}
-.sidebar.collapsed .sb-wordmark,.sidebar.collapsed .sb-label,.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
+.sidebar.collapsed .sb-wordmark,.sidebar.collapsed .sb-label,.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole,.sidebar.collapsed .sb-section-label{display:none;}
 .sb-collapse-btn{margin-left:auto;background:transparent;border:none;color:var(--t3);cursor:pointer;padding:4px;border-radius:4px;}
 .sb-collapse-btn:hover{background:var(--card2);color:var(--t1);}
 .sb-nav{flex:1;padding:16px 12px;overflow-y:auto;}
@@ -287,7 +294,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
     <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 18l-6-6 6-6"/></svg></button>
   </div>
   <div class="sb-nav">
-    <div class="sb-section-label">Phase 1 — Foundation</div>
+    <div class="sb-section-label">Platform</div>
+    <a href="trading-dashboard.html" class="sb-link"><span class="sb-link-icon">🏠</span><span class="sb-label">Dashboard</span></a>
+    <a href="scanners.html" class="sb-link"><span class="sb-link-icon">🔍</span><span class="sb-label">Scanners</span></a>
+    <a href="chart.html" class="sb-link"><span class="sb-link-icon">📈</span><span class="sb-label">Charting</span></a>
+    <a href="youtube.html" class="sb-link"><span class="sb-link-icon">▶️</span><span class="sb-label">YouTube</span></a>
+    <a href="zoom.html" class="sb-link"><span class="sb-link-icon">📹</span><span class="sb-label">Zoom</span></a>
+    <a href="mentorship.html" class="sb-link"><span class="sb-link-icon">👥</span><span class="sb-label">Mentorship</span></a>
+        <div class="sb-section-label">Phase 1 — Foundation</div>
     <a href="courses.html" class="sb-link"><span class="sb-link-icon">📚</span><span class="sb-label">Course Modules</span></a>
     <div class="sb-section-label">Phase 2 — Paper Trading</div>
     <a href="phase2.html" class="sb-link active"><span class="sb-link-icon">🎯</span><span class="sb-label">Curriculum</span></a>
