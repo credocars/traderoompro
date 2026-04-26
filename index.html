@@ -163,6 +163,57 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
   .stat-label{font-size:11px;}
 }
 
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE 16px MINIMUM — bump every text element to 16px on phones
+   Body text, button labels, eyebrow caps, footer all readable.
+   ═════════════════════════════════════════════════════════════════ */
+@media (max-width:880px){
+  /* TOPBAR */
+  .live-pill,
+  .topbar-stat,
+  .topbar-stat strong{font-size:16px !important;}
+
+  /* HERO */
+  .hero-badge{font-size:16px !important;letter-spacing:.04em !important;padding:8px 18px !important;}
+  .hero-sub{font-size:16px !important;line-height:1.65 !important;}
+
+  /* STATS */
+  .stat-label{font-size:16px !important;letter-spacing:.04em !important;}
+  .stat-num{font-size:32px !important;}
+
+  /* LOGIN CARD */
+  .login-sub{font-size:16px !important;}
+  .tab-btn{font-size:16px !important;padding:12px !important;}
+  .role-btn{font-size:16px !important;padding:12px !important;}
+  .login-btn{font-size:16px !important;padding:14px !important;}
+  .forgot span,
+  .forgot a{font-size:16px !important;}
+  .login-input,
+  .login-input::placeholder{font-size:16px !important;}
+  input,select,textarea,button{font-size:16px !important;}
+
+  /* LOGO WORDMARK */
+  .logo-word{font-size:18px !important;}
+
+  /* FEATURES SECTION */
+  .sec-label{font-size:16px !important;letter-spacing:.06em !important;}
+  .feat-title{font-size:18px !important;}
+  .feat-desc{font-size:16px !important;line-height:1.55 !important;}
+  .divider{font-size:16px !important;letter-spacing:.04em !important;}
+  .chip{font-size:16px !important;padding:8px 14px !important;}
+
+  /* FOOTER */
+  .footer-copy{font-size:16px !important;line-height:1.55 !important;}
+  .footer-logo{font-size:16px !important;}
+}
+
+@media (max-width:420px){
+  /* All sizes stay at 16px minimum — we only tighten spacing here */
+  .hero-badge{padding:6px 14px !important;}
+  .chip{padding:7px 12px !important;}
+}
+
 </style>
 </head>
 <body>
