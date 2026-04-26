@@ -231,9 +231,115 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .modal-error{font-size:11px;color:var(--red);padding:8px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;display:none;}
 .forgot-link{text-align:right;margin-top:-4px;}
 .forgot-link span{font-size:11px;color:var(--blue);cursor:pointer;}
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE  (added v14 — drawer sidebar + stacked panels)
+   Desktop layout unchanged. Activates at <=880px.
+   ═════════════════════════════════════════════════════════════════ */
+.mobile-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;}
+.mobile-backdrop.show{display:block;opacity:1;}
+.menu-btn{display:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--green);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;}
+.menu-btn svg{width:18px;height:18px;}
+.menu-btn:hover{background:rgba(34,197,94,.12);}
+
+@media (max-width:880px){
+  body{height:auto;min-height:100vh;overflow:hidden;}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;width:260px;transform:translateX(-100%);box-shadow:8px 0 24px rgba(0,0,0,.5);z-index:200;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar.collapsed{width:260px;}
+  .sb-toggle-btn{display:none;}
+  .menu-btn{display:flex;}
+  .main-content{width:100%;height:100vh;}
+  .header{padding:0 12px;gap:8px;}
+  .header-title{font-size:15px;}
+  .market-pill > span:not(.ms-dot){display:none;}
+  .username-chip{display:none;}
+  .firebase-status{display:none;}
+  .session-clock{font-size:12px;padding:3px 8px;}
+  .header-right{gap:6px;}
+  .content-row{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .dash-area{padding:10px 10px 16px;overflow-y:visible;height:auto;}
+  .panels-grid{grid-template-columns:1fr;height:auto;flex:none;gap:10px;}
+  .dash-panel{min-height:380px;}
+  .panels-grid > .dash-panel:nth-child(1){order:3;}
+  .panels-grid > .dash-panel:nth-child(2){order:2;}
+  .panels-grid > .dash-panel:nth-child(3){order:4;}
+  .panels-grid > .dash-panel:nth-child(4){order:1;}
+  .modules-grid{grid-template-columns:1fr;gap:12px;}
+  .page-content{padding:14px 12px 20px;gap:14px;}
+  .page-card-header{padding:13px 14px 11px;}
+  .page-card-body{padding:14px;}
+  .two-col,.three-col{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .mod-title{font-size:17px;}
+  .mod-header{padding:14px 16px 12px;}
+  .mod-body{padding:14px 16px 16px;}
+  .drill-grid{grid-template-columns:1fr;}
+  .tab-grid{grid-template-columns:1fr;}
+  .metric-grid{grid-template-columns:1fr 1fr;}
+  .pb-grid-rules{grid-template-columns:1fr;}
+  .features-grid{grid-template-columns:1fr;}
+  .hero-sub{font-size:14px;}
+}
+
+@media (max-width:420px){
+  .header-title{font-size:14px;}
+  .live-badge{font-size:8px;padding:2px 7px;}
+  .session-clock{font-size:11px;padding:3px 7px;}
+  .market-pill{display:none;}
+  .dash-area{padding:8px 8px 14px;}
+  .panels-grid{gap:8px;}
+  .metric-grid{grid-template-columns:1fr;}
+}
+
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE v14.1 — drawer label fix + lesson nav stack
+   Additive on top of v14 — later rules win the cascade.
+   ═════════════════════════════════════════════════════════════════ */
+@media (max-width:880px){
+  .sidebar{width:240px;}
+  .sidebar.collapsed{width:240px;}
+  .sidebar.collapsed .sb-wordmark{display:inline;}
+  .sidebar.collapsed .sb-label{display:inline;}
+  .sidebar.collapsed .sb-uname{display:block;}
+  .sidebar.collapsed .sb-urole{display:block;}
+  .sidebar.collapsed .sb-section{display:block;}
+  .sidebar.collapsed .sb-item{padding:9px 16px;justify-content:flex-start;gap:12px;}
+  .sidebar.collapsed .sb-item:hover::after{display:none;}
+  .sidebar.collapsed .sb-bottom{padding:12px 14px;display:block;}
+  .sidebar.collapsed .sb-bottom .sb-user{justify-content:flex-start;}
+  .sidebar.collapsed .sb-avatar,
+  .sidebar.collapsed .sb-uname,
+  .sidebar.collapsed .sb-urole{display:flex;}
+  .sidebar.collapsed .sb-uname{display:block;}
+  .sidebar.collapsed .sb-urole{display:block;}
+  .sidebar.collapsed .sb-logo-area{padding:0 16px;justify-content:flex-start;height:52px;display:flex;align-items:center;}
+  .sidebar.collapsed .sb-logo{justify-content:flex-start;}
+  .sidebar.collapsed .sb-logo .sb-wordmark{display:inline;}
+  .sidebar.collapsed .sb-logout-btn{margin:0 0 0 auto;display:flex;}
+  .sidebar.collapsed .sb-divider{margin:6px 16px;}
+  .sidebar.collapsed .sb-badge-live{display:inline-block;}
+  .sb-item{padding:8px 16px;font-size:14px;gap:11px;}
+  .sb-icon{width:20px;height:20px;}
+  .sb-icon svg{width:18px;height:18px;}
+  .sb-logo-area{padding:0 16px;height:52px;display:flex;align-items:center;}
+  .sb-logo-mark{width:32px;height:32px;}
+  .sb-logo-mark svg{width:18px;height:18px;}
+  .sb-wordmark{font-size:16px;}
+  .lesson-layout{flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .lesson-nav{width:100%;max-height:220px;border-right:none;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .lesson-content{min-height:calc(100vh - 52px - 220px);flex:none;}
+  .header-back{padding:4px 8px;font-size:12px;}
+  .header-divider{display:none;}
+  .header-crumb{font-size:12px;line-height:1.3;}
+  .mod-switcher{flex-wrap:wrap;gap:4px;}
+}
+
 </style>
 </head>
 <body>
+<div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="loginModal">
@@ -301,6 +407,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 <!-- MAIN -->
 <div class="main-content">
   <div class="header">
+      <button class="menu-btn" onclick="openSidebar()" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
     <button class="header-back" onclick="window.location.href='courses.html'">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="15,18 9,12 15,6"/></svg>
       Courses
@@ -2173,5 +2280,31 @@ callout('green','Cadence summary',
   'Daily — 3-question post-session review (M6L4). Weekly — Friday 15-min mini review (this section). Monthly — full self-review submitted to mentor (M6L6 main). Three timeframes, three depths, all feeding each other.');
 }
 </script>
+
+<script>
+/* Mobile drawer controls — added v14 */
+function openSidebar(){
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('mobileBackdrop');
+  if (sb) sb.classList.add('open');
+  if (bd) bd.classList.add('show');
+}
+function closeSidebar(){
+  var sb = document.getElementById('sidebar');
+  var bd = document.getElementById('mobileBackdrop');
+  if (sb) sb.classList.remove('open');
+  if (bd) bd.classList.remove('show');
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeSidebar(); });
+document.addEventListener('DOMContentLoaded', function(){
+  var items = document.querySelectorAll('#sidebar .sb-item');
+  for (var i = 0; i < items.length; i++){
+    items[i].addEventListener('click', function(){
+      if (window.innerWidth <= 880) closeSidebar();
+    });
+  }
+});
+</script>
+
 </body>
 </html>
