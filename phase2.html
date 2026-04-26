@@ -414,6 +414,29 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
   .hero-title{font-size:20px !important;}
 }
 
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE v14.3 — Capital Tracker stack + auto-fill grid safety
+   Additive on top of v14, v14.1, v14.2.
+   ═════════════════════════════════════════════════════════════════ */
+@media (max-width:880px){
+  /* phase3 — Capital Tracker form/aggregates side-by-side fix */
+  .ct-row{grid-template-columns:1fr !important;gap:14px !important;}
+  .ct-row > *{min-width:0;}
+
+  /* phase2 / phase3 — auto-fill grids that may exceed viewport width */
+  .metric-grid{grid-template-columns:1fr !important;gap:10px !important;}
+  .pdb-cols-grid{grid-template-columns:1fr !important;gap:10px !important;}
+  .gates-grid{grid-template-columns:1fr !important;gap:10px !important;}
+
+  /* Form labels and inputs full-width */
+  .ct-row label,.ct-row input,.ct-row select,.ct-row textarea{width:100%;}
+
+  /* phase2/phase3 page main content — prevent any overflow */
+  .main,.main-content{overflow-x:hidden;max-width:100vw;}
+  body{max-width:100vw;overflow-x:hidden;}
+}
+
 </style>
 </head>
 <body>
