@@ -193,74 +193,60 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .forgot-link{text-align:right;}
 .forgot-link span{font-size:11px;color:var(--blue);cursor:pointer;}
 
-/* ═════════════════════════════════════════════════════════════════
-   MOBILE RESPONSIVE  (added v14 — drawer sidebar + stacked panels)
-   Desktop layout unchanged. Activates at <=880px.
-   ═════════════════════════════════════════════════════════════════ */
-.mobile-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;}
-.mobile-backdrop.show{display:block;opacity:1;}
-.menu-btn{display:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--green);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;}
-.menu-btn svg{width:18px;height:18px;}
-.menu-btn:hover{background:rgba(34,197,94,.12);}
+/* PATTERN DB TAB */
+.pdb-section{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+.pdb-section-head{padding:14px 22px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.pdb-section-icon{font-size:18px;}
+.pdb-section-title{font-size:14px;font-weight:700;color:var(--t1);}
+.pdb-section-body{padding:18px 22px;}
+.pdb-intro{font-size:14px;color:var(--t2);line-height:1.65;margin-bottom:14px;}
+.pdb-intro strong{color:var(--t1);}
+.pdb-cols-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
+.pdb-col-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.pdb-col-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:3px;font-family:'Inter',monospace;}
+.pdb-col-cat{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-bottom:8px;}
+.pdb-col-cat.identity{background:rgba(139,92,246,.15);color:#a78bfa;}
+.pdb-col-cat.levels{background:rgba(34,197,94,.15);color:#86efac;}
+.pdb-col-cat.volume{background:rgba(6,182,212,.15);color:#67e8f9;}
+.pdb-col-cat.structure{background:rgba(245,158,11,.15);color:#fcd34d;}
+.pdb-col-cat.pattern{background:rgba(59,130,246,.15);color:#93c5fd;}
+.pdb-col-cat.result{background:rgba(239,68,68,.15);color:#fca5a5;}
+.pdb-col-cat.followthrough{background:rgba(16,185,129,.15);color:#6ee7b7;}
+.pdb-col-source{font-size:11px;color:var(--t3);margin-bottom:6px;font-style:italic;}
+.pdb-col-detail{font-size:12px;color:var(--t2);line-height:1.5;}
 
-@media (max-width:880px){
-  body{height:auto;min-height:100vh;overflow:hidden;}
-  .sidebar{position:fixed;top:0;left:0;height:100vh;width:260px;transform:translateX(-100%);box-shadow:8px 0 24px rgba(0,0,0,.5);z-index:200;}
-  .sidebar.open{transform:translateX(0);}
-  .sidebar.collapsed{width:260px;}
-  .sb-toggle-btn{display:none;}
-  .menu-btn{display:flex;}
-  .main-content{width:100%;height:100vh;}
-  .header{padding:0 12px;gap:8px;}
-  .header-title{font-size:15px;}
-  .market-pill > span:not(.ms-dot){display:none;}
-  .username-chip{display:none;}
-  .firebase-status{display:none;}
-  .session-clock{font-size:12px;padding:3px 8px;}
-  .header-right{gap:6px;}
-  /* Dashboard panels stack on mobile, with Chat first */
-  .content-row{overflow-y:auto;-webkit-overflow-scrolling:touch;}
-  .dash-area{padding:10px 10px 16px;overflow-y:visible;height:auto;}
-  .panels-grid{grid-template-columns:1fr;height:auto;flex:none;gap:10px;}
-  .dash-panel{min-height:380px;}
-  .panels-grid > .dash-panel:nth-child(1){order:3;}
-  .panels-grid > .dash-panel:nth-child(2){order:2;}
-  .panels-grid > .dash-panel:nth-child(3){order:4;}
-  .panels-grid > .dash-panel:nth-child(4){order:1;}
-  /* Courses + lesson + side pages */
-  .modules-grid{grid-template-columns:1fr;gap:12px;}
-  .page-content{padding:14px 12px 20px;gap:14px;}
-  .page-card-header{padding:13px 14px 11px;}
-  .page-card-body{padding:14px;}
-  .two-col,.three-col{grid-template-columns:1fr;}
-  .stat-row{grid-template-columns:1fr 1fr;}
-  .mod-title{font-size:17px;}
-  .mod-header{padding:14px 16px 12px;}
-  .mod-body{padding:14px 16px 16px;}
-  /* Phase 2 / 3 specific grids */
-  .drill-grid{grid-template-columns:1fr;}
-  .tab-grid{grid-template-columns:1fr;}
-  .metric-grid{grid-template-columns:1fr 1fr;}
-  .pb-grid-rules{grid-template-columns:1fr;}
-  /* index.html marketing layout */
-  .features-grid{grid-template-columns:1fr;}
-  .hero-sub{font-size:14px;}
-}
+.pdb-endpoint{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+.pdb-endpoint-purpose{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:6px;}
+.pdb-endpoint-url{font-family:'Inter',monospace;font-size:11px;color:#a78bfa;background:#0f172a;padding:7px 10px;border-radius:5px;margin-bottom:8px;word-break:break-all;}
+.pdb-endpoint-use{font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:5px;}
+.pdb-endpoint-rate{font-size:11px;color:var(--t3);font-style:italic;}
 
-@media (max-width:420px){
-  .header-title{font-size:14px;}
-  .live-badge{font-size:8px;padding:2px 7px;}
-  .session-clock{font-size:11px;padding:3px 7px;}
-  .market-pill{display:none;}
-  .dash-area{padding:8px 8px 14px;}
-  .panels-grid{gap:8px;}
-  .metric-grid{grid-template-columns:1fr;}
-}
+.pdb-query{background:var(--bg2);border-left:3px solid var(--purple);border-radius:0 6px 6px 0;padding:14px 18px;margin-bottom:10px;}
+.pdb-query.green{border-left-color:var(--green);}
+.pdb-query.blue{border-left-color:var(--blue);}
+.pdb-query.amber{border-left-color:var(--amber);}
+.pdb-query-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:5px;}
+.pdb-query-q{font-size:12px;color:var(--t2);font-style:italic;margin-bottom:7px;}
+.pdb-query-sql{font-family:'Inter',monospace;font-size:11px;color:#67e8f9;background:#0f172a;padding:7px 10px;border-radius:5px;margin-bottom:7px;}
+.pdb-query-why{font-size:12px;color:var(--t2);line-height:1.55;}
+
+.pdb-workflow{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:10px;}
+.pdb-workflow-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.pdb-workflow-phase{font-size:13px;font-weight:700;color:var(--t1);}
+.pdb-workflow-duration{font-size:11px;color:var(--purple);background:rgba(139,92,246,.1);padding:2px 8px;border-radius:4px;font-weight:600;}
+.pdb-workflow-steps{font-size:12px;color:var(--t2);line-height:1.65;padding-left:18px;margin:0;}
+.pdb-workflow-steps li{margin-bottom:3px;}
+
+.pdb-pricing{background:rgba(139,92,246,.06);border-left:3px solid var(--purple);border-radius:0 6px 6px 0;padding:14px 18px;margin-top:14px;}
+.pdb-pricing strong{color:#c4b5fd;}
+.pdb-pricing-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.pdb-pricing-table th{padding:6px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.pdb-pricing-table td{padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;color:var(--t2);}
+.pdb-pricing-table td.highlight{color:#c4b5fd;font-weight:700;}
 
 </style>
 </head>
 <body>
-<div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="loginModal">
@@ -320,7 +306,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 <!-- MAIN -->
 <div class="main">
   <div class="header">
-      <button class="menu-btn" onclick="openSidebar()" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></button>
     <div class="header-left">
       <div class="header-title">Phase 2 <span class="accent">·</span> Paper Trading Curriculum</div>
     </div>
@@ -382,6 +367,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
       <button class="tab" data-tab="playbook" onclick="switchTab('playbook')"><span class="tab-icon">📖</span>Setup Playbook<span class="tab-count">5</span></button>
       <button class="tab" data-tab="dashboard" onclick="switchTab('dashboard')"><span class="tab-icon">📊</span>Performance Dashboard</button>
       <button class="tab" data-tab="gate" onclick="switchTab('gate')"><span class="tab-icon">🎯</span>Phase Gate Criteria<span class="tab-count">8</span></button>
+      <button class="tab" data-tab="patterns" onclick="switchTab('patterns')"><span class="tab-icon">🗄️</span>Pattern Database</button>
     </div>
 
     <!-- DRILLS TAB -->
@@ -418,6 +404,62 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
         <div style="font-size:13px;color:var(--t2);line-height:1.6;">Eight criteria stand between you and Phase 3 (live capital). All must be satisfied AND the mentor must approve. Numerical criteria are necessary but not sufficient — the final decision is the mentor's after a 60-minute exit interview.</div>
       </div>
       <div class="gate-grid" id="gateGrid"></div>
+    </div>
+
+    <!-- PATTERN DATABASE TAB -->
+    <div class="tab-content" id="tab-patterns">
+      <div style="background:rgba(139,92,246,.08);border-left:3px solid #8b5cf6;padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">From anecdotal to statistical</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;">Most traders rely on intuition: "I think gap-and-go works." Top traders rely on data: "Gap-and-go on float under 10M with PMH break has 64% follow-through over my last 200 samples." This tab teaches you to build that database using Polygon.io API. Activates Months 6-7 specialization with real numbers, not feelings.</div>
+      </div>
+
+      <div class="pdb-section">
+        <div class="pdb-section-head"><span class="pdb-section-icon">📋</span><div class="pdb-section-title">The 14-Column Schema</div></div>
+        <div class="pdb-section-body">
+          <div class="pdb-intro">Every trade you take, AND every setup you skipped, gets one row in your database. The schema below covers everything needed to answer the questions in the Queries section. <strong>Build this in Google Sheets first</strong> (free, easy filtering) — graduate to Airtable or Postgres if your data grows beyond ~5,000 rows.</div>
+          <div class="pdb-cols-grid" id="pdbColsGrid"></div>
+        </div>
+      </div>
+
+      <div class="pdb-section">
+        <div class="pdb-section-head"><span class="pdb-section-icon">🔌</span><div class="pdb-section-title">Polygon.io API Endpoints You Need</div></div>
+        <div class="pdb-section-body">
+          <div class="pdb-intro">Polygon.io is the API of choice for small-cap traders. Five endpoints cover 95% of what you need. Documentation: <strong>polygon.io/docs/stocks</strong></div>
+          <div id="pdbEndpoints"></div>
+          <div class="pdb-pricing">
+            <strong>Pricing reality check:</strong> the free tier (5 calls/min, end-of-day only) is not enough for serious pattern work. The Stocks Starter tier ($29/mo) is the practical minimum. Treat it like Trade Ideas or Sterling — a tool cost, not optional.
+            <table class="pdb-pricing-table">
+              <thead><tr><th>Tier</th><th>Price</th><th>Calls/min</th><th>Recommendation</th></tr></thead>
+              <tbody>
+                <tr><td>Free</td><td>$0</td><td>5</td><td>Test only — not for daily use</td></tr>
+                <tr class="highlight"><td>Stocks Starter</td><td class="highlight">$29/mo</td><td>100</td><td><b>Recommended for TradeRoom PRO students</b></td></tr>
+                <tr><td>Stocks Developer</td><td>$79/mo</td><td>Unlimited</td><td>Overkill unless running heavy backtests</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="pdb-section">
+        <div class="pdb-section-head"><span class="pdb-section-icon">❓</span><div class="pdb-section-title">8 Queries That Actually Matter</div></div>
+        <div class="pdb-section-body">
+          <div class="pdb-intro">These are the questions a database can answer that anecdotal review cannot. Run all 8 every Friday during your weekly review. The most important is the first — <strong>Setup Specialization Validation</strong> — because it directly drives your Phase 2 Months 6-7 picks.</div>
+          <div id="pdbQueries"></div>
+        </div>
+      </div>
+
+      <div class="pdb-section">
+        <div class="pdb-section-head"><span class="pdb-section-icon">🔄</span><div class="pdb-section-title">Implementation Workflow</div></div>
+        <div class="pdb-section-body">
+          <div class="pdb-intro">Setup once, log daily, review weekly, specialize in Months 6-7. The total time investment is roughly <strong>5-10 minutes per day plus 30 minutes on Friday</strong>. The payoff is data-driven setup specialization that beats gut-feel selection 9 times out of 10.</div>
+          <div id="pdbWorkflow"></div>
+        </div>
+      </div>
+
+      <div style="background:rgba(34,197,94,.06);border-left:3px solid var(--green);padding:14px 18px;border-radius:0 6px 6px 0;margin-top:24px;">
+        <div style="font-size:12px;font-weight:700;color:#86efac;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Connection to Phase 2 Gate Criteria</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;">Phase 2 Gate Criterion 2 requires positive expectancy on TWO setups across 15+ trades each. Your pattern database is what makes that criterion provable. Without it, you are guessing which setups work for you. With it, the data tells you — and the mentor verifies it during the exit interview.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -869,6 +911,179 @@ var GATE_CRITERIA = [
 ];
 
 
+
+var PATTERN_DB_COLUMNS = [
+  { name: "Symbol", category: "Identity", source: "Manual entry or scanner export",
+    detail: "The ticker. Always uppercase. Critical for filtering/sorting later." },
+  { name: "Date", category: "Identity", source: "Auto from Polygon /v2/aggs",
+    detail: "Trade date in YYYY-MM-DD format. Sortable and groupable." },
+  { name: "Catalyst Type", category: "Identity", source: "Manual entry from news",
+    detail: "Earnings / FDA / Contract / Buyout / Sympathy / No catalyst. Foundation of pattern grouping." },
+  { name: "PreMarket High (PMH)", category: "Levels", source: "Polygon /v2/aggs (premarket aggregate)",
+    detail: "Most important level in small-cap day trading. The breakout reference." },
+  { name: "Open", category: "Levels", source: "Polygon /v2/aggs",
+    detail: "Opening 9:30 AM print. Combined with PMH gives gap-and-go vs gap-and-trap signal." },
+  { name: "High", category: "Levels", source: "Polygon /v2/aggs",
+    detail: "Day high. Compare to PMH — did the day high exceed PMH or fail it?" },
+  { name: "Low", category: "Levels", source: "Polygon /v2/aggs",
+    detail: "Day low. Drawdown reference for stops and intraday risk metrics." },
+  { name: "Close", category: "Levels", source: "Polygon /v2/aggs",
+    detail: "Day close. Combined with open gives candle direction." },
+  { name: "PrevClose", category: "Levels", source: "Polygon /v2/aggs (previous trading day)",
+    detail: "Yesterday close. Used to calculate gap percentage." },
+  { name: "Volume", category: "Volume", source: "Polygon /v2/aggs",
+    detail: "Total day volume. Compare to typical volume to assess relative strength." },
+  { name: "Float", category: "Structure", source: "Manual or Finviz scrape (Polygon does not provide)",
+    detail: "Tradeable shares. The single most important small-cap variable." },
+  { name: "Market Cap", category: "Structure", source: "Polygon /v3/reference/tickers",
+    detail: "Float × price approximate. Filter for small-cap focus (<$250M)." },
+  { name: "Setup Type", category: "Pattern", source: "Manual entry from your playbook",
+    detail: "Gap-and-Go / VWAP Reclaim / PMH Rejection / Gap-Fill / 10:30 Rule. Maps to the 5 playbook setups." },
+  { name: "Outcome", category: "Result", source: "Manual entry post-close",
+    detail: "Win / Loss / Scratch + R-multiple. The label that lets you compute setup expectancy." },
+  { name: "NextOpen / NextHigh / NextLow / NextClose", category: "Follow-through", source: "Polygon /v2/aggs (T+1)",
+    detail: "Next day data. Reveals whether momentum continued — critical for swing-bias and gap continuation studies." }
+];
+
+
+var POLYGON_ENDPOINTS = [
+  {
+    purpose: "Daily OHLC + Volume for any ticker",
+    endpoint: "/v2/aggs/ticker/{symbol}/range/1/day/{from}/{to}",
+    use: "Pull historical day-by-day data. The workhorse endpoint — you will use this most.",
+    rate: "100 calls/min on $29 Stocks Starter tier"
+  },
+  {
+    purpose: "Pre-market aggregates (PMH calculation)",
+    endpoint: "/v2/aggs/ticker/{symbol}/range/1/minute/{date}/{date}?adjusted=true",
+    use: "Pull 1-minute candles, filter to pre-market window (4:00-9:30 AM ET), calculate PMH from highest of those.",
+    rate: "Counts as one call regardless of bars returned"
+  },
+  {
+    purpose: "Ticker reference (market cap, share count, sector)",
+    endpoint: "/v3/reference/tickers/{symbol}",
+    use: "Snapshot data for the symbol. Market cap, weighted shares outstanding, exchange.",
+    rate: "Static reference data, low call volume"
+  },
+  {
+    purpose: "News for catalyst tagging",
+    endpoint: "/v2/reference/news?ticker={symbol}&published_utc.gte={date}",
+    use: "Pull news articles around your trade date. Helps verify catalyst type retrospectively.",
+    rate: "Limited result set per call, paginate for full history"
+  },
+  {
+    purpose: "Grouped daily — entire market in one call",
+    endpoint: "/v2/aggs/grouped/locale/us/market/stocks/{date}",
+    use: "Returns OHLC+V for EVERY US stock on a given date. Powerful for scanner-style studies.",
+    rate: "One call returns 10,000+ rows — efficient for backtesting"
+  }
+];
+
+
+var PATTERN_QUERIES = [
+  {
+    title: "Setup Specialization Validation",
+    question: "Of the last 30 days I traded, which setup type had the highest expectancy?",
+    sql: "GROUP BY setup_type → COUNT(*), AVG(r_multiple), SUM(r_multiple)",
+    why: "Critical for Phase 2 Months 6-7. Pick your TWO best setups based on YOUR data, not on what feels good.",
+    color: "green"
+  },
+  {
+    title: "Float Bucket Performance",
+    question: "Do my best trades cluster in a specific float range?",
+    sql: "GROUP BY float_bucket(under_2M, 2M-10M, 10M-30M) → win_rate, avg_r",
+    why: "Reveals if you trade better on tight or normal float. Adjusts your scanner targeting.",
+    color: "blue"
+  },
+  {
+    title: "Catalyst Quality",
+    question: "Which catalyst types produce the highest win rate for me?",
+    sql: "GROUP BY catalyst_type → win_rate, avg_r",
+    why: "Some traders crush FDA, others fade earnings. Your data tells you which catalysts match your style.",
+    color: "blue"
+  },
+  {
+    title: "Gap-and-Go vs Gap-and-Trap Statistics",
+    question: "When stocks break PMH on the open, what percentage continue vs fail?",
+    sql: "FILTER setup=gap_and_go → COUNT win/loss → calculate continuation_rate",
+    why: "Validates the foundational small-cap setup. Numbers should match your live experience or you are misreading the setup."
+  },
+  {
+    title: "Time-of-Day Edge",
+    question: "Are my winning trades clustered before 10:30 AM or after?",
+    sql: "GROUP BY hour_of_entry → win_rate, avg_r",
+    why: "Validates the 10:30 cutoff rule. If your post-10:30 trades have negative expectancy, the rule is real for you."
+  },
+  {
+    title: "Day-of-Week Bias",
+    question: "Are Mondays statistically different from Wednesdays in my data?",
+    sql: "GROUP BY day_of_week → win_rate, avg_r, total_pnl",
+    why: "Many traders are weak on Mondays (weekend gap volatility) or Fridays (afternoon thin liquidity). Find your weak days.",
+    color: "amber"
+  },
+  {
+    title: "Reverse Split Filter Validation",
+    question: "How did stocks with recent reverse splits perform vs non-RS stocks in my watchlist?",
+    sql: "FILTER recent_rs=true → compare expectancy vs FILTER recent_rs=false",
+    why: "Validates the M3 hard rule. Your data should show RS stocks have worse outcomes — proving the filter works.",
+    color: "amber"
+  },
+  {
+    title: "Drawdown Pattern Recognition",
+    question: "What was the maximum adverse excursion (MAE) on my winning trades?",
+    sql: "FILTER outcome=win → AVG(mae), MAX(mae)",
+    why: "Tells you how much heat your winners typically take before paying. Informs stop placement — too tight stops kill winners.",
+    color: "amber"
+  }
+];
+
+
+var WORKFLOW_PHASES = [
+  {
+    phase: "Setup (One-Time)",
+    duration: "~2 hours",
+    steps: [
+      "Subscribe to Polygon.io Stocks Starter ($29/mo)",
+      "Get your API key from polygon.io/dashboard",
+      "Choose your storage: Google Sheets (easiest), Airtable (better filters), or Postgres (most powerful)",
+      "Set up the 14-column schema (template available in Discord #pattern-db channel)",
+      "Test one API call manually — pull yesterday OHLC for any ticker, paste into your sheet"
+    ]
+  },
+  {
+    phase: "Daily Logging",
+    duration: "5-10 min/day",
+    steps: [
+      "End-of-day, add row for every stock on your morning watchlist (whether you traded it or not)",
+      "Pull OHLC + Volume from Polygon /v2/aggs",
+      "Tag setup_type from your playbook even if you skipped the trade",
+      "Tag catalyst_type from morning news",
+      "If you traded, add outcome and R-multiple"
+    ]
+  },
+  {
+    phase: "Weekly Pattern Review",
+    duration: "30 min/Friday",
+    steps: [
+      "Run the 8 pattern queries (see queries section) on the previous week",
+      "Compare to your 30-day rolling average",
+      "Identify one pattern that is improving, one that is declining",
+      "Document in TraderVue weekly review",
+      "If a pattern shifts >20%, dig deeper — is the market changing or your execution?"
+    ]
+  },
+  {
+    phase: "Phase 2 Specialization (Months 6-7)",
+    duration: "Recurring",
+    steps: [
+      "Run Setup Specialization Validation query",
+      "Pick the two setups with HIGHEST expectancy in YOUR data (not in theory)",
+      "Phase 2 Gate Criterion 2 requires positive expectancy on these two — your data picks them, not your gut",
+      "From Month 6 forward, prioritize trades from these two setups, deprioritize others"
+    ]
+  }
+];
+
 // ══ STATE ══
 var currentUser = null;
 var currentRole = 'student';
@@ -1076,6 +1291,73 @@ function renderGate() {
   });
 }
 
+// ══ RENDER PATTERN DATABASE TAB ══
+function renderPatternDB() {
+  // Columns
+  var cols = document.getElementById('pdbColsGrid');
+  if (cols) {
+    cols.innerHTML = '';
+    PATTERN_DB_COLUMNS.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'pdb-col-card';
+      var catClass = c.category.toLowerCase().replace(/[^a-z]/g,'');
+      card.innerHTML =
+        '<div class="pdb-col-name">' + c.name + '</div>' +
+        '<div class="pdb-col-cat ' + catClass + '">' + c.category + '</div>' +
+        '<div class="pdb-col-source">Source: ' + c.source + '</div>' +
+        '<div class="pdb-col-detail">' + c.detail + '</div>';
+      cols.appendChild(card);
+    });
+  }
+
+  // Endpoints
+  var eps = document.getElementById('pdbEndpoints');
+  if (eps) {
+    eps.innerHTML = '';
+    POLYGON_ENDPOINTS.forEach(function(e) {
+      var div = document.createElement('div');
+      div.className = 'pdb-endpoint';
+      div.innerHTML =
+        '<div class="pdb-endpoint-purpose">' + e.purpose + '</div>' +
+        '<div class="pdb-endpoint-url">GET https://api.polygon.io' + e.endpoint + '</div>' +
+        '<div class="pdb-endpoint-use">' + e.use + '</div>' +
+        '<div class="pdb-endpoint-rate">' + e.rate + '</div>';
+      eps.appendChild(div);
+    });
+  }
+
+  // Queries
+  var qs = document.getElementById('pdbQueries');
+  if (qs) {
+    qs.innerHTML = '';
+    PATTERN_QUERIES.forEach(function(q) {
+      var div = document.createElement('div');
+      div.className = 'pdb-query ' + (q.color || 'purple');
+      div.innerHTML =
+        '<div class="pdb-query-title">' + q.title + '</div>' +
+        '<div class="pdb-query-q">"' + q.question + '"</div>' +
+        '<div class="pdb-query-sql">' + q.sql + '</div>' +
+        '<div class="pdb-query-why"><strong style="color:var(--t1);">Why this matters:</strong> ' + q.why + '</div>';
+      qs.appendChild(div);
+    });
+  }
+
+  // Workflow
+  var wf = document.getElementById('pdbWorkflow');
+  if (wf) {
+    wf.innerHTML = '';
+    WORKFLOW_PHASES.forEach(function(p) {
+      var div = document.createElement('div');
+      div.className = 'pdb-workflow';
+      var stepItems = p.steps.map(function(s) { return '<li>' + s + '</li>'; }).join('');
+      div.innerHTML =
+        '<div class="pdb-workflow-head"><div class="pdb-workflow-phase">' + p.phase + '</div><div class="pdb-workflow-duration">' + p.duration + '</div></div>' +
+        '<ol class="pdb-workflow-steps">' + stepItems + '</ol>';
+      wf.appendChild(div);
+    });
+  }
+}
+
 // ══ FIREBASE PROGRESS ══
 function saveProgress() {
   if (!currentUser) return;
@@ -1181,36 +1463,10 @@ firebase.auth().onAuthStateChanged(function(u) {
       renderPlaybook();
       renderDashboard();
       renderGate();
+      renderPatternDB();
     });
   });
 });
 </script>
-
-<script>
-/* Mobile drawer controls — added v14 */
-function openSidebar(){
-  var sb = document.getElementById('sidebar');
-  var bd = document.getElementById('mobileBackdrop');
-  if (sb) sb.classList.add('open');
-  if (bd) bd.classList.add('show');
-}
-function closeSidebar(){
-  var sb = document.getElementById('sidebar');
-  var bd = document.getElementById('mobileBackdrop');
-  if (sb) sb.classList.remove('open');
-  if (bd) bd.classList.remove('show');
-}
-document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeSidebar(); });
-/* Close drawer when a sidebar item is tapped on mobile */
-document.addEventListener('DOMContentLoaded', function(){
-  var items = document.querySelectorAll('#sidebar .sb-item');
-  for (var i = 0; i < items.length; i++){
-    items[i].addEventListener('click', function(){
-      if (window.innerWidth <= 880) closeSidebar();
-    });
-  }
-});
-</script>
-
 </body>
 </html>
