@@ -8,38 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f172a;--bg2:#1e293b;--card:#1e293b;--card2:#293548;--border:#334155;--border-hi:#475569;--t1:#f1f5f9;--t2:#cbd5e1;--t3:#94a3b8;--green:#22c55e;--green-bg:rgba(34,197,94,.1);--blue:#3b82f6;--cyan:#06b6d4;--purple:#8b5cf6;--amber:#f59e0b;--red:#ef4444;}
+:root{--bg:#0f172a;--bg2:#1e293b;--card:#1e293b;--card2:#293548;--border:#334155;--border-hi:#475569;--t1:#f1f5f9;--t2:#cbd5e1;--t3:#94a3b8;--green:#22c55e;--green-bg:rgba(34,197,94,.1);--blue:#3b82f6;--cyan:#06b6d4;--purple:#8b5cf6;--amber:#f59e0b;--red:#ef4444;--panel:#161b27;--orange:#f59e0b;}
 *{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden;display:flex;margin:0;}
 
 /* SIDEBAR (matches lesson.html) */
 .sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .2s;}
-.sidebar.collapsed{width:60px;}
-.sidebar.collapsed .sb-top{padding:20px 8px;justify-content:center;gap:0;}
-.sidebar.collapsed .sb-logo{display:none;}
-.sidebar.collapsed .sb-collapse-btn{margin-left:0;}
-.sidebar.collapsed .sb-collapse-btn svg{transform:rotate(180deg);}
-.sidebar.collapsed .sb-bottom{padding:16px 8px;justify-content:center;}
-.sidebar.collapsed .sb-link{justify-content:center;padding:10px 0;}
-.sb-collapse-btn svg{transition:transform .2s;}
-.sb-top{padding:20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
-.sb-logo{width:32px;height:32px;background:var(--green-bg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.sb-wordmark{font-weight:800;font-size:14px;letter-spacing:.5px;}
-.sb-wordmark span{color:var(--green);}
-.sidebar.collapsed .sb-wordmark,.sidebar.collapsed .sb-label,.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole,.sidebar.collapsed .sb-section-label{display:none;}
-.sb-collapse-btn{margin-left:auto;background:transparent;border:none;color:var(--t3);cursor:pointer;padding:4px;border-radius:4px;}
-.sb-collapse-btn:hover{background:var(--card2);color:var(--t1);}
-.sb-nav{flex:1;padding:16px 12px;overflow-y:auto;}
-.sb-section-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 6px 8px;}
-.sb-link{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:7px;color:var(--t2);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
-.sb-link:hover{background:var(--card);color:var(--t1);}
-.sb-link.active{background:var(--green-bg);color:var(--green);}
-.sb-link-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
-.sb-label{font-size:13px;}
-.sb-bottom{padding:16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
-.sb-avatar{width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,.15);color:#8b5cf6;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.sb-uname{font-size:13px;font-weight:600;color:var(--t1);}
-.sb-urole{font-size:11px;color:var(--t3);}
 
 /* MAIN */
 .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
@@ -251,6 +225,44 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 .pdb-pricing-table td{padding:7px 10px;border-bottom:1px solid var(--border);font-size:12px;color:var(--t2);}
 .pdb-pricing-table td.highlight{color:#c4b5fd;font-weight:700;}
 
+
+
+/* SIDEBAR — canonical from courses.html */
+.sidebar-wrap{position:relative;flex-shrink:0;}
+.sidebar{width:240px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .25s cubic-bezier(.4,0,.2,1);}
+.sidebar.collapsed{width:58px;}
+.sidebar.collapsed .sb-wordmark{display:none;}
+.sidebar.collapsed .sb-divider{margin:4px 10px;}
+.sidebar.collapsed .sb-item{padding:10px 0;justify-content:center;gap:0;position:relative;}
+.sidebar.collapsed .sb-label{display:none;}
+.sidebar.collapsed .sb-bottom{padding:10px 6px;display:flex;justify-content:center;}
+.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
+.sidebar.collapsed .sb-logo-area{padding:16px 0;display:flex;justify-content:center;align-items:center;}
+.sidebar.collapsed .sb-logo{justify-content:center;}
+.sidebar.collapsed .sb-logo .sb-wordmark{display:none;}
+.sidebar.collapsed .sb-item:hover::after{content:attr(data-label);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--card);color:var(--t1);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;border:1px solid var(--border-hi);z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+.sidebar.collapsed .sb-logout-btn{margin:0 auto;}
+.sb-logo-area{height:52px;padding:0 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
+.sb-logo{display:flex;align-items:center;gap:10px;}
+.sb-logo-mark{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
+.sb-logo-mark svg{width:24px;height:24px;}
+.sb-wordmark{font-family:"Inter",sans-serif;font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--t1);}
+.sb-wordmark span{color:var(--green);}
+.sb-scroll{flex:1;overflow-y:auto;padding:8px 0;}
+.sb-scroll::-webkit-scrollbar{width:0;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:10px 18px;cursor:pointer;font-size:15px;font-weight:500;color:var(--t2);transition:all .12s;}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+.sb-item.active{background:rgba(34,197,94,.06);color:var(--green);box-shadow:inset 3px 0 0 var(--green);}
+.sb-icon{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.sb-bottom{padding:14px 18px;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:9px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:rgba(34,197,94,.15);color:var(--green);}
+.sb-uname{font-size:14px;font-weight:600;color:var(--t1);}
+.sb-urole{font-size:11px;color:var(--t3);}
+.sb-logout-btn{display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:auto;flex-shrink:0;border-radius:7px;border:none;background:transparent;cursor:pointer;color:var(--t3);transition:all .15s;}
+.sb-logout-btn:hover{background:rgba(239,68,68,.1);color:var(--red);}
+.sb-toggle-btn{position:absolute;top:72px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--border-hi);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--t2);transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.35);}
+.sb-toggle-btn:hover{background:var(--green);border-color:var(--green);color:#000;}
 </style>
 </head>
 <body>
@@ -287,35 +299,62 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
 </div>
 
 <!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sb-top">
-    <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M4 6h16M4 12h10M4 18h13" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#22c55e"/></svg></div>
-    <div class="sb-wordmark">TradeRoom <span>PRO</span></div>
-    <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M15 18l-6-6 6-6"/></svg></button>
+<div class="sidebar-wrap">
+<nav class="sidebar" id="sidebar">
+  <div class="sb-logo-area">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h13" stroke="#00d97e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#00d97e"/></svg>
+      </div>
+      <div class="sb-wordmark">TradeRoom<span> PRO</span></div>
+    </div>
   </div>
-  <div class="sb-nav">
-    <div class="sb-section-label">Platform</div>
-    <a href="trading-dashboard.html" class="sb-link"><span class="sb-link-icon">🏠</span><span class="sb-label">Dashboard</span></a>
-    <a href="scanners.html" class="sb-link"><span class="sb-link-icon">🔍</span><span class="sb-label">Scanners</span></a>
-    <a href="chart.html" class="sb-link"><span class="sb-link-icon">📈</span><span class="sb-label">Charting</span></a>
-    <a href="youtube.html" class="sb-link"><span class="sb-link-icon">▶️</span><span class="sb-label">YouTube</span></a>
-    <a href="zoom.html" class="sb-link"><span class="sb-link-icon">📹</span><span class="sb-label">Zoom</span></a>
-    <a href="mentorship.html" class="sb-link"><span class="sb-link-icon">👥</span><span class="sb-label">Mentorship</span></a>
-        <div class="sb-section-label">Phase 1 — Foundation</div>
-    <a href="courses.html" class="sb-link"><span class="sb-link-icon">📚</span><span class="sb-label">Course Modules</span></a>
-    <div class="sb-section-label">Phase 2 — Paper Trading</div>
-    <a href="phase2.html" class="sb-link active"><span class="sb-link-icon">🎯</span><span class="sb-label">Curriculum</span></a>
-    <div class="sb-section-label">Phase 3 — Live Capital</div>
-    <a href="phase3.html" class="sb-link"><span class="sb-link-icon">🏆</span><span class="sb-label">Independence</span></a>
-    <div class="sb-section-label">Tools</div>
-    <a href="https://www.tradervue.com" target="_blank" class="sb-link"><span class="sb-link-icon">📓</span><span class="sb-label">TraderVue</span></a>
-    <a href="https://www.trade-ideas.com" target="_blank" class="sb-link"><span class="sb-link-icon">🔍</span><span class="sb-label">Trade Ideas</span></a>
+  <div class="sb-scroll">
+    <div class="sb-item" data-label="Dashboard" onclick="window.location.href='trading-dashboard.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></span><span class="sb-label">Dashboard</span>
+    </div>
+    <div class="sb-item" data-label="Scanners" onclick="window.location.href='scanners.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Scanners</span>
+    </div>
+    <div class="sb-item" data-label="Charting" onclick="window.location.href='chart.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></span><span class="sb-label">Charting</span>
+    </div>
+    <div class="sb-item" data-label="YouTube" onclick="window.location.href='youtube.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16 10,8" fill="currentColor" stroke="none"/></svg></span><span class="sb-label">YouTube</span>
+    </div>
+    <div class="sb-item" data-label="Zoom" onclick="window.location.href='zoom.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></span><span class="sb-label">Zoom</span>
+    </div>
+    <div class="sb-item" data-label="Courses" onclick="window.location.href='courses.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Courses</span>
+    </div>
+    <div class="sb-item active" data-label="Phase 2 — Paper" onclick="window.location.href='phase2.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span class="sb-label">Phase 2 — Paper</span>
+    </div>
+    <div class="sb-item" data-label="Phase 3 — Live" onclick="window.location.href='phase3.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="8" r="6"/><path d="m9 17 .5 5L12 20l2.5 2 .5-5"/></svg></span><span class="sb-label">Phase 3 — Live</span>
+    </div>
+    <div class="sb-item" data-label="Mentorship" onclick="window.location.href='mentorship.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sb-label">Mentorship</span>
+    </div>
+    <div class="sb-item" data-label="Tradervue" onclick="window.location.href='tradervue.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg></span><span class="sb-label">Tradervue</span>
+    </div>
   </div>
   <div class="sb-bottom">
-    <div class="sb-avatar" id="sbAvatar">—</div>
-    <div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-uname" id="sbName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div><div class="sb-urole" id="sbRole">—</div></div>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-uname" id="sbName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div><div class="sb-urole" id="sbRole">—</div></div>
+      <button class="sb-logout-btn" onclick="handleLogout()" title="Sign Out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
   </div>
-</aside>
+  <button class="sb-toggle-btn" id="collapseBtn" onclick="toggleSidebar()" title="Collapse sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="15,18 9,12 15,6"/></svg>
+  </button>
+</nav>
+</div>
 
 <!-- MAIN -->
 <div class="main">
@@ -1128,8 +1167,24 @@ function switchTab(tab) {
 
 // ══ SIDEBAR ══
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
+  var sb = document.getElementById('sidebar'), btn = document.getElementById('collapseBtn');
+  var collapsed = sb.classList.toggle('collapsed');
+  btn.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+  try { localStorage.setItem('sb_collapsed', collapsed); } catch(e){}
 }
+// Restore sidebar collapsed state on load
+(function() {
+  try {
+    if (localStorage.getItem('sb_collapsed') === 'true') {
+      document.addEventListener('DOMContentLoaded', function() {
+        var sb = document.getElementById('sidebar');
+        var btn = document.getElementById('collapseBtn');
+        if (sb) sb.classList.add('collapsed');
+        if (btn) btn.style.transform = 'rotate(180deg)';
+      });
+    }
+  } catch(e){}
+})();
 
 // ══ RENDER DRILLS ══
 function renderDrills() {
