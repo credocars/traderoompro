@@ -126,6 +126,71 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 .footer-logo{font-size:14px;font-weight:800;color:var(--t2);}
 .footer-logo span{color:var(--green);}
 .footer-copy{font-size:11px;color:var(--t3);}
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE  (added v14 — drawer sidebar + stacked panels)
+   Desktop layout unchanged. Activates at <=880px.
+   ═════════════════════════════════════════════════════════════════ */
+.mobile-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;}
+.mobile-backdrop.show{display:block;opacity:1;}
+.menu-btn{display:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--green);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;}
+.menu-btn svg{width:18px;height:18px;}
+.menu-btn:hover{background:rgba(34,197,94,.12);}
+
+@media (max-width:880px){
+  body{height:auto;min-height:100vh;overflow:hidden;}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;width:260px;transform:translateX(-100%);box-shadow:8px 0 24px rgba(0,0,0,.5);z-index:200;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar.collapsed{width:260px;}
+  .sb-toggle-btn{display:none;}
+  .menu-btn{display:flex;}
+  .main-content{width:100%;height:100vh;}
+  .header{padding:0 12px;gap:8px;}
+  .header-title{font-size:15px;}
+  .market-pill > span:not(.ms-dot){display:none;}
+  .username-chip{display:none;}
+  .firebase-status{display:none;}
+  .session-clock{font-size:12px;padding:3px 8px;}
+  .header-right{gap:6px;}
+  /* Dashboard panels stack on mobile, with Chat first */
+  .content-row{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .dash-area{padding:10px 10px 16px;overflow-y:visible;height:auto;}
+  .panels-grid{grid-template-columns:1fr;height:auto;flex:none;gap:10px;}
+  .dash-panel{min-height:380px;}
+  .panels-grid > .dash-panel:nth-child(1){order:3;}
+  .panels-grid > .dash-panel:nth-child(2){order:2;}
+  .panels-grid > .dash-panel:nth-child(3){order:4;}
+  .panels-grid > .dash-panel:nth-child(4){order:1;}
+  /* Courses + lesson + side pages */
+  .modules-grid{grid-template-columns:1fr;gap:12px;}
+  .page-content{padding:14px 12px 20px;gap:14px;}
+  .page-card-header{padding:13px 14px 11px;}
+  .page-card-body{padding:14px;}
+  .two-col,.three-col{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .mod-title{font-size:17px;}
+  .mod-header{padding:14px 16px 12px;}
+  .mod-body{padding:14px 16px 16px;}
+  /* Phase 2 / 3 specific grids */
+  .drill-grid{grid-template-columns:1fr;}
+  .tab-grid{grid-template-columns:1fr;}
+  .metric-grid{grid-template-columns:1fr 1fr;}
+  .pb-grid-rules{grid-template-columns:1fr;}
+  /* index.html marketing layout */
+  .features-grid{grid-template-columns:1fr;}
+  .hero-sub{font-size:14px;}
+}
+
+@media (max-width:420px){
+  .header-title{font-size:14px;}
+  .live-badge{font-size:8px;padding:2px 7px;}
+  .session-clock{font-size:11px;padding:3px 7px;}
+  .market-pill{display:none;}
+  .dash-area{padding:8px 8px 14px;}
+  .panels-grid{gap:8px;}
+  .metric-grid{grid-template-columns:1fr;}
+}
+
 </style>
 </head>
 <body>
