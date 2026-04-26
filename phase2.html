@@ -437,6 +437,35 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
   body{max-width:100vw;overflow-x:hidden;}
 }
 
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE v14.4 — tab padding overflow fix + scrolling tab menu
+   ═════════════════════════════════════════════════════════════════ */
+@media (max-width:880px){
+  /* The main culprit for horizontal overflow on phase2/phase3:
+     .tabs and .tab-content had 56px horizontal padding inherited from desktop. */
+  .tabs{
+    padding:0 12px !important;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    white-space:nowrap;
+    padding:12px 14px !important;
+    font-size:13px !important;
+    flex-shrink:0;
+  }
+  .tab-icon{font-size:14px !important;}
+  .tab-count{font-size:10px !important;padding:1px 6px !important;}
+  .tab-content{padding:16px 12px !important;}
+
+  /* Anything claiming "max-width: 100vw" can be too aggressive on Safari
+     when html has no overflow set. Explicitly clip at html root too. */
+  html{overflow-x:hidden;max-width:100vw;}
+}
+
 </style>
 </head>
 <body>
