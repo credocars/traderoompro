@@ -141,10 +141,12 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
   .features-grid{grid-template-columns:1fr;gap:14px;}
   .hero-sub{font-size:14px;}
   .hero{padding:80px 18px 48px;}
-  /* Stats row stacks responsively */
-  .stats-row{flex-direction:column;gap:6px;width:100%;max-width:340px;}
-  .stat-card{border-radius:10px !important;padding:14px 18px;width:100%;}
+  /* Stats row stacks responsively, matching feat-card sizing */
+  .stats-row{flex-direction:column;gap:14px;width:100%;max-width:none;}
+  .stat-card{border-radius:14px !important;padding:24px;width:100%;}
   .stat-num{font-size:24px;}
+  /* Hero padding tightened to match features padding for column alignment */
+  .hero{padding:80px 16px 48px !important;}
 }
 
 @media (max-width:420px){
