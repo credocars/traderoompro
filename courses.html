@@ -361,6 +361,52 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);height:
   .mod-switcher{flex-wrap:wrap;gap:4px;}
 }
 
+
+/* ═════════════════════════════════════════════════════════════════
+   MOBILE v14.2 — content-area fixes (progress-banner, cmap, timeline)
+   Additive on top of v14 + v14.1.
+   ═════════════════════════════════════════════════════════════════ */
+@media (max-width:880px){
+  /* courses.html — progress banner: stack vertically, shrink */
+  .progress-banner{flex-direction:column;align-items:flex-start;gap:14px;padding:14px 14px 16px;}
+  .pb-left{width:100%;}
+  .pb-title{font-size:18px;line-height:1.25;}
+  .pb-sub{font-size:13px;}
+  .pb-stats{width:100%;justify-content:space-around;gap:8px;}
+  .pb-divider{display:none;}
+  .pb-stat-val{font-size:22px;}
+  .pb-stat-label{font-size:10px;}
+  .pb-track{flex-wrap:wrap;}
+  .pb-step-label{margin-left:0;width:100%;text-align:right;margin-top:4px;}
+  .reset-btn{position:static;margin-top:6px;align-self:flex-end;}
+
+  /* phase2.html — 6-month curriculum map: stack 1 column */
+  .cmap-strip{grid-template-columns:1fr !important;gap:8px !important;}
+  .cmap-month{padding:10px 12px;text-align:left;}
+  .cmap-title{margin-bottom:10px;}
+
+  /* phase3.html — 3-month timeline: stack 1 column */
+  .timeline-strip{grid-template-columns:1fr !important;gap:10px !important;}
+  .timeline-month{padding:14px;}
+
+  /* Reduce hero/timeline outer padding on mobile */
+  .hero{padding:18px 14px 16px !important;}
+  .hero-title{font-size:22px !important;line-height:1.2;}
+  .hero-eyebrow{font-size:11px !important;letter-spacing:.6px !important;}
+  .hero-sub{font-size:13px !important;}
+  .timeline{padding:18px 14px !important;}
+  .timeline-title{margin-bottom:12px !important;}
+
+  /* phase2/phase3 — main content scroll fix to prevent horizontal overflow */
+  .main-content{overflow-x:hidden;}
+}
+
+@media (max-width:420px){
+  .pb-stats{gap:4px;}
+  .pb-stat-val{font-size:20px;}
+  .hero-title{font-size:20px !important;}
+}
+
 </style>
 </head>
 <body>
