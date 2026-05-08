@@ -413,7 +413,7 @@ body.is-instructor .sb-item.admin-only{display:flex;}
 <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
 <!-- ══ MODAL ══ -->
-<div class="modal-overlay" id="loginModal">
+<div class="modal-overlay hidden" id="loginModal">
   <div class="modal-box">
     <div class="modal-logo">
       <div class="modal-logo-mark">
@@ -785,7 +785,7 @@ function forgotPassword(){
   auth.sendPasswordResetEmail(email).then(()=>{const e=document.getElementById('modalError');e.textContent='✅ Reset email sent — check your inbox.';e.style.color=window.getComputedStyle(document.documentElement).getPropertyValue('--green');e.style.display='block';}).catch(e=>showErr(friendlyError(e.code)));
 }
 auth.onAuthStateChanged(async u=>{
-  if(!u)return;
+  if(!u){document.getElementById('loginModal').classList.remove('hidden');return;}
   const snap=await db.ref('traderoom/users/'+u.uid).get();
   const p=snap.exists()?snap.val():null;if(!snap.exists())ensureUserRecord(u,snap);if(p&&p.blocked===true){var ov=document.getElementById('suspensionOverlay');if(ov)ov.style.display='flex';document.body.style.overflow='hidden';return;}
   const name=p?.name||u.email.split('@')[0],role=p?.role||'student';

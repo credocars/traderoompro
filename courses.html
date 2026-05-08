@@ -464,7 +464,7 @@ body.is-instructor .sb-item.admin-only{display:flex;}
 <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
 <!-- AUTH MODAL -->
-<div class="modal-overlay" id="loginModal">
+<div class="modal-overlay hidden" id="loginModal">
   <div class="modal-box">
     <div class="modal-logo">
       <div class="modal-logo-mark">
@@ -1184,7 +1184,7 @@ function forgotPassword() {
 }
 
 firebase.auth().onAuthStateChanged(function(u) {
-  if (!u) { renderAll(); return; }
+  if (!u) { document.getElementById('loginModal').classList.remove('hidden'); renderAll(); return; }
   currentUser = u;
   // Hide modal immediately — do not wait for DB read
   var modal = document.getElementById('loginModal');
