@@ -1,0 +1,54 @@
+{
+  "rules": {
+    "traderoom": {
+      "users": {
+        ".read": "auth != null && root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor'",
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor')",
+          ".write": "auth != null && (auth.uid === $uid || root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor')",
+          "role": {
+            ".write": "auth != null && (root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor' || (auth.uid === $uid && !data.exists()))",
+            ".validate": "newData.isString() && (newData.val() === 'student' || newData.val() === 'instructor')"
+          },
+          "phase2Gate": {
+            ".write": "auth != null && root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor'"
+          },
+          "blocked": {
+            ".write": "auth != null && root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor'",
+            ".validate": "newData.isBoolean() || newData.val() === null"
+          },
+          "blockedAt": {
+            ".write": "auth != null && root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor'"
+          },
+          "blockedBy": {
+            ".write": "auth != null && root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor'"
+          }
+        }
+      },
+      "notes": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor'"
+      },
+      "watchlist": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('traderoom/users').child(auth.uid).child('role').val() === 'instructor'"
+      },
+      "feed": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "chat": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "presence": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      },
+      "typing": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+}

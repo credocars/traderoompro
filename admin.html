@@ -178,6 +178,19 @@ body{display:flex;}
   .quizzes-track{width:40px;}
 }
 .mobile-menu-btn{display:none;}
+
+/* Block status visuals */
+.blocked-badge{display:inline-block;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.4px;background:rgba(239,68,68,.15);color:#fca5a5;text-transform:uppercase;margin-left:8px;}
+.btn-block{padding:7px 12px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--amber);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;margin-left:6px;}
+.btn-block:hover{background:rgba(245,158,11,.1);border-color:var(--amber);}
+.btn-block.unblock{color:var(--green);}
+.btn-block.unblock:hover{background:rgba(34,197,94,.1);border-color:var(--green);}
+.roster-table tbody tr.blocked-row td:not(:last-child){opacity:.55;}
+.toggle-blocked{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);cursor:pointer;user-select:none;}
+.toggle-blocked input{width:32px;height:18px;appearance:none;background:var(--card2);border:1px solid var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;}
+.toggle-blocked input:checked{background:var(--green);border-color:var(--green);}
+.toggle-blocked input::after{content:"";position:absolute;top:1px;left:1px;width:14px;height:14px;border-radius:50%;background:var(--t2);transition:left .2s;}
+.toggle-blocked input:checked::after{left:15px;background:#000;}
 </style>
 </head>
 <body>
@@ -290,8 +303,11 @@ body{display:flex;}
     <!-- ROSTER TABLE -->
     <div class="roster-card">
       <div class="roster-head">
-        <div class="roster-title">All Students</div>
-        <input class="roster-search" id="searchInput" type="text" placeholder="Search by name or email…" oninput="filterRoster()">
+        <div class="roster-title">All Students <span id="blockedCount" style="font-size:11px;font-weight:500;color:var(--t3);margin-left:8px;"></span></div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <label class="toggle-blocked"><input type="checkbox" id="showBlocked" onchange="filterRoster()"> Show blocked</label>
+          <input class="roster-search" id="searchInput" type="text" placeholder="Search by name or email…" oninput="filterRoster()">
+        </div>
       </div>
       <div style="overflow-x:auto;">
         <table class="roster-table">
@@ -396,13 +412,14 @@ function loadRoster() {
         quizzesPassed: quizzesPassed,
         p2Gate: u.phase2Gate || null,
         lastActive: u.lastActive || null,
+        blocked: u.blocked === true,
         approving: false
       });
     });
     // Sort by name
     roster.sort(function(a,b){ return a.name.localeCompare(b.name); });
     renderStats();
-    renderRoster(roster);
+    filterRoster();
   }).catch(function(e) {
     console.error('Roster load failed:', e);
     document.getElementById('rosterBody').innerHTML = '<tr><td colspan="6" class="empty-state">Failed to load roster: ' + (e.message || 'check Firebase rules') + '</td></tr>';
@@ -437,6 +454,7 @@ function renderRoster(list) {
   tbody.innerHTML = '';
   list.forEach(function(s) {
     var tr = document.createElement('tr');
+    if (s.blocked) tr.className = 'blocked-row';
     tr.innerHTML = renderRow(s);
     tbody.appendChild(tr);
   });
@@ -469,12 +487,19 @@ function renderRow(s) {
     actionCell = '<button class="btn-action" disabled title="Student must pass all 6 quizzes first">Approve Gate</button>';
   }
 
-  return '<td><div class="cell-name">' + escapeHtml(s.name) + '</div><div class="cell-email">' + escapeHtml(s.email) + '</div></td>' +
+  // Block button
+  var blockBtn = s.blocked
+    ? '<button class="btn-block unblock" onclick="confirmBlock(\'' + s.uid + '\', false)" title="Unblock student">Unblock</button>'
+    : '<button class="btn-block" onclick="confirmBlock(\'' + s.uid + '\', true)" title="Block student access">Block</button>';
+  
+  var blockedBadge = s.blocked ? '<span class="blocked-badge">Blocked</span>' : '';
+
+  return '<td><div class="cell-name">' + escapeHtml(s.name) + blockedBadge + '</div><div class="cell-email">' + escapeHtml(s.email) + '</div></td>' +
          '<td>' + phaseBadge + '</td>' +
          '<td>' + quizCell + '</td>' +
          '<td><span class="cell-active">' + lastActive + '</span></td>' +
          '<td>' + gateCell + '</td>' +
-         '<td>' + actionCell + '</td>';
+         '<td>' + actionCell + blockBtn + '</td>';
 }
 
 function formatRelativeTime(ts) {
@@ -496,12 +521,22 @@ function escapeHtml(s) {
 // ══ FILTER ══
 function filterRoster() {
   var q = document.getElementById('searchInput').value.trim().toLowerCase();
-  if (!q) { renderRoster(roster); return; }
+  var showBlocked = document.getElementById('showBlocked').checked;
   var filtered = roster.filter(function(s) {
+    if (s.blocked && !showBlocked) return false;
+    if (!q) return true;
     return (s.name || '').toLowerCase().indexOf(q) >= 0 ||
            (s.email || '').toLowerCase().indexOf(q) >= 0;
   });
   renderRoster(filtered);
+  // Update blocked count display
+  var blockedTotal = roster.filter(function(s){ return s.blocked; }).length;
+  var bc = document.getElementById('blockedCount');
+  if (bc) {
+    bc.textContent = blockedTotal > 0
+      ? '· ' + blockedTotal + ' blocked' + (showBlocked ? '' : ' (hidden)')
+      : '';
+  }
 }
 
 // ══ APPROVE PHASE 2 GATE ══
@@ -523,6 +558,10 @@ function confirmApprove(uid) {
 function closeDialog() {
   document.getElementById('dialogBg').classList.remove('show');
   pendingApproveUid = null;
+  pendingBlockUid = null;
+  pendingBlockState = null;
+  var btn = document.getElementById('dialogConfirm');
+  if (btn) { btn.disabled = false; btn.textContent = 'Confirm'; }
 }
 
 function doApprove() {
@@ -561,6 +600,63 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 3500);
+}
+
+
+// ══ BLOCK / UNBLOCK ══
+var pendingBlockUid = null;
+var pendingBlockState = null;
+
+function confirmBlock(uid, shouldBlock) {
+  if (uid === currentUser.uid) {
+    showToast('✗ You cannot block your own instructor account');
+    return;
+  }
+  var student = roster.find(function(s){ return s.uid === uid; });
+  if (!student) return;
+  pendingBlockUid = uid;
+  pendingBlockState = shouldBlock;
+  if (shouldBlock) {
+    document.getElementById('dialogTitle').textContent = 'Block Student?';
+    document.getElementById('dialogMsg').innerHTML =
+      'You are about to <strong>block</strong> <strong>' + escapeHtml(student.name) + '</strong>. ' +
+      'They will see a suspension message on every page and cannot use the platform.<br><br>' +
+      'Their data will be preserved. You can unblock them at any time.';
+  } else {
+    document.getElementById('dialogTitle').textContent = 'Unblock Student?';
+    document.getElementById('dialogMsg').innerHTML =
+      'Restore platform access for <strong>' + escapeHtml(student.name) + '</strong>?';
+  }
+  document.getElementById('dialogConfirm').onclick = doBlock;
+  document.getElementById('dialogConfirm').textContent = shouldBlock ? 'Block' : 'Unblock';
+  document.getElementById('dialogBg').classList.add('show');
+}
+
+function doBlock() {
+  if (!pendingBlockUid) return;
+  var uid = pendingBlockUid;
+  var shouldBlock = pendingBlockState;
+  var btn = document.getElementById('dialogConfirm');
+  btn.disabled = true;
+  btn.textContent = shouldBlock ? 'Blocking…' : 'Unblocking…';
+
+  var updates = shouldBlock
+    ? { blocked: true, blockedAt: Date.now(), blockedBy: currentUser.uid }
+    : { blocked: false, blockedAt: null, blockedBy: null };
+
+  firebase.database().ref('traderoom/users/' + uid).update(updates).then(function() {
+    var student = roster.find(function(s){ return s.uid === uid; });
+    if (student) student.blocked = shouldBlock;
+    filterRoster();
+    closeDialog();
+    btn.disabled = false;
+    btn.textContent = 'Confirm';
+    showToast(shouldBlock ? '✓ ' + (student ? student.name : 'Student') + ' blocked' : '✓ ' + (student ? student.name : 'Student') + ' unblocked');
+  }).catch(function(e) {
+    btn.disabled = false;
+    btn.textContent = shouldBlock ? 'Block' : 'Unblock';
+    showToast('✗ Failed: ' + (e.message || 'unknown error'));
+  });
 }
 
 // ══ SIDEBAR TOGGLE ══

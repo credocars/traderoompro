@@ -343,6 +343,15 @@ body.is-instructor .sb-item.admin-only{display:flex;}
 </style>
 </head>
 <body>
+<div id="suspensionOverlay" style="display:none;position:fixed;inset:0;background:#0f1117;z-index:99999;align-items:center;justify-content:center;flex-direction:column;padding:40px;font-family:Inter,-apple-system,sans-serif;color:#f1f5f9;text-align:center;">
+  <div style="width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,.1);display:flex;align-items:center;justify-content:center;margin-bottom:20px;border:2px solid rgba(239,68,68,.3);">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+  </div>
+  <div style="font-size:24px;font-weight:700;margin-bottom:10px;letter-spacing:-.4px;">Account Suspended</div>
+  <div style="font-size:14px;color:#94a3b8;max-width:440px;line-height:1.6;margin-bottom:24px;">Your access to TradeRoom PRO has been temporarily suspended. Please contact your instructor to resolve this.</div>
+  <button onclick="firebase.auth().signOut().then(function(){window.location.href='index.html';})" style="padding:10px 22px;border-radius:8px;border:1px solid #243044;background:#1e2535;color:#f1f5f9;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Sign Out</button>
+</div>
+
 <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
 <!-- AUTH MODAL -->
@@ -894,6 +903,14 @@ firebase.auth().onAuthStateChanged(function(u) {
   firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
     var p = snap.exists() ? snap.val() : null;
       if (!snap.exists()) ensureUserRecord(u, snap);
+      // Suspension check
+      if (p && p.blocked === true) {
+        var ov = document.getElementById('suspensionOverlay');
+        if (ov) ov.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        return; // Stop further initialization
+      }
+
     var name = p ? p.name : u.email.split('@')[0];
     var role = p ? p.role : 'student';
     currentUserRole = role; // Set global so isModuleUnlocked() can check
