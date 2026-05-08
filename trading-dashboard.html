@@ -438,10 +438,7 @@ body.is-instructor .sb-item.admin-only{display:flex;}
       <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24" autocomplete="name"/>
       <input class="modal-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
       <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password"/>
-      <div class="modal-role-row">
-        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
-        <button class="role-btn pro" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
-      </div>
+      
     </div>
     <div class="modal-error" id="modalError"></div>
     <button class="modal-join-btn" id="authBtn" onclick="handleAuth()">Enter Trading Room →</button>
@@ -758,7 +755,7 @@ function showTab(tab){
   document.getElementById('modalSubtitle').textContent=l?'Sign in to join the live session':'Create your TradeRoom account';
   document.getElementById('modalError').style.display='none';
 }
-function setRole(r){selectedRole=r;document.getElementById('roleStudent').classList.toggle('active',r==='student');document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');}
+
 function handleAuth(){
   const err=document.getElementById('modalError');err.style.display='none';
   const btn=document.getElementById('authBtn');btn.textContent='…';btn.disabled=true;

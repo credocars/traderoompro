@@ -279,10 +279,6 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
       <input class="form-input" id="regName" type="text" placeholder="Your display name" maxlength="24" autocomplete="name"/>
       <input class="form-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
       <input class="form-input" id="regPassword" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleAuth()"/>
-      <div class="role-row">
-        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
-        <button class="role-btn pro" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
-      </div>
     </div>
 
     <div class="form-error" id="formError"></div>
@@ -366,11 +362,7 @@ function showTab(tab){
   document.getElementById('formError').style.display='none';
 }
 
-function setRole(r){
-  selectedRole=r;
-  document.getElementById('roleStudent').classList.toggle('active',r==='student');
-  document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');
-}
+
 
 function handleAuth(){
   const err=document.getElementById('formError');err.style.display='none';
