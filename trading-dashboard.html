@@ -781,7 +781,7 @@ function forgotPassword(){
 auth.onAuthStateChanged(async u=>{
   if(!u)return;
   const snap=await db.ref('traderoom/users/'+u.uid).get();
-  const p=snap.exists()?snap.val():null;
+  const p=snap.exists()?snap.val():null;if(!snap.exists())ensureUserRecord(u,snap);
   const name=p?.name||u.email.split('@')[0],role=p?.role||'student';
   currentUser={name,role,badge:role==='instructor'?'pro':'student',avatar:initials(name),avatarColor:role==='instructor'?'#0071e3':avatarColor(name),uid:u.uid,email:u.email};
   document.getElementById('loginModal').classList.add('hidden');
@@ -1109,6 +1109,18 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 });
+
+
+// Auto-create user record if missing (catches users who signed in but never had DB write)
+function ensureUserRecord(u, snap) {
+  if (snap.exists()) return Promise.resolve(snap.val());
+  var defaultName = u.email ? u.email.split('@')[0] : 'New Student';
+  var defaultRecord = { name: defaultName, role: 'student', email: u.email || '' };
+  return firebase.database().ref('traderoom/users/' + u.uid).set(defaultRecord)
+    .then(function(){ return defaultRecord; })
+    .catch(function(e){ console.warn('Could not create user record:', e); return defaultRecord; });
+}
+
 </script>
 
 </body>

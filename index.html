@@ -390,7 +390,7 @@ function handleAuth(){
     if(!name||!email||!pass){showErr('Please fill in all fields.');return;}
     if(pass.length<6){showErr('Password must be at least 6 characters.');return;}
     auth.createUserWithEmailAndPassword(email,pass)
-      .then(c=>{db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email});window.location.href='trading-dashboard.html';})
+      .then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email}).then(()=>{window.location.href='trading-dashboard.html';}))
       .catch(e=>showErr(friendlyErr(e.code)));
   }
 }

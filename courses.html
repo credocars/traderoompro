@@ -1183,6 +1183,7 @@ firebase.auth().onAuthStateChanged(function(u) {
   try {
     firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
       var p = snap.exists() ? snap.val() : null;
+      if (!snap.exists()) ensureUserRecord(u, snap);
       var name = p ? p.name : u.email.split('@')[0];
       var role = p ? p.role : 'student';
       currentRole = role;
@@ -1281,6 +1282,18 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 });
+
+
+// Auto-create user record if missing (catches users who signed in but never had DB write)
+function ensureUserRecord(u, snap) {
+  if (snap.exists()) return Promise.resolve(snap.val());
+  var defaultName = u.email ? u.email.split('@')[0] : 'New Student';
+  var defaultRecord = { name: defaultName, role: 'student', email: u.email || '' };
+  return firebase.database().ref('traderoom/users/' + u.uid).set(defaultRecord)
+    .then(function(){ return defaultRecord; })
+    .catch(function(e){ console.warn('Could not create user record:', e); return defaultRecord; });
+}
+
 </script>
 
 </body>
