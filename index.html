@@ -216,6 +216,14 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
   .chip{padding:7px 12px !important;}
 }
 
+
+/* Disclaimer checkbox (signup only) */
+.disclaimer-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin:6px 0 14px;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.2);border-radius:8px;font-size:12px;line-height:1.5;color:var(--t2);}
+.disclaimer-row input[type="checkbox"]{flex-shrink:0;width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:var(--green);}
+.disclaimer-row label{cursor:pointer;flex:1;}
+.disclaimer-row a{color:var(--green);text-decoration:underline;font-weight:600;}
+.disclaimer-row a:hover{color:var(--green2);}
+.disclaimer-row strong{color:var(--t1);}
 </style>
 </head>
 <body>
@@ -279,6 +287,10 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
       <input class="form-input" id="regName" type="text" placeholder="Your display name" maxlength="24" autocomplete="name"/>
       <input class="form-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
       <input class="form-input" id="regPassword" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleAuth()"/>
+      <div class="disclaimer-row">
+        <input type="checkbox" id="agreeTerms"/>
+        <label for="agreeTerms"><strong>I understand and agree</strong> that TradeRoom PRO is an educational program, not investment advice. Trading involves risk of loss and results are not typical. I have read and accept the <a href="disclaimer.html" target="_blank">Disclaimer &amp; Terms</a>.</label>
+      </div>
     </div>
 
     <div class="form-error" id="formError"></div>
@@ -379,10 +391,13 @@ function handleAuth(){
     const name=document.getElementById('regName').value.trim();
     const email=document.getElementById('regEmail').value.trim();
     const pass=document.getElementById('regPassword').value;
+    const agreed=document.getElementById('agreeTerms').checked;
     if(!name||!email||!pass){showErr('Please fill in all fields.');return;}
     if(pass.length<6){showErr('Password must be at least 6 characters.');return;}
+    if(!agreed){showErr('You must accept the Disclaimer & Terms to create an account.');return;}
+    const termsAcceptedAt=Date.now();
     auth.createUserWithEmailAndPassword(email,pass)
-      .then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email}).then(()=>{window.location.href='trading-dashboard.html';}))
+      .then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email,termsAcceptedAt,termsVersion:'2026-05-08'}).then(()=>{window.location.href='trading-dashboard.html';}))
       .catch(e=>showErr(friendlyErr(e.code)));
   }
 }
