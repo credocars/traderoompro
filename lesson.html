@@ -383,11 +383,11 @@ body.is-instructor .sb-item.admin-only{display:flex;}
       <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24"/>
       <input class="modal-input" id="regEmail" type="text" placeholder="Email address" inputmode="email"/>
       <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" onkeydown="if(event.key==='Enter')handleAuth()"/>
-      <div class="modal-role-row">
-        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
-        <button class="role-btn" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      <div class="modal-disclaimer-row">
+        <input type="checkbox" id="agreeTermsModal"/>
+        <label for="agreeTermsModal"><strong>I agree</strong> that TradeRoom PRO is an educational program, not investment advice. I have read and accept the <a href="disclaimer.html" target="_blank">Disclaimer &amp; Terms</a>.</label>
       </div>
-    </div>
+</div>
     <div class="modal-error" id="modalError"></div>
     <button class="modal-join-btn" id="authBtn" onclick="handleAuth()">Enter Trading Room →</button>
   </div>
@@ -862,10 +862,13 @@ function handleAuth() {
     var pass2 = document.getElementById('regPassword').value;
     if (!name || !email2 || !pass2) { showErr('Please fill in all fields.'); return; }
     if (pass2.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+      var agreed = document.getElementById('agreeTermsModal').checked;
+      if (!agreed) { showErr('You must accept the Disclaimer & Terms to create an account.'); return; }
+      var termsAcceptedAt = Date.now();
     firebase.auth().createUserWithEmailAndPassword(email2, pass2)
       .then(function(c) {
         return firebase.database().ref('traderoom/users/' + c.user.uid)
-          .set({ name: name, role: selectedRole, email: email2 });
+          .set({ name: name, role: 'student', email: email2, termsAcceptedAt: termsAcceptedAt, termsVersion: '2026-05-08' });
       })
       .catch(function(e) { showErr(friendlyError(e.code)); });
   }

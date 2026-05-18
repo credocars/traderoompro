@@ -439,6 +439,10 @@ body.is-instructor .sb-item.admin-only{display:flex;}
       <input class="modal-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
       <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password"/>
       
+      <div class="modal-disclaimer-row">
+        <input type="checkbox" id="agreeTermsModal"/>
+        <label for="agreeTermsModal"><strong>I agree</strong> that TradeRoom PRO is an educational program, not investment advice. I have read and accept the <a href="disclaimer.html" target="_blank">Disclaimer &amp; Terms</a>.</label>
+      </div>
     </div>
     <div class="modal-error" id="modalError"></div>
     <button class="modal-join-btn" id="authBtn" onclick="handleAuth()">Enter Trading Room →</button>
@@ -767,8 +771,8 @@ function handleAuth(){
   } else {
     const name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPassword').value;
     if(!name||!email||!pass){showErr('Please fill in all fields.');return;}
-    if(pass.length<6){showErr('Password must be at least 6 characters.');return;}
-    auth.createUserWithEmailAndPassword(email,pass).then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email})).catch(e=>showErr(friendlyError(e.code)));
+    if(pass.length<6){showErr('Password must be at least 6 characters.');return;}const agreed=document.getElementById('agreeTermsModal').checked;if(!agreed){showErr('You must accept the Disclaimer & Terms to create an account.');return;}const termsAcceptedAt=Date.now();
+    auth.createUserWithEmailAndPassword(email,pass).then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:'student',email,termsAcceptedAt,termsVersion:'2026-05-08'})).catch(e=>showErr(friendlyError(e.code)));
   }
 }
 function showErr(msg){

@@ -584,11 +584,11 @@ body.is-instructor .sb-item.admin-only{display:flex;}
       <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24"/>
       <input class="modal-input" id="regEmail" type="text" placeholder="Email address" inputmode="email"/>
       <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" minlength="6"/>
-      <div class="modal-role-row">
-        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
-        <button class="role-btn" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      <div class="modal-disclaimer-row">
+        <input type="checkbox" id="agreeTermsModal"/>
+        <label for="agreeTermsModal"><strong>I agree</strong> that TradeRoom PRO is an educational program, not investment advice. I have read and accept the <a href="disclaimer.html" target="_blank">Disclaimer &amp; Terms</a>.</label>
       </div>
-    </div>
+</div>
     <div id="errMsg" class="modal-err" style="display:none;"></div>
     <button id="authBtn" class="modal-btn" onclick="handleAuth()">Enter Trading Room →</button>
   </div>
@@ -1780,10 +1780,13 @@ function handleAuth() {
     var email2 = document.getElementById('regEmail').value.trim();
     var pw2 = document.getElementById('regPassword').value;
     if (!name || !email2 || !pw2) { showErr('All fields required'); btn.disabled = false; return; }
+    var agreed = document.getElementById('agreeTermsModal').checked;
+    if (!agreed) { showErr('You must accept the Disclaimer & Terms to create an account.'); btn.disabled = false; return; }
+    var termsAcceptedAt = Date.now();
     firebase.auth().createUserWithEmailAndPassword(email2, pw2)
       .then(function(cred) {
         return firebase.database().ref('traderoom/users/' + cred.user.uid)
-          .set({ name: name, role: selectedRole, email: email2 });
+          .set({ name: name, role: 'student', email: email2, termsAcceptedAt: termsAcceptedAt, termsVersion: '2026-05-08' });
       })
       .catch(function(e) { showErr(friendlyError(e.code)); btn.disabled = false; });
   }

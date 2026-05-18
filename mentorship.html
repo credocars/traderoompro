@@ -520,6 +520,13 @@ body.is-instructor .sb-item.admin-only{display:flex;}
 .sb-item.locked .sb-icon::after{content:"";position:absolute;top:-2px;right:-2px;width:12px;height:12px;background:var(--t3);border-radius:50%;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8 11V7a4 4 0 0 1 8 0v4'/></svg>");background-size:8px;background-repeat:no-repeat;background-position:center;}
 .sb-item.locked:hover::after{content:attr(data-lock-reason);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--card);color:var(--t1);font-size:11px;font-weight:500;padding:8px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;border:1px solid var(--border-hi);z-index:300;box-shadow:0 4px 12px rgba(0,0,0,.4);max-width:280px;line-height:1.4;}
 .sidebar:not(.collapsed) .sb-item.locked:hover::after{left:230px;}
+
+/* Disclaimer checkbox in signup modal */
+.modal-disclaimer-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;margin:6px 0 10px;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.2);border-radius:7px;font-size:11.5px;line-height:1.5;color:var(--t2);}
+.modal-disclaimer-row input[type="checkbox"]{flex-shrink:0;width:16px;height:16px;margin-top:2px;cursor:pointer;accent-color:var(--green);}
+.modal-disclaimer-row label{cursor:pointer;flex:1;}
+.modal-disclaimer-row a{color:var(--green);text-decoration:underline;font-weight:600;}
+.modal-disclaimer-row strong{color:var(--t1);}
 </style>
 </head>
 <body>
@@ -559,11 +566,11 @@ body.is-instructor .sb-item.admin-only{display:flex;}
       <input class="modal-input" id="regName" type="text" placeholder="Display name" maxlength="24" autocomplete="name"/>
       <input class="modal-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
       <input class="modal-input" id="regPassword" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password"/>
-      <div class="modal-role-row">
-        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
-        <button class="role-btn pro" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
+      <div class="modal-disclaimer-row">
+        <input type="checkbox" id="agreeTermsModal"/>
+        <label for="agreeTermsModal"><strong>I agree</strong> that TradeRoom PRO is an educational program, not investment advice. I have read and accept the <a href="disclaimer.html" target="_blank">Disclaimer &amp; Terms</a>.</label>
       </div>
-    </div>
+</div>
     <div class="modal-error" id="modalError"></div>
     <button class="modal-join-btn" id="authBtn" onclick="handleAuth()">Enter Trading Room →</button>
   </div>
@@ -808,7 +815,10 @@ setInterval(updateClock,1000);updateClock();
 
 function showTab(tab){var l=tab==='login';document.getElementById('tabLogin').classList.toggle('active',l);document.getElementById('tabRegister').classList.toggle('active',!l);document.getElementById('formLogin').style.display=l?'flex':'none';document.getElementById('formRegister').style.display=l?'none':'flex';document.getElementById('authBtn').textContent=l?'Sign In':'Create Account';document.getElementById('modalSubtitle').textContent=l?'Sign in to join the live session':'Create your TradeRoom account';document.getElementById('modalError').style.display='none';}
 function setRole(r){selectedRole=r;document.getElementById('roleStudent').classList.toggle('active',r==='student');document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');}
-function handleAuth(){var err=document.getElementById('modalError');err.style.display='none';var btn=document.getElementById('authBtn');btn.textContent='...';btn.disabled=true;var isLogin=document.getElementById('tabLogin').classList.contains('active');if(isLogin){var email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value;if(!email||!pass){showErr('Please enter your email and password.');return;}firebase.auth().signInWithEmailAndPassword(email,pass).catch(function(e){showErr(friendlyError(e.code));});}else{var name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPassword').value;if(!name||!email||!pass){showErr('Please fill in all fields.');return;}if(pass.length<6){showErr('Password must be at least 6 characters.');return;}firebase.auth().createUserWithEmailAndPassword(email,pass).then(function(c){firebase.database().ref('traderoom/users/'+c.user.uid).set({name:name,role:selectedRole,email:email});}).catch(function(e){showErr(friendlyError(e.code));});}}
+function handleAuth(){var err=document.getElementById('modalError');err.style.display='none';var btn=document.getElementById('authBtn');btn.textContent='...';btn.disabled=true;var isLogin=document.getElementById('tabLogin').classList.contains('active');if(isLogin){var email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPassword').value;if(!email||!pass){showErr('Please enter your email and password.');return;}firebase.auth().signInWithEmailAndPassword(email,pass).catch(function(e){showErr(friendlyError(e.code));});}else{var name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPassword').value;if(!name||!email||!pass){showErr('Please fill in all fields.');return;}if(pass.length<6){showErr('Password must be at least 6 characters.');return;}
+      var agreed=document.getElementById('agreeTermsModal').checked;
+      if(!agreed){showErr('You must accept the Disclaimer & Terms to create an account.');return;}
+      var termsAcceptedAt=Date.now();firebase.auth().createUserWithEmailAndPassword(email,pass).then(function(c){return firebase.database().ref('traderoom/users/'+c.user.uid).set({name:name,role:'student',email:email,termsAcceptedAt:termsAcceptedAt,termsVersion:'2026-05-08'});}).catch(function(e){showErr(friendlyError(e.code));});}}
 function showErr(msg){var err=document.getElementById('modalError');err.textContent='! '+msg;err.style.display='block';var btn=document.getElementById('authBtn');btn.disabled=false;btn.textContent=document.getElementById('tabLogin').classList.contains('active')?'Sign In':'Create Account';}
 function friendlyError(code){var map={'auth/user-not-found':'No account found with that email.','auth/wrong-password':'Incorrect password.','auth/invalid-email':'Please enter a valid email address.','auth/email-already-in-use':'That email is already registered.','auth/weak-password':'Password must be at least 6 characters.','auth/too-many-requests':'Too many attempts. Please wait.','auth/invalid-credential':'Incorrect email or password.'};return map[code]||'Something went wrong. Please try again.';}
 function forgotPassword(){var email=document.getElementById('loginEmail').value.trim();if(!email){showErr('Enter your email address first.');return;}firebase.auth().sendPasswordResetEmail(email).then(function(){var e=document.getElementById('modalError');e.textContent='Reset email sent.';e.style.color='var(--green)';e.style.display='block';}).catch(function(e){showErr(friendlyError(e.code));});}
