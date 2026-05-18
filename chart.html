@@ -446,6 +446,14 @@ iframe{width:100%;border:none;border-radius:var(--radius);background:#000;}
 /* Admin nav (instructor only) */
 .sb-item.admin-only{display:none;}
 body.is-instructor .sb-item.admin-only{display:flex;}
+
+/* PHASE LOCK STATES */
+.sb-item.locked{opacity:.4;cursor:not-allowed;position:relative;}
+.sb-item.locked:hover{background:transparent;color:var(--t2);}
+.sb-item.locked .sb-icon{position:relative;}
+.sb-item.locked .sb-icon::after{content:"";position:absolute;top:-2px;right:-2px;width:12px;height:12px;background:var(--t3);border-radius:50%;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8 11V7a4 4 0 0 1 8 0v4'/></svg>");background-size:8px;background-repeat:no-repeat;background-position:center;}
+.sb-item.locked:hover::after{content:attr(data-lock-reason);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--card);color:var(--t1);font-size:11px;font-weight:500;padding:8px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;border:1px solid var(--border-hi);z-index:300;box-shadow:0 4px 12px rgba(0,0,0,.4);max-width:280px;line-height:1.4;}
+.sidebar:not(.collapsed) .sb-item.locked:hover::after{left:230px;}
 </style>
 </head>
 <body>
@@ -655,6 +663,7 @@ firebase.auth().onAuthStateChanged(function(u) {
       if (modal) modal.classList.add('hidden');
       var chip = document.getElementById('userChip');
       if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+      loadPhaseLocks(u.uid, role);
       if (role === 'instructor') document.body.classList.add('is-instructor');
       var sbA = document.getElementById('sbAvatar');
       var sbN = document.getElementById('sbName');
@@ -774,6 +783,68 @@ function ensureUserRecord(u, snap) {
   return firebase.database().ref('traderoom/users/' + u.uid).set(defaultRecord)
     .then(function(){ return defaultRecord; })
     .catch(function(e){ console.warn('Could not create user record:', e); return defaultRecord; });
+}
+
+// ══ PHASE LOCK LOGIC ══
+function applyPhaseLocks(role, courseProgress, phase2Gate) {
+  var items = document.querySelectorAll('.sb-item');
+  var phase2El = null, phase3El = null;
+  for (var i = 0; i < items.length; i++) {
+    var lbl = items[i].getAttribute('data-label');
+    if (lbl === 'Phase 2') phase2El = items[i];
+    else if (lbl === 'Phase 3') phase3El = items[i];
+  }
+  if (!phase2El || !phase3El) return;
+  if (role === 'instructor') {
+    phase2El.classList.remove('locked');
+    phase3El.classList.remove('locked');
+    phase2El.removeAttribute('data-lock-reason');
+    phase3El.removeAttribute('data-lock-reason');
+    return;
+  }
+  var p = courseProgress || {};
+  var allPassed = true;
+  for (var m = 1; m <= 6; m++) {
+    if (!p[m] || !p[m].quizPassed) { allPassed = false; break; }
+  }
+  if (!allPassed) {
+    phase2El.classList.add('locked');
+    phase2El.setAttribute('data-lock-reason', 'Locked — pass all 6 module quizzes to unlock Phase 2');
+  } else {
+    phase2El.classList.remove('locked');
+    phase2El.removeAttribute('data-lock-reason');
+  }
+  var p2GatePassed = phase2Gate && phase2Gate.passed === true;
+  if (!allPassed || !p2GatePassed) {
+    phase3El.classList.add('locked');
+    var reason = !allPassed
+      ? 'Locked — complete Phase 1 (all module quizzes) first'
+      : 'Locked — Phase 2 mentor sign-off required';
+    phase3El.setAttribute('data-lock-reason', reason);
+  } else {
+    phase3El.classList.remove('locked');
+    phase3El.removeAttribute('data-lock-reason');
+  }
+}
+
+document.addEventListener('click', function(e) {
+  var item = e.target.closest && e.target.closest('.sb-item.locked');
+  if (item) { e.preventDefault(); e.stopPropagation(); return false; }
+}, true);
+
+function loadPhaseLocks(uid, role) {
+  var refUser = firebase.database().ref('traderoom/users/' + uid);
+  Promise.all([
+    refUser.child('courseProgress').get(),
+    refUser.child('phase2Gate').get()
+  ]).then(function(snaps) {
+    var cp = snaps[0].exists() ? snaps[0].val() : {};
+    var p2g = snaps[1].exists() ? snaps[1].val() : null;
+    applyPhaseLocks(role, cp, p2g);
+  }).catch(function(e) {
+    console.warn('Phase lock load failed:', e);
+    applyPhaseLocks(role, {}, null);
+  });
 }
 </script>
 
