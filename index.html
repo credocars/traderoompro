@@ -397,7 +397,7 @@ function handleAuth(){
     if(!agreed){showErr('You must accept the Disclaimer & Terms to create an account.');return;}
     const termsAcceptedAt=Date.now();
     auth.createUserWithEmailAndPassword(email,pass)
-      .then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email,termsAcceptedAt,termsVersion:'2026-05-08'}).then(()=>{window.location.href='trading-dashboard.html';}))
+      .then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email,termsAcceptedAt,termsVersion:'2026-05-08',demoMode:true}).then(()=>{window.location.href='trading-dashboard.html';}))
       .catch(e=>showErr(friendlyErr(e.code)));
   }
 }

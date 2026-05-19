@@ -656,6 +656,17 @@ body.is-instructor .sb-item.admin-only{display:flex;}
         <div class="section-hd-badge" id="enrolledBadge">0 of 6 complete</div>
       </div>
 
+      <!-- DEMO MODE BANNER -->
+      <div id="demoBanner" style="display:none;background:linear-gradient(90deg,rgba(245,158,11,.12),rgba(245,158,11,.06));border:1px solid rgba(245,158,11,.35);border-radius:10px;padding:14px 18px;margin-bottom:18px;align-items:center;gap:14px;font-size:13px;color:var(--t1);">
+        <div style="flex-shrink:0;width:36px;height:36px;border-radius:50%;background:rgba(245,158,11,.18);display:flex;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div style="flex:1;line-height:1.5;">
+          <div style="font-weight:700;color:var(--t1);margin-bottom:2px;">Demo Mode</div>
+          <div style="color:var(--t2);font-size:12.5px;">You're previewing Module 1. Complete enrollment to unlock the full 6-module Phase 1 curriculum, plus Phase 2 paper trading and Phase 3 live capital.</div>
+        </div>
+      </div>
+
       <!-- MODULE CARDS -->
       <div class="modules-grid" id="modulesGrid"></div>
 
@@ -846,6 +857,7 @@ var MODULES = [
 // ══ STATE ══
 var currentUser = null;
 var currentRole = 'student';
+var isDemoMode = false; // true = new student in demo; only Module 1 accessible
 var userProgress = {}; // { modId: { pct, quizPassed } }
 var activeQuizMod = null;
 var quizAnswers = {};
@@ -853,6 +865,8 @@ var quizAnswers = {};
 function getUnlockedCount() {
   // Instructors / admins see all modules unlocked
   if (currentRole === 'instructor') return MODULES.length;
+  // Demo mode users see only Module 1
+  if (isDemoMode) return 1;
   // Module 1 always unlocked. Module N unlocked if N-1 quiz passed.
   var count = 1;
   for (var i = 1; i < MODULES.length; i++) {
@@ -940,6 +954,9 @@ function renderAll() {
 function renderCards(unlocked) {
   var grid = document.getElementById('modulesGrid');
   grid.innerHTML = '';
+  // Show/hide demo banner
+  var banner = document.getElementById('demoBanner');
+  if (banner) banner.style.display = (isDemoMode && currentRole !== 'instructor') ? 'flex' : 'none';
 
   MODULES.forEach(function(mod, idx) {
     var p = userProgress[mod.id] || { pct: 0, quizPassed: false };
@@ -959,7 +976,7 @@ function renderCards(unlocked) {
 
     // Button state
     var btnClass, btnText, btnAction;
-    if (isLocked) { btnClass = 'locked-btn'; btnText = '🔒 Locked'; btnAction = ''; }
+    if (isLocked) { btnClass = 'locked-btn'; btnText = isDemoMode ? '🔒 Demo — upgrade to unlock' : '🔒 Locked'; btnAction = ''; }
     else if (isDone) { btnClass = 'done-btn'; btnText = '✓ Complete'; btnAction = ''; }
     else if (pct === 0) { btnClass = 'start'; btnText = 'Start Module →'; btnAction = 'startModule(' + idx + ')'; }
     else if (pct >= 100) { btnClass = 'continue'; btnText = 'Take Quiz →'; btnAction = 'openQuiz(' + idx + ')'; }
@@ -1174,7 +1191,7 @@ function handleAuth() {
       if (!agreed) { showErr('You must accept the Disclaimer & Terms to create an account.'); return; }
       var termsAcceptedAt = Date.now();
       firebase.auth().createUserWithEmailAndPassword(email2, pass2).then(function(c) {
-        return firebase.database().ref('traderoom/users/' + c.user.uid).set({ name: name, role: 'student', email: email2, termsAcceptedAt: termsAcceptedAt, termsVersion: '2026-05-08' });
+        return firebase.database().ref('traderoom/users/' + c.user.uid).set({ name: name, role: 'student', email: email2, termsAcceptedAt: termsAcceptedAt, termsVersion: '2026-05-08', demoMode: true });
       }).catch(function(e) { showErr(friendlyError(e.code)); });
   }
 }
@@ -1224,6 +1241,8 @@ firebase.auth().onAuthStateChanged(function(u) {
       currentRole = role;
       var chip = document.getElementById('userChip');
       if (chip) chip.textContent = (role === 'instructor' ? '⭐ ' : '🎓 ') + name;
+      // Initialize demo mode (default: existing users without the field get full access)
+      isDemoMode = (p && p.demoMode === true);
       loadPhaseLocks(u.uid, role);
       if (role === 'instructor') document.body.classList.add('is-instructor');
       var sbA = document.getElementById('sbAvatar'), sbN = document.getElementById('sbName'), sbR = document.getElementById('sbRole');

@@ -772,7 +772,7 @@ function handleAuth(){
     const name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pass=document.getElementById('regPassword').value;
     if(!name||!email||!pass){showErr('Please fill in all fields.');return;}
     if(pass.length<6){showErr('Password must be at least 6 characters.');return;}const agreed=document.getElementById('agreeTermsModal').checked;if(!agreed){showErr('You must accept the Disclaimer & Terms to create an account.');return;}const termsAcceptedAt=Date.now();
-    auth.createUserWithEmailAndPassword(email,pass).then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:'student',email,termsAcceptedAt,termsVersion:'2026-05-08'})).catch(e=>showErr(friendlyError(e.code)));
+    auth.createUserWithEmailAndPassword(email,pass).then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:'student',email,termsAcceptedAt,termsVersion:'2026-05-08',demoMode:true})).catch(e=>showErr(friendlyError(e.code)));
   }
 }
 function showErr(msg){
@@ -793,11 +793,18 @@ auth.onAuthStateChanged(async u=>{
   const snap=await db.ref('traderoom/users/'+u.uid).get();
   const p=snap.exists()?snap.val():null;if(!snap.exists())ensureUserRecord(u,snap);if(p&&p.blocked===true){var ov=document.getElementById('suspensionOverlay');if(ov)ov.style.display='flex';document.body.style.overflow='hidden';return;}
   const name=p?.name||u.email.split('@')[0],role=p?.role||'student';
-  currentUser={name,role,badge:role==='instructor'?'pro':'student',avatar:initials(name),avatarColor:role==='instructor'?'#0071e3':avatarColor(name),uid:u.uid,email:u.email};
+  var isDemo = (p && p.demoMode === true);
+  currentUser={name,role,badge:role==='instructor'?'pro':'student',avatar:initials(name),avatarColor:role==='instructor'?'#0071e3':avatarColor(name),uid:u.uid,email:u.email,demoMode:isDemo};
   document.getElementById('loginModal').classList.add('hidden');
-  document.getElementById('chatInput').placeholder='Ask a question or comment…';
-  document.getElementById('chatInput').disabled=false;
-  document.getElementById('sendBtn').disabled=false;
+  if (isDemo && role !== 'instructor') {
+    document.getElementById('chatInput').placeholder='🔒 Demo mode — read only';
+    document.getElementById('chatInput').disabled=true;
+    document.getElementById('sendBtn').disabled=true;
+  } else {
+    document.getElementById('chatInput').placeholder='Ask a question or comment…';
+    document.getElementById('chatInput').disabled=false;
+    document.getElementById('sendBtn').disabled=false;
+  }
   addClearButton();
   const chip=document.getElementById('userChip');
   if(chip)chip.textContent=(role==='instructor'?'⭐ ':'🎓 ')+name;if (role === 'instructor') document.body.classList.add('is-instructor');
@@ -927,9 +934,15 @@ function initFeed() {
     const btn = document.getElementById('feedClearBtn');
     if (btn) btn.style.display = '';
   }
-  // Show composer for all logged-in users
+  // Show composer for non-demo users (demo can read but not post)
   const composer = document.getElementById('feedComposer');
-  if (composer) composer.style.display = 'flex';
+  if (composer) {
+    if (currentUser?.demoMode === true && currentUser?.role !== 'instructor') {
+      composer.style.display = 'none';
+    } else {
+      composer.style.display = 'flex';
+    }
+  }
   // Enter key posts
   const ta = document.getElementById('feedText');
   if (ta) ta.addEventListener('keydown', e => {
