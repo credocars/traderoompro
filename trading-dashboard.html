@@ -668,6 +668,7 @@ let notesRef=null, wlRef=null;
 function initNotes(){
   notesRef=db.ref('traderoom/notes');
   notesRef.limitToLast(50).on('child_added',snap=>{const n=snap.val();if(n)renderNote(n,snap.key);});
+  notesRef.on('child_removed',snap=>{const el=document.getElementById('note-'+snap.key);if(el)el.remove();if(!document.getElementById('notesList').children.length){const ph=document.getElementById('notesPlaceholder');if(ph)ph.style.display='';}});
   if(currentUser?.role==='instructor'){
     const btn=document.getElementById('notesClearBtn');if(btn)btn.style.display='';
   }
@@ -705,6 +706,7 @@ function clearNotes(){
 function initWatchlist(){
   wlRef=db.ref('traderoom/watchlist');
   wlRef.limitToLast(50).on('child_added',snap=>{const n=snap.val();if(n)renderWlItem(n,snap.key);});
+  wlRef.on('child_removed',snap=>{const el=document.getElementById('wl-'+snap.key);if(el)el.remove();if(!document.getElementById('wlList').children.length){const ph=document.getElementById('wlPlaceholder');if(ph)ph.style.display='';}});
   if(currentUser?.role==='instructor'){
     const area=document.getElementById('wlInputArea');if(area)area.style.display='flex';
     const btn=document.getElementById('wlClearBtn');if(btn)btn.style.display='';
