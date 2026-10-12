@@ -127,103 +127,15 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 .footer-logo span{color:var(--green);}
 .footer-copy{font-size:11px;color:var(--t3);}
 
-/* ═════════════════════════════════════════════════════════════════
-   MOBILE RESPONSIVE  (added v14 — drawer sidebar + stacked panels)
-   Desktop layout unchanged. Activates at <=880px.
-   ═════════════════════════════════════════════════════════════════ */
-.mobile-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:150;backdrop-filter:blur(2px);opacity:0;transition:opacity .2s;}
-.mobile-backdrop.show{display:block;opacity:1;}
-.menu-btn{display:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--green);align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;}
-.menu-btn svg{width:18px;height:18px;}
-.menu-btn:hover{background:rgba(34,197,94,.12);}
-
+/* FOOTER LEGAL LINKS */
+.footer-legal{display:flex;gap:14px;}
+.footer-legal a{font-size:11px;color:var(--t3);text-decoration:none;transition:color .15s;}
+.footer-legal a:hover{color:var(--t1);}
 @media (max-width:880px){
-  .features-grid{grid-template-columns:1fr;gap:14px;}
-  .hero-sub{font-size:14px;}
-  .hero{padding:80px 18px 48px;}
-  /* Stats row stacks responsively, matching feat-card sizing */
-  .stats-row{flex-direction:column;gap:14px;width:100%;max-width:none;}
-  .stat-card{border-radius:14px !important;padding:24px;width:100%;}
-  .stat-num{font-size:24px;}
-  /* Hero padding tightened to match features padding for column alignment */
-  .hero{padding:80px 16px 48px !important;}
+  .footer{flex-direction:column;align-items:flex-start;gap:12px;padding:18px 16px;}
+  .footer-legal{flex-wrap:wrap;}
+  .footer-legal a{font-size:14px;}
 }
-
-@media (max-width:420px){
-  .hero{padding:64px 14px 40px;}
-  .stat-num{font-size:22px;}
-}
-
-/* ═════════════════════════════════════════════════════════════════
-   MOBILE v14.1 — minor touchups
-   ═════════════════════════════════════════════════════════════════ */
-@media (max-width:880px){
-  /* prevent horizontal overflow on iOS Safari */
-  html,body{overflow-x:hidden;max-width:100vw;}
-  .features{padding:48px 16px;}
-  /* Slightly larger labels on mobile so they don't read like fine print */
-  .stat-label{font-size:11px;}
-}
-
-
-/* ═════════════════════════════════════════════════════════════════
-   MOBILE 16px MINIMUM — bump every text element to 16px on phones
-   Body text, button labels, eyebrow caps, footer all readable.
-   ═════════════════════════════════════════════════════════════════ */
-@media (max-width:880px){
-  /* TOPBAR */
-  .live-pill,
-  .topbar-stat,
-  .topbar-stat strong{font-size:16px !important;}
-
-  /* HERO */
-  .hero-badge{font-size:16px !important;letter-spacing:.04em !important;padding:8px 18px !important;}
-  .hero-sub{font-size:16px !important;line-height:1.65 !important;}
-
-  /* STATS */
-  .stat-label{font-size:16px !important;letter-spacing:.04em !important;}
-  .stat-num{font-size:32px !important;}
-
-  /* LOGIN CARD */
-  .login-sub{font-size:16px !important;}
-  .tab-btn{font-size:16px !important;padding:12px !important;}
-  .role-btn{font-size:16px !important;padding:12px !important;}
-  .login-btn{font-size:16px !important;padding:14px !important;}
-  .forgot span,
-  .forgot a{font-size:16px !important;}
-  .login-input,
-  .login-input::placeholder{font-size:16px !important;}
-  input,select,textarea,button{font-size:16px !important;}
-
-  /* LOGO WORDMARK */
-  .logo-word{font-size:18px !important;}
-
-  /* FEATURES SECTION */
-  .sec-label{font-size:16px !important;letter-spacing:.06em !important;}
-  .feat-title{font-size:18px !important;}
-  .feat-desc{font-size:16px !important;line-height:1.55 !important;}
-  .divider{font-size:16px !important;letter-spacing:.04em !important;}
-  .chip{font-size:16px !important;padding:8px 14px !important;}
-
-  /* FOOTER */
-  .footer-copy{font-size:16px !important;line-height:1.55 !important;}
-  .footer-logo{font-size:16px !important;}
-}
-
-@media (max-width:420px){
-  /* All sizes stay at 16px minimum — we only tighten spacing here */
-  .hero-badge{padding:6px 14px !important;}
-  .chip{padding:7px 12px !important;}
-}
-
-
-/* Disclaimer checkbox (signup only) */
-.disclaimer-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin:6px 0 14px;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.2);border-radius:8px;font-size:12px;line-height:1.5;color:var(--t2);}
-.disclaimer-row input[type="checkbox"]{flex-shrink:0;width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:var(--green);}
-.disclaimer-row label{cursor:pointer;flex:1;}
-.disclaimer-row a{color:var(--green);text-decoration:underline;font-weight:600;}
-.disclaimer-row a:hover{color:var(--green2);}
-.disclaimer-row strong{color:var(--t1);}
 </style>
 </head>
 <body>
@@ -239,6 +151,7 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
   <div class="live-pill"><span class="live-dot"></span>Live Now</div>
   <div class="topbar-right">
     <div class="topbar-stat">Session: <strong id="topClock">--:--:--</strong></div>
+    <div class="topbar-stat">Members: <strong style="color:var(--green)">248</strong></div>
   </div>
 </div>
 
@@ -255,9 +168,10 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
   <p class="hero-sub">Join our live trading room — watch real trades, learn real strategies, and build the mindset of a professional day trader.</p>
 
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-num green">82.2%</div><div class="stat-label">Win Rate (455 Trades)</div></div>
-    <div class="stat-card"><div class="stat-num blue">2.56</div><div class="stat-label">Profit Factor</div></div>
-    <div class="stat-card"><div class="stat-num cyan">6 yrs</div><div class="stat-label">Live Trading</div></div>
+    <div class="stat-card"><div class="stat-num green">+78%</div><div class="stat-label">Win Rate</div></div>
+    <div class="stat-card"><div class="stat-num blue">2,400+</div><div class="stat-label">Students</div></div>
+    <div class="stat-card"><div class="stat-num cyan">Live</div><div class="stat-label">Daily Sessions</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--t1)">6+ yrs</div><div class="stat-label">Experience</div></div>
   </div>
 
   <!-- LOGIN CARD -->
@@ -287,9 +201,9 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
       <input class="form-input" id="regName" type="text" placeholder="Your display name" maxlength="24" autocomplete="name"/>
       <input class="form-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
       <input class="form-input" id="regPassword" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleAuth()"/>
-      <div class="disclaimer-row">
-        <input type="checkbox" id="agreeTerms"/>
-        <label for="agreeTerms"><strong>I understand and agree</strong> that TradeRoom PRO is an educational program, not investment advice. Trading involves risk of loss and results are not typical. I have read and accept the <a href="disclaimer.html" target="_blank">Disclaimer &amp; Terms</a>.</label>
+      <div class="role-row">
+        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
+        <button class="role-btn pro" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
       </div>
     </div>
 
@@ -351,7 +265,12 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 <!-- FOOTER -->
 <div class="footer">
   <div class="footer-logo">TradeRoom<span> PRO</span></div>
-  <div class="footer-copy">© 2026 TradeRoom PRO. All rights reserved. Trading involves risk.</div>
+  <div class="footer-copy">© 2026 CREDO Trading LLC. All rights reserved. Trading involves substantial risk of loss.</div>
+  <div class="footer-legal">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="disclaimer.html">Disclaimer</a>
+  </div>
 </div>
 
 <script>
@@ -374,7 +293,11 @@ function showTab(tab){
   document.getElementById('formError').style.display='none';
 }
 
-
+function setRole(r){
+  selectedRole=r;
+  document.getElementById('roleStudent').classList.toggle('active',r==='student');
+  document.getElementById('roleInstructor').classList.toggle('active',r==='instructor');
+}
 
 function handleAuth(){
   const err=document.getElementById('formError');err.style.display='none';
@@ -391,13 +314,10 @@ function handleAuth(){
     const name=document.getElementById('regName').value.trim();
     const email=document.getElementById('regEmail').value.trim();
     const pass=document.getElementById('regPassword').value;
-    const agreed=document.getElementById('agreeTerms').checked;
     if(!name||!email||!pass){showErr('Please fill in all fields.');return;}
     if(pass.length<6){showErr('Password must be at least 6 characters.');return;}
-    if(!agreed){showErr('You must accept the Disclaimer & Terms to create an account.');return;}
-    const termsAcceptedAt=Date.now();
     auth.createUserWithEmailAndPassword(email,pass)
-      .then(c=>db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email,termsAcceptedAt,termsVersion:'2026-05-08',demoMode:true}).then(()=>{window.location.href='trading-dashboard.html';}))
+      .then(c=>{db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email});window.location.href='trading-dashboard.html';})
       .catch(e=>showErr(friendlyErr(e.code)));
   }
 }
