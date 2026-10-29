@@ -231,7 +231,7 @@ body{display:flex;}
 .rv-legend{position:absolute;left:10px;top:6px;z-index:5;pointer-events:none;font-size:12px;line-height:1.55;color:#d1d4dc;font-variant-numeric:tabular-nums;text-shadow:0 0 3px #131722;}
 .rv-legend .sym{font-weight:700;font-size:14px;color:#fff;margin-right:8px;}
 .rv-legend .k{color:#8a8f9c;margin:0 2px 0 6px;}
-.rv-legend .up{color:#26a69a;} .rv-legend .dn{color:#ef5350;} .rv-legend .vw{color:#5b8cff;}
+.rv-legend .up{color:#26a69a;} .rv-legend .dn{color:#ef5350;} .rv-legend .vw{color:#f5c542;} .rv-legend .em{color:#3b5bdb;}
 .rv-pnl{height:230px;}
 .rv-stats{display:grid;grid-template-columns:1fr 1fr;}
 .rv-block{background:var(--card);border-top:1px solid var(--border);}
@@ -1034,8 +1034,12 @@ function showChart(t, scroll) {
     var cs = CHART.addSeries(LightweightCharts.CandlestickSeries, {upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
       wickUpColor: '#26a69a', wickDownColor: '#ef5350', priceFormat: pf});
     cs.setData(candles);
-    var vwS = CHART.addSeries(LightweightCharts.LineSeries, {color: '#5b8cff', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false});
+    var vwS = CHART.addSeries(LightweightCharts.LineSeries, {color: '#f5c542', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false});
     vwS.setData(vwap);
+    var ema = [], ev = null, al = 2 / (9 + 1);          // EMA 9 of the 1-min closes (from 04:00)
+    candles.forEach(function (c) { ev = ev === null ? c.close : al * c.close + (1 - al) * ev; ema.push({time: c.time, value: ev}); });
+    var emS = CHART.addSeries(LightweightCharts.LineSeries, {color: '#3b5bdb', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false});
+    emS.setData(ema);
     // executions at their price: red = short / add, green = cover (no text, like Tradervue)
     LightweightCharts.createSeriesMarkers(cs, fillsSorted(t).map(function (f) {
       var sell = f[1] === 'SELL', tm = f[0].split(':');
@@ -1043,12 +1047,13 @@ function showChart(t, scroll) {
               shape: sell ? 'arrowDown' : 'arrowUp', size: 1.4};
     }));
     // legend: SYM · 1  O H L C change, Volume, VWAP - follows the crosshair
+    var eByT = {}; ema.forEach(function (e) { eByT[e.time] = e.value; });
     var byT = {}, vByT = {}, wByT = {}; candles.forEach(function (c, k) { byT[c.time] = k; }); vol.forEach(function (v) { vByT[v.time] = v.value; }); vwap.forEach(function (w) { wByT[w.time] = w.value; });
     var draw1 = legend(box1, function (lg, k) {
       var c = candles[k], prev = k > 0 ? candles[k - 1].close : null;
       legendLine(lg, ohlcParts(t.symbol, '1', c, prev, pf.precision));
       legendLine(lg, [['Volume', 'k'], [volTxt(vByT[c.time] || 0), c.close >= c.open ? 'up' : 'dn']]);
-      legendLine(lg, [['VWAP', 'k'], [(wByT[c.time] || 0).toFixed(pf.precision), 'vw']]);
+      legendLine(lg, [['VWAP', 'k'], [(wByT[c.time] || 0).toFixed(pf.precision), 'vw'], ['EMA 9', 'k'], [(eByT[c.time] || 0).toFixed(pf.precision), 'em']]);
     });
     var fs0 = fillsSorted(t), k0 = candles.length - 1;
     if (fs0.length) { var te = etSec(DAY, fs0[0][0].slice(0, 5)); for (var q = 0; q < candles.length; q++) { if (candles[q].time >= te) { k0 = q; break; } } }
@@ -1070,7 +1075,7 @@ function showChart(t, scroll) {
     PCHART.timeScale().fitContent();
     var worst = pnl.length ? Math.min.apply(null, pnl.map(function (x) { return x.value; })) : null;
     var best = pnl.length ? Math.max.apply(null, pnl.map(function (x) { return x.value; })) : null;
-    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. Blue = VWAP from 04:00. Shaded = premarket. ' +
+    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. Gold = VWAP from 04:00, dark blue = EMA 9. Shaded = premarket. ' +
       (pnl.length ? 'Running P&L: best ' + money(best) + ', worst ' + money(worst) + ' (before costs). ' : '') +
       (t.tags && t.tags.room ? 'Room ' + t.tags.room + '. ' : '') + (t.tags && t.tags.risk ? 'Runner risk ' + t.tags.risk + '. ' : '') +
       (t.mae_pct ? 'Worst move against: +' + t.mae_pct + '%.' : '');
