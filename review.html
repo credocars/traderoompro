@@ -351,6 +351,7 @@ body{display:flex;}
           <div class="rv-chart-title" id="chartTitle">—</div>
           <div class="rv-nav">
             <button class="rv-tab" onclick="closeChart()" title="Back to the list (Esc)">‹ Back</button>
+            <a class="rv-tab" id="tvLayout" target="_blank" rel="noopener" style="text-decoration:none;" title="Your own TradingView layout, new tab">TradingView ↗</a>
             <button class="rv-tab" id="btnPrev" onclick="stepTrade(-1)" title="Previous trade (← key)">◀ Prev</button>
             <span class="rv-count" id="navCount">—</span>
             <button class="rv-tab" id="btnNext" onclick="stepTrade(1)" title="Next trade (→ key)">Next ▶</button>
@@ -375,6 +376,10 @@ body{display:flex;}
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">1 minute</div><div id="chartBox" class="rv-chart"></div></div>
           <div class="rv-cbox"><div class="rv-clabel">Daily</div><div id="dailyBox" class="rv-chart"></div></div>
+        </div>
+        <div class="rv-row">
+          <div class="rv-cbox"><div class="rv-clabel">TradingView · 1 minute</div><div id="tv1" class="rv-chart"></div></div>
+          <div class="rv-cbox"><div class="rv-clabel">TradingView · daily</div><div id="tvD" class="rv-chart"></div></div>
         </div>
         <div class="rv-chart-note" id="chartNote"></div>
         <div class="rv-row">
@@ -657,6 +662,7 @@ function closeChart() {
   document.getElementById('chartCard').style.display = 'none';
   Array.prototype.forEach.call(document.getElementById('tradeRows').children, function (r) { r.classList.remove('sel'); });
   CUR = -1; CUR_T = null; dropCharts();
+  TV_SYM = null; ['tv1', 'tvD'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
 }
 document.addEventListener('keydown', function (e) {
   if (document.getElementById('chartCard').style.display === 'none') return;
@@ -792,8 +798,26 @@ function baseline(ch) {
     topFillColor2: 'rgba(38,166,154,.05)', bottomLineColor: '#ef5350', bottomFillColor1: 'rgba(239,83,80,.05)',
     bottomFillColor2: 'rgba(239,83,80,.35)', lineWidth: 2});
 }
+var TV_SYM = null;
+function tvWidget(boxId, sym, interval) {      // TradingView's free embedded chart (its data, no trade marks)
+  var box = document.getElementById(boxId); box.innerHTML = '';
+  var wrap = el('div', {cls: 'tradingview-widget-container', style: 'height:100%;'});
+  wrap.appendChild(el('div', {cls: 'tradingview-widget-container__widget', style: 'height:100%;'}));
+  var sc = document.createElement('script');
+  sc.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'; sc.async = true;
+  sc.text = JSON.stringify({autosize: true, symbol: sym, interval: interval, timezone: 'America/New_York', theme: 'dark',
+    style: '1', locale: 'en', allow_symbol_change: true, calendar: false, support_host: 'https://www.tradingview.com',
+    studies: interval === 'D' ? ['Volume@tv-basicstudies'] : ['VWAP@tv-basicstudies', 'Volume@tv-basicstudies']});
+  wrap.appendChild(sc); box.appendChild(wrap);
+}
+function showTv(sym) {
+  document.getElementById('tvLayout').href = 'https://www.tradingview.com/chart/qED1iZnl/?symbol=' + encodeURIComponent(sym);
+  if (TV_SYM === sym) return;                   // same stock: keep the loaded widgets
+  TV_SYM = sym; tvWidget('tv1', sym, '1'); tvWidget('tvD', sym, 'D');
+}
 function showChart(t, scroll) {
   CUR_T = t;
+  showTv(String(t.symbol || '').toUpperCase().replace(/[^A-Z0-9.]/g, ''));
   var card = document.getElementById('chartCard'); card.style.display = 'block';
   document.getElementById('chartTitle').textContent = DAY + '  ' + t.symbol + '  ' + t.rule + (t.tags && t.tags.round > 1 ? ' round ' + t.tags.round : '') +
     '  |  short ' + px(t.entry) + ' @ ' + (t.entry_time || '').slice(0, 5) + (t.exit ? ' → cover ' + px(t.exit) + ' @ ' + (t.exit_time || '').slice(0, 5) : '') +
