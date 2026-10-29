@@ -345,6 +345,7 @@ body{display:flex;}
         <div class="page-subtitle">Test trades with 1-min charts, day and running totals. Private — instructors only.</div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
+        <button id="pmBtn" class="rv-tab active" onclick="togglePm()" title="Hide trades entered at or after 09:30 (regular hours)">Premarket only</button>
         <select id="daySel" class="rv-select" onchange="loadDay(this.value)"></select>
         <a href="admin.html" class="rv-link">← Roster</a>
       </div>
@@ -438,7 +439,7 @@ body{display:flex;}
 
     <div id="viewTotals" style="display:none;">
       <div class="rv-card">
-        <div class="rv-card-title">Running totals by test (all days sent)</div>
+        <div class="rv-card-title">Running totals by test (all days sent; regular-hours trades hidden unless the top button says All hours)</div>
         <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Test</th><th class="r">Days</th><th class="r">Trades</th><th class="r">Net</th><th class="r">Best day</th><th class="r">Worst day</th></tr></thead><tbody id="totRows"></tbody></table></div>
       </div>
       <div class="rv-card">
@@ -496,6 +497,8 @@ firebase.auth().onAuthStateChanged(function(u) {
 var ROOT = 'traderoom/admin_review';
 var TESTS = ['LIVE_LADDER', 'LADDER_TWIN', 'BAOX', 'BAO_ALL', 'PAPER'];
 var TEST_NAME = {LIVE_LADDER: 'Live ladder (real)', LADDER_TWIN: 'Ladder twin', BAOX: 'BAOX', BAO_ALL: 'BAO_ALL', PAPER: 'Paper (SPIKE / FLUSH)'};
+var ALL_DAYS = null, PM_ONLY = true;                       // hide trades entered at/after 09:30 (regular hours) - the tests trade premarket only
+function keep(t) { return !PM_ONLY || !((t.entry_time || '') >= '09:30'); }
 var INDEX = {}, DAY = null, TRADES = [], TEST_FILTER = 'ALL', CHART = null, REPORTS = {};
 var VISIBLE = [], CUR = -1, DCHART = null, PCHART = null, DPCHART = null, NOTES = {}, CUR_T = null, BARS = {};
 
@@ -515,16 +518,8 @@ function cls(v) { return v > 0 ? 'pos' : (v < 0 ? 'neg' : ''); }
 
 function startReview() {
   document.getElementById('reviewPanel').style.display = 'block';
-  firebase.database().ref(ROOT + '/index').get().then(function (snap) {
-    INDEX = snap.val() || {};
-    var days = Object.keys(INDEX).sort().reverse();
-    var sel = document.getElementById('daySel');
-    sel.innerHTML = '';
-    if (!days.length) { sel.appendChild(el('option', null, 'no days yet')); return; }
-    days.forEach(function (d) { sel.appendChild(el('option', {value: d}, d)); });
-    loadDay(days[0]);
-    buildTotals();
-  }).catch(function (e) { showToast('✗ Could not read the review data: ' + e.message); });
+  loadAllDays().then(function () { buildIndex(); loadDay(dayList().slice(-1)[0]); })
+    .catch(function (e) { showToast('✗ Could not read the review data: ' + e.message); });
   firebase.database().ref(ROOT + '/reports').get().then(function (snap) { REPORTS = snap.val() || {}; buildReports(); });
 }
 
@@ -535,13 +530,43 @@ function showView(v) {
   Array.prototype.forEach.call(document.querySelectorAll('#mainTabs .rv-tab'), function (b) { b.classList.toggle('active', b.dataset.v === v); });
 }
 
+function loadAllDays() {                  // every day's trades (once per page) -> ALL_DAYS.trades with _day
+  if (ALL_DAYS) return Promise.resolve(ALL_DAYS);
+  return firebase.database().ref(ROOT + '/days').get().then(function (snap) {
+    var v = snap.val() || {}, out = [];
+    Object.keys(v).forEach(function (d) { var tr = (v[d] || {}).trades || {}; Object.keys(tr).forEach(function (k) { var x = tr[k]; x._day = d; out.push(x); }); });
+    ALL_DAYS = {trades: out}; return ALL_DAYS;
+  });
+}
+function buildIndex() {                   // day list + running totals from the trades shown (premarket only = no 09:30+ entries)
+  INDEX = {};
+  ALL_DAYS.trades.filter(keep).forEach(function (x) {
+    var d = (INDEX[x._day] = INDEX[x._day] || {}), r = (d[x.test] = d[x.test] || {n: 0, net: 0});
+    r.n += 1; r.net += x.net || 0;
+  });
+  var days = Object.keys(INDEX).sort().reverse(), sel = document.getElementById('daySel');
+  sel.innerHTML = '';
+  if (!days.length) sel.appendChild(el('option', null, 'no days yet'));
+  days.forEach(function (d) { sel.appendChild(el('option', {value: d}, d)); });
+  buildTotals();
+}
+function togglePm() {
+  PM_ONLY = !PM_ONLY;
+  var b = document.getElementById('pmBtn');
+  b.classList.toggle('active', PM_ONLY);
+  b.textContent = PM_ONLY ? 'Premarket only' : 'All hours';
+  buildIndex();
+  var days = dayList();
+  loadDay(days.indexOf(DAY) >= 0 ? DAY : days.slice(-1)[0]);
+}
 function loadDay(d, then) {
+  if (!d) return Promise.resolve();
   DAY = d; BARS = {};
   document.getElementById('daySel').value = d;
   document.getElementById('chartCard').style.display = 'none';
   return firebase.database().ref(ROOT + '/days/' + d).get().then(function (snap) {
     var v = snap.val() || {};
-    TRADES = Object.keys(v.trades || {}).map(function (k) { var t = v.trades[k]; t._key = k; return t; });
+    TRADES = Object.keys(v.trades || {}).map(function (k) { var t = v.trades[k]; t._key = k; return t; }).filter(keep);
     TRADES.sort(function (a, b) { return (a.entry_time || '').localeCompare(b.entry_time || ''); });
     return firebase.database().ref(ROOT + '/notes/' + d).get().then(function (ns) { NOTES = ns.val() || {}; },
                                                                        function () { NOTES = {}; }).then(function () {
@@ -878,7 +903,7 @@ function baseline(ch) {
     topFillColor2: 'rgba(38,166,154,.05)', bottomLineColor: '#ef5350', bottomFillColor1: 'rgba(239,83,80,.05)',
     bottomFillColor2: 'rgba(239,83,80,.35)', lineWidth: 2});
 }
-var TV_SYM = null, ALL_DAYS = null;
+var TV_SYM = null;
 var RULE_INFO = {
   BAOALL_L: 'ladder 5 x 200 sh every 2% up, out at VWAP / midpoint / 10 min, no stop',
   BAOALL_LS: 'the L ladder + one hard stop 30% above the first entry',
@@ -903,14 +928,9 @@ var RULE_INFO = {
   NB_FLUSH5: 'FLUSH5 on a stock IB could not lend (simulated)'
 };
 function soFar(t) {                       // every day sent so far for this trade's test (loaded once per page)
-  var got = ALL_DAYS ? Promise.resolve(ALL_DAYS) : firebase.database().ref(ROOT + '/days').get().then(function (snap) {
-    var v = snap.val() || {}, out = [];
-    Object.keys(v).forEach(function (d) { var tr = (v[d] || {}).trades || {}; Object.keys(tr).forEach(function (k) { var x = tr[k]; x._day = d; out.push(x); }); });
-    ALL_DAYS = {trades: out}; return ALL_DAYS;
-  });
-  got.then(function (all) {
+  loadAllDays().then(function (all) {
     if (CUR_T !== t) return;
-    var mine = all.trades.filter(function (x) { return x.test === t.test; });
+    var mine = all.trades.filter(function (x) { return x.test === t.test && keep(x); });
     var tot = ruleStats(mine), dayNet = {};
     mine.forEach(function (x) { dayNet[x._day] = (dayNet[x._day] || 0) + (x.net || 0); });
     var days = Object.keys(dayNet).sort();
