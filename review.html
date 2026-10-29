@@ -983,7 +983,7 @@ function showChart(t, scroll) {
   firebase.database().ref(ROOT + '/stock/' + DAY + '/' + sym).get().then(function (snap) {
     if (CUR_T !== t) return;
     var v = snap.val();
-    document.getElementById('stockText').textContent = v && v.text ? v.text : 'No stock information yet (sent with the next review sync).';
+    document.getElementById('stockText').textContent = v && v.text ? v.text.replace(/^STOCK\s*\n/, '') : 'No stock information yet (sent with the next review sync).';
   });
   // 1-minute chart + volume
   loadBars(t.symbol).then(function (bb) {
