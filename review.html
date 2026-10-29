@@ -230,11 +230,20 @@ body{display:flex;}
 .rv-chart{height:440px;}
 .rv-pnl{height:230px;}
 .rv-stats{display:grid;grid-template-columns:1fr 1fr;}
+.rv-block{background:var(--card);border-top:1px solid var(--border);}
+.rv-stats4{display:grid;grid-template-columns:repeat(4,1fr);}
+.rv-stats4 .rv-stat{border-right:1px solid var(--border);}
+.rv-stats4 .rv-stat:nth-child(4n){border-right:none;}
+.rv-bullets{margin:0;padding:10px 18px 10px 34px;font-size:13px;line-height:1.7;color:var(--t1);}
+.rv-bullets li b{color:var(--t1);}
+.rv-days{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 14px;}
+.rv-day{background:var(--card2);border:1px solid var(--border-hi);border-radius:7px;padding:6px 10px;font-size:12px;font-variant-numeric:tabular-nums;}
+@media (max-width:1100px){.rv-stats4{grid-template-columns:1fr 1fr;}}
 .rv-stat{padding:12px 16px;border-bottom:1px solid var(--border);}
 .rv-stat:nth-child(odd){border-right:1px solid var(--border);}
 .rv-stat .k{font-size:12px;color:var(--t2);margin-bottom:4px;}
 .rv-stat .v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
-.rv-note{width:100%;min-height:210px;background:var(--card2);border:1px solid var(--border-hi);border-radius:8px;color:var(--t1);font-family:inherit;font-size:13px;padding:10px;resize:vertical;}
+.rv-note{width:100%;min-height:110px;background:var(--card2);border:1px solid var(--border-hi);border-radius:8px;color:var(--t1);font-family:inherit;font-size:13px;padding:10px;resize:vertical;}
 .rv-note:focus{outline:none;border-color:var(--green);}
 @media (max-width:1100px){.rv-row{grid-template-columns:1fr;}}
 .rv-pre{margin:0;padding:16px 18px;font-size:12px;line-height:1.5;color:var(--t1);white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;}
@@ -357,32 +366,38 @@ body{display:flex;}
             <button class="rv-tab" id="btnNext" onclick="stepTrade(1)" title="Next trade (→ key)">Next ▶</button>
           </div>
         </div>
-        <div class="rv-row">
-          <div class="rv-cbox">
-            <div class="rv-card-title">Stats</div>
-            <div class="rv-stats" id="statGrid"></div>
-          </div>
-          <div class="rv-cbox">
-            <div class="rv-card-title">Notes</div>
-            <div style="padding:12px 16px;">
-              <textarea id="noteText" class="rv-note" placeholder="Your notes on this trade (only instructors see them)"></textarea>
-              <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-                <button class="rv-tab active" onclick="saveNote()">Save note</button>
-                <span class="rv-count" id="noteState" style="text-align:left;"></span>
-              </div>
+        <div class="rv-block">
+          <div class="rv-card-title">Notes</div>
+          <div style="padding:12px 16px;">
+            <textarea id="noteText" class="rv-note" placeholder="Your notes on this trade (only instructors see them)"></textarea>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+              <button class="rv-tab active" onclick="saveNote()">Save note</button>
+              <span class="rv-count" id="noteState" style="text-align:left;"></span>
             </div>
           </div>
         </div>
-        <div class="rv-row">
-          <div class="rv-cbox">
-            <div class="rv-card-title" id="statRulesLabel">By rule — this day</div>
-            <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="statRules"></tbody></table></div>
+        <div class="rv-block">
+          <div class="rv-card-title">Trade stats</div>
+          <div class="rv-stats4" id="statGrid"></div>
+        </div>
+        <div class="rv-block">
+          <div class="rv-card-title">What we track on this trade</div>
+          <div class="rv-stats4" id="ctxGrid"></div>
+        </div>
+        <div class="rv-block">
+          <div class="rv-card-title" id="statRulesLabel">By rule — this day</div>
+          <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="statRules"></tbody></table></div>
+        </div>
+        <div class="rv-block">
+          <div class="rv-card-title" id="sofarLabel">Totals so far</div>
+          <ul class="rv-bullets" id="sofarBullets"></ul>
+          <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th>What it does</th><th class="r">Trades</th><th class="r">Ready</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Worst</th><th class="r">Below −$300</th></tr></thead><tbody id="sofarRows"></tbody></table></div>
+          <div class="rv-row" style="border-top:none;">
+            <div class="rv-cbox"><div class="rv-clabel">Premarket vs after the open</div><div class="rv-scroll"><table class="rv-table"><thead><tr><th>When</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th></tr></thead><tbody id="sofarSess"></tbody></table></div></div>
+            <div class="rv-cbox"><div class="rv-clabel" id="sofarSplitLabel">By round</div><div class="rv-scroll"><table class="rv-table"><thead><tr><th>Group</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th></tr></thead><tbody id="sofarSplit"></tbody></table></div></div>
           </div>
-          <div class="rv-cbox">
-            <div class="rv-card-title" id="sofarLabel">Totals so far</div>
-            <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th>What it does</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Worst</th></tr></thead><tbody id="sofarRows"></tbody></table></div>
-            <div class="rv-chart-note" id="sofarNote"></div>
-          </div>
+          <div class="rv-clabel" style="border-top:1px solid var(--border);">Last days</div>
+          <div class="rv-days" id="sofarDays"></div>
         </div>
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">1 minute</div><div id="chartBox" class="rv-chart"></div></div>
@@ -786,28 +801,44 @@ function loadBars(sym) {          // 1-min candles of one stock-day (cached per 
   });
   return BARS[sym];
 }
-function stat(k, v, c) {
+function stat(k, v, c, grid) {
   var d = el('div', {cls: 'rv-stat'}); d.appendChild(el('div', {cls: 'k'}, k)); d.appendChild(el('div', {cls: 'v ' + (c || '')}, v));
-  document.getElementById('statGrid').appendChild(d);
+  document.getElementById(grid || 'statGrid').appendChild(d);
 }
-function showStats(t, pnl, candles) {
-  document.getElementById('statGrid').innerHTML = '';
-  var sold = fillsSorted(t).reduce(function (s, f) { return s + (+f[2]); }, 0);
-  stat('Shares traded', sold || t.shares || '—');
-  stat('Closed P&L (after costs)', money(t.net), cls(t.net));
+function session(hm) { hm = (hm || '').slice(0, 5); return !hm ? '?' : hm < '07:00' ? '04:00-07:00' : hm < '09:30' ? '07:00-09:30' : 'after the open'; }
+function showStats(t, pnl, candles, vwap) {
+  ['statGrid', 'ctxGrid'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
+  var fs = fillsSorted(t), pos = 0, maxPos = 0, sq = 0, sv = 0, bq = 0, bv = 0;
+  fs.forEach(function (f) { var q = +f[2], p = +f[3]; if (f[1] === 'SELL') { pos += q; sq += q; sv += q * p; } else { pos -= q; bq += q; bv += q * p; } maxPos = Math.max(maxPos, pos); });
   var best = pnl.length ? Math.max.apply(null, pnl.map(function (x) { return x.value; })) : null;
   var worst = pnl.length ? Math.min.apply(null, pnl.map(function (x) { return x.value; })) : null;
-  stat('Best exit P&L', best === null ? '—' : money(best), cls(best));
-  stat('Position MAE (worst open P&L)', worst === null ? '—' : money(worst), cls(worst));
-  var fs = fillsSorted(t), a = fs.length ? etSec(DAY, fs[0][0]) - 60 : null, z = fs.length ? etSec(DAY, fs[fs.length - 1][0]) : null;
-  var inT = candles.filter(function (c) { return a !== null && c.time >= a && c.time <= z; });
+  var a = fs.length ? etSec(DAY, fs[0][0]) : null, z = fs.length ? etSec(DAY, fs[fs.length - 1][0]) : null;
+  var inT = candles.filter(function (c) { return a !== null && c.time >= a - 60 && c.time <= z; });
   var lo = inT.length ? Math.min.apply(null, inT.map(function (c) { return c.low; })) : null;
   var hi = inT.length ? Math.max.apply(null, inT.map(function (c) { return c.high; })) : null;
-  stat('Price MFE (lowest while short)', lo === null ? '—' : px(lo) + (t.entry ? '  (' + ((lo / t.entry - 1) * 100).toFixed(1) + '%)' : ''), 'pos');
-  stat('Price MAE (highest while short)', hi === null ? '—' : px(hi) + (t.entry ? '  (+' + ((hi / t.entry - 1) * 100).toFixed(1) + '%)' : ''), 'neg');
-  var gross = pnl.length ? pnl[pnl.length - 1].value : null;
-  stat('Exit efficiency', best > 0 && gross !== null ? Math.round(gross / best * 100) + '% of the best' : '—');
-  stat('Hold', fs.length ? Math.round((z - a - 60) / 60) + ' min' : '—');
+  var avgIn = sq ? sv / sq : t.entry, avgOut = bq ? bv / bq : t.exit;
+  // trade stats
+  stat('Net P&L (after costs)', money(t.net), cls(t.net));
+  stat('Max position', maxPos ? maxPos + ' sh' : (t.shares ? t.shares + ' sh' : '—'));
+  stat('Avg short / avg cover', px(avgIn) + ' → ' + px(avgOut));
+  stat('Hold', a !== null ? Math.max(0, Math.round((z - a) / 60)) + ' min' : '—');
+  stat('Best open P&L', best === null ? '—' : money(best), cls(best));
+  stat('Worst open P&L', worst === null ? '—' : money(worst) + (worst <= -300 ? '  ⚠ past the bot limit' : ''), cls(worst));
+  stat('Low / high while short', lo === null ? '—' : px(lo) + ' (' + ((lo / avgIn - 1) * 100).toFixed(1) + '%) / ' + px(hi) + ' (+' + ((hi / avgIn - 1) * 100).toFixed(1) + '%)');
+  stat('Kept of the best', best > 0 && pnl.length ? Math.round(pnl[pnl.length - 1].value / best * 100) + '%' : '—');
+  // what we track
+  var g = 'ctxGrid', tg = t.tags || {};
+  stat('Entry window', session(t.entry_time) + ((t.entry_time || '') >= '09:30' ? '  ⚠ not premarket' : ''), (t.entry_time || '') >= '09:30' ? 'neg' : '', g);
+  var vwAt = null;
+  if (vwap && vwap.length && a !== null) { for (var i = 0; i < vwap.length; i++) { if (vwap[i].time <= a) vwAt = vwap[i].value; else break; } }
+  stat('Entry vs VWAP', vwAt ? '+' + ((avgIn / vwAt - 1) * 100).toFixed(1) + '%  (' + (avgIn - vwAt >= 0 ? '+' : '') + (avgIn - vwAt).toFixed(2) + ' $)' : '—', '', g);
+  var dayLo = null; candles.forEach(function (c) { if (a !== null && c.time < a) dayLo = dayLo === null ? c.low : Math.min(dayLo, c.low); });
+  stat('Spike from the day low', dayLo ? '+' + ((avgIn / dayLo - 1) * 100).toFixed(0) + '%  (' + px(dayLo) + ' → ' + px(avgIn) + ')' : '—', '', g);
+  stat('Room to VWAP (rule)', tg.room ? '$' + tg.room : '—', '', g);
+  stat('Round', tg.round ? (tg.round > 1 ? 'R' + tg.round + ' (re-entry)' : '1 (first spike)') : '—', tg.round > 1 ? 'neg' : '', g);
+  stat('Runner risk', tg.risk || '—', tg.risk === 'HIGH' ? 'neg' : '', g);
+  stat('Top-signal score', tg.score !== undefined ? tg.score + ' / 5' : '—', '', g);
+  stat('Stock', [tg.country_b, tg.float_b ? 'float ' + tg.float_b : '', tg.borrow ? 'IB ' + tg.borrow : '', tg.bao_posted ? 'BAO posted' : ''].filter(Boolean).join(' · ') || '—', '', g);
   statRules(t);
   soFar(t);
 }
@@ -866,38 +897,70 @@ var RULE_INFO = {
   FLUSH5: 'breakdown after a spike (25% given back), bot rules 5% steps',
   NB_FLUSH5: 'FLUSH5 on a stock IB could not lend (simulated)'
 };
-function soFar(t) {                       // every day sent so far, this trade's test, by rule (loaded once)
+function soFar(t) {                       // every day sent so far for this trade's test (loaded once per page)
   var got = ALL_DAYS ? Promise.resolve(ALL_DAYS) : firebase.database().ref(ROOT + '/days').get().then(function (snap) {
     var v = snap.val() || {}, out = [];
-    Object.keys(v).forEach(function (d) { var tr = (v[d] || {}).trades || {}; Object.keys(tr).forEach(function (k) { out.push(tr[k]); }); });
-    ALL_DAYS = {trades: out, days: Object.keys(v).length}; return ALL_DAYS;
+    Object.keys(v).forEach(function (d) { var tr = (v[d] || {}).trades || {}; Object.keys(tr).forEach(function (k) { var x = tr[k]; x._day = d; out.push(x); }); });
+    ALL_DAYS = {trades: out}; return ALL_DAYS;
   });
   got.then(function (all) {
     if (CUR_T !== t) return;
     var mine = all.trades.filter(function (x) { return x.test === t.test; });
+    var tot = ruleStats(mine), dayNet = {};
+    mine.forEach(function (x) { dayNet[x._day] = (dayNet[x._day] || 0) + (x.net || 0); });
+    var days = Object.keys(dayNet).sort();
+    document.getElementById('sofarLabel').textContent = 'Totals so far — ' + (TEST_NAME[t.test] || t.test) + ' (' + days.length + ' days, ' + mine.length + ' trades)';
     var by = {}; mine.forEach(function (x) { (by[x.rule || '-'] = by[x.rule || '-'] || []).push(x); });
-    var rows = Object.keys(by).map(function (r) { return [r, ruleStats(by[r])]; }).sort(function (a, b) { return b[1].net - a[1].net; });
-    document.getElementById('sofarLabel').textContent = 'Totals so far — ' + (TEST_NAME[t.test] || t.test) + ' (' + mine.length + ' trades)';
+    var rows = Object.keys(by).map(function (r) { return [r, ruleStats(by[r]), by[r]]; }).sort(function (a, b) { return b[1].net - a[1].net; });
     var body = document.getElementById('sofarRows'); body.innerHTML = '';
     rows.forEach(function (rw) {
-      var x = rw[1], tr = el('tr', rw[0] === t.rule ? {cls: 'sel'} : null);
+      var x = rw[1], big = rw[2].filter(function (y) { return (y.net || 0) <= -300; }).length, tr = el('tr', rw[0] === t.rule ? {cls: 'sel'} : null);
       tr.appendChild(el('td', {style: 'font-weight:700;'}, rw[0]));
-      tr.appendChild(el('td', {style: 'white-space:normal;min-width:150px;max-width:260px;color:var(--t2);font-size:12px;'}, RULE_INFO[rw[0]] || ''));
-      tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
+      tr.appendChild(el('td', {style: 'white-space:normal;min-width:150px;max-width:300px;color:var(--t2);font-size:12px;'}, RULE_INFO[rw[0]] || ''));
+      tr.appendChild(el('td', {cls: 'r'}, x.n));
+      tr.appendChild(el('td', {cls: 'r ' + (x.n >= 60 ? 'pos' : '')}, x.n >= 60 ? 'READY' : x.n + '/60'));
+      tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
       tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net))); tr.appendChild(el('td', {cls: 'r'}, x.pf));
+      tr.appendChild(el('td', {cls: 'r ' + cls(x.avg)}, money(x.avg)));
       tr.appendChild(el('td', {cls: 'r ' + cls(x.worst)}, money(x.worst)));
+      tr.appendChild(el('td', {cls: 'r ' + (big ? 'neg' : '')}, big));
       body.appendChild(tr);
     });
-    var note = '';
-    if (rows.length) {
-      var best = rows[0], worst = rows[rows.length - 1];
-      note = 'Best so far: ' + best[0] + ' ' + money(best[1].net) + ' (PF ' + best[1].pf + ')';
-      if (rows.length > 1) note += ' · worst: ' + worst[0] + ' ' + money(worst[1].net) + ' (PF ' + worst[1].pf + ')';
-      var n = mine.length; note += ' · ' + (n < 60 ? 'small sample (' + n + ' trades) - not enough to decide yet' : n + ' trades');
-      note += '. Simulated fills are optimistic; real fills on fast spikes are worse.';
-      if (t.test === 'LIVE_LADDER') note = 'Real money. ' + note.replace(' Simulated fills are optimistic; real fills on fast spikes are worse.', '');
+    function grpRows(id, groups) {
+      var b = document.getElementById(id); b.innerHTML = '';
+      groups.forEach(function (gp) {
+        if (!gp[1].length) return; var x = ruleStats(gp[1]), tr = el('tr');
+        tr.appendChild(el('td', null, gp[0])); tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
+        tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net))); tr.appendChild(el('td', {cls: 'r'}, x.pf)); b.appendChild(tr);
+      });
     }
-    document.getElementById('sofarNote').textContent = note;
+    var pre = mine.filter(function (x) { return (x.entry_time || '') && x.entry_time < '09:30'; });
+    var aft = mine.filter(function (x) { return (x.entry_time || '') >= '09:30'; });
+    grpRows('sofarSess', [['04:00-07:00', mine.filter(function (x) { return session(x.entry_time) === '04:00-07:00'; })],
+                          ['07:00-09:30', mine.filter(function (x) { return session(x.entry_time) === '07:00-09:30'; })],
+                          ['after the open', aft]]);
+    var hasRound = mine.some(function (x) { return x.tags && x.tags.round; });
+    var r1 = mine.filter(function (x) { return !(x.tags && x.tags.round > 1); }), r2 = mine.filter(function (x) { return x.tags && x.tags.round > 1; });
+    if (hasRound) {
+      document.getElementById('sofarSplitLabel').textContent = 'First spike vs re-entries';
+      grpRows('sofarSplit', [['round 1 (first spike)', r1], ['round 2-3 (re-entries)', r2]]);
+    } else {
+      document.getElementById('sofarSplitLabel').textContent = 'Winners vs losers';
+      grpRows('sofarSplit', [['winners', mine.filter(function (x) { return x.net > 0; })], ['losers', mine.filter(function (x) { return x.net <= 0; })]]);
+    }
+    var dbox = document.getElementById('sofarDays'); dbox.innerHTML = '';
+    days.slice(-10).reverse().forEach(function (d) { var c = el('span', {cls: 'rv-day'}); c.appendChild(el('span', {style: 'color:var(--t2);'}, d.slice(5) + '  ')); c.appendChild(el('span', {cls: cls(dayNet[d])}, money(dayNet[d]))); dbox.appendChild(c); });
+    // headline bullets, like the review report
+    var ul = document.getElementById('sofarBullets'); ul.innerHTML = '';
+    function li(txt) { ul.appendChild(el('li', null, txt)); }
+    li((t.test === 'LIVE_LADDER' ? 'REAL MONEY. ' : '') + mine.length + ' trades in ' + days.length + ' days: net ' + money(tot.net) + ', PF ' + tot.pf + ', win ' + tot.win + '%, worst trade ' + money(tot.worst) + '.');
+    if (rows.length > 1) li('Best rule: ' + rows[0][0] + ' ' + money(rows[0][1].net) + ' (PF ' + rows[0][1].pf + ') · worst: ' + rows[rows.length - 1][0] + ' ' + money(rows[rows.length - 1][1].net) + ' (PF ' + rows[rows.length - 1][1].pf + ').');
+    if (pre.length || aft.length) li('Premarket ' + pre.length + ' trades ' + money(ruleStats(pre).net) + ' (PF ' + ruleStats(pre).pf + ')' + (aft.length ? ' vs after the open ' + aft.length + ' trades ' + money(ruleStats(aft).net) + ' (PF ' + ruleStats(aft).pf + ') - the tests trade premarket only since 10-29.' : '.'));
+    if (hasRound && r2.length) li('Re-entries (round 2-3): ' + r2.length + ' trades ' + money(ruleStats(r2).net) + ' (PF ' + ruleStats(r2).pf + ') vs first spikes ' + money(ruleStats(r1).net) + ' - new re-entry rule (new spike + new high + room) since 10-29.');
+    var bigAll = mine.filter(function (x) { return (x.net || 0) <= -300; });
+    li(bigAll.length ? bigAll.length + ' trade(s) lost more than your bot limit (−$300), the worst ' + money(tot.worst) + '.' : 'No trade lost more than your bot limit (−$300).');
+    var most = rows.length ? Math.max.apply(null, rows.map(function (r) { return r[1].n; })) : 0;
+    li(most >= 60 ? 'Enough trades for a decision on at least one rule (60+).' : 'Not ready to decide: the busiest rule has ' + most + ' of the 60 trades needed' + (t.test === 'LIVE_LADDER' ? '.' : '; simulated fills are optimistic.'));
   });
 }
 
@@ -952,7 +1015,7 @@ function showChart(t, scroll) {
     PCHART = LightweightCharts.createChart(document.getElementById('pnlBox'), po);
     var pnl = runningPnl(t, candles);
     if (pnl.length) baseline(PCHART).setData(pnl);
-    showStats(t, pnl, candles);
+    showStats(t, pnl, candles, vwap);
     dayRunningPnl(t);
     var a = etSec(DAY, t.entry_time || '04:00') - 30 * 60, z = etSec(DAY, t.exit_time || t.entry_time || '11:30') + 30 * 60;
     var rng = {from: a, to: Math.max(z, a + 3600)};
