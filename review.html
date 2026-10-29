@@ -360,7 +360,6 @@ body{display:flex;}
           <div class="rv-chart-title" id="chartTitle">—</div>
           <div class="rv-nav">
             <button class="rv-tab" onclick="closeChart()" title="Back to the list (Esc)">‹ Back</button>
-            <a class="rv-tab" id="tvLayout" target="_blank" rel="noopener" style="text-decoration:none;" title="Your own TradingView layout, new tab">TradingView ↗</a>
             <button class="rv-tab" id="btnPrev" onclick="stepTrade(-1)" title="Previous trade (← key)">◀ Prev</button>
             <span class="rv-count" id="navCount">—</span>
             <button class="rv-tab" id="btnNext" onclick="stepTrade(1)" title="Next trade (→ key)">Next ▶</button>
@@ -399,13 +398,13 @@ body{display:flex;}
           <div class="rv-clabel" style="border-top:1px solid var(--border);">Last days</div>
           <div class="rv-days" id="sofarDays"></div>
         </div>
+        <div class="rv-block" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;">
+          <div class="rv-card-title" style="padding:0;border:none;">Charts</div>
+          <a class="rv-tab active" id="tvLayout" target="_blank" rel="noopener" style="text-decoration:none;" title="Your own TradingView layout with this symbol, new tab">Open in my TradingView ↗</a>
+        </div>
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">1 minute</div><div id="chartBox" class="rv-chart"></div></div>
           <div class="rv-cbox"><div class="rv-clabel">Daily</div><div id="dailyBox" class="rv-chart"></div></div>
-        </div>
-        <div class="rv-row">
-          <div class="rv-cbox"><div class="rv-clabel">TradingView · 1 minute</div><div id="tv1" class="rv-chart"></div></div>
-          <div class="rv-cbox"><div class="rv-clabel">TradingView · daily</div><div id="tvD" class="rv-chart"></div></div>
         </div>
         <div class="rv-chart-note" id="chartNote"></div>
         <div class="rv-row">
@@ -719,7 +718,7 @@ function closeChart() {
   document.getElementById('chartCard').style.display = 'none';
   Array.prototype.forEach.call(document.getElementById('tradeRows').children, function (r) { r.classList.remove('sel'); });
   CUR = -1; CUR_T = null; dropCharts();
-  TV_SYM = null; ['tv1', 'tvD'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
+
 }
 document.addEventListener('keydown', function (e) {
   if (document.getElementById('chartCard').style.display === 'none') return;
@@ -964,21 +963,8 @@ function soFar(t) {                       // every day sent so far for this trad
   });
 }
 
-function tvWidget(boxId, sym, interval) {      // TradingView's free embedded chart (its data, no trade marks)
-  var box = document.getElementById(boxId); box.innerHTML = '';
-  var wrap = el('div', {cls: 'tradingview-widget-container', style: 'height:100%;'});
-  wrap.appendChild(el('div', {cls: 'tradingview-widget-container__widget', style: 'height:100%;'}));
-  var sc = document.createElement('script');
-  sc.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'; sc.async = true;
-  sc.text = JSON.stringify({autosize: true, symbol: sym, interval: interval, timezone: 'America/New_York', theme: 'dark',
-    style: '1', locale: 'en', allow_symbol_change: true, calendar: false, support_host: 'https://www.tradingview.com',
-    studies: interval === 'D' ? ['Volume@tv-basicstudies'] : ['VWAP@tv-basicstudies', 'Volume@tv-basicstudies']});
-  wrap.appendChild(sc); box.appendChild(wrap);
-}
 function showTv(sym) {
   document.getElementById('tvLayout').href = 'https://www.tradingview.com/chart/qED1iZnl/?symbol=' + encodeURIComponent(sym);
-  if (TV_SYM === sym) return;                   // same stock: keep the loaded widgets
-  TV_SYM = sym; tvWidget('tv1', sym, '1'); tvWidget('tvD', sym, 'D');
 }
 function showChart(t, scroll) {
   CUR_T = t;
