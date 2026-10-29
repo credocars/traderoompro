@@ -236,6 +236,8 @@ body{display:flex;}
 .st-line{fill:none;stroke:#22c55e;stroke-width:2.2;stroke-linejoin:round;}
 .st-empty{padding:30px;text-align:center;color:var(--t3);font-size:13px;}
 .st-note{font-size:12px;color:var(--t3);}
+.st-ibsplit{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px;}
+.st-ibsplit .rv-day.on{border-color:var(--green);}
 .st-hb{background:var(--card2);border-radius:4px;height:10px;overflow:hidden;}
 .st-hbi{height:100%;border-radius:4px;} .st-hbi.up{background:#22c55e;} .st-hbi.dn{background:#ef4444;}
 .st-cal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
@@ -487,6 +489,8 @@ body{display:flex;}
         <label>Test<select id="stTest" class="rv-select" onchange="stSet('test', this.value)"></select></label>
         <label>Rule<select id="stRule" class="rv-select" onchange="stSet('rule', this.value)"></select></label>
         <label>Tag / pattern<select id="stTag" class="rv-select" onchange="stSet('tag', this.value)"></select></label>
+        <label>IB shares<select id="stIb" class="rv-select" onchange="stSet('ib', this.value)">
+          <option value="ALL">All stocks</option><option value="yes">Shortable at IB</option><option value="no">Not shortable at IB</option></select></label>
         <label>From<input id="stFrom" type="date" class="rv-select" onchange="stSet('from', this.value)"></label>
         <label>To<input id="stTo" type="date" class="rv-select" onchange="stSet('to', this.value)"></label>
         <button class="rv-tab" onclick="stClear()">Clear</button>
@@ -499,6 +503,7 @@ body{display:flex;}
         <button class="rv-tab" data-v="tags" onclick="stSub('tags')">Tag Breakdown</button>
       </div>
       <div class="st-summary" id="stSummary"></div>
+      <div class="st-ibsplit" id="stIbSplit"></div>
       <div id="stOut"></div>
     </div>
 
@@ -1243,7 +1248,15 @@ function handleLogout() {
 }
 
 // ═══ REPORTS by pattern / tag (like Tradervue) - built in the browser from every day's test trades ═══
-var ST = {sub: 'overview', ov: 'recent', recent: 30, year: null, group: 'ALL', test: 'ALL', rule: 'ALL', tag: '', from: '', to: ''};
+function ibState(x) {                     // could the short be taken at IB? yes / no / ? (from the IB borrow file at the signal)
+  var b = (x.tags || {}).borrow;
+  if (x.test === 'LIVE_LADDER') return 'yes';                       // real fills = it was shortable
+  if (b === 'shares') return 'yes';
+  if (b === 'no shares' || b === 'not shortable' || /^NB_/.test(x.rule || '')) return 'no';
+  if (x.test === 'PAPER') return 'yes';                             // paper tests need IB shares, else the trade is NB_<rule>
+  return '?';
+}
+var ST = {ib: 'ALL', sub: 'overview', ov: 'recent', recent: 30, year: null, group: 'ALL', test: 'ALL', rule: 'ALL', tag: '', from: '', to: ''};
 var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function hmMin(hm) { hm = (hm || '').slice(0, 5); return hm.length === 5 ? +hm.slice(0, 2) * 60 + +hm.slice(3) : null; }
@@ -1263,6 +1276,7 @@ var TAG_GROUPS = [                         // [name, function(trade) -> value]
   ['Country', function (x) { return (x.tags || {}).country_b || '?'; }],
   ['Float', function (x) { return (x.tags || {}).float_b || '?'; }],
   ['IB borrow', function (x) { return (x.tags || {}).borrow || '?'; }],
+  ['Shortable at IB', function (x) { var v = ibState(x); return v === 'yes' ? 'yes' : v === 'no' ? 'no' : '?'; }],
   ['In your universe', function (x) { return (x.tags || {}).universe || '?'; }],
   ['BAO posted it', function (x) { var t = x.tags || {}; return t.bao_posted === undefined ? '?' : (t.bao_posted ? 'yes' : 'no'); }],
   ['Top-signal score (of 5)', function (x) { var s = (x.tags || {}).score; return s === undefined || s === null ? '?' : 'score ' + s; }],
@@ -1279,7 +1293,7 @@ function stTrades() {                      // every trade that passes the page f
   var tg = ST.tag ? ST.tag.split('\u0001') : null, g = tg ? TAG_GROUPS.filter(function (q) { return q[0] === tg[0]; })[0] : null;
   return ALL_DAYS.trades.filter(function (x) {
     return keep(x) && (ST.test === 'ALL' || x.test === ST.test) && (ST.rule === 'ALL' || x.rule === ST.rule)
-      && (!ST.from || x._day >= ST.from) && (!ST.to || x._day <= ST.to) && (!g || g[1](x) === tg[1]);
+      && (ST.ib === 'ALL' || ibState(x) === ST.ib) && (!ST.from || x._day >= ST.from) && (!ST.to || x._day <= ST.to) && (!g || g[1](x) === tg[1]);
   }).sort(function (a, b) { return (a._day + a.entry_time).localeCompare(b._day + b.entry_time); });
 }
 function byDay(list) {
@@ -1306,7 +1320,7 @@ function stFilters() {                     // fill the filter dropdowns (keeps t
 }
 function stSet(k, v) { ST[k] = v; buildStats(); }
 function stSub(v) { ST.sub = v; buildStats(); }
-function stClear() { ST.test = 'ALL'; ST.rule = 'ALL'; ST.tag = ''; ST.from = ''; ST.to = ''; document.getElementById('stFrom').value = ''; document.getElementById('stTo').value = ''; buildStats(); }
+function stClear() { ST.ib = 'ALL'; document.getElementById('stIb').value = 'ALL'; ST.test = 'ALL'; ST.rule = 'ALL'; ST.tag = ''; ST.from = ''; ST.to = ''; document.getElementById('stFrom').value = ''; document.getElementById('stTo').value = ''; buildStats(); }
 
 // --- small SVG charts (no library): bars (green / red) and a line --------------------------------------------
 function svgEl(tag, a) { var e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (var k in a) e.setAttribute(k, a[k]); return e; }
@@ -1365,6 +1379,16 @@ function buildStats() {
   var list = stTrades(), s = ruleStats(list), days = byDay(list), dk = Object.keys(days).sort();
   document.getElementById('stSummary').textContent = list.length + ' trades · ' + dk.length + ' days · net ' + money(s.net) + ' · win ' + s.win + '% · PF ' + s.pf +
     (PM_ONLY ? ' · premarket only' : ' · all hours') + ' · simulated test fills (Live ladder = real money)';
+  var ibl = document.getElementById('stIbSplit'); ibl.innerHTML = '';          // the same filter split by IB shares
+  var saved = ST.ib; ST.ib = 'ALL'; var base = stTrades(); ST.ib = saved;
+  [['yes', 'Shortable at IB'], ['no', 'Not shortable at IB (needs another broker / locates)'], ['?', 'IB borrow not recorded']].forEach(function (k) {
+    var a = base.filter(function (x) { return ibState(x) === k[0]; }); if (!a.length) return;
+    var r = ruleStats(a), c = el('span', {cls: 'rv-day' + (ST.ib === k[0] ? ' on' : ''), style: 'cursor:' + (k[0] === '?' ? 'default' : 'pointer') + ';'});
+    c.appendChild(el('span', {style: 'color:var(--t2);'}, k[1] + ': ')); c.appendChild(el('span', null, r.n + ' trades · '));
+    c.appendChild(el('span', {cls: cls(r.net)}, money(r.net))); c.appendChild(el('span', {style: 'color:var(--t2);'}, ' · win ' + r.win + '% · PF ' + r.pf));
+    if (k[0] !== '?') c.onclick = function () { ST.ib = ST.ib === k[0] ? 'ALL' : k[0]; document.getElementById('stIb').value = ST.ib; buildStats(); };
+    ibl.appendChild(c);
+  });
   box.innerHTML = '';
   ({overview: stOverview, detailed: stDetailed, winloss: stWinLoss, drawdown: stDrawdown, tags: stTags})[ST.sub](box, list, days, dk);
 }
