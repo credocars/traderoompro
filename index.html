@@ -201,10 +201,6 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
       <input class="form-input" id="regName" type="text" placeholder="Your display name" maxlength="24" autocomplete="name"/>
       <input class="form-input" id="regEmail" type="email" placeholder="Email address" autocomplete="email"/>
       <input class="form-input" id="regPassword" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password" onkeydown="if(event.key==='Enter')handleAuth()"/>
-      <div class="role-row">
-        <button class="role-btn active" id="roleStudent" onclick="setRole('student')">🎓 Student</button>
-        <button class="role-btn pro" id="roleInstructor" onclick="setRole('instructor')">⭐ Instructor</button>
-      </div>
     </div>
 
     <div class="form-error" id="formError"></div>
@@ -317,7 +313,7 @@ function handleAuth(){
     if(!name||!email||!pass){showErr('Please fill in all fields.');return;}
     if(pass.length<6){showErr('Password must be at least 6 characters.');return;}
     auth.createUserWithEmailAndPassword(email,pass)
-      .then(c=>{db.ref('traderoom/users/'+c.user.uid).set({name,role:selectedRole,email});window.location.href='trading-dashboard.html';})
+      .then(c=>{db.ref('traderoom/users/'+c.user.uid).set({name,role:'student',email});window.location.href='trading-dashboard.html';})
       .catch(e=>showErr(friendlyErr(e.code)));
   }
 }
