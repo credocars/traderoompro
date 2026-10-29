@@ -215,6 +215,39 @@ body{display:flex;}
 .rv-table tbody tr.sel{background:rgba(6,182,212,.08);}
 .rv-table .r{text-align:right;}
 .pos{color:var(--green);} .neg{color:var(--red);}
+/* reports by pattern / tag */
+.st-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px;}
+.st-filters label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;}
+.st-filters .rv-select{min-width:130px;color-scheme:dark;}
+.st-summary{font-size:13px;color:var(--t2);margin:0 0 14px;}
+.st-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.st-seg{display:inline-flex;background:var(--card2);border:1px solid var(--border-hi);border-radius:9px;padding:3px;gap:2px;margin-bottom:14px;}
+.st-bar .st-seg{margin-bottom:0;}
+.st-seg button{font-family:inherit;font-size:13px;font-weight:600;padding:6px 13px;border-radius:7px;border:none;background:transparent;color:var(--t2);cursor:pointer;}
+.st-seg button.on{background:var(--card);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.4);}
+.st-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.st-grid2>.rv-card{margin-bottom:16px;min-width:0;}
+@media (max-width:1100px){.st-grid2{grid-template-columns:1fr;}}
+.st-body{padding:10px 12px 8px;}
+.st-svg{display:block;height:230px;}
+.st-grid{stroke:#243044;stroke-width:1;} .st-zero{stroke:#475569;stroke-width:1.2;}
+.st-ax{fill:#94a3b8;font-size:11px;font-family:Inter,sans-serif;}
+.st-up{fill:#22c55e;} .st-dn{fill:#ef4444;} .st-cy{fill:#06b6d4;}
+.st-line{fill:none;stroke:#22c55e;stroke-width:2.2;stroke-linejoin:round;}
+.st-empty{padding:30px;text-align:center;color:var(--t3);font-size:13px;}
+.st-note{font-size:12px;color:var(--t3);}
+.st-hb{background:var(--card2);border-radius:4px;height:10px;overflow:hidden;}
+.st-hbi{height:100%;border-radius:4px;} .st-hbi.up{background:#22c55e;} .st-hbi.dn{background:#ef4444;}
+.st-cal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media (max-width:1100px){.st-cal{grid-template-columns:1fr 1fr;}} @media (max-width:700px){.st-cal{grid-template-columns:1fr;}}
+.st-month{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.st-mhead{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:10px;}
+.st-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.st-wd{font-size:11px;color:var(--t3);text-align:center;font-weight:700;padding-bottom:4px;}
+.st-d{border-radius:6px;min-height:42px;padding:4px 2px;text-align:center;font-size:12px;color:var(--t2);}
+.st-d.up{background:rgba(34,197,94,.16);color:#4ade80;cursor:pointer;} .st-d.dn{background:rgba(239,68,68,.16);color:#f87171;cursor:pointer;}
+.st-d.up:hover,.st-d.dn:hover{outline:1px solid var(--border-hi);}
+.st-dn1{font-weight:700;} .st-dn2{font-size:10px;margin-top:2px;font-variant-numeric:tabular-nums;}
 .rv-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t2);margin-left:6px;}
 .rv-badge.live{color:var(--gold);border-color:var(--gold);}
 .rv-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);}
@@ -354,7 +387,8 @@ body{display:flex;}
     <div class="rv-tabs" id="mainTabs">
       <button class="rv-tab active" data-v="day" onclick="showView('day')">Day</button>
       <button class="rv-tab" data-v="totals" onclick="showView('totals')">Running totals</button>
-      <button class="rv-tab" data-v="reports" onclick="showView('reports')">Reports</button>
+      <button class="rv-tab" data-v="stats" onclick="showView('stats'); buildStats();">Reports</button>
+      <button class="rv-tab" data-v="reports" onclick="showView('reports')">Text reports</button>
     </div>
 
     <div id="viewDay">
@@ -448,6 +482,26 @@ body{display:flex;}
       </div>
     </div>
 
+    <div id="viewStats" style="display:none;">
+      <div class="st-filters">
+        <label>Test<select id="stTest" class="rv-select" onchange="stSet('test', this.value)"></select></label>
+        <label>Rule<select id="stRule" class="rv-select" onchange="stSet('rule', this.value)"></select></label>
+        <label>Tag / pattern<select id="stTag" class="rv-select" onchange="stSet('tag', this.value)"></select></label>
+        <label>From<input id="stFrom" type="date" class="rv-select" onchange="stSet('from', this.value)"></label>
+        <label>To<input id="stTo" type="date" class="rv-select" onchange="stSet('to', this.value)"></label>
+        <button class="rv-tab" onclick="stClear()">Clear</button>
+      </div>
+      <div class="rv-tabs" id="stSubs">
+        <button class="rv-tab active" data-v="overview" onclick="stSub('overview')">Overview</button>
+        <button class="rv-tab" data-v="detailed" onclick="stSub('detailed')">Detailed</button>
+        <button class="rv-tab" data-v="winloss" onclick="stSub('winloss')">Win vs Loss Days</button>
+        <button class="rv-tab" data-v="drawdown" onclick="stSub('drawdown')">Drawdown</button>
+        <button class="rv-tab" data-v="tags" onclick="stSub('tags')">Tag Breakdown</button>
+      </div>
+      <div class="st-summary" id="stSummary"></div>
+      <div id="stOut"></div>
+    </div>
+
     <div id="viewReports" style="display:none;">
       <div class="rv-tabs" id="repTabs"></div>
       <div class="rv-card"><div class="rv-card-title" id="repUpdated"></div><pre class="rv-pre" id="repText">—</pre></div>
@@ -524,7 +578,7 @@ function startReview() {
 }
 
 function showView(v) {
-  ['day', 'totals', 'reports'].forEach(function (x) {
+  ['day', 'totals', 'stats', 'reports'].forEach(function (x) {
     document.getElementById('view' + x[0].toUpperCase() + x.slice(1)).style.display = (x === v) ? 'block' : 'none';
   });
   Array.prototype.forEach.call(document.querySelectorAll('#mainTabs .rv-tab'), function (b) { b.classList.toggle('active', b.dataset.v === v); });
@@ -549,6 +603,7 @@ function buildIndex() {                   // day list + running totals from the 
   if (!days.length) sel.appendChild(el('option', null, 'no days yet'));
   days.forEach(function (d) { sel.appendChild(el('option', {value: d}, d)); });
   buildTotals();
+  buildStats();
 }
 function togglePm() {
   PM_ONLY = !PM_ONLY;
@@ -1186,6 +1241,313 @@ function handleLogout() {
     window.location.href = 'courses.html';
   });
 }
+
+// ═══ REPORTS by pattern / tag (like Tradervue) - built in the browser from every day's test trades ═══
+var ST = {sub: 'overview', ov: 'recent', recent: 30, year: null, group: 'ALL', test: 'ALL', rule: 'ALL', tag: '', from: '', to: ''};
+var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function hmMin(hm) { hm = (hm || '').slice(0, 5); return hm.length === 5 ? +hm.slice(0, 2) * 60 + +hm.slice(3) : null; }
+function bucket(v, edges, fmt) {           // edges [1,2,3] -> '<1', '1-2', '2-3', '3+'
+  if (v === null || v === undefined || isNaN(v)) return '?';
+  for (var i = 0; i < edges.length; i++) if (v < edges[i]) return i ? fmt(edges[i - 1]) + '-' + fmt(edges[i]) : '<' + fmt(edges[0]);
+  return fmt(edges[edges.length - 1]) + '+';
+}
+var TAG_GROUPS = [                         // [name, function(trade) -> value]
+  ['Test', function (x) { return TEST_NAME[x.test] || x.test; }],
+  ['Rule', function (x) { return x.rule || '-'; }],
+  ['Round (first spike / re-entry)', function (x) { var r = (x.tags || {}).round; return r > 1 ? 'round ' + r + ' (re-entry)' : 'round 1 (first spike)'; }],
+  ['Session', function (x) { return session(x.entry_time); }],
+  ['Entry time (30 min)', function (x) { var m = hmMin(x.entry_time); if (m === null) return '?'; m -= m % 30; var p = function (k) { return ('0' + Math.floor(k / 60)).slice(-2) + ':' + ('0' + k % 60).slice(-2); }; return p(m) + '-' + p(m + 30); }],
+  ['Weekday', function (x) { return WD[new Date(x._day + 'T12:00:00').getDay()]; }],
+  ['Price at entry', function (x) { return '$' + bucket(x.entry, [1, 2, 3, 5, 10], function (v) { return v; }); }],
+  ['Country', function (x) { return (x.tags || {}).country_b || '?'; }],
+  ['Float', function (x) { return (x.tags || {}).float_b || '?'; }],
+  ['IB borrow', function (x) { return (x.tags || {}).borrow || '?'; }],
+  ['In your universe', function (x) { return (x.tags || {}).universe || '?'; }],
+  ['BAO posted it', function (x) { var t = x.tags || {}; return t.bao_posted === undefined ? '?' : (t.bao_posted ? 'yes' : 'no'); }],
+  ['Top-signal score (of 5)', function (x) { var s = (x.tags || {}).score; return s === undefined || s === null ? '?' : 'score ' + s; }],
+  ['BAOX confirmation', function (x) { return (x.tags || {}).way || '?'; }],
+  ['Room to VWAP', function (x) { var r = (x.tags || {}).room; return r === undefined || r === null ? '?' : '$' + bucket(+r, [0.3, 0.5, 1, 2], function (v) { return v.toFixed(2); }); }],
+  ['Runner risk', function (x) { return (x.tags || {}).risk || '?'; }],
+  ['Exit reason', function (x) { return (x.reason || '?').split(' (')[0]; }],
+  ['Hold time', function (x) { var a = hmMin(x.entry_time), b = hmMin(x.exit_time); return a === null || b === null ? '?' : bucket(b - a, [2, 5, 15, 30, 60], function (v) { return v; }) + ' min'; }],
+  ['Worst move against', function (x) { return x.mae_pct === null || x.mae_pct === undefined ? '?' : '+' + bucket(+x.mae_pct, [2, 5, 10, 20], function (v) { return v; }) + '%'; }],
+  ['Shares', function (x) { return bucket(x.shares, [200, 500, 1000], function (v) { return v; }) + ' sh'; }]
+];
+function stTrades() {                      // every trade that passes the page filter + the report filters
+  if (!ALL_DAYS) return [];
+  var tg = ST.tag ? ST.tag.split('\u0001') : null, g = tg ? TAG_GROUPS.filter(function (q) { return q[0] === tg[0]; })[0] : null;
+  return ALL_DAYS.trades.filter(function (x) {
+    return keep(x) && (ST.test === 'ALL' || x.test === ST.test) && (ST.rule === 'ALL' || x.rule === ST.rule)
+      && (!ST.from || x._day >= ST.from) && (!ST.to || x._day <= ST.to) && (!g || g[1](x) === tg[1]);
+  }).sort(function (a, b) { return (a._day + a.entry_time).localeCompare(b._day + b.entry_time); });
+}
+function byDay(list) {
+  var o = {}; list.forEach(function (x) { var d = (o[x._day] = o[x._day] || {n: 0, net: 0, w: 0}); d.n++; d.net += x.net || 0; if (x.net > 0) d.w++; });
+  return o;
+}
+function stFilters() {                     // fill the filter dropdowns (keeps the current choice)
+  var all = ALL_DAYS ? ALL_DAYS.trades.filter(keep) : [];
+  function fill(id, opts, cur) {
+    var s = document.getElementById(id); s.innerHTML = '';
+    opts.forEach(function (o) { var e = el('option', {value: o[0]}, o[1]); if (o[0] === cur) e.selected = true; s.appendChild(e); });
+  }
+  fill('stTest', [['ALL', 'All tests']].concat(TESTS.filter(function (t) { return all.some(function (x) { return x.test === t; }); }).map(function (t) { return [t, TEST_NAME[t]]; })), ST.test);
+  var rules = {}; all.forEach(function (x) { if (ST.test === 'ALL' || x.test === ST.test) rules[x.rule || '-'] = 1; });
+  if (ST.rule !== 'ALL' && !rules[ST.rule]) ST.rule = 'ALL';
+  fill('stRule', [['ALL', 'All rules']].concat(Object.keys(rules).sort().map(function (r) { return [r, r]; })), ST.rule);
+  var tags = [['', 'All tags']];
+  TAG_GROUPS.slice(2).forEach(function (g) {
+    var vals = {}; all.forEach(function (x) { var v = g[1](x); if (v !== '?') vals[v] = 1; });
+    Object.keys(vals).sort().forEach(function (v) { tags.push([g[0] + '\u0001' + v, g[0] + ': ' + v]); });
+  });
+  if (ST.tag && !tags.some(function (t) { return t[0] === ST.tag; })) ST.tag = '';
+  fill('stTag', tags, ST.tag);
+}
+function stSet(k, v) { ST[k] = v; buildStats(); }
+function stSub(v) { ST.sub = v; buildStats(); }
+function stClear() { ST.test = 'ALL'; ST.rule = 'ALL'; ST.tag = ''; ST.from = ''; ST.to = ''; document.getElementById('stFrom').value = ''; document.getElementById('stTo').value = ''; buildStats(); }
+
+// --- small SVG charts (no library): bars (green / red) and a line --------------------------------------------
+function svgEl(tag, a) { var e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (var k in a) e.setAttribute(k, a[k]); return e; }
+function axisMoney(v) { var a = Math.abs(v); return (v < 0 ? '−$' : '$') + (a >= 1000 ? (a / 1000).toFixed(a >= 10000 ? 0 : 1) + 'K' : Math.round(a)); }
+function niceTicks(lo, hi) {
+  if (lo === hi) { lo -= 1; hi += 1; }
+  var span = hi - lo, step = Math.pow(10, Math.floor(Math.log10(span / 4))), m = span / 4 / step;
+  step *= m > 5 ? 10 : m > 2 ? 5 : m > 1 ? 2 : 1;
+  var out = []; for (var v = Math.floor(lo / step) * step; v <= hi + step * 0.001; v += step) out.push(Math.round(v * 100) / 100);
+  return out;
+}
+function chart(box, labels, vals, opt) {   // opt: {type:'bar'|'line', money:true, color, title, hint:fn(i)}
+  opt = opt || {};
+  box.innerHTML = '';
+  if (!vals.length) { box.appendChild(el('div', {cls: 'st-empty'}, 'No trades for this filter.')); return; }
+  var W = 640, H = 230, L = 58, R = 10, T = 12, B = 34;
+  var lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max(0, Math.max.apply(null, vals));
+  var ticks = niceTicks(lo, hi); lo = Math.min(lo, ticks[0]); hi = Math.max(hi, ticks[ticks.length - 1]);
+  var y = function (v) { return T + (hi - v) / (hi - lo || 1) * (H - T - B); };
+  var svg = svgEl('svg', {viewBox: '0 0 ' + W + ' ' + H, width: '100%', preserveAspectRatio: 'none', 'class': 'st-svg'});
+  ticks.forEach(function (tv) {
+    svg.appendChild(svgEl('line', {x1: L, x2: W - R, y1: y(tv), y2: y(tv), 'class': tv === 0 ? 'st-zero' : 'st-grid'}));
+    var tx = svgEl('text', {x: L - 6, y: y(tv) + 4, 'text-anchor': 'end', 'class': 'st-ax'}); tx.textContent = opt.money === false ? tv : axisMoney(tv); svg.appendChild(tx);
+  });
+  var n = vals.length, cw = (W - L - R) / n, every = Math.max(1, Math.ceil(n / 8));
+  if (opt.type === 'line') {
+    var pts = vals.map(function (v, i) { return (L + cw * (i + 0.5)).toFixed(1) + ',' + y(v).toFixed(1); }).join(' ');
+    svg.appendChild(svgEl('polyline', {points: pts, 'class': 'st-line'}));
+  }
+  vals.forEach(function (v, i) {
+    var x = L + cw * i;
+    if (opt.type !== 'line') {
+      var top = y(Math.max(v, 0)), h = Math.max(1, Math.abs(y(v) - y(0)));
+      var r = svgEl('rect', {x: x + cw * 0.15, width: Math.max(1, cw * 0.7), y: top, height: h, 'class': opt.color || (v >= 0 ? 'st-up' : 'st-dn')});
+      var tt = svgEl('title', {}); tt.textContent = labels[i] + ': ' + (opt.money === false ? v : money(v)) + (opt.hint ? ' · ' + opt.hint(i) : ''); r.appendChild(tt);
+      svg.appendChild(r);
+    }
+    if (i % every === 0) { var lb = svgEl('text', {x: x + cw / 2, y: H - 12, 'text-anchor': 'middle', 'class': 'st-ax'}); lb.textContent = labels[i]; svg.appendChild(lb); }
+  });
+  box.appendChild(svg);
+}
+function card(parent, title, cls2) { var c = el('div', {cls: 'rv-card ' + (cls2 || '')}); c.appendChild(el('div', {cls: 'rv-card-title'}, title)); var b = el('div', {cls: 'st-body'}); c.appendChild(b); parent.appendChild(c); return b; }
+function grid2(parent) { var g = el('div', {cls: 'st-grid2'}); parent.appendChild(g); return g; }
+function seg(parent, items, cur, fn) {
+  var s = el('div', {cls: 'st-seg'});
+  items.forEach(function (it) { var b = el('button', {cls: it[0] === cur ? 'on' : ''}, it[1]); b.onclick = function () { fn(it[0]); }; s.appendChild(b); });
+  parent.appendChild(s); return s;
+}
+
+// --- views -----------------------------------------------------------------------------------------------------
+function buildStats() {
+  var box = document.getElementById('stOut');
+  if (!box || !ALL_DAYS) return;
+  stFilters();
+  Array.prototype.forEach.call(document.querySelectorAll('#stSubs .rv-tab'), function (b) { b.classList.toggle('active', b.dataset.v === ST.sub); });
+  var list = stTrades(), s = ruleStats(list), days = byDay(list), dk = Object.keys(days).sort();
+  document.getElementById('stSummary').textContent = list.length + ' trades · ' + dk.length + ' days · net ' + money(s.net) + ' · win ' + s.win + '% · PF ' + s.pf +
+    (PM_ONLY ? ' · premarket only' : ' · all hours') + ' · simulated test fills (Live ladder = real money)';
+  box.innerHTML = '';
+  ({overview: stOverview, detailed: stDetailed, winloss: stWinLoss, drawdown: stDrawdown, tags: stTags})[ST.sub](box, list, days, dk);
+}
+function stOverview(box, list, days, dk) {
+  var bar = el('div', {cls: 'st-bar'}); box.appendChild(bar);
+  seg(bar, [['recent', 'Recent'], ['ymd', 'Year/Month/Day'], ['cal', 'Calendar']], ST.ov, function (v) { ST.ov = v; buildStats(); });
+  var years = Object.keys(dk.reduce(function (o, d) { o[d.slice(0, 4)] = 1; return o; }, {})).sort();
+  if (!ST.year || years.indexOf(ST.year) < 0) ST.year = years[years.length - 1] || String(new Date().getFullYear());
+  if (ST.ov === 'recent') {
+    seg(bar, [[30, '30 Days'], [60, '60 Days'], [90, '90 Days']], ST.recent, function (v) { ST.recent = v; buildStats(); });
+    var last = dk.slice(-ST.recent), cum = 0, cums = [], wins = [], vols = [];
+    last.forEach(function (d) { cum += days[d].net; cums.push(cum); wins.push(Math.round(days[d].w / days[d].n * 100)); vols.push(days[d].n); });
+    var g = grid2(box);
+    chart(card(g, 'Daily P&L (' + last.length + ' trading days)'), last.map(function (d) { return d.slice(5); }), last.map(function (d) { return days[d].net; }), {hint: function (i) { return days[last[i]].n + ' trades'; }});
+    chart(card(g, 'Cumulative P&L'), last.map(function (d) { return d.slice(5); }), cums, {type: 'line'});
+    var g2 = grid2(box);
+    chart(card(g2, 'Trades per day'), last.map(function (d) { return d.slice(5); }), vols, {money: false, color: 'st-cy'});
+    chart(card(g2, 'Win % per day'), last.map(function (d) { return d.slice(5); }), wins, {money: false, color: 'st-cy'});
+  } else if (ST.ov === 'ymd') {
+    var byY = {}; list.forEach(function (x) { var k = x._day.slice(0, 4); (byY[k] = byY[k] || []).push(x); });
+    var ys = Object.keys(byY).sort(), g = grid2(box);
+    chart(card(g, 'Trade distribution by year'), ys, ys.map(function (k) { return byY[k].length; }), {money: false, color: 'st-up'});
+    chart(card(g, 'Performance by year'), ys, ys.map(function (k) { return ruleStats(byY[k]).net; }));
+    seg(box, years.map(function (y_) { return [y_, y_]; }), ST.year, function (v) { ST.year = v; buildStats(); });
+    var inY = list.filter(function (x) { return x._day.slice(0, 4) === ST.year; }), byM = MONTHS.map(function () { return []; });
+    inY.forEach(function (x) { byM[+x._day.slice(5, 7) - 1].push(x); });
+    var g2 = grid2(box), ml = MONTHS.map(function (m) { return m.slice(0, 3); });
+    chart(card(g2, 'Trade distribution by month (' + ST.year + ')'), ml, byM.map(function (a) { return a.length; }), {money: false, color: 'st-up'});
+    chart(card(g2, 'Performance by month (' + ST.year + ')'), ml, byM.map(function (a) { return ruleStats(a).net; }));
+    var byW = [1, 2, 3, 4, 5].map(function () { return []; });
+    inY.forEach(function (x) { var w = new Date(x._day + 'T12:00:00').getDay(); if (w >= 1 && w <= 5) byW[w - 1].push(x); });
+    var g3 = grid2(box), wl = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    chart(card(g3, 'Trade distribution by weekday (' + ST.year + ')'), wl, byW.map(function (a) { return a.length; }), {money: false, color: 'st-up'});
+    chart(card(g3, 'Performance by weekday (' + ST.year + ')'), wl, byW.map(function (a) { return ruleStats(a).net; }));
+  } else {
+    seg(bar, years.map(function (y_) { return [y_, y_]; }), ST.year, function (v) { ST.year = v; buildStats(); });
+    var cal = el('div', {cls: 'st-cal'}); box.appendChild(cal);
+    var months = MONTHS.map(function (_, m) { return m; }).filter(function (m) { var p = ST.year + '-' + ('0' + (m + 1)).slice(-2); return dk.some(function (d) { return d.slice(0, 7) === p; }); });
+    if (!months.length) cal.appendChild(el('div', {cls: 'st-empty'}, 'No trades in ' + ST.year + '.'));
+    months.forEach(function (m) {
+      var mm = ST.year + '-' + ('0' + (m + 1)).slice(-2), ms = dk.filter(function (d) { return d.slice(0, 7) === mm; });
+      var net = ms.reduce(function (a, d) { return a + days[d].net; }, 0), n = ms.reduce(function (a, d) { return a + days[d].n; }, 0);
+      var c = el('div', {cls: 'st-month'});
+      var hd = el('div', {cls: 'st-mhead'}); hd.appendChild(el('span', null, MONTHS[m] + ', ' + ST.year)); hd.appendChild(el('span', {cls: cls(net)}, money(net) + ' · ' + n + ' tr')); c.appendChild(hd);
+      var gd = el('div', {cls: 'st-days'});
+      WD.forEach(function (w) { gd.appendChild(el('div', {cls: 'st-wd'}, w)); });
+      var first = new Date(+ST.year, m, 1).getDay(), dim = new Date(+ST.year, m + 1, 0).getDate();
+      for (var k = 0; k < first; k++) gd.appendChild(el('div', {cls: 'st-d off'}));
+      for (var dd = 1; dd <= dim; dd++) {
+        var key = mm + '-' + ('0' + dd).slice(-2), x = days[key], cell = el('div', {cls: 'st-d' + (x ? (x.net >= 0 ? ' up' : ' dn') : '')});
+        cell.appendChild(el('div', {cls: 'st-dn1'}, dd));
+        if (x) {
+          cell.appendChild(el('div', {cls: 'st-dn2'}, axisMoney(x.net)));
+          cell.title = key + ': ' + money(x.net) + ', ' + x.n + ' trades, ' + Math.round(x.w / x.n * 100) + '% win - click for the day';
+          (function (k2) { cell.onclick = function () { loadDay(k2); showView('day'); }; })(key);
+        }
+        gd.appendChild(cell);
+      }
+      c.appendChild(gd); cal.appendChild(c);
+    });
+  }
+}
+function detail(list, days) {             // Tradervue "Detailed" numbers for a set of trades
+  var s = ruleStats(list), w = list.filter(function (x) { return x.net > 0; }), l = list.filter(function (x) { return x.net < 0; });
+  var dvals = Object.keys(days).map(function (d) { return days[d].net; });
+  var hold = function (a) { var v = a.map(function (x) { var p = hmMin(x.entry_time), q = hmMin(x.exit_time); return p === null || q === null ? null : q - p; }).filter(function (v) { return v !== null; }); return v.length ? (v.reduce(function (p, q) { return p + q; }, 0) / v.length).toFixed(1) + ' min' : '—'; };
+  var streak = function (sign) { var best = 0, cur = 0; list.forEach(function (x) { if (sign * (x.net || 0) > 0) { cur++; best = Math.max(best, cur); } else cur = 0; }); return best; };
+  var avg = function (a, f) { var v = a.map(f).filter(function (z) { return z !== null && z !== undefined && !isNaN(z); }); return v.length ? v.reduce(function (p, q) { return p + +q; }, 0) / v.length : null; };
+  var costs = list.reduce(function (a, x) { return a + (x.costs || 0); }, 0), sh = list.reduce(function (a, x) { return a + (x.shares || 0); }, 0);
+  var mae = avg(list, function (x) { return x.mae_pct; });
+  return [
+    ['Total net P&L', money(s.net), cls(s.net)], ['Average daily P&L', money(dvals.length ? s.net / dvals.length : 0), cls(s.net)],
+    ['Average trade', money(s.avg), cls(s.avg)], ['Number of trades', s.n], ['Trading days', dvals.length],
+    ['Win %', s.win + '%'], ['Winning trades', w.length], ['Losing trades', l.length], ['Profit factor', s.pf],
+    ['Average winner', money(avg(w, function (x) { return x.net; }) || 0), 'pos'], ['Average loser', money(avg(l, function (x) { return x.net; }) || 0), 'neg'],
+    ['Largest gain', money(s.best), cls(s.best)], ['Largest loss', money(s.worst), cls(s.worst)],
+    ['Trades below −$300 (bot limit)', list.filter(function (x) { return (x.net || 0) <= -300; }).length, ''],
+    ['Max consecutive wins', streak(1)], ['Max consecutive losses', streak(-1)],
+    ['Avg hold, winners', hold(w)], ['Avg hold, losers', hold(l)],
+    ['Avg worst move against (MAE)', mae === null ? '—' : '+' + mae.toFixed(1) + '%'], ['Best day', money(dvals.length ? Math.max.apply(null, dvals) : 0), 'pos'],
+    ['Worst day', money(dvals.length ? Math.min.apply(null, dvals) : 0), 'neg'], ['Total shares', sh.toLocaleString('en-US')],
+    ['Costs (slippage + commission)', money(-costs), costs ? 'neg' : '']
+  ];
+}
+function kvTable(parent, rows, cols) {
+  var t = el('table', {cls: 'rv-table'}), hb = el('thead'), hr = el('tr');
+  if (cols) { cols.forEach(function (c, i) { hr.appendChild(el('th', i ? {cls: 'r'} : null, c)); }); hb.appendChild(hr); t.appendChild(hb); }
+  var tb = el('tbody'); t.appendChild(tb);
+  rows.forEach(function (r) {
+    var tr = el('tr'); tr.appendChild(el('td', {style: 'color:var(--t2);'}, r[0]));
+    (r.vals || [[r[1], r[2]]]).forEach(function (v) { tr.appendChild(el('td', {cls: 'r ' + (v[1] || '')}, v[0])); });
+    tb.appendChild(tr);
+  });
+  var w = el('div', {cls: 'rv-scroll'}); w.appendChild(t); parent.appendChild(w);
+}
+function stDetailed(box, list, days) {
+  var g = grid2(box);
+  var a = detail(list, days);
+  kvTable(card(g, 'Detailed statistics'), a.slice(0, 12));
+  kvTable(card(g, '…continued'), a.slice(12));
+  var pick = ['Session', 'Entry time (30 min)', 'Price at entry', 'Hold time', 'Exit reason', 'Worst move against'];
+  var g2 = grid2(box);
+  pick.forEach(function (name) { tagCard(g2, name, list); });
+}
+function stWinLoss(box, list, days) {
+  var wd = Object.keys(days).filter(function (d) { return days[d].net > 0; }), ld = Object.keys(days).filter(function (d) { return days[d].net <= 0; });
+  var pickDays = function (ds) { var o = {}; ds.forEach(function (d) { o[d] = days[d]; }); return o; };
+  var wl = list.filter(function (x) { return wd.indexOf(x._day) >= 0; }), ll = list.filter(function (x) { return ld.indexOf(x._day) >= 0; });
+  var A = detail(wl, pickDays(wd)), B = detail(ll, pickDays(ld));
+  var b = card(box, 'Winning days (' + wd.length + ') vs losing days (' + ld.length + ')');
+  kvTable(b, A.map(function (r, i) { return {0: r[0], vals: [[r[1], r[2]], [B[i][1], B[i][2]]]}; }), ['', 'Winning days', 'Losing days']);
+  var g = grid2(box);
+  tagCard(g, 'Rule', wl, 'Rules on winning days'); tagCard(g, 'Rule', ll, 'Rules on losing days');
+}
+function stDrawdown(box, list, days, dk) {
+  var cum = 0, peak = 0, dd = [], cums = [], maxDD = 0, maxAt = '', peakDay = dk[0] || '', longest = 0, startDD = null;
+  dk.forEach(function (d) {
+    cum += days[d].net; cums.push(cum);
+    if (cum >= peak) { peak = cum; peakDay = d; if (startDD !== null) startDD = null; } else if (startDD === null) startDD = dk.indexOf(d);
+    var x = cum - peak; dd.push(x);
+    if (x < maxDD) { maxDD = x; maxAt = d; }
+    if (startDD !== null) longest = Math.max(longest, dk.indexOf(d) - startDD + 1);
+  });
+  var b = el('div', {cls: 'stats-row'}); box.appendChild(b);
+  [['Max drawdown', money(maxDD), 'neg'], ['Max drawdown on', maxAt || '—', ''], ['Longest drawdown', longest + ' trading days', ''], ['Now below the peak', money(dd.length ? dd[dd.length - 1] : 0), dd.length && dd[dd.length - 1] < 0 ? 'neg' : 'pos']]
+    .forEach(function (k) { var c = el('div', {cls: 'stat-card'}); c.appendChild(el('div', {cls: 'stat-label'}, k[0])); c.appendChild(el('div', {cls: 'stat-value ' + k[2], style: 'font-size:20px;'}, k[1])); b.appendChild(c); });
+  var g = grid2(box);
+  chart(card(g, 'Cumulative P&L'), dk.map(function (d) { return d.slice(5); }), cums, {type: 'line'});
+  chart(card(g, 'Drawdown from the peak'), dk.map(function (d) { return d.slice(5); }), dd, {color: 'st-dn'});
+}
+var ORDERED = {'Round (first spike / re-entry)': 1, 'Session': 1, 'Entry time (30 min)': 1, 'Weekday': 1, 'Price at entry': 1,
+               'Top-signal score (of 5)': 1, 'Room to VWAP': 1, 'Hold time': 1, 'Worst move against': 1, 'Shares': 1};
+function orderKey(v) {
+  if (v === '?') return 1e9;
+  var w = WD.indexOf(v); if (w >= 0) return w;
+  if (v.indexOf('after the open') >= 0) return 99;
+  if (v.indexOf('<') >= 0) return -1;
+  var m = v.replace(':', '.').match(/[\d.]+/); return m ? parseFloat(m[0]) : 1e8;
+}
+function tagCard(parent, name, list, title) {
+  var g = TAG_GROUPS.filter(function (q) { return q[0] === name; })[0], by = {};
+  list.forEach(function (x) { var v = g[1](x); (by[v] = by[v] || []).push(x); });
+  var rows = Object.keys(by).map(function (v) { return [v, ruleStats(by[v])]; });
+  if (ORDERED[name]) rows.sort(function (a, b) { return orderKey(a[0]) - orderKey(b[0]); });   // time / size groups in order
+  else rows.sort(function (a, b) { return b[1].net - a[1].net; });                            // the rest: best first
+  var body = card(parent, title || name);
+  if (!rows.length) { body.appendChild(el('div', {cls: 'st-empty'}, 'No trades.')); return; }
+  var mx = Math.max.apply(null, rows.map(function (r) { return Math.abs(r[1].net); })) || 1;
+  var t = el('table', {cls: 'rv-table'}), hr = el('tr');
+  ['Value', 'Trades', 'Win', 'Net', 'PF', 'Avg', ''].forEach(function (c, i) { hr.appendChild(el('th', i && i < 6 ? {cls: 'r'} : null, c)); });
+  var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
+  rows.forEach(function (r) {
+    var x = r[1], tr = el('tr', {cls: 'click', title: 'Filter the reports to ' + name + ': ' + r[0]});
+    tr.appendChild(el('td', {style: 'font-weight:600;'}, r[0]));
+    tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
+    tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net))); tr.appendChild(el('td', {cls: 'r'}, x.pf));
+    tr.appendChild(el('td', {cls: 'r ' + cls(x.avg)}, money(x.avg)));
+    var bc = el('td', {style: 'width:34%;min-width:90px;'}), bw = el('div', {cls: 'st-hb'}), bi = el('div', {cls: 'st-hbi ' + (x.net >= 0 ? 'up' : 'dn')});
+    bi.style.width = Math.max(2, Math.abs(x.net) / mx * 100) + '%'; bw.appendChild(bi); bc.appendChild(bw); tr.appendChild(bc);
+    if (name === 'Test' || name === 'Rule') {
+      tr.onclick = function () { var t2 = ALL_DAYS.trades.filter(function (y) { return g[1](y) === r[0]; })[0]; if (name === 'Test') ST.test = t2 ? t2.test : 'ALL'; else ST.rule = r[0]; buildStats(); };
+    } else {
+      tr.onclick = function () { ST.tag = name + '\u0001' + r[0]; buildStats(); };
+    }
+    tb.appendChild(tr);
+  });
+  var w = el('div', {cls: 'rv-scroll'}); w.appendChild(t); body.appendChild(w);
+}
+function stTags(box, list) {
+  var names = TAG_GROUPS.map(function (g) { return g[0]; });
+  var bar = el('div', {cls: 'st-bar'}); box.appendChild(bar);
+  var sel = el('select', {cls: 'rv-select'});
+  [['ALL', 'All tags / patterns']].concat(names.map(function (n) { return [n, n]; })).forEach(function (o) { var e = el('option', {value: o[0]}, o[1]); if (o[0] === ST.group) e.selected = true; sel.appendChild(e); });
+  sel.onchange = function () { ST.group = sel.value; buildStats(); };
+  bar.appendChild(sel);
+  bar.appendChild(el('span', {cls: 'st-note'}, 'Click a row to filter every report to it. Tags with only "?" are not recorded by that test.'));
+  var g = grid2(box);
+  (ST.group === 'ALL' ? names : [ST.group]).forEach(function (n) {
+    var known = list.some(function (x) { return TAG_GROUPS.filter(function (q) { return q[0] === n; })[0][1](x) !== '?'; });
+    if (known || ST.group !== 'ALL') tagCard(g, n, list);
+  });
+}
+
 </script>
 
 </body>
