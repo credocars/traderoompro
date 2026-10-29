@@ -361,6 +361,8 @@ body{display:flex;}
           <div class="rv-cbox">
             <div class="rv-card-title">Stats</div>
             <div class="rv-stats" id="statGrid"></div>
+            <div class="rv-clabel" id="statRulesLabel" style="border-top:1px solid var(--border);">By rule — this day</div>
+            <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="statRules"></tbody></table></div>
           </div>
           <div class="rv-cbox">
             <div class="rv-card-title">Notes</div>
@@ -401,7 +403,7 @@ body{display:flex;}
       </div>
       <div class="rv-card">
         <div class="rv-card-title">By rule — this day</div>
-        <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Test</th><th>Rule</th><th class="r">Trades</th><th class="r">Net</th></tr></thead><tbody id="ruleRows"></tbody></table></div>
+        <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Test</th><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="ruleRows"></tbody></table></div>
       </div>
     </div>
 
@@ -514,7 +516,7 @@ function loadDay(d, then) {
     TRADES.sort(function (a, b) { return (a.entry_time || '').localeCompare(b.entry_time || ''); });
     return firebase.database().ref(ROOT + '/notes/' + d).get().then(function (ns) { NOTES = ns.val() || {}; },
                                                                        function () { NOTES = {}; }).then(function () {
-      buildCards(); buildTestTabs(); buildRows(); buildRules(v.totals || {});
+      buildCards(); buildTestTabs(); buildRows(); buildRules();
       if (then) then();
     });
   });
@@ -574,17 +576,48 @@ function buildRows() {
   if (!body.children.length) { var r = el('tr'); var c = el('td', {colspan: 10, style: 'color:var(--t3);'}, 'No closed trades.'); r.appendChild(c); body.appendChild(r); }
 }
 
-function buildRules(tot) {
+function ruleStats(list) {
+  var nets = list.map(function (x) { return x.net || 0; });
+  var w = nets.filter(function (v) { return v > 0; }), l = nets.filter(function (v) { return v < 0; });
+  var gw = w.reduce(function (a, b) { return a + b; }, 0), gl = -l.reduce(function (a, b) { return a + b; }, 0);
+  var net = nets.reduce(function (a, b) { return a + b; }, 0);
+  return {n: nets.length, net: net, win: nets.length ? Math.round(w.length / nets.length * 100) : 0,
+          pf: gl ? (gw / gl).toFixed(2) : (gw ? '∞' : '—'), avg: nets.length ? net / nets.length : 0,
+          best: nets.length ? Math.max.apply(null, nets) : 0, worst: nets.length ? Math.min.apply(null, nets) : 0};
+}
+function ruleCells(tr, x) {
+  tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
+  tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net))); tr.appendChild(el('td', {cls: 'r'}, x.pf));
+  tr.appendChild(el('td', {cls: 'r ' + cls(x.avg)}, money(x.avg))); tr.appendChild(el('td', {cls: 'r ' + cls(x.best)}, money(x.best)));
+  tr.appendChild(el('td', {cls: 'r ' + cls(x.worst)}, money(x.worst)));
+}
+function rulesOf(test) {
+  var by = {};
+  TRADES.forEach(function (x) { if (x.test === test) (by[x.rule || '-'] = by[x.rule || '-'] || []).push(x); });
+  return by;
+}
+function buildRules() {
   var body = document.getElementById('ruleRows'); body.innerHTML = '';
   TESTS.forEach(function (t) {
-    var rules = tot[t] || {};
-    Object.keys(rules).sort().forEach(function (r) {
-      var x = rules[r], tr = el('tr');
-      tr.appendChild(el('td', null, TEST_NAME[t])); tr.appendChild(el('td', null, r));
-      tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net)));
-      body.appendChild(tr);
+    var by = rulesOf(t);
+    Object.keys(by).sort().forEach(function (r) {
+      var tr = el('tr'); tr.appendChild(el('td', null, TEST_NAME[t])); tr.appendChild(el('td', null, r));
+      ruleCells(tr, ruleStats(by[r])); body.appendChild(tr);
     });
   });
+}
+function statRules(t) {                 // the trade's test: every rule of that day, its own rule highlighted
+  var body = document.getElementById('statRules'); body.innerHTML = '';
+  document.getElementById('statRulesLabel').textContent = 'By rule — this day · ' + (TEST_NAME[t.test] || t.test);
+  var by = rulesOf(t.test), keys = Object.keys(by).sort();
+  keys.forEach(function (r) {
+    var tr = el('tr', r === t.rule ? {cls: 'sel'} : null);
+    tr.appendChild(el('td', {style: r === t.rule ? 'font-weight:700;' : ''}, r)); ruleCells(tr, ruleStats(by[r])); body.appendChild(tr);
+  });
+  if (keys.length > 1) {
+    var all = [].concat.apply([], keys.map(function (k) { return by[k]; }));
+    var tr = el('tr'); tr.appendChild(el('td', {style: 'color:var(--t2);'}, 'all rules')); ruleCells(tr, ruleStats(all)); body.appendChild(tr);
+  }
 }
 
 function buildTotals() {
@@ -766,6 +799,7 @@ function showStats(t, pnl, candles) {
   var gross = pnl.length ? pnl[pnl.length - 1].value : null;
   stat('Exit efficiency', best > 0 && gross !== null ? Math.round(gross / best * 100) + '% of the best' : '—');
   stat('Hold', fs.length ? Math.round((z - a - 60) / 60) + ' min' : '—');
+  statRules(t);
 }
 function dayRunningPnl(t) {          // every closed trade of the same test that day, summed minute by minute
   var same = TRADES.filter(function (x) { return x.test === t.test && (x.fills || []).length; });
