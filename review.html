@@ -215,10 +215,24 @@ body{display:flex;}
 .rv-table tbody tr.sel{background:rgba(6,182,212,.08);}
 .rv-table .r{text-align:right;}
 .pos{color:var(--green);} .neg{color:var(--red);}
+/* left navigation like Tradervue */
+.rv-shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:start;}
+.rv-nav{position:sticky;top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;}
+.rv-nav-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;font-family:inherit;font-size:14px;font-weight:600;padding:10px 12px;border:none;border-radius:8px;background:transparent;color:var(--t2);cursor:pointer;}
+.rv-nav-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+.rv-nav-item.active{background:rgba(34,197,94,.10);color:var(--green);}
+.rv-nav-note{font-size:11px;color:var(--t3);padding:12px 12px 4px;line-height:1.5;border-top:1px solid var(--border);margin-top:8px;}
+@media (max-width:900px){.rv-shell{grid-template-columns:1fr;}.rv-nav{position:static;flex-direction:row;flex-wrap:wrap;}.rv-nav-item{width:auto;}.rv-nav-note{display:none;}}
+.st-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+@media (max-width:1100px){.st-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.st-sub{font-size:12px;color:var(--t2);margin-top:6px;}
+.st-chip{display:inline-block;font-size:11px;font-weight:600;color:var(--t1);background:var(--card2);border:1px solid var(--border-hi);border-radius:5px;padding:2px 7px;margin:1px 4px 1px 0;}
+.st-short{font-size:11px;font-weight:700;color:#f87171;background:rgba(239,68,68,.15);border-radius:4px;padding:2px 7px;}
 /* reports by pattern / tag */
 .st-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px;}
 .st-filters label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;}
 .st-filters .rv-select{min-width:130px;color-scheme:dark;}
+#stTag{max-width:230px;} #stTest,#stRule,#stIb{max-width:170px;}
 .st-summary{font-size:13px;color:var(--t2);margin:0 0 14px;}
 .st-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .st-seg{display:inline-flex;background:var(--card2);border:1px solid var(--border-hi);border-radius:9px;padding:3px;gap:2px;margin-bottom:14px;}
@@ -376,8 +390,8 @@ body{display:flex;}
   <div id="reviewPanel" style="display:none;">
     <div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
       <div>
-        <div class="page-title">Daily Review</div>
-        <div class="page-subtitle">Test trades with 1-min charts, day and running totals. Private — instructors only.</div>
+        <div class="page-title" id="viewTitle">Dashboard</div>
+        <div class="page-subtitle">Daily Review of every test and the live ladder. Private — instructors only.</div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
         <button id="pmBtn" class="rv-tab active" onclick="togglePm()" title="Hide trades entered at or after 09:30 (regular hours)">Premarket only</button>
@@ -386,14 +400,39 @@ body{display:flex;}
       </div>
     </div>
 
-    <div class="rv-tabs" id="mainTabs">
-      <button class="rv-tab active" data-v="day" onclick="showView('day')">Day</button>
-      <button class="rv-tab" data-v="totals" onclick="showView('totals')">Running totals</button>
-      <button class="rv-tab" data-v="stats" onclick="showView('stats'); buildStats();">Reports</button>
-      <button class="rv-tab" data-v="reports" onclick="showView('reports')">Text reports</button>
+    <div class="rv-shell">
+    <nav class="rv-nav" id="mainTabs">
+      <button class="rv-nav-item" data-v="dash" onclick="showView('dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Dashboard</span></button>
+      <button class="rv-nav-item" data-v="cal" onclick="showView('cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendar</span></button>
+      <button class="rv-nav-item" data-v="stats" onclick="showView('stats')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button>
+      <button class="rv-nav-item" data-v="trades" onclick="showView('trades')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><span>Trades</span></button>
+      <button class="rv-nav-item" data-v="day" onclick="showView('day')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span>Day review</span></button>
+      <button class="rv-nav-item" data-v="totals" onclick="showView('totals')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Running totals</span></button>
+      <button class="rv-nav-item" data-v="reports" onclick="showView('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Text reports</span></button>
+      <div class="rv-nav-note">Tests = simulated fills. Live ladder = real money.</div>
+    </nav>
+    <div class="rv-main">
+
+    <div id="stFilterBar" style="display:none;">
+      <div class="st-filters">
+        <label>Test<select id="stTest" class="rv-select" onchange="stSet('test', this.value)"></select></label>
+        <label>Rule<select id="stRule" class="rv-select" onchange="stSet('rule', this.value)"></select></label>
+        <label>Tag / pattern<select id="stTag" class="rv-select" onchange="stSet('tag', this.value)"></select></label>
+        <label>IB shares<select id="stIb" class="rv-select" onchange="stSet('ib', this.value)">
+          <option value="ALL">All stocks</option><option value="yes">Shortable at IB</option><option value="no">Not shortable at IB</option></select></label>
+        <label>From<input id="stFrom" type="date" class="rv-select" onchange="stSet('from', this.value)"></label>
+        <label>To<input id="stTo" type="date" class="rv-select" onchange="stSet('to', this.value)"></label>
+        <button class="rv-tab" onclick="stClear()">Clear</button>
+      </div>
+      <div class="st-summary" id="stSummary"></div>
+      <div class="st-ibsplit" id="stIbSplit"></div>
     </div>
 
-    <div id="viewDay">
+    <div id="viewDash" style="display:none;"><div id="dashOut"></div></div>
+    <div id="viewCal" style="display:none;"><div id="calOut"></div></div>
+    <div id="viewTrades" style="display:none;"><div id="tradesOut"></div></div>
+
+    <div id="viewDay" style="display:none;">
       <div class="stats-row" id="dayCards"></div>
       <div class="rv-tabs" id="testTabs"></div>
       <div class="rv-card" id="chartCard" style="display:none;">
@@ -485,16 +524,6 @@ body{display:flex;}
     </div>
 
     <div id="viewStats" style="display:none;">
-      <div class="st-filters">
-        <label>Test<select id="stTest" class="rv-select" onchange="stSet('test', this.value)"></select></label>
-        <label>Rule<select id="stRule" class="rv-select" onchange="stSet('rule', this.value)"></select></label>
-        <label>Tag / pattern<select id="stTag" class="rv-select" onchange="stSet('tag', this.value)"></select></label>
-        <label>IB shares<select id="stIb" class="rv-select" onchange="stSet('ib', this.value)">
-          <option value="ALL">All stocks</option><option value="yes">Shortable at IB</option><option value="no">Not shortable at IB</option></select></label>
-        <label>From<input id="stFrom" type="date" class="rv-select" onchange="stSet('from', this.value)"></label>
-        <label>To<input id="stTo" type="date" class="rv-select" onchange="stSet('to', this.value)"></label>
-        <button class="rv-tab" onclick="stClear()">Clear</button>
-      </div>
       <div class="rv-tabs" id="stSubs">
         <button class="rv-tab active" data-v="overview" onclick="stSub('overview')">Overview</button>
         <button class="rv-tab" data-v="detailed" onclick="stSub('detailed')">Detailed</button>
@@ -502,8 +531,6 @@ body{display:flex;}
         <button class="rv-tab" data-v="drawdown" onclick="stSub('drawdown')">Drawdown</button>
         <button class="rv-tab" data-v="tags" onclick="stSub('tags')">Tag Breakdown</button>
       </div>
-      <div class="st-summary" id="stSummary"></div>
-      <div class="st-ibsplit" id="stIbSplit"></div>
       <div id="stOut"></div>
     </div>
 
@@ -511,6 +538,7 @@ body{display:flex;}
       <div class="rv-tabs" id="repTabs"></div>
       <div class="rv-card"><div class="rv-card-title" id="repUpdated"></div><pre class="rv-pre" id="repText">—</pre></div>
     </div>
+    </div></div>
   </div>
 
 </div>
@@ -577,16 +605,22 @@ function cls(v) { return v > 0 ? 'pos' : (v < 0 ? 'neg' : ''); }
 
 function startReview() {
   document.getElementById('reviewPanel').style.display = 'block';
-  loadAllDays().then(function () { buildIndex(); loadDay(dayList().slice(-1)[0]); })
+  loadAllDays().then(function () { buildIndex(); loadDay(dayList().slice(-1)[0]); showView('dash'); })
     .catch(function (e) { showToast('✗ Could not read the review data: ' + e.message); });
   firebase.database().ref(ROOT + '/reports').get().then(function (snap) { REPORTS = snap.val() || {}; buildReports(); });
 }
 
+var CUR_VIEW = 'dash';
+var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', reports: 'viewReports'};
+var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', reports: 'Text reports'};
 function showView(v) {
-  ['day', 'totals', 'stats', 'reports'].forEach(function (x) {
-    document.getElementById('view' + x[0].toUpperCase() + x.slice(1)).style.display = (x === v) ? 'block' : 'none';
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('#mainTabs .rv-tab'), function (b) { b.classList.toggle('active', b.dataset.v === v); });
+  CUR_VIEW = v;
+  Object.keys(VIEW_ID).forEach(function (x) { document.getElementById(VIEW_ID[x]).style.display = (x === v) ? 'block' : 'none'; });
+  Array.prototype.forEach.call(document.querySelectorAll('#mainTabs .rv-nav-item'), function (b) { b.classList.toggle('active', b.dataset.v === v); });
+  document.getElementById('stFilterBar').style.display = ['dash', 'cal', 'stats', 'trades'].indexOf(v) >= 0 ? 'block' : 'none';
+  document.getElementById('daySel').style.display = v === 'day' ? '' : 'none';
+  document.getElementById('viewTitle').textContent = VIEW_TITLE[v];
+  if (['dash', 'cal', 'stats', 'trades'].indexOf(v) >= 0) buildStats();
 }
 
 function loadAllDays() {                  // every day's trades (once per page) -> ALL_DAYS.trades with _day
@@ -1220,12 +1254,13 @@ function toggleSidebar() {
   var sb = document.getElementById('sidebar'), btn = document.getElementById('collapseBtn');
   var collapsed = sb.classList.toggle('collapsed');
   btn.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
-  try { localStorage.setItem('sb_collapsed', collapsed); } catch(e){}
+  try { localStorage.setItem('sb_collapsed_review', collapsed); } catch(e){}   // this page: own setting, collapsed by default
 }
 
 (function() {
   try {
-    if (localStorage.getItem('sb_collapsed') === 'true') {
+    var v = null; try { v = localStorage.getItem('sb_collapsed_review'); } catch (e2) {}
+    if (v !== 'false') {                                  // the review has its own left navigation
       document.addEventListener('DOMContentLoaded', function() {
         var sb = document.getElementById('sidebar');
         var btn = document.getElementById('collapseBtn');
@@ -1372,8 +1407,9 @@ function seg(parent, items, cur, fn) {
 
 // --- views -----------------------------------------------------------------------------------------------------
 function buildStats() {
-  var box = document.getElementById('stOut');
-  if (!box || !ALL_DAYS) return;
+  var outs = {dash: 'dashOut', cal: 'calOut', stats: 'stOut', trades: 'tradesOut'};
+  if (!ALL_DAYS || !outs[CUR_VIEW]) return;
+  var box = document.getElementById(outs[CUR_VIEW]);
   stFilters();
   Array.prototype.forEach.call(document.querySelectorAll('#stSubs .rv-tab'), function (b) { b.classList.toggle('active', b.dataset.v === ST.sub); });
   var list = stTrades(), s = ruleStats(list), days = byDay(list), dk = Object.keys(days).sort();
@@ -1390,6 +1426,9 @@ function buildStats() {
     ibl.appendChild(c);
   });
   box.innerHTML = '';
+  if (CUR_VIEW === 'dash') return stDash(box, list, days, dk);
+  if (CUR_VIEW === 'cal') return stCalendar(box, list, days, dk);
+  if (CUR_VIEW === 'trades') return stTradeList(box, list);
   ({overview: stOverview, detailed: stDetailed, winloss: stWinLoss, drawdown: stDrawdown, tags: stTags})[ST.sub](box, list, days, dk);
 }
 function stOverview(box, list, days, dk) {
@@ -1425,6 +1464,20 @@ function stOverview(box, list, days, dk) {
     chart(card(g3, 'Performance by weekday (' + ST.year + ')'), wl, byW.map(function (a) { return ruleStats(a).net; }));
   } else {
     seg(bar, years.map(function (y_) { return [y_, y_]; }), ST.year, function (v) { ST.year = v; buildStats(); });
+    drawCal(box, days, dk);
+  }
+}
+function stCalendar(box, list, days, dk) {
+  var years = Object.keys(dk.reduce(function (o, d) { o[d.slice(0, 4)] = 1; return o; }, {})).sort();
+  if (!ST.year || years.indexOf(ST.year) < 0) ST.year = years[years.length - 1] || String(new Date().getFullYear());
+  var bar = el('div', {cls: 'st-bar'}); box.appendChild(bar);
+  var yr = dk.filter(function (d) { return d.slice(0, 4) === ST.year; }), yl = list.filter(function (x) { return x._day.slice(0, 4) === ST.year; }), ys = ruleStats(yl);
+  bar.appendChild(el('span', {cls: 'st-note', style: 'font-size:13px;color:var(--t2);'}, ST.year + ': ' + money(ys.net) + ' · ' + yr.length + ' days (' + yr.filter(function (d) { return days[d].net > 0; }).length + ' green) · ' + ys.n + ' trades · win ' + ys.win + '% · click a day for its trades'));
+  seg(bar, years.map(function (y_) { return [y_, y_]; }), ST.year, function (v) { ST.year = v; buildStats(); });
+  drawCal(box, days, dk);
+}
+function drawCal(box, days, dk) {
+  {
     var cal = el('div', {cls: 'st-cal'}); box.appendChild(cal);
     var months = MONTHS.map(function (_, m) { return m; }).filter(function (m) { var p = ST.year + '-' + ('0' + (m + 1)).slice(-2); return dk.some(function (d) { return d.slice(0, 7) === p; }); });
     if (!months.length) cal.appendChild(el('div', {cls: 'st-empty'}, 'No trades in ' + ST.year + '.'));
@@ -1572,6 +1625,82 @@ function stTags(box, list) {
   });
 }
 
+
+function statCards(parent, items) {
+  var b = el('div', {cls: 'st-cards'}); parent.appendChild(b);
+  items.forEach(function (k) { var c = el('div', {cls: 'stat-card'}); c.appendChild(el('div', {cls: 'stat-label'}, k[0])); c.appendChild(el('div', {cls: 'stat-value ' + (k[2] || ''), style: 'font-size:21px;'}, k[1])); if (k[3]) c.appendChild(el('div', {cls: 'st-sub'}, k[3])); b.appendChild(c); });
+}
+function stDash(box, list, days, dk) {
+  var s = ruleStats(list), w = list.filter(function (x) { return x.net > 0; }), l = list.filter(function (x) { return x.net < 0; });
+  var avg = function (a) { return a.length ? a.reduce(function (p, x) { return p + (x.net || 0); }, 0) / a.length : 0; };
+  var dv = dk.map(function (d) { return days[d].net; }), gd = dv.filter(function (v) { return v > 0; }).length;
+  var cum = 0, peak = 0, mdd = 0; dk.forEach(function (d) { cum += days[d].net; peak = Math.max(peak, cum); mdd = Math.min(mdd, cum - peak); });
+  var costs = list.reduce(function (a, x) { return a + (x.costs || 0); }, 0);
+  statCards(box, [
+    ['Total net P&L', money(s.net), cls(s.net), dk.length ? 'since ' + dk[0] : ''],
+    ['Trades', s.n, '', dk.length + ' trading days'],
+    ['Win %', s.win + '%', '', w.length + ' won · ' + l.length + ' lost'],
+    ['Profit factor', s.pf, '', 'gross won / gross lost'],
+    ['Average trade', money(s.avg), cls(s.avg), 'winner ' + money(avg(w)) + ' · loser ' + money(avg(l))],
+    ['Green days', dk.length ? Math.round(gd / dk.length * 100) + '%' : '—', '', gd + ' of ' + dk.length + ' days'],
+    ['Best / worst day', money(dv.length ? Math.max.apply(null, dv) : 0) + ' / ' + money(dv.length ? Math.min.apply(null, dv) : 0), ''],
+    ['Max drawdown', money(mdd), mdd < 0 ? 'neg' : '', 'costs ' + money(-costs)]
+  ]);
+  var last = dk.slice(-30), lab = last.map(function (d) { return d.slice(5); });
+  var g = grid2(box), c2 = 0, cums = [];
+  last.forEach(function (d) { c2 += days[d].net; cums.push(c2); });
+  chart(card(g, 'Daily P&L (last ' + last.length + ' trading days)'), lab, last.map(function (d) { return days[d].net; }), {hint: function (i) { return days[last[i]].n + ' trades'; }});
+  chart(card(g, 'Cumulative P&L (last ' + last.length + ' trading days)'), lab, cums, {type: 'line'});
+  var g2 = grid2(box);
+  chart(card(g2, 'Average trade P&L per day'), lab, last.map(function (d) { return days[d].net / days[d].n; }));
+  chart(card(g2, 'Win % per day'), lab, last.map(function (d) { return Math.round(days[d].w / days[d].n * 100); }), {money: false, color: 'st-cy'});
+  var g3 = grid2(box);
+  tagCard(g3, 'Test', list, 'By test');
+  tagCard(g3, 'Rule', list, 'By rule');
+  var rec = card(box, 'Latest trades');
+  tradeTable(rec, list.slice(-12).reverse());
+}
+function tradeTable(parent, rows) {
+  var t = el('table', {cls: 'rv-table'}), hr = el('tr');
+  ['Date', 'Time', 'Symbol', 'Side', 'Shares', 'P&L', 'Test', 'Rule', 'Entry', 'Exit', 'Reason', 'Tags'].forEach(function (c, i) { hr.appendChild(el('th', [4, 5, 8, 9].indexOf(i) >= 0 ? {cls: 'r'} : null, c)); });
+  var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
+  rows.forEach(function (x) {
+    var tr = el('tr', {cls: 'click', title: 'Open this trade with its charts'});
+    tr.appendChild(el('td', null, x._day)); tr.appendChild(el('td', null, (x.entry_time || '').slice(0, 5)));
+    tr.appendChild(el('td', {style: 'font-weight:700;'}, x.symbol));
+    var sd = el('td'); sd.appendChild(el('span', {cls: 'st-short'}, 'Short')); tr.appendChild(sd);
+    tr.appendChild(el('td', {cls: 'r'}, x.shares || '')); tr.appendChild(el('td', {cls: 'r ' + cls(x.net), style: 'font-weight:700;'}, money(x.net)));
+    tr.appendChild(el('td', null, TEST_NAME[x.test] || x.test)); tr.appendChild(el('td', null, x.rule || ''));
+    tr.appendChild(el('td', {cls: 'r'}, px(x.entry))); tr.appendChild(el('td', {cls: 'r'}, px(x.exit)));
+    tr.appendChild(el('td', {style: 'color:var(--t2);'}, (x.reason || '').split(' (')[0]));
+    var tg = el('td'), tt = x.tags || {}, chips = [];
+    if (tt.round > 1) chips.push('R' + tt.round);
+    if (tt.country_b) chips.push(tt.country_b);
+    if (tt.float_b) chips.push('float ' + tt.float_b);
+    var ib = ibState(x); if (ib !== '?') chips.push(ib === 'yes' ? 'IB shares' : 'no IB shares');
+    if (tt.bao_posted) chips.push('BAO posted');
+    if (tt.score !== undefined) chips.push('score ' + tt.score);
+    if (tt.way) chips.push(tt.way);
+    chips.forEach(function (c) { tg.appendChild(el('span', {cls: 'st-chip'}, c)); });
+    tr.appendChild(tg);
+    tr.onclick = function () {
+      showView('day');
+      loadDay(x._day, function () { var k = VISIBLE.indexOf(VISIBLE.filter(function (y) { return y._key && y.id === x.id; })[0]); if (k < 0) k = VISIBLE.map(function (y) { return y.symbol + y.entry_time + y.rule; }).indexOf(x.symbol + x.entry_time + x.rule); if (k >= 0) openTrade(k, true); });
+    };
+    tb.appendChild(tr);
+  });
+  var w = el('div', {cls: 'rv-scroll'}); w.appendChild(t); parent.appendChild(w);
+}
+var TL_PAGE = 0;
+function stTradeList(box, list) {
+  var per = 100, rows = list.slice().reverse(), pages = Math.max(1, Math.ceil(rows.length / per));
+  if (TL_PAGE >= pages) TL_PAGE = 0;
+  var bar = el('div', {cls: 'st-bar'}); box.appendChild(bar);
+  bar.appendChild(el('span', {cls: 'st-note', style: 'font-size:13px;color:var(--t2);'}, rows.length + ' trades, newest first · click a trade for its charts and notes'));
+  if (pages > 1) seg(bar, Array.apply(null, Array(pages)).map(function (_, i) { return [i, String(i + 1)]; }), TL_PAGE, function (v) { TL_PAGE = v; buildStats(); });
+  var c = card(box, 'Trades');
+  tradeTable(c, rows.slice(TL_PAGE * per, TL_PAGE * per + per));
+}
 </script>
 
 </body>
