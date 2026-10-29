@@ -361,8 +361,6 @@ body{display:flex;}
           <div class="rv-cbox">
             <div class="rv-card-title">Stats</div>
             <div class="rv-stats" id="statGrid"></div>
-            <div class="rv-clabel" id="statRulesLabel" style="border-top:1px solid var(--border);">By rule — this day</div>
-            <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="statRules"></tbody></table></div>
           </div>
           <div class="rv-cbox">
             <div class="rv-card-title">Notes</div>
@@ -373,6 +371,17 @@ body{display:flex;}
                 <span class="rv-count" id="noteState" style="text-align:left;"></span>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="rv-row">
+          <div class="rv-cbox">
+            <div class="rv-card-title" id="statRulesLabel">By rule — this day</div>
+            <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="statRules"></tbody></table></div>
+          </div>
+          <div class="rv-cbox">
+            <div class="rv-card-title" id="sofarLabel">Totals so far</div>
+            <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th>What it does</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Worst</th></tr></thead><tbody id="sofarRows"></tbody></table></div>
+            <div class="rv-chart-note" id="sofarNote"></div>
           </div>
         </div>
         <div class="rv-row">
@@ -800,6 +809,7 @@ function showStats(t, pnl, candles) {
   stat('Exit efficiency', best > 0 && gross !== null ? Math.round(gross / best * 100) + '% of the best' : '—');
   stat('Hold', fs.length ? Math.round((z - a - 60) / 60) + ' min' : '—');
   statRules(t);
+  soFar(t);
 }
 function dayRunningPnl(t) {          // every closed trade of the same test that day, summed minute by minute
   var same = TRADES.filter(function (x) { return x.test === t.test && (x.fills || []).length; });
@@ -832,7 +842,65 @@ function baseline(ch) {
     topFillColor2: 'rgba(38,166,154,.05)', bottomLineColor: '#ef5350', bottomFillColor1: 'rgba(239,83,80,.05)',
     bottomFillColor2: 'rgba(239,83,80,.35)', lineWidth: 2});
 }
-var TV_SYM = null;
+var TV_SYM = null, ALL_DAYS = null;
+var RULE_INFO = {
+  BAOALL_L: 'ladder 5 x 200 sh every 2% up, out at VWAP / midpoint / 10 min, no stop',
+  BAOALL_LS: 'the L ladder + one hard stop 30% above the first entry',
+  BAOALL_C: 'the L ladder + 7% confirmed stop (3 s above, capped cover)',
+  BAOALL_B: 'your bot rules in 5% steps, 500 sh + adds (max 1,000)',
+  BAOALL_1: 'one entry / one exit: TP avg - 10c, premarket-high stop, 30 min',
+  BAOX_C1: 'climax top, 1 finished 1-min candle: no new high, less volume',
+  BAOX_C2: 'climax top, 2 finished 1-min candles: no new high, less volume',
+  BAOX_M2: 'climax top confirmed on 2-min candles',
+  BAOX_RED: 'climax top, first red 1-min candle (your way)',
+  LTWIN_TODAY: "today's live exits: bot ESL halves + $ cover",
+  LTWIN_C10: 'whole position out on a 5-min close 10% above the average',
+  LTWIN_C15: 'whole position out on a 5-min close 15% above the average',
+  LTWIN_B30: 'TODAY + break-even after 30c in favour (your bot now)',
+  LTWIN_BTP: 'TODAY + break-even after the first TP',
+  LTWIN_BTR: 'TODAY + break-even under VWAP and the 2-min EMA9',
+  LTWIN_BTF: 'TODAY + break-even under the 2-min EMA9',
+  LIVE: 'live ladder on your real account (exits = your bot)',
+  SPIKE3: '$1-3 spike +30% in 15 min, bot rules in 3% steps',
+  SPIKE5: '$1-3 spike +30% in 15 min, bot rules in 5% steps',
+  FLUSH5: 'breakdown after a spike (25% given back), bot rules 5% steps',
+  NB_FLUSH5: 'FLUSH5 on a stock IB could not lend (simulated)'
+};
+function soFar(t) {                       // every day sent so far, this trade's test, by rule (loaded once)
+  var got = ALL_DAYS ? Promise.resolve(ALL_DAYS) : firebase.database().ref(ROOT + '/days').get().then(function (snap) {
+    var v = snap.val() || {}, out = [];
+    Object.keys(v).forEach(function (d) { var tr = (v[d] || {}).trades || {}; Object.keys(tr).forEach(function (k) { out.push(tr[k]); }); });
+    ALL_DAYS = {trades: out, days: Object.keys(v).length}; return ALL_DAYS;
+  });
+  got.then(function (all) {
+    if (CUR_T !== t) return;
+    var mine = all.trades.filter(function (x) { return x.test === t.test; });
+    var by = {}; mine.forEach(function (x) { (by[x.rule || '-'] = by[x.rule || '-'] || []).push(x); });
+    var rows = Object.keys(by).map(function (r) { return [r, ruleStats(by[r])]; }).sort(function (a, b) { return b[1].net - a[1].net; });
+    document.getElementById('sofarLabel').textContent = 'Totals so far — ' + (TEST_NAME[t.test] || t.test) + ' (' + mine.length + ' trades)';
+    var body = document.getElementById('sofarRows'); body.innerHTML = '';
+    rows.forEach(function (rw) {
+      var x = rw[1], tr = el('tr', rw[0] === t.rule ? {cls: 'sel'} : null);
+      tr.appendChild(el('td', {style: 'font-weight:700;'}, rw[0]));
+      tr.appendChild(el('td', {style: 'white-space:normal;min-width:150px;max-width:260px;color:var(--t2);font-size:12px;'}, RULE_INFO[rw[0]] || ''));
+      tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
+      tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net))); tr.appendChild(el('td', {cls: 'r'}, x.pf));
+      tr.appendChild(el('td', {cls: 'r ' + cls(x.worst)}, money(x.worst)));
+      body.appendChild(tr);
+    });
+    var note = '';
+    if (rows.length) {
+      var best = rows[0], worst = rows[rows.length - 1];
+      note = 'Best so far: ' + best[0] + ' ' + money(best[1].net) + ' (PF ' + best[1].pf + ')';
+      if (rows.length > 1) note += ' · worst: ' + worst[0] + ' ' + money(worst[1].net) + ' (PF ' + worst[1].pf + ')';
+      var n = mine.length; note += ' · ' + (n < 60 ? 'small sample (' + n + ' trades) - not enough to decide yet' : n + ' trades');
+      note += '. Simulated fills are optimistic; real fills on fast spikes are worse.';
+      if (t.test === 'LIVE_LADDER') note = 'Real money. ' + note.replace(' Simulated fills are optimistic; real fills on fast spikes are worse.', '');
+    }
+    document.getElementById('sofarNote').textContent = note;
+  });
+}
+
 function tvWidget(boxId, sym, interval) {      // TradingView's free embedded chart (its data, no trade marks)
   var box = document.getElementById(boxId); box.innerHTML = '';
   var wrap = el('div', {cls: 'tradingview-widget-container', style: 'height:100%;'});
