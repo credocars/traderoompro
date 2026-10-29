@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>TradingView test · TradeRoom PRO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--card:#1e2535;--card2:#1a2030;--border:#243044;--border-hi:#2d3d57;--green:#22c55e;--t1:#f1f5f9;--t2:#94a3b8;--t3:#475569;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,sans-serif;padding:24px 28px;}
+h1{font-size:24px;font-weight:800;margin:0 0 6px;}
+.sub{font-size:13px;color:var(--t2);margin-bottom:18px;line-height:1.5;}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;}
+input{background:var(--card2);border:1px solid var(--border-hi);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--t1);font-family:inherit;width:150px;text-transform:uppercase;}
+button,.btn{font-family:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--t1);cursor:pointer;text-decoration:none;}
+.btn.green{background:var(--green);border-color:var(--green);color:#000;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.box{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.lab{padding:8px 14px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+.chart{height:520px;}
+.note{font-size:12px;color:var(--t2);margin-top:14px;line-height:1.6;}
+@media (max-width:1100px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<h1>TradingView test</h1>
+<div class="sub">Test page for the Daily Review. Two options:<br>
+<b>1.</b> the green button opens <b>your own TradingView layout</b> with this symbol (your login, indicators and drawings, in a new tab);<br>
+<b>2.</b> below, TradingView's free embedded chart widget: 1 minute and daily side by side (TradingView's data, no login, no trade marks).</div>
+
+<div class="bar">
+  <input id="sym" value="SXTP" onkeydown="if(event.key==='Enter')load()">
+  <button onclick="load()">Show</button>
+  <a class="btn green" id="layoutBtn" target="_blank" rel="noopener">Open in my TradingView layout ↗</a>
+</div>
+
+<div class="grid">
+  <div class="box"><div class="lab">TradingView widget · 1 minute</div><div class="chart" id="tv1"></div></div>
+  <div class="box"><div class="lab">TradingView widget · daily</div><div class="chart" id="tvD"></div></div>
+</div>
+<div class="note">The widget loads from tradingview.com. If a box stays empty, your browser blocked it (ad blocker) or TradingView does not know the symbol.
+On the free widget the 1-minute history only goes back a short time, so trades from older days may not show their 1-minute candles there - the
+Daily Review's own charts (with your entries / exits) keep every day.</div>
+
+<script>
+var LAYOUT = 'https://www.tradingview.com/chart/qED1iZnl/?symbol=';
+function widget(boxId, sym, interval) {
+  var box = document.getElementById(boxId);
+  box.innerHTML = '';
+  var wrap = document.createElement('div');
+  wrap.className = 'tradingview-widget-container';
+  wrap.style.height = '100%';
+  var inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.height = '100%';
+  wrap.appendChild(inner);
+  var s = document.createElement('script');
+  s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  s.async = true;
+  s.text = JSON.stringify({
+    autosize: true, symbol: sym, interval: interval, timezone: 'America/New_York', theme: 'dark', style: '1',
+    locale: 'en', allow_symbol_change: true, hide_side_toolbar: false, calendar: false,
+    studies: interval === 'D' ? ['Volume@tv-basicstudies'] : ['VWAP@tv-basicstudies', 'Volume@tv-basicstudies'],
+    support_host: 'https://www.tradingview.com'
+  });
+  wrap.appendChild(s);
+  box.appendChild(wrap);
+}
+function load() {
+  var sym = (document.getElementById('sym').value || '').trim().toUpperCase().replace(/[^A-Z0-9.:]/g, '');
+  if (!sym) return;
+  document.getElementById('layoutBtn').href = LAYOUT + encodeURIComponent(sym);
+  widget('tv1', sym, '1');
+  widget('tvD', sym, 'D');
+}
+load();
+</script>
+</body>
+</html>
