@@ -1006,6 +1006,8 @@ var RULE_INFO = {
   BAOALL_1: 'one entry / one exit: TP avg - 10c, premarket-high stop, 30 min',
   BAOALL_SP: 'scale in: 5 x 200 sh every 3% up, TP 200 every 3% down (min $0.05 under $1), stop top entry + 1 step',
   BAOALL_SD: 'scale in: 5 x 200 sh every $0.05 / $0.10 / $0.25 up (by price), TP 200 every step down, stop top entry + 1 step',
+  BAOALL_M: 'Max size: 500 sh + 2 adds of 100 (max 700), bot rules, $ steps by price, loss limit per trade',
+  BAOALL_LM: 'BAOALL_L ladder + max loss per trade (the bot limit)',
   BAOALL_F: 'fade every push: L ladder, out on the first 6% dip / VWAP / 15 min + confirmed stop; re-short each new push 8% over the last cover (max 10 rounds, -$150, 2 losers)',
   BAOX_C1: 'climax top, 1 finished 1-min candle: no new high, less volume',
   BAOX_C2: 'climax top, 2 finished 1-min candles: no new high, less volume',
