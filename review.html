@@ -217,12 +217,12 @@ body{display:flex;}
 .pos{color:var(--green);} .neg{color:var(--red);}
 /* left navigation like Tradervue */
 .rv-shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:start;}
-.rv-nav{position:sticky;top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;}
-.rv-nav-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;font-family:inherit;font-size:14px;font-weight:600;padding:10px 12px;border:none;border-radius:8px;background:transparent;color:var(--t2);cursor:pointer;}
-.rv-nav-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
-.rv-nav-item.active{background:rgba(34,197,94,.10);color:var(--green);}
-.rv-nav-note{font-size:11px;color:var(--t3);padding:12px 12px 4px;line-height:1.5;border-top:1px solid var(--border);margin-top:8px;}
-@media (max-width:900px){.rv-shell{grid-template-columns:1fr;}.rv-nav{position:static;flex-direction:row;flex-wrap:wrap;}.rv-nav-item{width:auto;}.rv-nav-note{display:none;}}
+.rv-side{position:sticky;top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;}
+.rv-side-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;font-family:inherit;font-size:14px;font-weight:600;padding:10px 12px;border:none;border-radius:8px;background:transparent;color:var(--t2);cursor:pointer;}
+.rv-side-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+.rv-side-item.active{background:rgba(34,197,94,.10);color:var(--green);}
+.rv-side-note{font-size:11px;color:var(--t3);padding:12px 12px 4px;line-height:1.5;border-top:1px solid var(--border);margin-top:8px;}
+@media (max-width:900px){.rv-shell{grid-template-columns:1fr;}.rv-side{position:static;flex-direction:row;flex-wrap:wrap;}.rv-side-item{width:auto;}.rv-side-note{display:none;}}
 .st-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px;}
 @media (max-width:1100px){.st-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .st-sub{font-size:12px;color:var(--t2);margin-top:6px;}
@@ -401,15 +401,15 @@ body{display:flex;}
     </div>
 
     <div class="rv-shell">
-    <nav class="rv-nav" id="mainTabs">
-      <button class="rv-nav-item" data-v="dash" onclick="showView('dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Dashboard</span></button>
-      <button class="rv-nav-item" data-v="cal" onclick="showView('cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendar</span></button>
-      <button class="rv-nav-item" data-v="stats" onclick="showView('stats')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button>
-      <button class="rv-nav-item" data-v="trades" onclick="showView('trades')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><span>Trades</span></button>
-      <button class="rv-nav-item" data-v="day" onclick="showView('day')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span>Day review</span></button>
-      <button class="rv-nav-item" data-v="totals" onclick="showView('totals')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Running totals</span></button>
-      <button class="rv-nav-item" data-v="reports" onclick="showView('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Text reports</span></button>
-      <div class="rv-nav-note">Tests = simulated fills. Live ladder = real money.</div>
+    <nav class="rv-side" id="mainTabs">
+      <button class="rv-side-item" data-v="dash" onclick="showView('dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Dashboard</span></button>
+      <button class="rv-side-item" data-v="cal" onclick="showView('cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendar</span></button>
+      <button class="rv-side-item" data-v="stats" onclick="showView('stats')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button>
+      <button class="rv-side-item" data-v="trades" onclick="showView('trades')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><span>Trades</span></button>
+      <button class="rv-side-item" data-v="day" onclick="showView('day')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span>Day review</span></button>
+      <button class="rv-side-item" data-v="totals" onclick="showView('totals')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Running totals</span></button>
+      <button class="rv-side-item" data-v="reports" onclick="showView('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Text reports</span></button>
+      <div class="rv-side-note">Tests = simulated fills. Live ladder = real money.</div>
     </nav>
     <div class="rv-main">
 
@@ -616,7 +616,7 @@ var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 
 function showView(v) {
   CUR_VIEW = v;
   Object.keys(VIEW_ID).forEach(function (x) { document.getElementById(VIEW_ID[x]).style.display = (x === v) ? 'block' : 'none'; });
-  Array.prototype.forEach.call(document.querySelectorAll('#mainTabs .rv-nav-item'), function (b) { b.classList.toggle('active', b.dataset.v === v); });
+  Array.prototype.forEach.call(document.querySelectorAll('#mainTabs .rv-side-item'), function (b) { b.classList.toggle('active', b.dataset.v === v); });
   document.getElementById('stFilterBar').style.display = ['dash', 'cal', 'stats', 'trades'].indexOf(v) >= 0 ? 'block' : 'none';
   document.getElementById('daySel').style.display = v === 'day' ? '' : 'none';
   document.getElementById('viewTitle').textContent = VIEW_TITLE[v];
