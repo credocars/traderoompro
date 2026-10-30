@@ -709,7 +709,7 @@ function buildRows() {
     var tdS = el('td', {style: 'font-weight:700;'}, t.symbol);
     if (NOTES[t._key] && NOTES[t._key].text) tdS.appendChild(el('span', {cls: 'rv-badge', title: 'has a note'}, '📝'));
     tr.appendChild(tdS);
-    var tdR = el('td', null, t.rule);
+    var tdR = el('td', null, rn(t.rule));
     if (t.tags && t.tags.round > 1) tdR.appendChild(el('span', {cls: 'rv-badge'}, 'R' + t.tags.round));
     tr.appendChild(tdR);
     tr.appendChild(el('td', null, t.shares || '—'));
@@ -760,7 +760,7 @@ function statRules(t) {                 // the trade's test: every rule of that 
   var by = rulesOf(t.test), keys = Object.keys(by).sort();
   keys.forEach(function (r) {
     var tr = el('tr', r === t.rule ? {cls: 'sel'} : null);
-    tr.appendChild(el('td', {style: r === t.rule ? 'font-weight:700;' : ''}, r)); ruleCells(tr, ruleStats(by[r])); body.appendChild(tr);
+    tr.appendChild(el('td', {style: r === t.rule ? 'font-weight:700;' : ''}, rn(r))); ruleCells(tr, ruleStats(by[r])); body.appendChild(tr);
   });
   if (keys.length > 1) {
     var all = [].concat.apply([], keys.map(function (k) { return by[k]; }));
@@ -998,6 +998,11 @@ function baseline(ch) {
     bottomFillColor2: 'rgba(239,83,80,.35)', lineWidth: 2});
 }
 var TV_SYM = null;
+// readable rule names (Max 10-30); the codes stay in the data
+var RULE_NAME = {BAOALL_L: 'Ladder no stop', BAOALL_LM: 'Ladder + $ limit', BAOALL_LS: 'Ladder + 30% stop',
+  BAOALL_C: 'Ladder + confirm', BAOALL_F: 'Fade every push', BAOALL_SP: 'Scale-in 3%', BAOALL_SD: 'Scale-in $ steps',
+  BAOALL_B: 'Bot 5% 1000 sh', BAOALL_M: 'Bot 500 + 2x100', BAOALL_1: 'One shot'};
+function rn(r) { return RULE_NAME[r] || r || ''; }
 var RULE_INFO = {
   BAOALL_L: 'ladder 5 x 200 sh every 2% up, out at VWAP / midpoint / 10 min, no stop',
   BAOALL_LS: 'the L ladder + one hard stop 30% above the first entry',
@@ -1039,7 +1044,7 @@ function soFar(t) {                       // every day sent so far for this trad
     var body = document.getElementById('sofarRows'); body.innerHTML = '';
     rows.forEach(function (rw) {
       var x = rw[1], big = rw[2].filter(function (y) { return (y.net || 0) <= -300; }).length, tr = el('tr', rw[0] === t.rule ? {cls: 'sel'} : null);
-      tr.appendChild(el('td', {style: 'font-weight:700;'}, rw[0]));
+      tr.appendChild(el('td', {style: 'font-weight:700;'}, rn(rw[0])));
       tr.appendChild(el('td', {style: 'white-space:normal;min-width:150px;max-width:300px;color:var(--t2);font-size:12px;'}, RULE_INFO[rw[0]] || ''));
       tr.appendChild(el('td', {cls: 'r'}, x.n));
       tr.appendChild(el('td', {cls: 'r ' + (x.n >= 60 ? 'pos' : '')}, x.n >= 60 ? 'READY' : x.n + '/60'));
@@ -1078,7 +1083,7 @@ function soFar(t) {                       // every day sent so far for this trad
     var ul = document.getElementById('sofarBullets'); ul.innerHTML = '';
     function li(txt) { ul.appendChild(el('li', null, txt)); }
     li((t.test === 'LIVE_LADDER' ? 'REAL MONEY. ' : '') + mine.length + ' trades in ' + days.length + ' days: net ' + money(tot.net) + ', PF ' + tot.pf + ', win ' + tot.win + '%, worst trade ' + money(tot.worst) + '.');
-    if (rows.length > 1) li('Best rule: ' + rows[0][0] + ' ' + money(rows[0][1].net) + ' (PF ' + rows[0][1].pf + ') · worst: ' + rows[rows.length - 1][0] + ' ' + money(rows[rows.length - 1][1].net) + ' (PF ' + rows[rows.length - 1][1].pf + ').');
+    if (rows.length > 1) li('Best rule: ' + rn(rows[0][0]) + ' ' + money(rows[0][1].net) + ' (PF ' + rows[0][1].pf + ') · worst: ' + rn(rows[rows.length - 1][0]) + ' ' + money(rows[rows.length - 1][1].net) + ' (PF ' + rows[rows.length - 1][1].pf + ').');
     if (pre.length || aft.length) li('Premarket ' + pre.length + ' trades ' + money(ruleStats(pre).net) + ' (PF ' + ruleStats(pre).pf + ')' + (aft.length ? ' vs after the open ' + aft.length + ' trades ' + money(ruleStats(aft).net) + ' (PF ' + ruleStats(aft).pf + ') - the tests trade premarket only since 10-29.' : '.'));
     if (hasRound && r2.length) li('Re-entries (round 2-3): ' + r2.length + ' trades ' + money(ruleStats(r2).net) + ' (PF ' + ruleStats(r2).pf + ') vs first spikes ' + money(ruleStats(r1).net) + ' - new re-entry rule (new spike + new high + room) since 10-29.');
     var bigAll = mine.filter(function (x) { return (x.net || 0) <= -300; });
@@ -1120,7 +1125,7 @@ function showChart(t, scroll) {
   CUR_T = t;
   showTv(String(t.symbol || '').toUpperCase().replace(/[^A-Z0-9.]/g, ''));
   var card = document.getElementById('chartCard'); card.style.display = 'block';
-  document.getElementById('chartTitle').textContent = DAY + '  ' + t.symbol + '  ' + t.rule + (t.tags && t.tags.round > 1 ? ' round ' + t.tags.round : '') +
+  document.getElementById('chartTitle').textContent = DAY + '  ' + t.symbol + '  ' + rn(t.rule) + (t.tags && t.tags.round > 1 ? ' round ' + t.tags.round : '') +
     '  |  short ' + px(t.entry) + ' @ ' + (t.entry_time || '').slice(0, 5) + (t.exit ? ' → cover ' + px(t.exit) + ' @ ' + (t.exit_time || '').slice(0, 5) : '') +
     ' (' + t.reason + ')  |  ' + money(t.net) + '  |  ' + (t.shares || '?') + ' sh';
   dropCharts(); executions(t);
@@ -1349,7 +1354,7 @@ function stFilters() {                     // fill the filter dropdowns (keeps t
   fill('stTest', [['ALL', 'All tests']].concat(TESTS.filter(function (t) { return all.some(function (x) { return x.test === t; }); }).map(function (t) { return [t, TEST_NAME[t]]; })), ST.test);
   var rules = {}; all.forEach(function (x) { if (ST.test === 'ALL' || x.test === ST.test) rules[x.rule || '-'] = 1; });
   if (ST.rule !== 'ALL' && !rules[ST.rule]) ST.rule = 'ALL';
-  fill('stRule', [['ALL', 'All rules']].concat(Object.keys(rules).sort().map(function (r) { return [r, r]; })), ST.rule);
+  fill('stRule', [['ALL', 'All rules']].concat(Object.keys(rules).sort().map(function (r) { return [r, rn(r)]; })), ST.rule);
   var tags = [['', 'All tags']];
   TAG_GROUPS.slice(2).forEach(function (g) {
     var vals = {}; all.forEach(function (x) { var v = g[1](x); if (v !== '?') vals[v] = 1; });
@@ -1600,7 +1605,7 @@ function tagCard(parent, name, list, title) {
   var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
   rows.forEach(function (r) {
     var x = r[1], tr = el('tr', {cls: 'click', title: 'Filter the reports to ' + name + ': ' + r[0]});
-    tr.appendChild(el('td', {style: 'font-weight:600;'}, r[0]));
+    tr.appendChild(el('td', {style: 'font-weight:600;'}, name === 'Rule' ? rn(r[0]) : r[0]));
     tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
     tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net))); tr.appendChild(el('td', {cls: 'r'}, x.pf));
     tr.appendChild(el('td', {cls: 'r ' + cls(x.avg)}, money(x.avg)));
@@ -1675,7 +1680,7 @@ function tradeTable(parent, rows) {
     tr.appendChild(el('td', {style: 'font-weight:700;'}, x.symbol));
     var sd = el('td'); sd.appendChild(el('span', {cls: 'st-short'}, 'Short')); tr.appendChild(sd);
     tr.appendChild(el('td', {cls: 'r'}, x.shares || '')); tr.appendChild(el('td', {cls: 'r ' + cls(x.net), style: 'font-weight:700;'}, money(x.net)));
-    tr.appendChild(el('td', null, TEST_NAME[x.test] || x.test)); tr.appendChild(el('td', null, x.rule || ''));
+    tr.appendChild(el('td', null, TEST_NAME[x.test] || x.test)); tr.appendChild(el('td', null, rn(x.rule)));
     var sells = (x.fills || []).filter(function (f) { return f[1] === 'SELL'; });   // average short + number of entries
     var sq = sells.reduce(function (s_, f) { return s_ + f[2]; }, 0);
     var avgIn = sq ? sells.reduce(function (s_, f) { return s_ + f[2] * f[3]; }, 0) / sq : x.entry;
