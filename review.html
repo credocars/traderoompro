@@ -1663,7 +1663,7 @@ function stDash(box, list, days, dk) {
 }
 function tradeTable(parent, rows) {
   var t = el('table', {cls: 'rv-table'}), hr = el('tr');
-  ['Date', 'Time', 'Symbol', 'Side', 'Shares', 'P&L', 'Test', 'Rule', 'Entry', 'Exit', 'Reason', 'Tags'].forEach(function (c, i) { hr.appendChild(el('th', [4, 5, 8, 9].indexOf(i) >= 0 ? {cls: 'r'} : null, c)); });
+  ['Date', 'Time', 'Symbol', 'Side', 'Shares', 'P&L', 'Test', 'Rule', 'Avg entry', 'Exit', 'Reason', 'Tags'].forEach(function (c, i) { hr.appendChild(el('th', [4, 5, 8, 9].indexOf(i) >= 0 ? {cls: 'r'} : null, c)); });
   var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
   rows.forEach(function (x) {
     var tr = el('tr', {cls: 'click', title: 'Open this trade with its charts'});
@@ -1672,7 +1672,12 @@ function tradeTable(parent, rows) {
     var sd = el('td'); sd.appendChild(el('span', {cls: 'st-short'}, 'Short')); tr.appendChild(sd);
     tr.appendChild(el('td', {cls: 'r'}, x.shares || '')); tr.appendChild(el('td', {cls: 'r ' + cls(x.net), style: 'font-weight:700;'}, money(x.net)));
     tr.appendChild(el('td', null, TEST_NAME[x.test] || x.test)); tr.appendChild(el('td', null, x.rule || ''));
-    tr.appendChild(el('td', {cls: 'r'}, px(x.entry))); tr.appendChild(el('td', {cls: 'r'}, px(x.exit)));
+    var sells = (x.fills || []).filter(function (f) { return f[1] === 'SELL'; });   // average short + number of entries
+    var sq = sells.reduce(function (s_, f) { return s_ + f[2]; }, 0);
+    var avgIn = sq ? sells.reduce(function (s_, f) { return s_ + f[2] * f[3]; }, 0) / sq : x.entry;
+    var ec = el('td', {cls: 'r', title: sells.length > 1 ? 'first short ' + px(x.entry) + ', ' + sells.length + ' entries, average ' + px(avgIn) : ''}, px(avgIn));
+    if (sells.length > 1) ec.appendChild(el('span', {style: 'color:var(--t3);font-size:11px;margin-left:4px;'}, '×' + sells.length));
+    tr.appendChild(ec); tr.appendChild(el('td', {cls: 'r'}, px(x.exit)));
     tr.appendChild(el('td', {style: 'color:var(--t2);'}, (x.reason || '').split(' (')[0]));
     var tg = el('td'), tt = x.tags || {}, chips = [];
     if (tt.round > 1) chips.push('R' + tt.round);
