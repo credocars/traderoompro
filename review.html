@@ -1002,11 +1002,13 @@ var TV_SYM = null;
 var RULE_NAME = {BAOALL_L: 'Ladder no stop', BAOALL_LM: 'Ladder + $ limit', BAOALL_LS: 'Ladder + 30% stop',
   BAOALL_C: 'Ladder + confirm', BAOALL_F: 'Fade every push', BAOALL_SP: 'Scale-in 3%', BAOALL_SD: 'Scale-in $ steps',
   BAOALL_B: 'Bot 5% 1000 sh', BAOALL_M: 'Bot 500 + 2x100', BAOALL_1: 'One shot',
-  SR_S5_08: 'S/R stop 5%', SR_R3_08: 'S/R room 3x'};
+  SR_S5_08: 'S/R stop 5%', SR_R3_08: 'S/R room 3x', SR_S5_08H: 'S/R stop 5% HOD', SR_R3_08H: 'S/R room 3x HOD'};
 function rn(r) { return RULE_NAME[r] || r || ''; }
 var RULE_INFO = {
   SR_S5_08: 'intraday S/R: short a push into today\'s 5-min top above VWAP from 08:00, target the next low / VWAP (room 2x), stop level +5%, $100 risk',
   SR_R3_08: 'intraday S/R: the same with room 3x and stop level +3%',
+  SR_S5_08H: 'S/R stop 5%, only retests of the high of the day (double top)',
+  SR_R3_08H: 'S/R room 3x, only retests of the high of the day (double top)',
   BAOALL_L: 'ladder 5 x 200 sh every 2% up, out at VWAP / midpoint / 10 min, no stop',
   BAOALL_LS: 'the L ladder + one hard stop 30% above the first entry',
   BAOALL_C: 'the L ladder + 7% confirmed stop (3 s above, capped cover)',
