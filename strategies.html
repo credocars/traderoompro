@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Strategy Lab · TradeRoom PRO</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339",storageBucket:"traderoom-42339.firebasestorage.app",messagingSenderId:"997045199477",appId:"1:997045199477:web:22c5861bfc0965ec960e3c"});
+</script>
+<script src="https://unpkg.com/lightweight-charts@5.0.8/dist/lightweight-charts.standalone.production.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1117;
+  --panel:#161b27;
+  --card:#1e2535;
+  --card2:#1a2030;
+  --border:#243044;
+  --border-hi:#2d3d57;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --cyan:#06b6d4;
+  --gold:#fbbf24;
+  --red:#ef4444;
+  --amber:#f59e0b;
+  --blue:#3b82f6;
+  --purple:#8b5cf6;
+  --t1:#f1f5f9;
+  --t2:#94a3b8;
+  --t3:#475569;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--t1);font-family:'Inter',-apple-system,sans-serif;height:100%;}
+body{display:flex;}
+
+/* SIDEBAR (canonical from courses.html) */
+.sidebar-wrap{position:relative;flex-shrink:0;}
+.sidebar{width:240px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;height:100vh;transition:width .25s cubic-bezier(.4,0,.2,1);}
+.sidebar.collapsed{width:58px;}
+.sidebar.collapsed .sb-wordmark{display:none;}
+.sidebar.collapsed .sb-item{padding:10px 0;justify-content:center;gap:0;position:relative;}
+.sidebar.collapsed .sb-label{display:none;}
+.sidebar.collapsed .sb-bottom{padding:10px 6px;display:flex;justify-content:center;}
+.sidebar.collapsed .sb-uname,.sidebar.collapsed .sb-urole{display:none;}
+.sidebar.collapsed .sb-logo-area{padding:16px 0;display:flex;justify-content:center;align-items:center;}
+.sidebar.collapsed .sb-logo{justify-content:center;}
+.sidebar.collapsed .sb-logo .sb-wordmark{display:none;}
+.sidebar.collapsed .sb-item:hover::after{content:attr(data-label);position:absolute;left:62px;top:50%;transform:translateY(-50%);background:var(--card);color:var(--t1);font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;border:1px solid var(--border-hi);z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+.sidebar.collapsed .sb-logout-btn{margin:0 auto;}
+.sb-logo-area{height:52px;padding:0 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;flex-shrink:0;}
+.sb-logo{display:flex;align-items:center;gap:10px;}
+.sb-logo-mark{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#0f2040,#1a3a6b);border:1px solid var(--border-hi);display:flex;align-items:center;justify-content:center;}
+.sb-logo-mark svg{width:24px;height:24px;}
+.sb-wordmark{font-family:"Inter",sans-serif;font-size:19px;font-weight:800;letter-spacing:-.4px;color:var(--t1);}
+.sb-wordmark span{color:var(--green);}
+.sb-scroll{flex:1;overflow-y:auto;padding:8px 0;}
+.sb-scroll::-webkit-scrollbar{width:0;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:10px 18px;cursor:pointer;font-size:15px;font-weight:500;color:var(--t2);transition:all .12s;}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+.sb-item.active{background:rgba(34,197,94,.06);color:var(--green);box-shadow:inset 3px 0 0 var(--green);}
+.sb-icon{flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.sb-bottom{padding:14px 18px;border-top:1px solid var(--border);}
+.sb-user{display:flex;align-items:center;gap:9px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:rgba(34,197,94,.15);color:var(--green);}
+.sb-uname{font-size:14px;font-weight:600;color:var(--t1);}
+.sb-urole{font-size:11px;color:var(--t3);}
+.sb-logout-btn{display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:auto;flex-shrink:0;border-radius:7px;border:none;background:transparent;cursor:pointer;color:var(--t3);transition:all .15s;}
+.sb-logout-btn:hover{background:rgba(239,68,68,.1);color:var(--red);}
+.sb-toggle-btn{position:absolute;top:72px;right:-14px;width:28px;height:28px;border-radius:50%;background:var(--card);border:1px solid var(--border-hi);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:100;color:var(--t2);transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.35);}
+.sb-toggle-btn:hover{background:var(--green);border-color:var(--green);color:#000;}
+
+/* MAIN CONTENT */
+.main{flex:1;overflow-y:auto;padding:32px 36px;min-width:0;}
+.page-header{margin-bottom:28px;}
+.page-title{font-size:26px;font-weight:800;color:var(--t1);margin-bottom:6px;letter-spacing:-.4px;}
+.page-subtitle{font-size:14px;color:var(--t2);}
+
+/* ACCESS DENIED SCREEN (shown when not instructor) */
+#accessDenied{display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;padding:40px;}
+#accessDenied .ad-icon{width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,.1);display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--red);}
+#accessDenied .ad-title{font-size:22px;font-weight:700;color:var(--t1);margin-bottom:8px;}
+#accessDenied .ad-msg{font-size:14px;color:var(--t2);text-align:center;max-width:440px;line-height:1.6;margin-bottom:18px;}
+#accessDenied .ad-link{color:var(--green);text-decoration:none;font-weight:600;font-size:13px;}
+#accessDenied .ad-link:hover{text-decoration:underline;}
+
+/* AUTH GUARD (shown until auth resolves) */
+#loadingScreen{display:flex;flex:1;align-items:center;justify-content:center;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* STATS CARDS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.stat-label{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:6px;}
+.stat-value{font-size:24px;font-weight:800;color:var(--t1);letter-spacing:-.4px;}
+.stat-value.green{color:var(--green);}
+.stat-value.cyan{color:var(--cyan);}
+.stat-value.gold{color:var(--gold);}
+
+/* ROSTER TABLE */
+.roster-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.roster-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.roster-title{font-size:15px;font-weight:700;color:var(--t1);}
+.roster-search{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:13px;color:var(--t1);outline:none;width:240px;font-family:inherit;}
+.roster-search:focus{border-color:var(--green);}
+.roster-search::placeholder{color:var(--t3);}
+
+.roster-table{width:100%;border-collapse:collapse;}
+.roster-table thead th{background:var(--card2);padding:11px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.roster-table tbody td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--t1);vertical-align:middle;}
+.roster-table tbody tr:last-child td{border-bottom:none;}
+.roster-table tbody tr:hover{background:rgba(255,255,255,.02);}
+
+.cell-name{font-weight:600;color:var(--t1);}
+.cell-email{font-size:11px;color:var(--t3);font-weight:400;display:block;margin-top:2px;}
+
+.phase-badge{display:inline-block;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:.3px;}
+.phase-badge.p1{background:rgba(34,197,94,.12);color:#86efac;}
+.phase-badge.p2{background:rgba(6,182,212,.12);color:#67e8f9;}
+.phase-badge.p3{background:rgba(251,191,36,.12);color:#fcd34d;}
+.phase-badge.grad{background:rgba(139,92,246,.12);color:#c4b5fd;}
+
+.quizzes-bar{display:flex;align-items:center;gap:8px;}
+.quizzes-track{width:60px;height:6px;background:var(--card2);border-radius:3px;overflow:hidden;}
+.quizzes-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s;}
+.quizzes-text{font-size:11px;font-weight:700;color:var(--t2);min-width:24px;}
+
+.gate-status{font-size:12px;font-weight:600;}
+.gate-status.approved{color:var(--green);}
+.gate-status.pending{color:var(--amber);}
+.gate-status.na{color:var(--t3);}
+
+.cell-active{font-size:12px;color:var(--t2);}
+
+.btn-action{padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--t1);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.btn-action:hover:not(:disabled){background:var(--green);border-color:var(--green);color:#000;}
+.btn-action:disabled{opacity:.4;cursor:not-allowed;}
+.btn-action.approved{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:var(--green);cursor:default;}
+.btn-action.approved:hover{background:rgba(34,197,94,.08);color:var(--green);}
+
+.empty-state{padding:60px 20px;text-align:center;color:var(--t3);font-size:14px;}
+
+/* CONFIRM DIALOG */
+.dialog-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;padding:20px;}
+.dialog-bg.show{display:flex;}
+.dialog{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px 26px;max-width:440px;width:100%;}
+.dialog-title{font-size:17px;font-weight:700;color:var(--t1);margin-bottom:8px;}
+.dialog-msg{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:18px;}
+.dialog-msg strong{color:var(--t1);}
+.dialog-actions{display:flex;gap:10px;justify-content:flex-end;}
+.btn-cancel{padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-cancel:hover{color:var(--t1);}
+.btn-confirm{padding:8px 16px;border-radius:6px;border:none;background:var(--green);color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-confirm:hover{background:var(--green2);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--green);border-radius:8px;padding:12px 18px;font-size:13px;color:var(--t1);box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:600;display:none;}
+.toast.show{display:block;animation:slideIn .25s;}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+/* MOBILE */
+@media (max-width:768px){
+  body{flex-direction:column;}
+  .sidebar{position:fixed;top:0;left:-260px;height:100vh;z-index:1000;transition:left .25s;}
+  .sidebar.mobile-open{left:0;}
+  .sb-toggle-btn{display:none;}
+  .main{padding:18px;}
+  .mobile-menu-btn{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--t1);cursor:pointer;margin-bottom:14px;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .roster-head{flex-direction:column;align-items:stretch;}
+  .roster-search{width:100%;}
+  .roster-table{font-size:12px;}
+  .roster-table thead th,.roster-table tbody td{padding:10px 8px;}
+  .roster-table thead th:nth-child(4),.roster-table tbody td:nth-child(4){display:none;} /* Hide last active on mobile */
+  .cell-email{display:none;}
+  .quizzes-track{width:40px;}
+}
+.mobile-menu-btn{display:none;}
+
+/* Block status visuals */
+.blocked-badge{display:inline-block;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.4px;background:rgba(239,68,68,.15);color:#fca5a5;text-transform:uppercase;margin-left:8px;}
+.btn-block{padding:7px 12px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--amber);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;margin-left:6px;}
+.btn-block:hover{background:rgba(245,158,11,.1);border-color:var(--amber);}
+.btn-block.unblock{color:var(--green);}
+.btn-block.unblock:hover{background:rgba(34,197,94,.1);border-color:var(--green);}
+.btn-demo{padding:7px 12px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:#a78bfa;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;margin-left:6px;}
+.btn-demo:hover{background:rgba(167,139,250,.1);border-color:#a78bfa;}
+.btn-demo.relock{color:var(--amber);}
+.btn-demo.relock:hover{background:rgba(245,158,11,.1);border-color:var(--amber);}
+.demo-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(167,139,250,.15);color:#a78bfa;margin-left:8px;letter-spacing:.5px;border:1px solid rgba(167,139,250,.3);vertical-align:middle;}
+.roster-table tbody tr.blocked-row td:not(:last-child){opacity:.55;}
+.toggle-blocked{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);cursor:pointer;user-select:none;}
+.toggle-blocked input{width:32px;height:18px;appearance:none;background:var(--card2);border:1px solid var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;}
+.toggle-blocked input:checked{background:var(--green);border-color:var(--green);}
+.toggle-blocked input::after{content:"";position:absolute;top:1px;left:1px;width:14px;height:14px;border-radius:50%;background:var(--t2);transition:left .2s;}
+.toggle-blocked input:checked::after{left:15px;background:#000;}
+/* DAILY REVIEW */
+.rv-select{background:var(--card2);border:1px solid var(--border-hi);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--t1);font-family:inherit;}
+.rv-link{color:var(--green);text-decoration:none;font-weight:600;font-size:13px;}
+.rv-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.rv-tab{font-family:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--t2);cursor:pointer;}
+.rv-tab.active{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);}
+.rv-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+.rv-card-title{padding:14px 18px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;}
+.rv-scroll{overflow-x:auto;}
+.rv-table{width:100%;border-collapse:collapse;font-size:13px;}
+.rv-table th{background:var(--card2);padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:1px solid var(--border);}
+.rv-table td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.rv-table tbody tr{cursor:default;}
+.rv-table tbody tr.click{cursor:pointer;}
+.rv-table tbody tr.click:hover{background:rgba(255,255,255,.03);}
+.rv-table tbody tr.sel{background:rgba(6,182,212,.08);}
+.rv-table .r{text-align:right;}
+.pos{color:var(--green);} .neg{color:var(--red);}
+/* left navigation like Tradervue */
+.rv-shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:start;}
+.rv-side{position:sticky;top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;}
+.rv-side-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;font-family:inherit;font-size:14px;font-weight:600;padding:10px 12px;border:none;border-radius:8px;background:transparent;color:var(--t2);cursor:pointer;}
+.rv-side-item:hover{background:rgba(255,255,255,.04);color:var(--t1);}
+.rv-side-item.active{background:rgba(34,197,94,.10);color:var(--green);}
+.rv-side-note{font-size:11px;color:var(--t3);padding:12px 12px 4px;line-height:1.5;border-top:1px solid var(--border);margin-top:8px;}
+@media (max-width:900px){.rv-shell{grid-template-columns:1fr;}.rv-side{position:static;flex-direction:row;flex-wrap:wrap;}.rv-side-item{width:auto;}.rv-side-note{display:none;}}
+.st-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+@media (max-width:1100px){.st-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.st-sub{font-size:12px;color:var(--t2);margin-top:6px;}
+.st-chip{display:inline-block;font-size:11px;font-weight:600;color:var(--t1);background:var(--card2);border:1px solid var(--border-hi);border-radius:5px;padding:2px 7px;margin:1px 4px 1px 0;}
+.st-short{font-size:11px;font-weight:700;color:#f87171;background:rgba(239,68,68,.15);border-radius:4px;padding:2px 7px;}
+/* reports by pattern / tag */
+.st-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:14px;}
+.st-filters label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;}
+.st-filters .rv-select{min-width:130px;color-scheme:dark;}
+#stTag{max-width:230px;} #stTest,#stRule,#stIb{max-width:170px;}
+.st-summary{font-size:13px;color:var(--t2);margin:0 0 14px;}
+.st-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.st-seg{display:inline-flex;background:var(--card2);border:1px solid var(--border-hi);border-radius:9px;padding:3px;gap:2px;margin-bottom:14px;}
+.st-bar .st-seg{margin-bottom:0;}
+.st-seg button{font-family:inherit;font-size:13px;font-weight:600;padding:6px 13px;border-radius:7px;border:none;background:transparent;color:var(--t2);cursor:pointer;}
+.st-seg button.on{background:var(--card);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.4);}
+.st-grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.st-grid2>.rv-card{margin-bottom:16px;min-width:0;}
+@media (max-width:1100px){.st-grid2{grid-template-columns:1fr;}}
+.st-body{padding:10px 12px 8px;}
+.st-svg{display:block;height:230px;}
+.st-grid{stroke:#243044;stroke-width:1;} .st-zero{stroke:#475569;stroke-width:1.2;}
+.st-ax{fill:#94a3b8;font-size:11px;font-family:Inter,sans-serif;}
+.st-up{fill:#22c55e;} .st-dn{fill:#ef4444;} .st-cy{fill:#06b6d4;}
+.st-line{fill:none;stroke:#22c55e;stroke-width:2.2;stroke-linejoin:round;}
+.st-empty{padding:30px;text-align:center;color:var(--t3);font-size:13px;}
+.st-note{font-size:12px;color:var(--t3);}
+.st-ibsplit{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px;}
+.st-ibsplit .rv-day.on{border-color:var(--green);}
+.st-hb{background:var(--card2);border-radius:4px;height:10px;overflow:hidden;}
+.st-hbi{height:100%;border-radius:4px;} .st-hbi.up{background:#22c55e;} .st-hbi.dn{background:#ef4444;}
+.st-cal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media (max-width:1100px){.st-cal{grid-template-columns:1fr 1fr;}} @media (max-width:700px){.st-cal{grid-template-columns:1fr;}}
+.st-month{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.st-mhead{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:10px;}
+.st-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.st-wd{font-size:11px;color:var(--t3);text-align:center;font-weight:700;padding-bottom:4px;}
+.st-d{border-radius:6px;min-height:42px;padding:4px 2px;text-align:center;font-size:12px;color:var(--t2);}
+.st-d.up{background:rgba(34,197,94,.16);color:#4ade80;cursor:pointer;} .st-d.dn{background:rgba(239,68,68,.16);color:#f87171;cursor:pointer;}
+.st-d.up:hover,.st-d.dn:hover{outline:1px solid var(--border-hi);}
+.st-dn1{font-weight:700;} .st-dn2{font-size:10px;margin-top:2px;font-variant-numeric:tabular-nums;}
+.rv-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t2);margin-left:6px;}
+.rv-badge.live{color:var(--gold);border-color:var(--gold);}
+.rv-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);}
+.rv-chart-title{font-size:14px;font-weight:700;}
+.rv-nav{display:flex;align-items:center;gap:8px;}
+.rv-nav .rv-tab{padding:6px 12px;}
+.rv-nav .rv-tab:disabled{opacity:.35;cursor:default;}
+.rv-count{font-size:12px;color:var(--t2);min-width:64px;text-align:center;font-variant-numeric:tabular-nums;}
+.rv-chart-note{padding:8px 16px;font-size:12px;color:var(--t2);}
+.rv-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-top:1px solid var(--border);}
+.rv-cbox{background:var(--card);min-width:0;}
+.rv-clabel{padding:8px 14px;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;}
+.rv-chart{height:440px;position:relative;}
+.rv-legend{position:absolute;left:10px;top:6px;z-index:5;pointer-events:none;font-size:12px;line-height:1.55;color:#d1d4dc;font-variant-numeric:tabular-nums;text-shadow:0 0 3px #131722;}
+.rv-legend .sym{font-weight:700;font-size:14px;color:#fff;margin-right:8px;}
+.rv-legend .k{color:#8a8f9c;margin:0 2px 0 6px;}
+.rv-legend .up{color:#26a69a;} .rv-legend .dn{color:#ef5350;} .rv-legend .vw{color:#f5c542;} .rv-legend .em{color:#3b5bdb;}
+.rv-pnl{height:230px;}
+.rv-stats{display:grid;grid-template-columns:1fr 1fr;}
+.rv-block{background:var(--card);border-top:1px solid var(--border);}
+.rv-stats4{display:grid;grid-template-columns:repeat(4,1fr);}
+.rv-stats4 .rv-stat{border-right:1px solid var(--border);}
+.rv-stats4 .rv-stat:nth-child(4n){border-right:none;}
+.rv-bullets{margin:0;padding:10px 18px 10px 34px;font-size:13px;line-height:1.7;color:var(--t1);}
+.rv-bullets li b{color:var(--t1);}
+.rv-days{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 14px;}
+.rv-day{background:var(--card2);border:1px solid var(--border-hi);border-radius:7px;padding:6px 10px;font-size:12px;font-variant-numeric:tabular-nums;}
+@media (max-width:1100px){.rv-stats4{grid-template-columns:1fr 1fr;}}
+.rv-stat{padding:12px 16px;border-bottom:1px solid var(--border);}
+.rv-stat:nth-child(odd){border-right:1px solid var(--border);}
+.rv-stat .k{font-size:12px;color:var(--t2);margin-bottom:4px;}
+.rv-stat .v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
+.rv-note{width:100%;min-height:110px;background:var(--card2);border:1px solid var(--border-hi);border-radius:8px;color:var(--t1);font-family:inherit;font-size:13px;padding:10px;resize:vertical;}
+.rv-note:focus{outline:none;border-color:var(--green);}
+@media (max-width:1100px){.rv-row{grid-template-columns:1fr;}}
+.rv-pre{margin:0;padding:16px 18px;font-size:12px;line-height:1.5;color:var(--t1);white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;}
+.stat-value.pos{color:var(--green);} .stat-value.neg{color:var(--red);}
+@media (max-width:880px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+
+/* STRATEGY LAB */
+.sl-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;overflow:hidden;}
+.sl-card-head{padding:16px 18px;border-bottom:1px solid var(--border);}
+.sl-h{font-size:17px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.sl-sub{font-size:12.5px;color:var(--t2);margin-top:4px;}
+.sl-code{font-size:11px;font-weight:700;color:var(--t2);background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-family:ui-monospace,Menlo,Consolas,monospace;}
+.sl-badge{font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--cyan);background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.35);border-radius:999px;padding:3px 9px;}
+.sl-group{font-size:13px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:.7px;margin:26px 0 12px;}
+.sl-row{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:0;}
+.sl-chart{padding:14px 14px 10px;border-right:1px solid var(--border);min-width:0;}
+.sl-chart-box{width:100%;height:300px;}
+.sl-cap{font-size:11.5px;color:var(--t3);margin-top:8px;}
+.sl-info{padding:14px 18px;min-width:0;}
+.sl-lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin:6px 0 6px;}
+.sl-ul{margin:0 0 10px;padding-left:18px;font-size:13px;color:var(--t1);line-height:1.55;}
+.sl-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px;}
+.sl-stat{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:8px 10px;}
+.sl-stat-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;}
+.sl-stat-v{font-size:16px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums;margin-top:2px;}
+.sl-stat-v.pos{color:var(--green);} .sl-stat-v.neg{color:var(--red);}
+.sl-note{font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.45;}
+.sl-foot{font-size:12px;color:var(--t3);margin:22px 0 40px;line-height:1.5;}
+@media (max-width:1100px){.sl-row{grid-template-columns:1fr;}.sl-chart{border-right:none;border-bottom:1px solid var(--border);}}
+@media (max-width:560px){.sl-stats{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<div class="sidebar-wrap">
+<nav class="sidebar" id="sidebar">
+  <div class="sb-logo-area">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h13" stroke="#00d97e" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="18" r="3" fill="#00d97e"/></svg>
+      </div>
+      <div class="sb-wordmark">TradeRoom<span> PRO</span></div>
+    </div>
+  </div>
+  <div class="sb-scroll">
+    <div class="sb-item" data-label="Dashboard" onclick="window.location.href='trading-dashboard.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></span><span class="sb-label">Dashboard</span>
+    </div>
+    <div class="sb-item" data-label="Scanners" onclick="window.location.href='scanners.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><span class="sb-label">Scanners</span>
+    </div>
+    <div class="sb-item" data-label="Charting" onclick="window.location.href='chart.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></span><span class="sb-label">Charting</span>
+    </div>
+    <div class="sb-item" data-label="YouTube" onclick="window.location.href='youtube.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16 10,8" fill="currentColor" stroke="none"/></svg></span><span class="sb-label">YouTube</span>
+    </div>
+    <div class="sb-item" data-label="Zoom" onclick="window.location.href='zoom.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></span><span class="sb-label">Zoom</span>
+    </div>
+    <div class="sb-item" data-label="Courses" onclick="window.location.href='courses.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="sb-label">Courses</span>
+    </div>
+    <div class="sb-item" data-label="Phase 2" onclick="window.location.href='phase2.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span class="sb-label">Phase 2</span>
+    </div>
+    <div class="sb-item" data-label="Phase 3" onclick="window.location.href='phase3.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="8" r="6"/><path d="m9 17 .5 5L12 20l2.5 2 .5-5"/></svg></span><span class="sb-label">Phase 3</span>
+    </div>
+    <div class="sb-item" data-label="Mentorship" onclick="window.location.href='mentorship.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="sb-label">Mentorship</span>
+    </div>
+    <div class="sb-item" data-label="Tradervue" onclick="window.location.href='tradervue.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg></span><span class="sb-label">Tradervue</span>
+    </div>
+    <div class="sb-item" data-label="Admin" onclick="window.location.href='admin.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span><span class="sb-label">Admin</span>
+    </div>
+    <div class="sb-item" data-label="Review" onclick="window.location.href='review.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="7,15 10,11 13,13 17,8"/></svg></span><span class="sb-label">Daily Review</span>
+    </div>
+    <div class="sb-item active" data-label="Strategy Lab" onclick="window.location.href='strategies.html'">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7.5 15h9"/></svg></span><span class="sb-label">Strategy Lab</span>
+    </div>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <div style="flex:1;min-width:0;overflow:hidden;"><div class="sb-uname" id="sbName" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div><div class="sb-urole" id="sbRole">—</div></div>
+      <button class="sb-logout-btn" onclick="handleLogout()" title="Sign Out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+  <button class="sb-toggle-btn" id="collapseBtn" onclick="toggleSidebar()" title="Collapse sidebar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="15,18 9,12 15,6"/></svg>
+  </button>
+</nav>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div id="loadingScreen"><div class="spinner"></div></div>
+  <div id="accessDenied">
+    <div class="ad-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+    <div class="ad-title">Restricted Area</div>
+    <div class="ad-msg">This page is for course instructors only. If you believe you should have access, contact your mentor.</div>
+    <a href="courses.html" class="ad-link">← Back to Courses</a>
+  </div>
+
+  <div id="labPanel" style="display:none;">
+    <div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div class="page-title">Strategy Lab</div>
+        <div class="page-subtitle">The strategies on paper test: how each one trades (sample chart), its 2-year history and its live paper results. Private — instructors only (BAO research, no redistribution).</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <a href="review.html" class="rv-link">Daily Review →</a>
+      </div>
+    </div>
+
+    <div class="sl-card">
+      <div class="sl-card-head"><div class="sl-h">All rules</div><div class="sl-sub">History = replay on IB 1-min bars (simulated fills, slippage + commission, no locate). Live = the paper test since 11-02, premarket entries only.</div></div>
+      <div style="overflow-x:auto;"><table class="rv-table" id="sumTable"><thead><tr>
+        <th>Rule</th><th>Test</th><th>Status</th><th class="r">History trades</th><th class="r">History net</th><th class="r">History PF</th><th class="r">2026 PF</th><th class="r">Live trades</th><th class="r">Live net</th><th class="r">Live PF</th>
+      </tr></thead><tbody></tbody></table></div>
+    </div>
+
+    <div class="sl-group">BAO_ALL — short the spike (+30% in 15 min, near the high, 10%+ above VWAP)</div>
+    <div id="grpBao"></div>
+    <div class="sl-group">S/R levels — short the retest of today's resistance after 08:00</div>
+    <div id="grpSr"></div>
+
+    <div class="sl-foot">Sample charts use made-up but typical prices to show HOW a rule trades — they are not real trades. History numbers are backtests: the 08:00 start and the high-of-day filter were found in the same data, so the live paper test is the real check. Judge a rule after 60+ live trades.</div>
+  </div>
+</div>
+<div class="toast" id="toast">—</div>
+
+<script>
+var currentUser = null, currentRole = null;
+firebase.auth().onAuthStateChanged(function(u) {
+  if (!u) { window.location.href = 'courses.html'; return; }
+  currentUser = u;
+  firebase.database().ref('traderoom/users/' + u.uid).get().then(function(snap) {
+    var p = snap.exists() ? snap.val() : null;
+    var name = p && p.name ? p.name : (u.email ? u.email.split('@')[0] : 'User');
+    currentRole = p && p.role ? p.role : 'student';
+    document.getElementById('sbAvatar').textContent = (name[0] || '?').toUpperCase();
+    document.getElementById('sbName').textContent = (currentRole === 'instructor' ? '⭐ ' : '🎓 ') + name;
+    document.getElementById('sbRole').textContent = currentRole === 'instructor' ? 'Instructor' : 'Student';
+    document.getElementById('loadingScreen').style.display = 'none';
+    if (currentRole === 'instructor') startLab(); else document.getElementById('accessDenied').style.display = 'flex';
+  }).catch(function() {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('accessDenied').style.display = 'flex';
+  });
+});
+
+// ══ THE RULES ══ (sample = knots [HH:MM, price]; marks = [HH:MM, price, 'S'|'C'|'X', text]; lines = [price, color, title])
+var C = {red: '#ef5350', green: '#26a69a', gold: '#fbbf24', vwap: '#f5c542', blue: '#3b82f6', grey: '#94a3b8'};
+function SRday(hod) {
+  var k = [['07:30', 2.00], ['07:38', 2.02], ['07:44', 2.30], ['07:48', 2.50], ['07:52', 2.40], ['08:00', 2.18], ['08:06', 2.10], ['08:12', 2.14]];
+  return k.concat(hod ? [['08:20', 2.40], ['08:26', 2.22], ['08:34', 2.17], ['08:44', 2.49], ['08:52', 2.30], ['08:58', 2.10], ['09:05', 2.08]]
+                      : [['08:20', 2.30], ['08:26', 2.49], ['08:32', 2.34], ['08:40', 2.10], ['08:50', 2.08]]);
+}
+var STRATS = [
+  {id: 'L', test: 'BAO_ALL', rule: 'BAOALL_L', name: 'Ladder no stop', status: 'paper',
+   rules: ['5 × 200 sh: the first at the signal, then one every 2% higher', 'Cover ALL at VWAP or the spike midpoint (whichever first)', 'After 60 min only if red; everything covered at 09:28', 'NO stop — a squeeze that does not come back is the risk'],
+   hist: {n: 1508, net: 101971, pf: 1.53, pf26: 1.00, note: '2 years, 1,000 sh max. $3–10: +$107.7K; $1–3: −$5.3K. Worst trade −$4,609. 2026 only break-even.'},
+   sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.72], ['07:50', 2.84], ['07:52', 2.70], ['08:00', 2.48], ['08:06', 2.36], ['08:14', 2.30]],
+   vwap: [2.00, 2.32], marks: [['07:47', 2.72, 'S', ''], ['07:48', 2.77, 'S', ''], ['07:49', 2.83, 'S', '3 × 200 short (+2% steps)'], ['08:02', 2.42, 'C', 'cover all at the midpoint']],
+   lines: [[2.42, C.green, 'midpoint 2.42']]},
+  {id: 'LM', test: 'BAO_ALL', rule: 'BAOALL_LM', name: 'Ladder + $ limit', status: 'paper',
+   rules: ['The same ladder and exits as Ladder no stop', '+ cover everything when the open loss reaches your bot\'s $500 limit'],
+   hist: {n: 1455, net: 17909, pf: 1.08, pf26: 0.82, note: 'The $500 limit was hit 346 times (−$207K): many of those came back to VWAP. A wider limit or smaller size is still to test.'},
+   sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.72], ['07:50', 2.92], ['07:53', 3.05], ['07:57', 3.30], ['08:03', 3.45], ['08:14', 3.25]],
+   vwap: [2.00, 2.55], marks: [['07:47', 2.72, 'S', ''], ['07:49', 2.83, 'S', ''], ['07:50', 2.94, 'S', '5 × 200 short, avg 2.83'], ['07:58', 3.33, 'C', 'cover all: −$500']],
+   lines: [[3.33, C.red, 'loss $500']]},
+  {id: 'M', test: 'BAO_ALL', rule: 'BAOALL_M', name: 'Bot 500 + 2x100', status: 'paper',
+   rules: ['500 sh at the signal, 2 adds of 100 (max 700)', 'Your bot\'s rules from .env: TP 100 every step, break-even, ESL, hold time, $500 limit', 'Steps by price: $0.05 under $1, $0.10 $1–3, $0.25 $3–10'],
+   hist: {n: 1359, net: 18156, pf: 1.15, pf26: 0.74, note: 'Smallest losses (worst −$1,020) but break-even exits cut many winners early.'},
+   sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.70], ['07:50', 2.92], ['07:52', 2.86], ['07:56', 2.62], ['08:00', 2.48], ['08:04', 2.56], ['08:08', 2.66], ['08:14', 2.60]],
+   vwap: [2.00, 2.40], marks: [['07:47', 2.70, 'S', ''], ['07:48', 2.80, 'S', ''], ['07:49', 2.87, 'S', '500 + 100 + 100 short'], ['07:55', 2.64, 'C', ''], ['07:57', 2.58, 'C', ''], ['07:59', 2.50, 'C', '3 × TP 100'], ['08:08', 2.66, 'C', 'rest at break-even']],
+   lines: [[2.66, C.green, 'break-even']]},
+  {id: 'S5', test: 'SR', rule: 'SR_S5_08', name: 'S/R stop 5%', status: 'paper',
+   rules: ['Resistance = today\'s 5-min top (a level 10 min after the top); support = 5-min low or VWAP', 'From 08:00: a push of 5%+ in 10 min into the level, 3%+ above VWAP', 'Room: (entry − target) ≥ 2 × (stop − entry)', 'Stop = level + 5% (off round numbers); size = $100 / stop distance', 'Exit: target (1¢ through), stop or 09:28'],
+   hist: {n: 435, net: 55776, pf: 3.98, pf26: 2.61, note: '$100 risk per trade. Win 68%. $3–10 PF 4.82, $1–3 PF 2.59. Target fill check: no change.'},
+   sample: SRday(false), vwap: [2.00, 2.20], marks: [['07:48', 2.50, 'X', 'first top = level 10 min later'], ['08:26', 2.48, 'S', 'short 2.48 (room 2.6x)'], ['08:40', 2.10, 'C', 'cover at support 2.10']],
+   lines: [[2.625, C.red, 'stop 2.625'], [2.50, C.gold, 'resistance 2.50'], [2.10, C.green, 'target 2.10']], start: '08:00'},
+  {id: 'R3', test: 'SR', rule: 'SR_R3_08', name: 'S/R room 3x', status: 'paper',
+   rules: ['The same as S/R stop 5%, but stop = level + 3% and room ≥ 3×', 'Tighter stop = more shares for the same $100 risk'],
+   hist: {n: 505, net: 84256, pf: 3.41, pf26: 2.11, note: '$100 risk per trade. Win 59%, bigger winners (+1.67R avg). $3–10 PF 4.17.'},
+   sample: SRday(false), vwap: [2.00, 2.20], marks: [['07:48', 2.50, 'X', 'first top'], ['08:26', 2.48, 'S', 'short 2.48 (room 4.0x)'], ['08:40', 2.10, 'C', 'cover 2.10']],
+   lines: [[2.575, C.red, 'stop 2.575'], [2.50, C.gold, 'resistance 2.50'], [2.10, C.green, 'target 2.10']], start: '08:00'},
+  {id: 'S5H', test: 'SR', rule: 'SR_S5_08H', name: 'S/R stop 5% HOD', status: 'paper',
+   rules: ['S/R stop 5%, but ONLY a retest of the high of the day (double top)', 'Lower highs are skipped'],
+   hist: {n: 312, net: 45129, pf: 4.82, pf26: null, note: 'From the HOD split of S/R stop 5% (in-sample) — lower highs had PF 2.55. Own history run pending.'},
+   sample: SRday(true), vwap: [2.00, 2.20], marks: [['07:48', 2.50, 'X', 'high of day 2.50'], ['08:20', 2.40, 'X', 'lower high: skipped'], ['08:44', 2.48, 'S', 'short the HOD retest'], ['08:58', 2.10, 'C', 'cover 2.10']],
+   lines: [[2.625, C.red, 'stop 2.625'], [2.50, C.gold, 'high of day 2.50'], [2.10, C.green, 'target 2.10']], start: '08:00'},
+  {id: 'R3H', test: 'SR', rule: 'SR_R3_08H', name: 'S/R room 3x HOD', status: 'paper',
+   rules: ['S/R room 3x, but ONLY a retest of the high of the day', 'Lower highs are skipped'],
+   hist: {n: 338, net: 72438, pf: 5.20, pf26: null, note: 'From the HOD split of S/R room 3x (in-sample) — lower highs had PF 1.67. Own history run pending.'},
+   sample: SRday(true), vwap: [2.00, 2.20], marks: [['07:48', 2.50, 'X', 'high of day 2.50'], ['08:20', 2.40, 'X', 'lower high: skipped'], ['08:44', 2.48, 'S', 'short the HOD retest'], ['08:58', 2.10, 'C', 'cover 2.10']],
+   lines: [[2.575, C.red, 'stop 2.575'], [2.50, C.gold, 'high of day 2.50'], [2.10, C.green, 'target 2.10']], start: '08:00'}
+];
+
+function el(tag, attrs, text) {
+  var e = document.createElement(tag);
+  if (attrs) for (var k in attrs) { if (k === 'cls') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  if (text !== undefined && text !== null) e.textContent = String(text);
+  return e;
+}
+function money(v) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  var s = Math.abs(v).toLocaleString('en-US', {maximumFractionDigits: 0});
+  return (v < 0 ? '−$' : '+$') + s;
+}
+function pfTxt(p) { return p === null || p === undefined ? '—' : (p === Infinity ? '∞' : p.toFixed(2)); }
+function T(hm) { var p = hm.split(':'); return Date.UTC(2026, 10, 2, +p[0], +p[1]) / 1000; }   // shown as ET wall-clock
+
+// 1-min candles along the knots (deterministic small noise, so every page load looks the same)
+function candles(knots) {
+  var out = [], seed = 7;
+  function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  for (var i = 0; i < knots.length - 1; i++) {
+    var t0 = T(knots[i][0]), t1 = T(knots[i + 1][0]), p0 = knots[i][1], p1 = knots[i + 1][1], n = Math.max(1, (t1 - t0) / 60);
+    for (var k = 0; k < n; k++) {
+      var o = p0 + (p1 - p0) * k / n, c = p0 + (p1 - p0) * (k + 1) / n, w = Math.max(0.006, Math.abs(c - o) * 0.4);
+      out.push({time: t0 + k * 60, open: o, close: c, high: Math.max(o, c) + w * rnd(), low: Math.min(o, c) - w * rnd()});
+    }
+  }
+  return out;
+}
+function drawSample(box, s) {
+  var bars = candles(s.sample), pf = {type: 'price', precision: 2, minMove: 0.01};
+  var ch = LightweightCharts.createChart(box, {
+    height: 300, layout: {background: {type: 'solid', color: '#161b27'}, textColor: '#94a3b8', fontFamily: 'Inter, sans-serif'},
+    grid: {vertLines: {color: '#1e2535'}, horzLines: {color: '#1e2535'}}, rightPriceScale: {borderColor: '#243044'},
+    timeScale: {borderColor: '#243044', timeVisible: true, secondsVisible: false}, crosshair: {mode: 0},
+    handleScroll: false, handleScale: false});
+  var cs = ch.addSeries(LightweightCharts.CandlestickSeries, {upColor: C.green, downColor: C.red, borderVisible: false,
+    wickUpColor: C.green, wickDownColor: C.red, priceFormat: pf, priceLineVisible: false, lastValueVisible: false});
+  cs.setData(bars);
+  var t0 = bars[0].time, tN = bars[bars.length - 1].time;
+  var vw = ch.addSeries(LightweightCharts.LineSeries, {color: C.vwap, lineWidth: 2, lineStyle: 2, priceLineVisible: false,
+    lastValueVisible: false, crosshairMarkerVisible: false, priceFormat: pf, title: 'VWAP'});
+  vw.setData(bars.map(function (b, i) { var f = Math.min(1, i / 32); return {time: b.time, value: s.vwap[0] + (s.vwap[1] - s.vwap[0]) * f}; }));
+  (s.lines || []).forEach(function (l) {
+    cs.createPriceLine({price: l[0], color: l[1], lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: l[2]});
+  });
+  var mk = s.marks.map(function (m) {
+    var t = T(m[0]); t = Math.max(t0, Math.min(tN, t));
+    if (m[2] === 'S') return {time: t, position: 'atPriceTop', price: m[1], color: C.red, shape: 'arrowDown', text: m[3] || ''};
+    if (m[2] === 'C') return {time: t, position: 'atPriceBottom', price: m[1], color: C.green, shape: 'arrowUp', text: m[3] || ''};
+    return {time: t, position: 'atPriceTop', price: m[1], color: C.grey, shape: 'circle', text: m[3] || ''};
+  }).sort(function (a, b) { return a.time - b.time; });
+  LightweightCharts.createSeriesMarkers(cs, mk);
+  ch.timeScale().fitContent();
+  new ResizeObserver(function () { ch.applyOptions({width: box.clientWidth}); }).observe(box);
+}
+
+// ══ LIVE PAPER RESULTS ══ (the same data as the Daily Review: traderoom/admin_review/days, instructors only)
+var LIVE = {};
+function liveStats(rule) {
+  var rr = LIVE[rule] || [], n = rr.length, w = 0, l = 0, net = 0, win = 0;
+  rr.forEach(function (x) { var v = x.net || 0; net += v; if (v > 0) { w += v; win++; } else l -= v; });
+  return {n: n, net: net, pf: n ? (l ? w / l : (w ? Infinity : 0)) : null, win: n ? 100 * win / n : null};
+}
+function loadLive() {
+  return firebase.database().ref('traderoom/admin_review/days').get().then(function (snap) {
+    var v = snap.val() || {};
+    Object.keys(v).forEach(function (d) {
+      var tr = (v[d] || {}).trades || {};
+      Object.keys(tr).forEach(function (k) {
+        var x = tr[k];
+        if ((x.entry_time || '') >= '09:30') return;                       // premarket entries only, like the tests
+        (LIVE[x.rule] = LIVE[x.rule] || []).push(x);
+      });
+    });
+  }).catch(function () { LIVE = {}; });
+}
+
+function card(s) {
+  var c = el('div', {cls: 'sl-card', id: 'card_' + s.id});
+  var head = el('div', {cls: 'sl-card-head'});
+  var h = el('div', {cls: 'sl-h'}, s.name);
+  h.appendChild(el('span', {cls: 'sl-code'}, s.rule));
+  h.appendChild(el('span', {cls: 'sl-badge'}, s.status === 'paper' ? 'ON PAPER from 11-02' : s.status));
+  head.appendChild(h);
+  c.appendChild(head);
+  var row = el('div', {cls: 'sl-row'});
+  var left = el('div', {cls: 'sl-chart'});
+  var box = el('div', {cls: 'sl-chart-box'});
+  left.appendChild(box);
+  left.appendChild(el('div', {cls: 'sl-cap'}, 'Sample trade (made-up prices): ▼ short  ▲ cover  ● level / skipped. ' + (s.start ? 'No entries before ' + s.start + '.' : '')));
+  row.appendChild(left);
+  var right = el('div', {cls: 'sl-info'});
+  right.appendChild(el('div', {cls: 'sl-lbl'}, 'Rules'));
+  var ul = el('ul', {cls: 'sl-ul'});
+  s.rules.forEach(function (r) { ul.appendChild(el('li', null, r)); });
+  right.appendChild(ul);
+  right.appendChild(el('div', {cls: 'sl-lbl'}, '2-year history'));
+  var hs = el('div', {cls: 'sl-stats'});
+  [['Trades', s.hist.n.toLocaleString('en-US')], ['Net', money(s.hist.net)], ['PF', pfTxt(s.hist.pf)], ['2026 PF', pfTxt(s.hist.pf26)]].forEach(function (x, i) {
+    var b = el('div', {cls: 'sl-stat'}); b.appendChild(el('div', {cls: 'sl-stat-l'}, x[0]));
+    var v = el('div', {cls: 'sl-stat-v'}, x[1]);
+    if (i === 1) v.classList.add(s.hist.net >= 0 ? 'pos' : 'neg');
+    if ((i === 2 || i === 3) && x[1] !== '—') v.classList.add(parseFloat(x[1]) >= 1 ? 'pos' : 'neg');
+    b.appendChild(v); hs.appendChild(b);
+  });
+  right.appendChild(hs);
+  right.appendChild(el('div', {cls: 'sl-note'}, s.hist.note));
+  right.appendChild(el('div', {cls: 'sl-lbl'}, 'Live paper test'));
+  var ls = liveStats(s.rule), lv = el('div', {cls: 'sl-stats'});
+  [['Trades', ls.n], ['Net', ls.n ? money(ls.net) : '—'], ['PF', pfTxt(ls.pf)], ['Win', ls.win === null ? '—' : Math.round(ls.win) + '%']].forEach(function (x, i) {
+    var b = el('div', {cls: 'sl-stat'}); b.appendChild(el('div', {cls: 'sl-stat-l'}, x[0]));
+    var v = el('div', {cls: 'sl-stat-v'}, x[1]);
+    if (i === 1 && ls.n) v.classList.add(ls.net >= 0 ? 'pos' : 'neg');
+    b.appendChild(v); lv.appendChild(b);
+  });
+  right.appendChild(lv);
+  right.appendChild(el('div', {cls: 'sl-note'}, ls.n ? ('Decision after 60+ trades: ' + ls.n + ' of 60 so far.') : 'No live trades yet — the test starts Monday 11-02.'));
+  var a = el('a', {cls: 'rv-link', href: 'review.html'}, 'See the trades in the Daily Review →');
+  right.appendChild(a);
+  row.appendChild(right);
+  c.appendChild(row);
+  return {node: c, box: box};
+}
+
+function startLab() {
+  document.getElementById('labPanel').style.display = 'block';
+  loadLive().then(function () {
+    var tb = document.querySelector('#sumTable tbody');
+    STRATS.forEach(function (s) {
+      var ls = liveStats(s.rule), tr = el('tr', {cls: 'click'});
+      tr.onclick = function () { document.getElementById('card_' + s.id).scrollIntoView({behavior: 'smooth'}); };
+      tr.appendChild(el('td', {style: 'font-weight:700;'}, s.name));
+      tr.appendChild(el('td', null, s.test === 'SR' ? 'S/R levels' : 'BAO_ALL'));
+      tr.appendChild(el('td', null, 'paper'));
+      tr.appendChild(el('td', {cls: 'r'}, s.hist.n.toLocaleString('en-US')));
+      var hn = el('td', {cls: 'r'}, money(s.hist.net)); hn.style.color = s.hist.net >= 0 ? 'var(--green)' : 'var(--red)'; tr.appendChild(hn);
+      tr.appendChild(el('td', {cls: 'r'}, pfTxt(s.hist.pf)));
+      tr.appendChild(el('td', {cls: 'r'}, pfTxt(s.hist.pf26)));
+      tr.appendChild(el('td', {cls: 'r'}, ls.n));
+      var ln = el('td', {cls: 'r'}, ls.n ? money(ls.net) : '—'); if (ls.n) ln.style.color = ls.net >= 0 ? 'var(--green)' : 'var(--red)'; tr.appendChild(ln);
+      tr.appendChild(el('td', {cls: 'r'}, pfTxt(ls.pf)));
+      tb.appendChild(tr);
+      var c = card(s);
+      document.getElementById(s.test === 'SR' ? 'grpSr' : 'grpBao').appendChild(c.node);
+      drawSample(c.box, s);
+    });
+  });
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 3500);
+}
+function toggleSidebar() {
+  var sb = document.getElementById('sidebar'), btn = document.getElementById('collapseBtn');
+  var collapsed = sb.classList.toggle('collapsed');
+  btn.style.transform = collapsed ? 'rotate(180deg)' : 'rotate(0deg)';
+  try { localStorage.setItem('sb_collapsed', collapsed); } catch (e) {}
+}
+(function () {
+  try {
+    if (localStorage.getItem('sb_collapsed') === 'true') {
+      document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('sidebar').classList.add('collapsed');
+        document.getElementById('collapseBtn').style.transform = 'rotate(180deg)';
+      });
+    }
+  } catch (e) {}
+})();
+function toggleMobileSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); }
+function handleLogout() { firebase.auth().signOut().then(function () { window.location.href = 'courses.html'; }); }
+</script>
+</body>
+</html>
