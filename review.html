@@ -608,7 +608,21 @@ function cls(v) { return v > 0 ? 'pos' : (v < 0 ? 'neg' : ''); }
 
 function startReview() {
   document.getElementById('reviewPanel').style.display = 'block';
-  loadAllDays().then(function () { buildIndex(); loadDay(dayList().slice(-1)[0]); showView('dash'); })
+  loadAllDays().then(function () {
+    buildIndex();
+    var q = new URLSearchParams(location.search), rule = q.get('rule'), day = q.get('day'), id = q.get('id');
+    if (day && INDEX[day]) {                      // review.html?day=YYYY-MM-DD&id=... (Strategy Lab trade link)
+      showView('day');
+      return loadDay(day, function () {
+        var k = -1;
+        VISIBLE.forEach(function (y, i) { if (k < 0 && id && y.id === id) k = i; });
+        if (k >= 0) openTrade(k, true);
+      });
+    }
+    loadDay(dayList().slice(-1)[0]);
+    if (rule) { ST.rule = rule; showView('trades'); }   // review.html?rule=SR_S5_08 = every trade of one rule
+    else showView('dash');
+  })
     .catch(function (e) { showToast('✗ Could not read the review data: ' + e.message); });
   firebase.database().ref(ROOT + '/reports').get().then(function (snap) { REPORTS = snap.val() || {}; buildReports(); });
 }

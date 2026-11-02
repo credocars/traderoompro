@@ -324,6 +324,14 @@ body{display:flex;}
 .sl-stat-v{font-size:16px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums;margin-top:2px;}
 .sl-stat-v.pos{color:var(--green);} .sl-stat-v.neg{color:var(--red);}
 .sl-note{font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.45;}
+.sl-trades{margin-top:10px;}
+.sl-more{background:var(--card2);border:1px solid var(--border);color:var(--t1);border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;}
+.sl-more:hover{border-color:var(--cyan);}
+.sl-tbl-wrap{max-height:320px;overflow:auto;margin-top:8px;border:1px solid var(--border);border-radius:9px;}
+.sl-tbl{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;}
+.sl-tbl th{position:sticky;top:0;background:var(--card2);color:var(--t3);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;text-align:left;padding:6px 8px;}
+.sl-tbl td{padding:6px 8px;border-top:1px solid var(--border);color:var(--t1);white-space:nowrap;}
+.sl-tbl .r{text-align:right;} .sl-tbl tr.click{cursor:pointer;} .sl-tbl tr.click:hover td{background:var(--card2);}
 .sl-foot{font-size:12px;color:var(--t3);margin:22px 0 40px;line-height:1.5;}
 @media (max-width:1100px){.sl-row{grid-template-columns:1fr;}.sl-chart{border-right:none;border-bottom:1px solid var(--border);}}
 @media (max-width:560px){.sl-stats{grid-template-columns:repeat(2,1fr);}}
@@ -576,10 +584,45 @@ function loadLive() {
       Object.keys(tr).forEach(function (k) {
         var x = tr[k];
         if ((x.entry_time || '') >= '09:30') return;                       // premarket entries only, like the tests
+        x._day = d;
         (LIVE[x.rule] = LIVE[x.rule] || []).push(x);
       });
     });
   }).catch(function () { LIVE = {}; });
+}
+
+// every live paper trade of one rule, newest first - a row opens that trade's chart in the Daily Review
+function tradeList(rule) {
+  var rr = (LIVE[rule] || []).slice().sort(function (a, b) {
+    return (b._day + (b.entry_time || '')).localeCompare(a._day + (a.entry_time || ''));
+  });
+  var box = el('div', {cls: 'sl-trades'});
+  var btn = el('button', {cls: 'sl-more'}, 'Show the trades (' + rr.length + ') ▾');
+  var wrap = el('div', {cls: 'sl-tbl-wrap', style: 'display:none;'});
+  var t = el('table', {cls: 'sl-tbl'});
+  var hd = el('tr');
+  ['Day', 'Time', 'Stock', 'Entry', 'Exit', 'Exit why', 'Net'].forEach(function (h, i) { hd.appendChild(el('th', i >= 3 && i !== 5 ? {cls: 'r'} : null, h)); });
+  t.appendChild(hd);
+  rr.forEach(function (x) {
+    var tr = el('tr', {cls: 'click'});
+    tr.onclick = function () { location.href = 'review.html?day=' + x._day + '&id=' + encodeURIComponent(x.id || ''); };
+    tr.appendChild(el('td', null, x._day.slice(5)));
+    tr.appendChild(el('td', null, (x.entry_time || '').slice(0, 5)));
+    tr.appendChild(el('td', {style: 'font-weight:700;'}, x.symbol || ''));
+    tr.appendChild(el('td', {cls: 'r'}, x.entry === undefined || x.entry === null ? '—' : Number(x.entry).toFixed(x.entry < 1 ? 4 : 2)));
+    tr.appendChild(el('td', {cls: 'r'}, x.exit === undefined || x.exit === null ? '—' : Number(x.exit).toFixed(x.exit < 1 ? 4 : 2)));
+    tr.appendChild(el('td', null, x.reason || ''));
+    var n = el('td', {cls: 'r'}, money(x.net || 0)); n.style.color = (x.net || 0) >= 0 ? 'var(--green)' : 'var(--red)'; tr.appendChild(n);
+    t.appendChild(tr);
+  });
+  wrap.appendChild(t);
+  btn.onclick = function () {
+    var open = wrap.style.display === 'none';
+    wrap.style.display = open ? 'block' : 'none';
+    btn.textContent = (open ? 'Hide the trades' : 'Show the trades (' + rr.length + ')') + (open ? ' ▴' : ' ▾');
+  };
+  box.appendChild(btn); box.appendChild(wrap);
+  return box;
 }
 
 function card(s) {
@@ -622,8 +665,10 @@ function card(s) {
   });
   right.appendChild(lv);
   right.appendChild(el('div', {cls: 'sl-note'}, ls.n ? ('Decision after 60+ trades: ' + ls.n + ' of 60 so far.') : 'No live trades yet — the test starts Monday 11-02.'));
-  var a = el('a', {cls: 'rv-link', href: 'review.html'}, 'See the trades in the Daily Review →');
+  var a = el('a', {cls: 'rv-link', href: 'review.html?rule=' + encodeURIComponent(s.rule)},
+             ls.n ? 'All ' + ls.n + ' trades of this rule in the Daily Review →' : 'Daily Review (this rule) →');
   right.appendChild(a);
+  if (ls.n) right.appendChild(tradeList(s.rule));
   row.appendChild(right);
   c.appendChild(row);
   return {node: c, box: box};
