@@ -266,6 +266,9 @@ body{display:flex;}
 .st-dn1{font-weight:700;} .st-dn2{font-size:10px;margin-top:2px;font-variant-numeric:tabular-nums;}
 .rv-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--card2);border:1px solid var(--border-hi);color:var(--t2);margin-left:6px;}
 .rv-badge.live{color:var(--gold);border-color:var(--gold);}
+.rv-badge.ib-yes{color:var(--green);border-color:var(--green2);}
+.rv-badge.ib-no{color:var(--red);border-color:var(--red);}
+.rv-badge.ib-unk{color:var(--t3);}
 .rv-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);}
 .rv-chart-title{font-size:14px;font-weight:700;}
 .rv-nav{display:flex;align-items:center;gap:8px;}
@@ -589,6 +592,7 @@ var TESTS = ['LIVE_LADDER', 'LADDER_TWIN', 'BAOX', 'BAO_ALL', 'SR', 'PAPER'];
 var TEST_NAME = {LIVE_LADDER: 'Live ladder (real)', LADDER_TWIN: 'Ladder twin', BAOX: 'BAOX', BAO_ALL: 'BAO_ALL', SR: 'S/R levels', PAPER: 'Paper (SPIKE / FLUSH)'};
 var ALL_DAYS = null, PM_ONLY = true;                       // hide trades entered at/after 09:30 (regular hours) - the tests trade premarket only
 function keep(t) { return !PM_ONLY || !((t.entry_time || '') >= '09:30'); }
+var IB_FILTER = 'ALL';                     // day view: ALL / yes / no (shortable at IB)
 var INDEX = {}, DAY = null, TRADES = [], TEST_FILTER = 'ALL', CHART = null, REPORTS = {};
 var VISIBLE = [], CUR = -1, DCHART = null, PCHART = null, DPCHART = null, NOTES = {}, CUR_T = null, BARS = {};
 
@@ -711,11 +715,27 @@ function buildTestTabs() {
     b.onclick = function () { TEST_FILTER = t; buildTestTabs(); buildRows(); closeChart(); };
     box.appendChild(b);
   });
+  box.appendChild(el('span', {style: 'flex:0 0 12px;'}, ''));
+  [['ALL', 'All stocks'], ['yes', 'Shortable at IB'], ['no', 'Not shortable']].forEach(function (k) {
+    var b = el('button', {cls: 'rv-tab' + (k[0] === IB_FILTER ? ' active' : '')}, k[1]);
+    b.onclick = function () { IB_FILTER = k[0]; buildTestTabs(); buildRows(); closeChart(); };
+    box.appendChild(b);
+  });
+}
+
+function ibBadge(t) {                      // IB / NO IB / IB? next to the symbol (the IB borrow file at the signal)
+  var v = ibState(t), g = t.tags || {}, tip = [];
+  if (g.borrow) tip.push('IB borrow: ' + g.borrow);
+  if (g.borrow_sh) tip.push(g.borrow_sh + ' shares available');
+  if (g.fee !== undefined && g.fee !== null && g.fee !== '') tip.push('fee ' + (+g.fee).toFixed(1) + '%/yr');
+  if (v === 'yes') return el('span', {cls: 'rv-badge ib-yes', title: tip.join(' · ') || 'shortable at IB'}, 'IB');
+  if (v === 'no') return el('span', {cls: 'rv-badge ib-no', title: (tip.join(' · ') || 'not shortable at IB') + ' - needs another broker / locate'}, 'NO IB');
+  return el('span', {cls: 'rv-badge ib-unk', title: 'IB borrow not recorded'}, 'IB?');
 }
 
 function buildRows() {
   var body = document.getElementById('tradeRows'); body.innerHTML = '';
-  VISIBLE = TRADES.filter(function (x) { return TEST_FILTER === 'ALL' || x.test === TEST_FILTER; });
+  VISIBLE = TRADES.filter(function (x) { return (TEST_FILTER === 'ALL' || x.test === TEST_FILTER) && (IB_FILTER === 'ALL' || ibState(x) === IB_FILTER); });
   CUR = -1;
   VISIBLE.forEach(function (t, i) {
     var tr = el('tr', {cls: 'click'});
@@ -724,6 +744,7 @@ function buildRows() {
     if (t.test === 'LIVE_LADDER') tdT.appendChild(el('span', {cls: 'rv-badge live'}, 'REAL'));
     tr.appendChild(tdT);
     var tdS = el('td', {style: 'font-weight:700;'}, t.symbol);
+    tdS.appendChild(ibBadge(t));
     if (NOTES[t._key] && NOTES[t._key].text) tdS.appendChild(el('span', {cls: 'rv-badge', title: 'has a note'}, '📝'));
     tr.appendChild(tdS);
     var tdR = el('td', null, rn(t.rule));
@@ -1172,7 +1193,7 @@ function showChart(t, scroll) {
   CUR_T = t;
   showTv(String(t.symbol || '').toUpperCase().replace(/[^A-Z0-9.]/g, ''));
   var card = document.getElementById('chartCard'); card.style.display = 'block';
-  document.getElementById('chartTitle').textContent = DAY + '  ' + t.symbol + '  ' + rn(t.rule) + (t.tags && t.tags.round > 1 ? ' round ' + t.tags.round : '') +
+  document.getElementById('chartTitle').textContent = DAY + '  ' + t.symbol + '  [' + ({yes: 'IB shortable', no: 'NOT shortable at IB'}[ibState(t)] || 'IB ?') + ']  ' + rn(t.rule) + (t.tags && t.tags.round > 1 ? ' round ' + t.tags.round : '') +
     '  |  short ' + px(t.entry) + ' @ ' + (t.entry_time || '').slice(0, 5) + (t.exit ? ' → cover ' + px(t.exit) + ' @ ' + (t.exit_time || '').slice(0, 5) : '') +
     ' (' + t.reason + ')  |  ' + money(t.net) + '  |  ' + (t.shares || '?') + ' sh';
   dropCharts(); executions(t);
