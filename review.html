@@ -1000,7 +1000,7 @@ function showStats(t, pnl, candles, vwap) {
   stat('Round', tg.round ? (tg.round > 1 ? 'R' + tg.round + ' (re-entry)' : '1 (first spike)') : '—', tg.round > 1 ? 'neg' : '', g);
   stat('Runner risk', tg.risk || '—', tg.risk === 'HIGH' ? 'neg' : '', g);
   stat('Top-signal score', tg.score !== undefined ? tg.score + ' / 5' : '—', '', g);
-  stat('Stock', [tg.country_b, tg.float_b ? 'float ' + tg.float_b : '', tg.borrow ? 'IB ' + tg.borrow : '', tg.bao_posted ? 'BAO posted' : ''].filter(Boolean).join(' · ') || '—', '', g);
+  stat('Stock', [tg.country_b, tg.float_b ? 'float ' + tg.float_b : '', tg.borrow ? 'IB ' + tg.borrow : '', crrTxt(tg), tg.bao_posted ? 'BAO posted' : ''].filter(Boolean).join(' · ') || '—', '', g);
   statRules(t);
   soFar(t);
 }
@@ -1378,6 +1378,21 @@ function bucket(v, edges, fmt) {           // edges [1,2,3] -> '<1', '1-2', '2-3
   for (var i = 0; i < edges.length; i++) if (v < edges[i]) return i ? fmt(edges[i - 1]) + '-' + fmt(edges[i]) : '<' + fmt(edges[0]);
   return fmt(edges[edges.length - 1]) + '+';
 }
+function crrH(h) {                        // overhead resistance height bucket (crr_tag.py; study 11-06: +25-100% best)
+  if (h === undefined) return '?';
+  if (h === null) return 'nothing above';
+  return h < 25 ? 'up to +25% above' : h < 100 ? '+25-100% above' : '+100% or more above';
+}
+function crrR(r) {                        // sessions since the latest resistance day above the entry (20-60 best)
+  if (r === undefined) return '?';
+  if (r === null) return 'nothing above';
+  return r < 20 ? 'within 20 sessions' : r < 60 ? '20-60 sessions' : '60+ sessions';
+}
+function crrTxt(g) {                      // 'CRR +45% / 35 s / 3 layers (5M)'
+  if (!g || g.crr_h5 === undefined) return '';
+  return g.crr_h5 === null ? 'CRR nothing above (5M)' :
+    'CRR +' + Math.round(g.crr_h5) + '% / ' + g.crr_r5 + ' sessions / ' + g.crr_l5 + ' layers (5M)';
+}
 var TAG_GROUPS = [                         // [name, function(trade) -> value]
   ['Test', function (x) { return TEST_NAME[x.test] || x.test; }],
   ['Rule', function (x) { return x.rule || '-'; }],
@@ -1389,6 +1404,10 @@ var TAG_GROUPS = [                         // [name, function(trade) -> value]
   ['Country', function (x) { return (x.tags || {}).country_b || '?'; }],
   ['Float', function (x) { return (x.tags || {}).float_b || '?'; }],
   ['IB borrow', function (x) { return (x.tags || {}).borrow || '?'; }],
+  ['Resistance above (5M-share days)', function (x) { return crrH((x.tags || {}).crr_h5); }],
+  ['Last resistance (5M-share days)', function (x) { return crrR((x.tags || {}).crr_r5); }],
+  ['Resistance above (1M-share days)', function (x) { return crrH((x.tags || {}).crr_h1); }],
+  ['Last resistance (1M-share days)', function (x) { return crrR((x.tags || {}).crr_r1); }],
   ['Shortable at IB', function (x) { var v = ibState(x); return v === 'yes' ? 'yes' : v === 'no' ? 'no' : '?'; }],
   ['In your universe', function (x) { return (x.tags || {}).universe || '?'; }],
   ['BAO posted it', function (x) { var t = x.tags || {}; return t.bao_posted === undefined ? '?' : (t.bao_posted ? 'yes' : 'no'); }],
