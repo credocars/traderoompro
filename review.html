@@ -1092,7 +1092,7 @@ var TV_SYM = null;
 // readable rule names (Max 10-30); the codes stay in the data
 var RULE_NAME = {BAOALL_L: 'Ladder no stop', BAOALL_LM: 'Ladder + $ limit', BAOALL_LS: 'Ladder + 30% stop',
   BAOALL_C: 'Ladder + confirm', BAOALL_F: 'Fade every push', BAOALL_SP: 'Scale-in 3%', BAOALL_SD: 'Scale-in $ steps',
-  BAOALL_B: 'Bot 5% 1000 sh', BAOALL_M: 'Bot 500 + 2x100', BAOALL_1: 'One shot',
+  BAOALL_B: 'Bot 5% 1000 sh', BAOALL_X: 'Scale-out 2/4/6%', BAOALL_M: 'Bot 500 + 2x100', BAOALL_1: 'One shot',
   SR_S5_08: 'S/R stop 5%', SR_R3_08: 'S/R room 3x', SR_S5_08H: 'S/R stop 5% HOD', SR_R3_08H: 'S/R room 3x HOD'};
 function rn(r) { return RULE_NAME[r] || r || ''; }
 var RULE_INFO = {
@@ -1102,6 +1102,7 @@ var RULE_INFO = {
   SR_R3_08H: 'S/R room 3x, only retests of the high of the day (double top)',
   BAOALL_L: 'ladder 5 x 200 sh every 2% up, out at VWAP / midpoint / 10 min, no stop',
   BAOALL_LS: 'the L ladder + one hard stop 30% above the first entry',
+  BAOALL_X: 'the L ladder, cover 1/3 at -2% / -4% / -6% under the average, stop +10%, all out after 30 min (from the BAO execution study, 11-07)',
   BAOALL_C: 'the L ladder + 7% confirmed stop (3 s above, capped cover)',
   BAOALL_B: 'your bot rules in 5% steps, 500 sh + adds (max 1,000)',
   BAOALL_1: 'one entry / one exit: TP avg - 10c, premarket-high stop, 30 min',
