@@ -278,7 +278,6 @@ body{display:flex;}
 .rv-bao-thumbs button{text-transform:none;}
 .rv-bao-thumbs button{font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--border-hi);background:var(--card2);color:var(--t2);cursor:pointer;}
 .rv-bao-thumbs button.active{color:#1d9bf0;border-color:#1d9bf0;}
-#dailyCell.wide{grid-column:1 / -1;}
 .rv-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);}
 .rv-chart-title{font-size:14px;font-weight:700;}
 .rv-nav{display:flex;align-items:center;gap:8px;}
@@ -502,8 +501,11 @@ body{display:flex;}
         </div>
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">1 minute</div><div id="chartBox" class="rv-chart"></div></div>
-          <div class="rv-cbox" id="baoCell" style="display:none;"><div class="rv-clabel rv-bao-head"><span id="baoLabel">BAO</span><span class="rv-bao-thumbs" id="baoThumbs"></span><a id="baoLink" target="_blank" rel="noopener" style="color:#1d9bf0;text-decoration:none;text-transform:none;">Open on X ↗</a></div><div class="rv-chart rv-bao-pic"><img id="baoImg" alt="BAO chart" referrerpolicy="no-referrer"></div></div>
           <div class="rv-cbox" id="dailyCell"><div class="rv-clabel">Daily</div><div id="dailyBox" class="rv-chart"></div></div>
+        </div>
+        <div class="rv-row" id="baoRow" style="display:none;">
+          <div class="rv-cbox"><div class="rv-clabel rv-bao-head"><span id="baoExecLabel">BAO executions</span></div><div id="baoExecBox" class="rv-chart"></div></div>
+          <div class="rv-cbox" id="baoCell" style="display:none;"><div class="rv-clabel rv-bao-head"><span id="baoLabel">BAO</span><span class="rv-bao-thumbs" id="baoThumbs"></span><a id="baoLink" target="_blank" rel="noopener" style="color:#1d9bf0;text-decoration:none;text-transform:none;">Open on X ↗</a></div><div class="rv-chart rv-bao-pic"><img id="baoImg" alt="BAO chart" referrerpolicy="no-referrer"></div></div>
         </div>
         <div class="rv-chart-note" id="chartNote"></div>
         <div class="rv-row">
@@ -606,6 +608,7 @@ function keep(t) { return !PM_ONLY || !((t.entry_time || '') >= '09:30'); }
 var IB_FILTER = 'ALL';                     // day view: ALL / yes / no (shortable at IB)
 var INDEX = {}, DAY = null, TRADES = [], TEST_FILTER = 'ALL', CHART = null, REPORTS = {};
 var BAO = {};                              // BAO's X posts of this day {SYM: [post]} (review_sync v1.5)
+var BCHART = null;                          // BAO executions chart (row under ours)
 var VISIBLE = [], CUR = -1, DCHART = null, PCHART = null, DPCHART = null, NOTES = {}, CUR_T = null, BARS = {};
 
 function el(tag, attrs, text) {
@@ -920,6 +923,7 @@ function chartOpts(h) {
 }
 function dropCharts() {
   [CHART, DCHART, PCHART, DPCHART].forEach(function (c) { if (c) c.remove(); });
+  if (BCHART) BCHART.remove(); BCHART = null; var bx = document.getElementById('baoExecBox'); if (bx) bx.innerHTML = '';
   CHART = DCHART = PCHART = DPCHART = null;
   ['chartBox', 'dailyBox', 'pnlBox', 'dayPnlBox', 'statGrid'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
 }
@@ -1231,6 +1235,32 @@ function baoPnl(fs, per) {                 // his P&L with `per` shares on every
   return {shorts: sh.length, covers: cv.length, shares: n, avgS: sIn / n, avgC: cOut / n, pnl: sIn - cOut,
           first: sh[0][0], last: cv[cv.length - 1][0]};
 }
+function baoExecChart(t, candles, vol, vwap, pf) {   // row 2: the same 1-min candles with ONLY BAO's posts + executions
+  var box = document.getElementById('baoExecBox'), lab = document.getElementById('baoExecLabel'), fs = baoFills(t);
+  if (!box || !baoOf(t).length) return;
+  var pp = baoPnl(fs, 100);
+  lab.textContent = pp ? 'BAO executions (from his chart, ±1-2¢): ' + pp.shorts + ' shorts avg ' + pp.avgS.toFixed(3) + ' → ' + pp.covers +
+    ' covers avg ' + pp.avgC.toFixed(3) + ' (' + pp.first + '-' + pp.last + ') = ' + money(pp.pnl) + ' at 100 sh an entry (' + pp.shares + ' sh) · ours ' + money(t.net)
+    : 'BAO posts on the 1-min chart (his executions not read from this chart yet)';
+  var o = chartOpts(440); o.timeScale = {timeVisible: true, secondsVisible: false, borderColor: '#2a2e39'};
+  BCHART = LightweightCharts.createChart(box, o);
+  var vs = BCHART.addSeries(LightweightCharts.HistogramSeries, {priceFormat: {type: 'volume'}, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false});
+  BCHART.priceScale('vol').applyOptions({scaleMargins: {top: 0.82, bottom: 0}});
+  vs.setData(vol);
+  var cs = BCHART.addSeries(LightweightCharts.CandlestickSeries, {upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
+    wickUpColor: '#26a69a', wickDownColor: '#ef5350', priceFormat: pf});
+  cs.setData(candles);
+  BCHART.addSeries(LightweightCharts.LineSeries, {color: '#f5c542', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, priceFormat: pf, crosshairMarkerVisible: false}).setData(vwap);
+  function snap(hm, maxGap) { var bt = etSec(DAY, hm); for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bt) return candles[q].time - bt < maxGap ? candles[q].time : null; } return null; }
+  var m = [];
+  baoOf(t).forEach(function (b) { if (b.when || !b.time) return; var h = snap(b.time, 300); if (h !== null) m.push({time: h, position: 'aboveBar', color: '#1d9bf0', shape: 'circle', size: 1, text: 'post ' + b.time}); });
+  fs.forEach(function (f) { var h = snap(f[0], 120); if (h !== null) m.push({time: h, position: 'atPriceMiddle', price: +f[2], color: f[1] === 'SHORT' ? '#ff3b5c' : '#c6ff00', shape: f[1] === 'SHORT' ? 'arrowDown' : 'arrowUp', size: 1.2}); });
+  m.sort(function (a, b) { return a.time - b.time; });
+  LightweightCharts.createSeriesMarkers(cs, m);
+  var a = fs.length ? etSec(DAY, fs[0][0]) - 30 * 60 : etSec(DAY, (t.entry_time || '04:00').slice(0, 5)) - 30 * 60;
+  var z = fs.length ? etSec(DAY, fs[fs.length - 1][0]) + 30 * 60 : a + 2 * 3600;
+  BCHART.timeScale().setVisibleRange({from: a, to: Math.max(z, a + 3600)});
+}
 function baoPics(t) {                      // BAO's chart pictures of this stock-day: [{post, url}], nearest to our entry first
   var out = [], e = (t.entry_time || '').slice(0, 5);
   baoOf(t).forEach(function (b) {
@@ -1243,17 +1273,14 @@ function baoPics(t) {                      // BAO's chart pictures of this stock
 function baoPanel(t) {                     // BAO's chart only, right next to our 1-min chart
   var cell = document.getElementById('baoCell'), pics = baoPics(t), th = document.getElementById('baoThumbs');
   cell.style.display = pics.length ? '' : 'none';
-  document.getElementById('dailyCell').classList.toggle('wide', !!pics.length);
+  document.getElementById('baoRow').style.display = pics.length || baoFills(t).length ? '' : 'none';
   th.innerHTML = '';
   if (!pics.length) { document.getElementById('baoImg').removeAttribute('src'); return; }
   function show(k) {
     var x = pics[k], b = x.b, img = document.getElementById('baoImg');
     var when = b.when ? b.date + ' ' + b.time + ' ET (' + b.when + ')' : b.time + ' ET';
     var rel = !b.when && t.entry_time ? ' · ' + minsTxt(b.time, (t.entry_time || '').slice(0, 5)) + ' our short' : '';
-    var pp = baoPnl(baoFills(t), 100);
-    document.getElementById('baoLabel').textContent = 'BAO chart ' + when + rel +
-      (pp ? ' · his ' + pp.shorts + ' shorts avg ' + pp.avgS.toFixed(3) + ' → ' + pp.covers + ' covers avg ' + pp.avgC.toFixed(3) +
-            ' (' + pp.first + '-' + pp.last + ') = ' + money(pp.pnl) + ' at 100 sh an entry (' + pp.shares + ' sh) vs ours ' + money(t.net) : '');
+    document.getElementById('baoLabel').textContent = 'BAO chart ' + when + rel;
     document.getElementById('baoLink').href = b.url;
     img.src = x.u + (x.u.indexOf('?') < 0 ? '?name=medium' : '');
     img.onclick = function () { window.open(x.u + (x.u.indexOf('?') < 0 ? '?name=large' : ''), '_blank', 'noopener'); };
@@ -1316,20 +1343,9 @@ function showChart(t, scroll) {
       return {time: etSec(DAY, tm[0] + ':' + tm[1]), position: 'atPriceMiddle', price: +f[3], color: sell ? '#ff3b5c' : '#c6ff00',
               shape: sell ? 'arrowDown' : 'arrowUp', size: 1.4};
     });
-    baoOf(t).forEach(function (b) {               // BAO's post times (same day, inside the bars) = blue dots above the candle
-      if (b.when || !b.time) return;
-      var bt = etSec(DAY, b.time), hit = null;
-      for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bt) { hit = candles[q].time; break; } }
-      if (hit !== null && hit - bt < 300) fm.push({time: hit, position: 'aboveBar', color: '#1d9bf0', shape: 'circle', size: 1, text: 'BAO ' + b.time});
-    });
-    baoFills(t).forEach(function (f) {             // his executions read from his chart: magenta = his short, cyan = his cover
-      var bt = etSec(DAY, f[0]), hit = null;
-      for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bt) { hit = candles[q].time; break; } }
-      if (hit !== null && hit - bt < 120) fm.push({time: hit, position: 'atPriceMiddle', price: +f[2], color: f[1] === 'SHORT' ? '#e040fb' : '#00e5ff',
-        shape: f[1] === 'SHORT' ? 'arrowDown' : 'arrowUp', size: 0.8});
-    });
     fm.sort(function (a, b) { return a.time - b.time; });
     LightweightCharts.createSeriesMarkers(cs, fm);
+    baoExecChart(t, candles, vol, vwap, pf);
     // legend: SYM · 1  O H L C change, Volume, VWAP - follows the crosshair
     var eByT = {}; ema.forEach(function (e) { eByT[e.time] = e.value; });
     var byT = {}, vByT = {}, wByT = {}; candles.forEach(function (c, k) { byT[c.time] = k; }); vol.forEach(function (v) { vByT[v.time] = v.value; }); vwap.forEach(function (w) { wByT[w.time] = w.value; });
@@ -1359,7 +1375,7 @@ function showChart(t, scroll) {
     PCHART.timeScale().fitContent();
     var worst = pnl.length ? Math.min.apply(null, pnl.map(function (x) { return x.value; })) : null;
     var best = pnl.length ? Math.max.apply(null, pnl.map(function (x) { return x.value; })) : null;
-    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. ' + (baoOf(t).length ? 'Blue dots = BAO posted on X. ' : '') + (baoFills(t).length ? 'Magenta / cyan arrows = BAO\'s shorts / covers (read from his chart, ±1-2¢). ' : '') + 'Gold = VWAP from 04:00, dark blue = EMA 9. Shaded = premarket. ' +
+    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. ' + 'Gold = VWAP from 04:00, dark blue = EMA 9. Shaded = premarket. ' +
       (pnl.length ? 'Running P&L: best ' + money(best) + ', worst ' + money(worst) + ' (before costs). ' : '') +
       (t.tags && t.tags.room ? 'Room ' + t.tags.room + '. ' : '') + (t.tags && t.tags.risk ? 'Runner risk ' + t.tags.risk + '. ' : '') +
       (t.mae_pct ? 'Worst move against: +' + t.mae_pct + '%.' : '');
@@ -1411,7 +1427,7 @@ function saveNote() {
   }).catch(function (e) { showToast('✗ Note not saved: ' + e.message + ' (publish firebase-rules-v6)'); });
 }
 window.addEventListener('resize', function () {
-  [['chartBox', CHART], ['dailyBox', DCHART], ['pnlBox', PCHART], ['dayPnlBox', DPCHART]].forEach(function (x) { if (x[1]) x[1].applyOptions({width: document.getElementById(x[0]).clientWidth}); });
+  [['chartBox', CHART], ['dailyBox', DCHART], ['pnlBox', PCHART], ['dayPnlBox', DPCHART], ['baoExecBox', BCHART]].forEach(function (x) { if (x[1]) x[1].applyOptions({width: document.getElementById(x[0]).clientWidth}); });
 });
 
 function showToast(msg) {
