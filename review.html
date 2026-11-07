@@ -1214,6 +1214,23 @@ function minsTxt(a, b) {                   // "12 min before" / "5 min after" (a
   var d = (+b.slice(0, 2) * 60 + +b.slice(3, 5)) - (+a.slice(0, 2) * 60 + +a.slice(3, 5));
   return d === 0 ? 'same minute as' : Math.abs(d) + ' min ' + (d > 0 ? 'before' : 'after');
 }
+function baoFills(t) {                    // his executions of this stock-day, one copy each (several posts can show the same ones)
+  var seen = {}, out = [];
+  baoOf(t).forEach(function (b) {
+    if (b.when) return;
+    var fs = b.fills ? (Array.isArray(b.fills) ? b.fills : Object.keys(b.fills).map(function (k) { return b.fills[k]; })) : [];
+    fs.forEach(function (f, k) { var key = b.id + '|' + k; if (f && f.length >= 3 && !seen[key]) { seen[key] = 1; out.push(f); } });
+  });
+  return out.sort(function (a, b) { return a[0].localeCompare(b[0]); });
+}
+function baoPnl(fs, per) {                 // his P&L with `per` shares on every short; the covers share the total equally
+  var sh = fs.filter(function (f) { return f[1] === 'SHORT'; }), cv = fs.filter(function (f) { return f[1] === 'COVER'; });
+  if (!sh.length || !cv.length) return null;
+  var n = sh.length * per, each = n / cv.length;
+  var sIn = sh.reduce(function (a, f) { return a + f[2] * per; }, 0), cOut = cv.reduce(function (a, f) { return a + f[2] * each; }, 0);
+  return {shorts: sh.length, covers: cv.length, shares: n, avgS: sIn / n, avgC: cOut / n, pnl: sIn - cOut,
+          first: sh[0][0], last: cv[cv.length - 1][0]};
+}
 function baoPics(t) {                      // BAO's chart pictures of this stock-day: [{post, url}], nearest to our entry first
   var out = [], e = (t.entry_time || '').slice(0, 5);
   baoOf(t).forEach(function (b) {
@@ -1233,7 +1250,10 @@ function baoPanel(t) {                     // BAO's chart only, right next to ou
     var x = pics[k], b = x.b, img = document.getElementById('baoImg');
     var when = b.when ? b.date + ' ' + b.time + ' ET (' + b.when + ')' : b.time + ' ET';
     var rel = !b.when && t.entry_time ? ' · ' + minsTxt(b.time, (t.entry_time || '').slice(0, 5)) + ' our short' : '';
-    document.getElementById('baoLabel').textContent = 'BAO chart ' + when + rel;
+    var pp = baoPnl(baoFills(t), 100);
+    document.getElementById('baoLabel').textContent = 'BAO chart ' + when + rel +
+      (pp ? ' · his ' + pp.shorts + ' shorts avg ' + pp.avgS.toFixed(3) + ' → ' + pp.covers + ' covers avg ' + pp.avgC.toFixed(3) +
+            ' (' + pp.first + '-' + pp.last + ') = ' + money(pp.pnl) + ' at 100 sh an entry (' + pp.shares + ' sh) vs ours ' + money(t.net) : '');
     document.getElementById('baoLink').href = b.url;
     img.src = x.u + (x.u.indexOf('?') < 0 ? '?name=medium' : '');
     img.onclick = function () { window.open(x.u + (x.u.indexOf('?') < 0 ? '?name=large' : ''), '_blank', 'noopener'); };
@@ -1302,6 +1322,12 @@ function showChart(t, scroll) {
       for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bt) { hit = candles[q].time; break; } }
       if (hit !== null && hit - bt < 300) fm.push({time: hit, position: 'aboveBar', color: '#1d9bf0', shape: 'circle', size: 1, text: 'BAO ' + b.time});
     });
+    baoFills(t).forEach(function (f) {             // his executions read from his chart: magenta = his short, cyan = his cover
+      var bt = etSec(DAY, f[0]), hit = null;
+      for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bt) { hit = candles[q].time; break; } }
+      if (hit !== null && hit - bt < 120) fm.push({time: hit, position: 'atPriceMiddle', price: +f[2], color: f[1] === 'SHORT' ? '#e040fb' : '#00e5ff',
+        shape: f[1] === 'SHORT' ? 'arrowDown' : 'arrowUp', size: 0.8});
+    });
     fm.sort(function (a, b) { return a.time - b.time; });
     LightweightCharts.createSeriesMarkers(cs, fm);
     // legend: SYM · 1  O H L C change, Volume, VWAP - follows the crosshair
@@ -1333,7 +1359,7 @@ function showChart(t, scroll) {
     PCHART.timeScale().fitContent();
     var worst = pnl.length ? Math.min.apply(null, pnl.map(function (x) { return x.value; })) : null;
     var best = pnl.length ? Math.max.apply(null, pnl.map(function (x) { return x.value; })) : null;
-    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. ' + (baoOf(t).length ? 'Blue dots = BAO posted on X. ' : '') + 'Gold = VWAP from 04:00, dark blue = EMA 9. Shaded = premarket. ' +
+    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. ' + (baoOf(t).length ? 'Blue dots = BAO posted on X. ' : '') + (baoFills(t).length ? 'Magenta / cyan arrows = BAO\'s shorts / covers (read from his chart, ±1-2¢). ' : '') + 'Gold = VWAP from 04:00, dark blue = EMA 9. Shaded = premarket. ' +
       (pnl.length ? 'Running P&L: best ' + money(best) + ', worst ' + money(worst) + ' (before costs). ' : '') +
       (t.tags && t.tags.room ? 'Room ' + t.tags.room + '. ' : '') + (t.tags && t.tags.risk ? 'Runner risk ' + t.tags.risk + '. ' : '') +
       (t.mae_pct ? 'Worst move against: +' + t.mae_pct + '%.' : '');
