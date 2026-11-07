@@ -516,6 +516,10 @@ body{display:flex;}
           <div class="rv-card-title">Executions</div>
           <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Time</th><th>Side</th><th class="r">Qty</th><th class="r">Price</th><th>Why</th><th class="r">Position</th><th class="r">Avg</th><th class="r">Realized</th></tr></thead><tbody id="execRows"></tbody></table></div>
         </div>
+        <div class="rv-cbox" id="baoExecCard" style="display:none;border-top:1px solid var(--border);">
+          <div class="rv-card-title" id="baoExecTitle">BAO executions</div>
+          <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Time</th><th>Side</th><th class="r">Qty</th><th class="r">Price</th><th>Why</th><th class="r">Position</th><th class="r">Avg</th><th class="r">Realized</th></tr></thead><tbody id="baoExecRows"></tbody></table></div>
+        </div>
       </div>
       <div class="rv-card">
         <div class="rv-scroll">
@@ -948,6 +952,30 @@ function executions(t) {
   });
   if (!body.children.length) { var r = el('tr'); r.appendChild(el('td', {colspan: 8, style: 'color:var(--t3);'}, t.test === 'LIVE_LADDER' ? 'Live ladder fills are in IB / Tradervue (not sent here).' : 'No fills recorded.')); body.appendChild(r); }
 }
+function baoExecutions(t) {               // BAO's fills read from his chart, 100 sh an entry; his covers share the total (whole shares)
+  var card = document.getElementById('baoExecCard'), body = document.getElementById('baoExecRows'), fs = baoFills(t);
+  body.innerHTML = '';
+  card.style.display = fs.length ? '' : 'none';
+  if (!fs.length) return;
+  var nS = fs.filter(function (f) { return f[1] === 'SHORT'; }).length, nC = fs.length - nS;
+  var total = nS * 100, base = nC ? Math.floor(total / nC) : 0, extra = nC ? total - base * nC : 0, ci = 0;
+  var pos = 0, avg = 0, real = 0;
+  fs.forEach(function (f) {
+    var p = +f[2], sell = f[1] === 'SHORT', q;
+    if (sell) { q = 100; avg = (avg * pos + p * q) / (pos + q); pos += q; }
+    else { q = base + (ci >= nC - extra ? 1 : 0); ci++; q = Math.min(q, pos); real += (avg - p) * q; pos -= q; }
+    var tr = el('tr');
+    tr.appendChild(el('td', null, f[0]));
+    tr.appendChild(el('td', {cls: sell ? 'neg' : 'pos', style: 'font-weight:700;'}, sell ? 'Short' : 'Cover'));
+    tr.appendChild(el('td', {cls: 'r'}, q)); tr.appendChild(el('td', {cls: 'r'}, px(p)));
+    tr.appendChild(el('td', {style: 'color:var(--t2);'}, sell ? 'his short (100 sh an entry)' : 'his cover (' + nC + ' covers share ' + total + ' sh)'));
+    tr.appendChild(el('td', {cls: 'r'}, pos ? '-' + pos : '0'));
+    tr.appendChild(el('td', {cls: 'r'}, pos ? px(avg) : '—'));
+    tr.appendChild(el('td', {cls: 'r ' + cls(real)}, money(real)));
+    body.appendChild(tr);
+  });
+  document.getElementById('baoExecTitle').textContent = 'BAO executions — read from his chart (±1-2¢), ' + nS + ' shorts × 100 sh: ' + money(real) + ' · ours ' + money(t.net);
+}
 function runningPnl(t, candles) {
   // P&L of the short after each minute: realized + (avg - close) x open shares; fills applied in their minute
   var fs = fillsSorted(t); if (!fs.length) return [];
@@ -1300,7 +1328,7 @@ function showChart(t, scroll) {
   document.getElementById('chartTitle').textContent = DAY + '  ' + t.symbol + '  [' + ({yes: 'IB shortable', no: 'NOT shortable at IB'}[ibState(t)] || 'IB ?') + ']  ' + rn(t.rule) + (t.tags && t.tags.round > 1 ? ' round ' + t.tags.round : '') +
     '  |  short ' + px(t.entry) + ' @ ' + (t.entry_time || '').slice(0, 5) + (t.exit ? ' → cover ' + px(t.exit) + ' @ ' + (t.exit_time || '').slice(0, 5) : '') +
     ' (' + t.reason + ')  |  ' + money(t.net) + '  |  ' + (t.shares || '?') + ' sh';
-  dropCharts(); executions(t);
+  dropCharts(); executions(t); baoExecutions(t);
   var nt = NOTES[t._key]; document.getElementById('noteText').value = nt && nt.text ? nt.text : '';
   document.getElementById('noteState').textContent = nt && nt.updated ? 'saved ' + nt.updated : '';
   var sym = t.symbol.replace(/[.$#\[\]\/]/g, '_');
