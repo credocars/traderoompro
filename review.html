@@ -269,6 +269,13 @@ body{display:flex;}
 .rv-badge.ib-yes{color:var(--green);border-color:var(--green2);}
 .rv-badge.ib-no{color:var(--red);border-color:var(--red);}
 .rv-badge.ib-unk{color:var(--t3);}
+.rv-badge.bao{color:#1d9bf0;border-color:#1d9bf0;}
+.rv-bao{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:12px 16px;}
+.rv-bao-post{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-width:0;}
+.rv-bao-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--t2);margin-bottom:6px;flex-wrap:wrap;}
+.rv-bao-head b{color:#1d9bf0;}
+.rv-bao-text{font-size:13px;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;}
+.rv-bao-post img{width:100%;height:auto;border-radius:6px;display:block;margin-top:6px;cursor:zoom-in;}
 .rv-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);}
 .rv-chart-title{font-size:14px;font-weight:700;}
 .rv-nav{display:flex;align-items:center;gap:8px;}
@@ -495,6 +502,10 @@ body{display:flex;}
           <div class="rv-cbox"><div class="rv-clabel">Daily</div><div id="dailyBox" class="rv-chart"></div></div>
         </div>
         <div class="rv-chart-note" id="chartNote"></div>
+        <div class="rv-cbox" id="baoBox" style="display:none;border-top:1px solid var(--border);">
+          <div class="rv-card-title">BAO on X — same stock-day <span style="font-weight:400;color:var(--t3);font-size:12px;">(his own posts, shown from X; blue dots on the 1-min chart = when he posted)</span></div>
+          <div class="rv-bao" id="baoPosts"></div>
+        </div>
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">Trade running P&amp;L ($, minute closes, before costs)</div><div id="pnlBox" class="rv-pnl"></div></div>
           <div class="rv-cbox"><div class="rv-clabel" id="dayPnlLabel">Day running P&amp;L</div><div id="dayPnlBox" class="rv-pnl"></div></div>
@@ -594,6 +605,7 @@ var ALL_DAYS = null, PM_ONLY = true;                       // hide trades entere
 function keep(t) { return !PM_ONLY || !((t.entry_time || '') >= '09:30'); }
 var IB_FILTER = 'ALL';                     // day view: ALL / yes / no (shortable at IB)
 var INDEX = {}, DAY = null, TRADES = [], TEST_FILTER = 'ALL', CHART = null, REPORTS = {};
+var BAO = {};                              // BAO's X posts of this day {SYM: [post]} (review_sync v1.5)
 var VISIBLE = [], CUR = -1, DCHART = null, PCHART = null, DPCHART = null, NOTES = {}, CUR_T = null, BARS = {};
 
 function el(tag, attrs, text) {
@@ -685,6 +697,8 @@ function loadDay(d, then) {
     TRADES.sort(function (a, b) { return (a.entry_time || '').localeCompare(b.entry_time || ''); });
     return firebase.database().ref(ROOT + '/notes/' + d).get().then(function (ns) { NOTES = ns.val() || {}; },
                                                                        function () { NOTES = {}; }).then(function () {
+      return firebase.database().ref(ROOT + '/bao/' + d).get().then(function (bs) { BAO = bs.val() || {}; }, function () { BAO = {}; });
+    }).then(function () {
       buildCards(); buildTestTabs(); buildRows(); buildRules();
       if (then) then();
     });
@@ -745,6 +759,8 @@ function buildRows() {
     tr.appendChild(tdT);
     var tdS = el('td', {style: 'font-weight:700;'}, t.symbol);
     tdS.appendChild(ibBadge(t));
+    var bpS = baoOf(t);
+    if (bpS.length) tdS.appendChild(el('span', {cls: 'rv-badge bao', title: 'BAO posted ' + t.symbol + ' on X: ' + bpS.map(function (b) { return b.time + (b.when ? ' (' + b.when + ')' : ''); }).join(', ')}, 'BAO'));
     if (NOTES[t._key] && NOTES[t._key].text) tdS.appendChild(el('span', {cls: 'rv-badge', title: 'has a note'}, '📝'));
     tr.appendChild(tdS);
     var tdR = el('td', null, rn(t.rule));
@@ -1189,6 +1205,57 @@ function ohlcParts(sym, tf, c, prevClose, p) {
           ['C', 'k'], [f(c.close), dir], [' ' + (chg >= 0 ? '+' : '') + f(chg) + ' (' + (chg >= 0 ? '+' : '') + (base ? (chg / base * 100).toFixed(2) : '0') + '%)', dir]];
 }
 function volTxt(v) { return v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(2) + 'K' : String(Math.round(v)); }
+function baoOf(t) {                       // BAO's posts of this trade's stock-day
+  var v = BAO[String(t.symbol || '').replace(/[.$#\[\]\/]/g, '_')];
+  return v ? (Array.isArray(v) ? v : Object.keys(v).map(function (k) { return v[k]; })).filter(Boolean) : [];
+}
+var X_JS = null;
+function xWidgets() {                      // X's own embed script (only when a post has no picture link)
+  if (!X_JS) X_JS = new Promise(function (ok, bad) {
+    var sc = document.createElement('script'); sc.src = 'https://platform.twitter.com/widgets.js'; sc.async = true;
+    sc.onload = function () { window.twttr && twttr.widgets ? ok(twttr) : bad(); }; sc.onerror = bad; document.head.appendChild(sc);
+  });
+  return X_JS;
+}
+function minsTxt(a, b) {                   // "12 min before" / "5 min after" (a vs b, HH:MM)
+  if (!a || !b) return '';
+  var d = (+b.slice(0, 2) * 60 + +b.slice(3, 5)) - (+a.slice(0, 2) * 60 + +a.slice(3, 5));
+  return d === 0 ? 'same minute as' : Math.abs(d) + ' min ' + (d > 0 ? 'before' : 'after');
+}
+function baoPanel(t) {
+  var box = document.getElementById('baoBox'), list = document.getElementById('baoPosts'), posts = baoOf(t);
+  list.innerHTML = '';
+  box.style.display = posts.length ? 'block' : 'none';
+  posts.forEach(function (b) {
+    var c = el('div', {cls: 'rv-bao-post'}), h = el('div', {cls: 'rv-bao-head'});
+    var when = b.when ? b.date + ' ' + b.time + ' ET (' + b.when + ')' : b.time + ' ET';
+    var rel = !b.when && t.entry_time ? ' · ' + minsTxt(b.time, (t.entry_time || '').slice(0, 5)) + ' our short @ ' + (t.entry_time || '').slice(0, 5) : '';
+    var hl = el('span'); hl.appendChild(el('b', null, 'BAO ' + when)); hl.appendChild(document.createTextNode(rel)); h.appendChild(hl);
+    var a = el('a', {href: b.url, target: '_blank', rel: 'noopener', style: 'color:#1d9bf0;text-decoration:none;'}, 'Open on X ↗'); h.appendChild(a);
+    c.appendChild(h);
+    if (b.text) c.appendChild(el('div', {cls: 'rv-bao-text'}, b.text));
+    if (b.others && b.others.length) c.appendChild(el('div', {style: 'font-size:11px;color:var(--t3);margin-bottom:4px;'}, 'Same post also names: ' + b.others.join(', ')));
+    var ph = b.photos ? (Array.isArray(b.photos) ? b.photos : Object.keys(b.photos).map(function (k) { return b.photos[k]; })) : [];
+    if (ph.length) {
+      ph.forEach(function (u) {
+        if (!/^https:\/\/pbs\.twimg\.com\//.test(u)) return;
+        var big = u + (u.indexOf('?') < 0 ? '?name=large' : '');
+        var im = el('img', {src: u + (u.indexOf('?') < 0 ? '?name=medium' : ''), alt: 'BAO chart ' + t.symbol, loading: 'lazy', referrerpolicy: 'no-referrer'});
+        im.onclick = function () { window.open(big, '_blank', 'noopener'); };
+        c.appendChild(im);
+      });
+    } else if (/^\d+$/.test(String(b.id))) {
+      var slot = el('div', {style: 'font-size:12px;color:var(--t3);'}, 'Loading the post from X…');
+      c.appendChild(slot);
+      xWidgets().then(function (tw) {
+        return tw.widgets.createTweet(String(b.id), slot, {theme: 'dark', dnt: true, conversation: 'none'});
+      }).then(function (w) { if (w && slot.firstChild && slot.firstChild.nodeType === 3) slot.removeChild(slot.firstChild); if (!w) slot.textContent = 'X did not show the post here - use Open on X.'; },
+              function () { slot.textContent = 'X embed blocked by the browser - use Open on X.'; });
+    }
+    list.appendChild(c);
+  });
+}
+
 function showChart(t, scroll) {
   CUR_T = t;
   showTv(String(t.symbol || '').toUpperCase().replace(/[^A-Z0-9.]/g, ''));
@@ -1206,6 +1273,7 @@ function showChart(t, scroll) {
     var v = snap.val();
     document.getElementById('stockText').textContent = v && v.text ? v.text.replace(/^STOCK\s*\n/, '') : 'No stock information yet (sent with the next review sync).';
   });
+  baoPanel(t);
   // 1-minute chart + volume
   loadBars(t.symbol).then(function (bb) {
     if (CUR_T !== t) return;
@@ -1233,11 +1301,19 @@ function showChart(t, scroll) {
     var emS = CHART.addSeries(LightweightCharts.LineSeries, {color: '#3b5bdb', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false});
     emS.setData(ema);
     // executions at their price: red = short / add, green = cover (no text, like Tradervue)
-    LightweightCharts.createSeriesMarkers(cs, fillsSorted(t).map(function (f) {
+    var fm = fillsSorted(t).map(function (f) {
       var sell = f[1] === 'SELL', tm = f[0].split(':');
       return {time: etSec(DAY, tm[0] + ':' + tm[1]), position: 'atPriceMiddle', price: +f[3], color: sell ? '#ff3b5c' : '#c6ff00',
               shape: sell ? 'arrowDown' : 'arrowUp', size: 1.4};
-    }));
+    });
+    baoOf(t).forEach(function (b) {               // BAO's post times (same day, inside the bars) = blue dots above the candle
+      if (b.when || !b.time) return;
+      var bt = etSec(DAY, b.time), hit = null;
+      for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bt) { hit = candles[q].time; break; } }
+      if (hit !== null && hit - bt < 300) fm.push({time: hit, position: 'aboveBar', color: '#1d9bf0', shape: 'circle', size: 1, text: 'BAO ' + b.time});
+    });
+    fm.sort(function (a, b) { return a.time - b.time; });
+    LightweightCharts.createSeriesMarkers(cs, fm);
     // legend: SYM · 1  O H L C change, Volume, VWAP - follows the crosshair
     var eByT = {}; ema.forEach(function (e) { eByT[e.time] = e.value; });
     var byT = {}, vByT = {}, wByT = {}; candles.forEach(function (c, k) { byT[c.time] = k; }); vol.forEach(function (v) { vByT[v.time] = v.value; }); vwap.forEach(function (w) { wByT[w.time] = w.value; });
@@ -1267,7 +1343,7 @@ function showChart(t, scroll) {
     PCHART.timeScale().fitContent();
     var worst = pnl.length ? Math.min.apply(null, pnl.map(function (x) { return x.value; })) : null;
     var best = pnl.length ? Math.max.apply(null, pnl.map(function (x) { return x.value; })) : null;
-    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. Gold = VWAP from 04:00, dark blue = EMA 9. Shaded = premarket. ' +
+    document.getElementById('chartNote').textContent = 'Red arrows = shorts / adds, green = covers, at their price. ' + (baoOf(t).length ? 'Blue dots = BAO posted on X. ' : '') + 'Gold = VWAP from 04:00, dark blue = EMA 9. Shaded = premarket. ' +
       (pnl.length ? 'Running P&L: best ' + money(best) + ', worst ' + money(worst) + ' (before costs). ' : '') +
       (t.tags && t.tags.room ? 'Room ' + t.tags.room + '. ' : '') + (t.tags && t.tags.risk ? 'Runner risk ' + t.tags.risk + '. ' : '') +
       (t.mae_pct ? 'Worst move against: +' + t.mae_pct + '%.' : '');
