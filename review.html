@@ -270,12 +270,15 @@ body{display:flex;}
 .rv-badge.ib-no{color:var(--red);border-color:var(--red);}
 .rv-badge.ib-unk{color:var(--t3);}
 .rv-badge.bao{color:#1d9bf0;border-color:#1d9bf0;}
-.rv-bao{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:12px 16px;}
-.rv-bao-post{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-width:0;}
-.rv-bao-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--t2);margin-bottom:6px;flex-wrap:wrap;}
-.rv-bao-head b{color:#1d9bf0;}
-.rv-bao-text{font-size:13px;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;}
-.rv-bao-post img{width:100%;height:auto;border-radius:6px;display:block;margin-top:6px;cursor:zoom-in;}
+.rv-bao-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.rv-bao-head span{color:#1d9bf0;}
+.rv-bao-pic{display:flex;align-items:center;justify-content:center;background:#0b0e14;overflow:hidden;}
+.rv-bao-pic img{max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;}
+.rv-bao-thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;}
+.rv-bao-thumbs button{text-transform:none;}
+.rv-bao-thumbs button{font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid var(--border-hi);background:var(--card2);color:var(--t2);cursor:pointer;}
+.rv-bao-thumbs button.active{color:#1d9bf0;border-color:#1d9bf0;}
+#dailyCell.wide{grid-column:1 / -1;}
 .rv-chart-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);}
 .rv-chart-title{font-size:14px;font-weight:700;}
 .rv-nav{display:flex;align-items:center;gap:8px;}
@@ -499,13 +502,10 @@ body{display:flex;}
         </div>
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">1 minute</div><div id="chartBox" class="rv-chart"></div></div>
-          <div class="rv-cbox"><div class="rv-clabel">Daily</div><div id="dailyBox" class="rv-chart"></div></div>
+          <div class="rv-cbox" id="baoCell" style="display:none;"><div class="rv-clabel rv-bao-head"><span id="baoLabel">BAO</span><span class="rv-bao-thumbs" id="baoThumbs"></span><a id="baoLink" target="_blank" rel="noopener" style="color:#1d9bf0;text-decoration:none;text-transform:none;">Open on X ↗</a></div><div class="rv-chart rv-bao-pic"><img id="baoImg" alt="BAO chart" referrerpolicy="no-referrer"></div></div>
+          <div class="rv-cbox" id="dailyCell"><div class="rv-clabel">Daily</div><div id="dailyBox" class="rv-chart"></div></div>
         </div>
         <div class="rv-chart-note" id="chartNote"></div>
-        <div class="rv-cbox" id="baoBox" style="display:none;border-top:1px solid var(--border);">
-          <div class="rv-card-title">BAO on X — same stock-day <span style="font-weight:400;color:var(--t3);font-size:12px;">(his own posts, shown from X; blue dots on the 1-min chart = when he posted)</span></div>
-          <div class="rv-bao" id="baoPosts"></div>
-        </div>
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">Trade running P&amp;L ($, minute closes, before costs)</div><div id="pnlBox" class="rv-pnl"></div></div>
           <div class="rv-cbox"><div class="rv-clabel" id="dayPnlLabel">Day running P&amp;L</div><div id="dayPnlBox" class="rv-pnl"></div></div>
@@ -1209,51 +1209,41 @@ function baoOf(t) {                       // BAO's posts of this trade's stock-d
   var v = BAO[String(t.symbol || '').replace(/[.$#\[\]\/]/g, '_')];
   return v ? (Array.isArray(v) ? v : Object.keys(v).map(function (k) { return v[k]; })).filter(Boolean) : [];
 }
-var X_JS = null;
-function xWidgets() {                      // X's own embed script (only when a post has no picture link)
-  if (!X_JS) X_JS = new Promise(function (ok, bad) {
-    var sc = document.createElement('script'); sc.src = 'https://platform.twitter.com/widgets.js'; sc.async = true;
-    sc.onload = function () { window.twttr && twttr.widgets ? ok(twttr) : bad(); }; sc.onerror = bad; document.head.appendChild(sc);
-  });
-  return X_JS;
-}
 function minsTxt(a, b) {                   // "12 min before" / "5 min after" (a vs b, HH:MM)
   if (!a || !b) return '';
   var d = (+b.slice(0, 2) * 60 + +b.slice(3, 5)) - (+a.slice(0, 2) * 60 + +a.slice(3, 5));
   return d === 0 ? 'same minute as' : Math.abs(d) + ' min ' + (d > 0 ? 'before' : 'after');
 }
-function baoPanel(t) {
-  var box = document.getElementById('baoBox'), list = document.getElementById('baoPosts'), posts = baoOf(t);
-  list.innerHTML = '';
-  box.style.display = posts.length ? 'block' : 'none';
-  posts.forEach(function (b) {
-    var c = el('div', {cls: 'rv-bao-post'}), h = el('div', {cls: 'rv-bao-head'});
-    var when = b.when ? b.date + ' ' + b.time + ' ET (' + b.when + ')' : b.time + ' ET';
-    var rel = !b.when && t.entry_time ? ' · ' + minsTxt(b.time, (t.entry_time || '').slice(0, 5)) + ' our short @ ' + (t.entry_time || '').slice(0, 5) : '';
-    var hl = el('span'); hl.appendChild(el('b', null, 'BAO ' + when)); hl.appendChild(document.createTextNode(rel)); h.appendChild(hl);
-    var a = el('a', {href: b.url, target: '_blank', rel: 'noopener', style: 'color:#1d9bf0;text-decoration:none;'}, 'Open on X ↗'); h.appendChild(a);
-    c.appendChild(h);
-    if (b.text) c.appendChild(el('div', {cls: 'rv-bao-text'}, b.text));
-    if (b.others && b.others.length) c.appendChild(el('div', {style: 'font-size:11px;color:var(--t3);margin-bottom:4px;'}, 'Same post also names: ' + b.others.join(', ')));
+function baoPics(t) {                      // BAO's chart pictures of this stock-day: [{post, url}], nearest to our entry first
+  var out = [], e = (t.entry_time || '').slice(0, 5);
+  baoOf(t).forEach(function (b) {
     var ph = b.photos ? (Array.isArray(b.photos) ? b.photos : Object.keys(b.photos).map(function (k) { return b.photos[k]; })) : [];
-    if (ph.length) {
-      ph.forEach(function (u) {
-        if (!/^https:\/\/pbs\.twimg\.com\//.test(u)) return;
-        var big = u + (u.indexOf('?') < 0 ? '?name=large' : '');
-        var im = el('img', {src: u + (u.indexOf('?') < 0 ? '?name=medium' : ''), alt: 'BAO chart ' + t.symbol, loading: 'lazy', referrerpolicy: 'no-referrer'});
-        im.onclick = function () { window.open(big, '_blank', 'noopener'); };
-        c.appendChild(im);
-      });
-    } else if (/^\d+$/.test(String(b.id))) {
-      var slot = el('div', {style: 'font-size:12px;color:var(--t3);'}, 'Loading the post from X…');
-      c.appendChild(slot);
-      xWidgets().then(function (tw) {
-        return tw.widgets.createTweet(String(b.id), slot, {theme: 'dark', dnt: true, conversation: 'none'});
-      }).then(function (w) { if (w && slot.firstChild && slot.firstChild.nodeType === 3) slot.removeChild(slot.firstChild); if (!w) slot.textContent = 'X did not show the post here - use Open on X.'; },
-              function () { slot.textContent = 'X embed blocked by the browser - use Open on X.'; });
-    }
-    list.appendChild(c);
+    ph.forEach(function (u) { if (/^https:\/\/pbs\.twimg\.com\//.test(u)) out.push({b: b, u: u}); });
   });
+  function gap(x) { if (x.b.when) return 9999; var m = x.b.time; return e && m ? Math.abs((+m.slice(0, 2) * 60 + +m.slice(3, 5)) - (+e.slice(0, 2) * 60 + +e.slice(3, 5))) : 0; }
+  return out.sort(function (a, b) { return gap(a) - gap(b); });
+}
+function baoPanel(t) {                     // BAO's chart only, right next to our 1-min chart
+  var cell = document.getElementById('baoCell'), pics = baoPics(t), th = document.getElementById('baoThumbs');
+  cell.style.display = pics.length ? '' : 'none';
+  document.getElementById('dailyCell').classList.toggle('wide', !!pics.length);
+  th.innerHTML = '';
+  if (!pics.length) { document.getElementById('baoImg').removeAttribute('src'); return; }
+  function show(k) {
+    var x = pics[k], b = x.b, img = document.getElementById('baoImg');
+    var when = b.when ? b.date + ' ' + b.time + ' ET (' + b.when + ')' : b.time + ' ET';
+    var rel = !b.when && t.entry_time ? ' · ' + minsTxt(b.time, (t.entry_time || '').slice(0, 5)) + ' our short' : '';
+    document.getElementById('baoLabel').textContent = 'BAO chart ' + when + rel;
+    document.getElementById('baoLink').href = b.url;
+    img.src = x.u + (x.u.indexOf('?') < 0 ? '?name=medium' : '');
+    img.onclick = function () { window.open(x.u + (x.u.indexOf('?') < 0 ? '?name=large' : ''), '_blank', 'noopener'); };
+    Array.prototype.forEach.call(th.children, function (c, q) { c.classList.toggle('active', q === k); });
+  }
+  if (pics.length > 1) pics.forEach(function (x, k) {
+    var bt = el('button', null, (x.b.when ? 'eve ' : '') + x.b.time); bt.onclick = function () { show(k); }; th.appendChild(bt);
+  });
+  show(0);
+  setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 0);
 }
 
 function showChart(t, scroll) {
