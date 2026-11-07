@@ -866,7 +866,7 @@ function buildTotals() {
 }
 
 function buildReports() {
-  var names = {baox_room_replay: 'BAOX room replay', bao_all_30d: 'BAO_ALL 30 days', baox_30d: 'BAOX 30 days', ladder_twin_30d: 'Ladder twin 30 days'};
+  var names = {bao_exec: 'BAO executions study (his charts)', baox_room_replay: 'BAOX room replay', bao_all_30d: 'BAO_ALL 30 days', baox_30d: 'BAOX 30 days', ladder_twin_30d: 'Ladder twin 30 days'};
   var box = document.getElementById('repTabs'); box.innerHTML = '';
   var keys = Object.keys(REPORTS);
   if (!keys.length) { document.getElementById('repText').textContent = 'No reports yet.'; return; }
@@ -1283,6 +1283,7 @@ function baoExecChart(t, candles, vol, vwap, pf) {   // row 2: the same 1-min ca
   var cs = BCHART.addSeries(LightweightCharts.CandlestickSeries, {upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
     wickUpColor: '#26a69a', wickDownColor: '#ef5350', priceFormat: pf});
   cs.setData(candles);
+  cs.priceScale().applyOptions({scaleMargins: {top: 0.1, bottom: 0.2}});
   BCHART.addSeries(LightweightCharts.LineSeries, {color: '#f5c542', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, priceFormat: pf, crosshairMarkerVisible: false}).setData(vwap);
   function snap(hm, maxGap) { var bt = etSec(DAY, hm); for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bt) return candles[q].time - bt < maxGap ? candles[q].time : null; } return null; }
   var m = [];
