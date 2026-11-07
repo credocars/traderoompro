@@ -617,6 +617,7 @@ function keep(t) { return !PM_ONLY || !((t.entry_time || '') >= '09:30'); }
 var IB_FILTER = 'ALL';                     // day view: ALL / yes / no (shortable at IB)
 var INDEX = {}, DAY = null, TRADES = [], TEST_FILTER = 'ALL', CHART = null, REPORTS = {};
 var BAO = {};                              // BAO's X posts of this day {SYM: [post]} (review_sync v1.5)
+var BAO_DAYS = null;                       // every day's BAO posts {day: {SYM: ...}} - the Trades list badges
 var BCHART = null;                          // BAO executions chart (row under ours)
 var VISIBLE = [], CUR = -1, DCHART = null, PCHART = null, DPCHART = null, NOTES = {}, CUR_T = null, BARS = {};
 
@@ -1972,7 +1973,8 @@ function tradeTable(parent, rows) {
     tr.appendChild(el('td', null, x._day)); tr.appendChild(el('td', null, (x.entry_time || '').slice(0, 5)));
     var sy = el('td', {style: 'font-weight:700;white-space:nowrap;'}, x.symbol);   // IB / BAO badges like the day view
     sy.appendChild(ibBadge(x));
-    if ((x.tags || {}).bao_posted) sy.appendChild(el('span', {cls: 'rv-badge bao', title: 'BAO posted ' + x.symbol + ' on X that day'}, 'BAO'));
+    var bd = (BAO_DAYS || {})[x._day] || {};
+    if ((x.tags || {}).bao_posted || bd[String(x.symbol || '').replace(/[.$#\[\]\/]/g, '_')]) sy.appendChild(el('span', {cls: 'rv-badge bao', title: 'BAO posted ' + x.symbol + ' on X that day'}, 'BAO'));
     tr.appendChild(sy);
     var sd = el('td'); sd.appendChild(el('span', {cls: 'st-short'}, 'Short')); tr.appendChild(sd);
     tr.appendChild(el('td', {cls: 'r'}, x.shares || '')); tr.appendChild(el('td', {cls: 'r ' + cls(x.net), style: 'font-weight:700;'}, money(x.net)));
@@ -2011,6 +2013,10 @@ function stTradeList(box, list) {
   if (pages > 1) seg(bar, Array.apply(null, Array(pages)).map(function (_, i) { return [i, String(i + 1)]; }), TL_PAGE, function (v) { TL_PAGE = v; buildStats(); });
   var c = card(box, 'Trades');
   tradeTable(c, rows.slice(TL_PAGE * per, TL_PAGE * per + per));
+  if (BAO_DAYS === null) {                  // BAO posts of all days, once - then the list again with the BAO badges
+    BAO_DAYS = {};
+    firebase.database().ref(ROOT + '/bao').get().then(function (s) { BAO_DAYS = s.val() || {}; if (CUR_VIEW === 'trades') buildStats(); }, function () {});
+  }
 }
 </script>
 
