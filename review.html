@@ -1970,7 +1970,10 @@ function tradeTable(parent, rows) {
   rows.forEach(function (x) {
     var tr = el('tr', {cls: 'click', title: 'Open this trade with its charts'});
     tr.appendChild(el('td', null, x._day)); tr.appendChild(el('td', null, (x.entry_time || '').slice(0, 5)));
-    tr.appendChild(el('td', {style: 'font-weight:700;'}, x.symbol));
+    var sy = el('td', {style: 'font-weight:700;white-space:nowrap;'}, x.symbol);   // IB / BAO badges like the day view
+    sy.appendChild(ibBadge(x));
+    if ((x.tags || {}).bao_posted) sy.appendChild(el('span', {cls: 'rv-badge bao', title: 'BAO posted ' + x.symbol + ' on X that day'}, 'BAO'));
+    tr.appendChild(sy);
     var sd = el('td'); sd.appendChild(el('span', {cls: 'st-short'}, 'Short')); tr.appendChild(sd);
     tr.appendChild(el('td', {cls: 'r'}, x.shares || '')); tr.appendChild(el('td', {cls: 'r ' + cls(x.net), style: 'font-weight:700;'}, money(x.net)));
     tr.appendChild(el('td', null, TEST_NAME[x.test] || x.test)); tr.appendChild(el('td', null, rn(x.rule)));
