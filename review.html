@@ -520,6 +520,11 @@ body{display:flex;}
           <div class="rv-card-title" id="baoExecTitle">BAO executions</div>
           <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Time</th><th>Side</th><th class="r">Qty</th><th class="r">Price</th><th>Why</th><th class="r">Position</th><th class="r">Avg</th><th class="r">Realized</th></tr></thead><tbody id="baoExecRows"></tbody></table></div>
         </div>
+        <div class="rv-cbox" id="baoOptCard" style="display:none;border-top:1px solid var(--border);">
+          <div class="rv-card-title">Better execution? — BAO's trade replayed on the 1-min bars, 100 sh an entry</div>
+          <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Plan</th><th>What changes</th><th class="r">Shorts</th><th class="r">Avg short</th><th class="r">Avg cover</th><th>Out by</th><th class="r">P&amp;L</th><th class="r">vs his</th></tr></thead><tbody id="baoOptRows"></tbody></table></div>
+          <div class="rv-chart-note" id="baoOptNote"></div>
+        </div>
       </div>
       <div class="rv-card">
         <div class="rv-scroll">
@@ -1289,6 +1294,68 @@ function baoExecChart(t, candles, vol, vwap, pf) {   // row 2: the same 1-min ca
   var z = fs.length ? etSec(DAY, fs[fs.length - 1][0]) + 30 * 60 : a + 2 * 3600;
   BCHART.timeScale().setVisibleRange({from: a, to: Math.max(z, a + 3600)});
 }
+function baoOptimize(t, candles, vwap) {  // other entries / exits on the same stock-day, 1-min bars, 100 sh an entry
+  var card = document.getElementById('baoOptCard'), body = document.getElementById('baoOptRows'), fs = baoFills(t);
+  body.innerHTML = '';
+  var shorts = fs.filter(function (f) { return f[1] === 'SHORT'; }), covers = fs.filter(function (f) { return f[1] === 'COVER'; });
+  card.style.display = shorts.length && covers.length && candles.length ? '' : 'none';
+  if (card.style.display) return;
+  var idx = {}; candles.forEach(function (c, k) { idx[c.time] = k; });
+  function bar(hm) { var bt = etSec(DAY, hm); for (var k = 0; k < candles.length; k++) if (candles[k].time >= bt) return k; return candles.length - 1; }
+  var vw = {}; vwap.forEach(function (w) { vw[w.time] = w.value; });
+  var ema = [], ev = null, al = 2 / 10; candles.forEach(function (c) { ev = ev === null ? c.close : al * c.close + (1 - al) * ev; ema.push(ev); });
+  function avg(a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }
+  var hisS = avg(shorts.map(function (f) { return +f[2]; })), hisC = avg(covers.map(function (f) { return +f[2]; }));
+  var his = (hisS - hisC) * 100 * shorts.length, k0 = bar(shorts[shorts.length - 1][0]) + 1, kEnd = Math.min(candles.length - 1, k0 + 60);
+  function hm(k) { var d = new Date(candles[k].time * 1000); return ('0' + d.getUTCHours()).slice(-2) + ':' + ('0' + d.getUTCMinutes()).slice(-2); }
+  function exitBy(rule, sAvg) {           // first bar after his last short where the rule fires -> [price, bar]; else the 60-min close
+    var under = false;                    // EMA rule: only after a close under EMA 9 (else it fires at the top)
+    for (var k = k0; k <= kEnd; k++) {
+      var c = candles[k], v = vw[c.time];
+      if (c.close < ema[k]) under = true;
+      if (rule === 'vwap' && v && c.low <= v) return [Math.min(c.open, v), k];
+      if (rule === 'rev' && k > k0 && c.close > candles[k - 1].high) return [c.close, k];
+      if (rule === 'ema' && under && c.close > ema[k]) return [c.close, k];
+      if (rule === 'tgt' && c.low <= sAvg * 0.9) return [Math.min(c.open, sAvg * 0.9), k];
+    }
+    return [candles[kEnd].close, kEnd];
+  }
+  function low60() { var b = k0; for (var k = k0; k <= kEnd; k++) if (candles[k].low < candles[b].low) b = k; return [candles[b].low, b]; }
+  var top = shorts.filter(function (f) { return +f[2] >= hisS; });
+  var above = shorts.filter(function (f) { var k = bar(f[0]); return vw[candles[k].time] && +f[2] > vw[candles[k].time] * 1.03; });
+  var rows = [['His trade', 'as he did it (from his chart)', shorts, hisC, covers[covers.length - 1][0], null]];
+  function plan(name, why, sh, rule) {
+    if (!sh.length) return;
+    var sa = avg(sh.map(function (f) { return +f[2]; })), ex;
+    if (rule === 'his') ex = [hisC, null]; else if (rule === 'half') { var r = exitBy('rev', sa); ex = [(hisC + r[0]) / 2, r[1]]; } else if (rule === 'low') ex = low60(); else ex = exitBy(rule, sa);
+    rows.push([name, why, sh, ex[0], ex[1] === null ? covers[covers.length - 1][0] : hm(ex[1]), rule === 'low']);
+  }
+  plan('Top entries only', 'skip his shorts under his own average - his exits', top, 'his');
+  plan('Extended entries only', 'only shorts 3%+ above VWAP - his exits', above, 'his');
+  plan('Cover at VWAP', 'his entries - all out at the first VWAP touch', shorts, 'vwap');
+  plan('Cover on 1-min reversal', 'his entries - hold until a 1-min close above the prior high', shorts, 'rev');
+  plan('Cover on EMA 9 reclaim', 'his entries - once under EMA 9, hold until a 1-min close back above it', shorts, 'ema');
+  plan('Target -10%', 'his entries - cover 10% under his average short', shorts, 'tgt');
+  plan('Half his / half hold', 'half at his covers, half on the 1-min reversal', shorts, 'half');
+  plan('Top entries + reversal', 'skip his low shorts AND hold until the reversal', top, 'rev');
+  plan('Hindsight best', 'his entries, covered at the lowest low of the next 60 min (not possible live - the ceiling)', shorts, 'low');
+  var best = null;
+  rows.forEach(function (r, i) {
+    var sa = avg(r[2].map(function (f) { return +f[2]; })), pnl = (sa - r[3]) * 100 * r[2].length; r.push(pnl);
+    if (i && !r[5] && (best === null || pnl > rows[best][6])) best = i;
+  });
+  rows.forEach(function (r, i) {
+    var sa = avg(r[2].map(function (f) { return +f[2]; })), tr = el('tr', i === best ? {style: 'background:rgba(38,166,154,0.12);'} : (r[5] ? {style: 'color:var(--t3);'} : null));
+    tr.appendChild(el('td', {style: 'font-weight:700;'}, r[0] + (i === best ? ' ★' : '')));
+    tr.appendChild(el('td', {style: 'white-space:normal;max-width:300px;color:var(--t2);'}, r[1]));
+    tr.appendChild(el('td', {cls: 'r'}, r[2].length)); tr.appendChild(el('td', {cls: 'r'}, px(sa))); tr.appendChild(el('td', {cls: 'r'}, px(r[3])));
+    tr.appendChild(el('td', null, r[4])); tr.appendChild(el('td', {cls: 'r ' + cls(r[6])}, money(r[6])));
+    tr.appendChild(el('td', {cls: 'r ' + cls(r[6] - his)}, i ? money(r[6] - his) : '—'));
+    body.appendChild(tr);
+  });
+  document.getElementById('baoOptNote').textContent = '★ = best real plan on this stock-day. One stock-day says little: his prices are read from his chart (±1-2¢), ' +
+    'exits use 1-min bars (no order inside a minute), no slippage / costs. A plan earns a paper test only if it wins on many BAO stock-days.';
+}
 function baoPics(t) {                      // BAO's chart pictures of this stock-day: [{post, url}], nearest to our entry first
   var out = [], e = (t.entry_time || '').slice(0, 5);
   baoOf(t).forEach(function (b) {
@@ -1374,6 +1441,7 @@ function showChart(t, scroll) {
     fm.sort(function (a, b) { return a.time - b.time; });
     LightweightCharts.createSeriesMarkers(cs, fm);
     baoExecChart(t, candles, vol, vwap, pf);
+    baoOptimize(t, candles, vwap);
     // legend: SYM · 1  O H L C change, Volume, VWAP - follows the crosshair
     var eByT = {}; ema.forEach(function (e) { eByT[e.time] = e.value; });
     var byT = {}, vByT = {}, wByT = {}; candles.forEach(function (c, k) { byT[c.time] = k; }); vol.forEach(function (v) { vByT[v.time] = v.value; }); vwap.forEach(function (w) { wByT[w.time] = w.value; });
