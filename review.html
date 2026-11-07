@@ -270,6 +270,8 @@ body{display:flex;}
 .rv-badge.ib-no{color:var(--red);border-color:var(--red);}
 .rv-badge.ib-unk{color:var(--t3);}
 .rv-badge.bao{color:#1d9bf0;border-color:#1d9bf0;}
+.rv-sym{cursor:pointer;border-bottom:1px dotted var(--t3);}
+.rv-sym:hover{color:#1d9bf0;border-bottom-color:#1d9bf0;}
 .rv-bao-head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
 .rv-bao-head span{color:#1d9bf0;}
 .rv-bao-pic{display:flex;align-items:center;justify-content:center;background:#0b0e14;overflow:hidden;}
@@ -410,7 +412,7 @@ body{display:flex;}
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
         <button id="pmBtn" class="rv-tab active" onclick="togglePm()" title="Hide trades entered at or after 09:30 (regular hours)">Premarket only</button>
-        <select id="daySel" class="rv-select" onchange="loadDay(this.value)"></select>
+        <select id="daySel" class="rv-select" onchange="NAV = null; loadDay(this.value).then(function () { navPush(); })"></select>
         <a href="admin.html" class="rv-link">← Roster</a>
       </div>
     </div>
@@ -421,7 +423,7 @@ body{display:flex;}
       <button class="rv-side-item" data-v="cal" onclick="showView('cal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendar</span></button>
       <button class="rv-side-item" data-v="stats" onclick="showView('stats')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Reports</span></button>
       <button class="rv-side-item" data-v="trades" onclick="showView('trades')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><span>Trades</span></button>
-      <button class="rv-side-item" data-v="day" onclick="showView('day')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span>Day review</span></button>
+      <button class="rv-side-item" data-v="day" onclick="NAV = null; closeChart(); showView('day')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span>Day review</span></button>
       <button class="rv-side-item" data-v="totals" onclick="showView('totals')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Running totals</span></button>
       <button class="rv-side-item" data-v="reports" onclick="showView('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Text reports</span></button>
       <div class="rv-side-note">Tests = simulated fills. Live ladder = real money.</div>
@@ -431,6 +433,7 @@ body{display:flex;}
     <div id="stFilterBar" style="display:none;">
       <div class="st-filters">
         <label>Test<select id="stTest" class="rv-select" onchange="stSet('test', this.value)"></select></label>
+        <label>Symbol<input id="stSym" list="stSymList" class="rv-select" placeholder="All" autocomplete="off" style="width:110px;text-transform:uppercase;" onchange="stSet('sym', this.value.trim().toUpperCase())"><datalist id="stSymList"></datalist></label>
         <label>Rule<select id="stRule" class="rv-select" onchange="stSet('rule', this.value)"></select></label>
         <label>Tag / pattern<select id="stTag" class="rv-select" onchange="stSet('tag', this.value)"></select></label>
         <label>IB shares<select id="stIb" class="rv-select" onchange="stSet('ib', this.value)">
@@ -454,7 +457,7 @@ body{display:flex;}
         <div class="rv-chart-head">
           <div class="rv-chart-title" id="chartTitle">—</div>
           <div class="rv-nav">
-            <button class="rv-tab" onclick="closeChart()" title="Back to the list (Esc)">‹ Back</button>
+            <button class="rv-tab" id="btnBack" onclick="goBack()" title="Back to the list (Esc)">‹ Back</button>
             <button class="rv-tab" id="btnPrev" onclick="stepTrade(-1)" title="Previous trade (← key)">◀ Prev</button>
             <span class="rv-count" id="navCount">—</span>
             <button class="rv-tab" id="btnNext" onclick="stepTrade(1)" title="Next trade (→ key)">Next ▶</button>
@@ -648,14 +651,55 @@ function startReview() {
         if (k >= 0) openTrade(k, true);
       });
     }
+    if (location.hash && navRestore()) return;          // a page link / reload keeps the place
     loadDay(dayList().slice(-1)[0]);
     if (rule) { ST.rule = rule; showView('trades'); }   // review.html?rule=SR_S5_08 = every trade of one rule
     else showView('dash');
+    history.replaceState(null, '', navHash());
   })
     .catch(function (e) { showToast('✗ Could not read the review data: ' + e.message); });
   firebase.database().ref(ROOT + '/reports').get().then(function (snap) { REPORTS = snap.val() || {}; buildReports(); });
 }
 
+var NAV = null;                             // opened from the Trades list: {list, i, y, page}
+var NAV_BUSY = false;
+function navHash() {
+  var q = new URLSearchParams(); q.set('v', CUR_VIEW);
+  if (ST.sym) q.set('sym', ST.sym);
+  if (CUR_VIEW === 'trades' && TL_PAGE) q.set('p', TL_PAGE);
+  if (CUR_VIEW === 'day' && DAY) { q.set('d', DAY); if (CUR >= 0 && VISIBLE[CUR]) q.set('t', VISIBLE[CUR]._key || ''); if (NAV) q.set('list', '1'); }
+  return '#' + q.toString();
+}
+function navPush() {                         // one browser history step per view / day / trade (Back stays on this page)
+  if (NAV_BUSY || !ALL_DAYS) return;
+  var h = navHash();
+  if (h === location.hash) return;
+  var sameDayStep = /[#&]v=day/.test(location.hash) && /[#&]v=day/.test(h) && /[#&]t=/.test(location.hash) && /[#&]t=/.test(h);
+  if (sameDayStep) history.replaceState(null, '', h); else history.pushState(null, '', h);
+}
+function navRestore() {                      // browser Back / Forward or a saved link
+  var q = new URLSearchParams(location.hash.slice(1)), v = q.get('v');
+  if (!v || !VIEW_ID[v]) return false;
+  NAV_BUSY = true;
+  ST.sym = q.get('sym') || '';
+  TL_PAGE = +(q.get('p') || 0);
+  var d = q.get('d'), t = q.get('t'), done = function () { NAV_BUSY = false; };
+  if (v === 'day' && d && INDEX[d]) {
+    showView('day');
+    loadDay(d, function () {
+      if (q.get('list')) { var L = stTrades(); NAV = {list: L, i: -1, y: 0, page: TL_PAGE}; }
+      else NAV = null;
+      var k = -1; VISIBLE.forEach(function (y, i) { if (k < 0 && t && y._key === t) k = i; });
+      if (k >= 0) { if (NAV) { var vk = VISIBLE[k]; NAV.i = NAV.list.map(function (y) { return y._day + y.symbol + y.entry_time + y.rule; }).indexOf(d + vk.symbol + vk.entry_time + vk.rule); } if (NAV && NAV.i < 0) NAV = null; openTrade(k, false); } else closeChart();
+      done();
+    });
+    return true;
+  }
+  NAV = null; closeChart(); showView(v);
+  if (!DAY) loadDay(dayList().slice(-1)[0]).then(done, done); else done();
+  return true;
+}
+window.addEventListener('popstate', function () { if (ALL_DAYS) navRestore(); });
 var CUR_VIEW = 'dash';
 var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', reports: 'viewReports'};
 var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', reports: 'Text reports'};
@@ -667,6 +711,7 @@ function showView(v) {
   document.getElementById('daySel').style.display = v === 'day' ? '' : 'none';
   document.getElementById('viewTitle').textContent = VIEW_TITLE[v];
   if (['dash', 'cal', 'stats', 'trades'].indexOf(v) >= 0) buildStats();
+  navPush();
 }
 
 function loadAllDays() {                  // every day's trades (once per page) -> ALL_DAYS.trades with _day
@@ -785,7 +830,7 @@ function buildRows() {
     tr.appendChild(el('td', null, (t.exit_time || '').slice(0, 5) || '—'));
     tr.appendChild(el('td', {style: 'white-space:normal;max-width:260px;color:var(--t2);'}, t.reason));
     tr.appendChild(el('td', {cls: 'r ' + cls(t.net)}, money(t.net)));
-    tr.onclick = function () { openTrade(i, true); };
+    tr.onclick = function () { NAV = null; openTrade(i, true); };
     body.appendChild(tr);
   });
   if (!body.children.length) { var r = el('tr'); var c = el('td', {colspan: 10, style: 'color:var(--t3);'}, 'No closed trades.'); r.appendChild(c); body.appendChild(r); }
@@ -889,9 +934,20 @@ function openTrade(i, scroll) {
   Array.prototype.forEach.call(rows, function (r, k) { r.classList.toggle('sel', k === i); });
   showChart(VISIBLE[i], scroll);
   updateNav();
+  navPush();
 }
 function dayList() { return Object.keys(INDEX).sort(); }
 function updateNav() {
+  document.getElementById('btnBack').textContent = NAV ? '‹ Back to Trades' : '‹ Back';
+  if (NAV) {                                 // walking the Trades list (e.g. one symbol, every day)
+    var L = NAV.list, i = NAV.i, f = function (x) { return x._day.slice(5) + ' ' + x.symbol; };
+    document.getElementById('navCount').textContent = (i + 1) + ' / ' + L.length + (ST.sym ? ' ' + ST.sym : ' in the list');
+    document.getElementById('btnPrev').disabled = i <= 0;
+    document.getElementById('btnNext').disabled = i >= L.length - 1;
+    document.getElementById('btnPrev').textContent = i > 0 ? '◀ ' + f(L[i - 1]) : '◀ Prev';
+    document.getElementById('btnNext').textContent = i < L.length - 1 ? f(L[i + 1]) + ' ▶' : 'Next ▶';
+    return;
+  }
   var days = dayList(), di = days.indexOf(DAY);
   document.getElementById('navCount').textContent = (CUR + 1) + ' / ' + VISIBLE.length;
   document.getElementById('btnPrev').disabled = CUR <= 0 && di <= 0;
@@ -899,7 +955,31 @@ function updateNav() {
   document.getElementById('btnPrev').textContent = CUR <= 0 && di > 0 ? '◀ ' + days[di - 1] : '◀ Prev';
   document.getElementById('btnNext').textContent = CUR >= VISIBLE.length - 1 && di < days.length - 1 ? days[di + 1] + ' ▶' : 'Next ▶';
 }
+function findIn(x) {                        // the trade x in the loaded day (VISIBLE)
+  TEST_FILTER = 'ALL'; IB_FILTER = 'ALL'; buildTestTabs(); buildRows();
+  var k = VISIBLE.indexOf(VISIBLE.filter(function (y) { return y.id && y.id === x.id; })[0]);
+  if (k < 0) k = VISIBLE.map(function (y) { return y.symbol + y.entry_time + y.rule; }).indexOf(x.symbol + x.entry_time + x.rule);
+  return k;
+}
+function openListItem(n, scroll) {          // NAV.list[n]: its day, then the trade
+  if (!NAV || n < 0 || n >= NAV.list.length) return;
+  NAV.i = n;
+  var x = NAV.list[n], go = function () { var k = findIn(x); if (k >= 0) openTrade(k, scroll); };
+  if (CUR_VIEW !== 'day') { CUR_VIEW = 'day'; showViewQuiet('day'); }
+  if (DAY === x._day && TRADES.length) return go();
+  loadDay(x._day, go);
+}
+function showViewQuiet(v) { var h = navPush; navPush = function () {}; try { showView(v); } finally { navPush = h; } }
+function goBack() {                          // ‹ Back: to the Trades list it came from, else the day's list
+  if (NAV) {
+    var y = NAV.y, pg = NAV.page; NAV = null; closeChart(); TL_PAGE = pg || 0; showView('trades');
+    setTimeout(function () { window.scrollTo(0, y || 0); }, 0);
+    return;
+  }
+  closeChart(); navPush();
+}
 function stepTrade(d) {
+  if (NAV) return openListItem(NAV.i + d, false);
   var n = CUR + d;
   if (n >= 0 && n < VISIBLE.length) return openTrade(n, false);
   var days = dayList(), di = days.indexOf(DAY) + d;          // past the first / last trade: the day before / after
@@ -918,7 +998,7 @@ document.addEventListener('keydown', function (e) {
   if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
   if (e.key === 'ArrowRight') { e.preventDefault(); stepTrade(1); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); stepTrade(-1); }
-  else if (e.key === 'Escape') { closeChart(); }
+  else if (e.key === 'Escape') { goBack(); }
 });
 
 // ── 1-min chart (TradingView lightweight-charts): candles, VWAP from 04:00, every short / cover, the entry line ──
@@ -1576,7 +1656,7 @@ function ibState(x) {                     // could the short be taken at IB? yes
   if (x.test === 'PAPER') return 'yes';                             // paper tests need IB shares, else the trade is NB_<rule>
   return '?';
 }
-var ST = {ib: 'ALL', sub: 'overview', ov: 'recent', recent: 30, year: null, group: 'ALL', test: 'ALL', rule: 'ALL', tag: '', from: '', to: ''};
+var ST = {ib: 'ALL', sub: 'overview', ov: 'recent', recent: 30, year: null, group: 'ALL', test: 'ALL', rule: 'ALL', tag: '', from: '', to: '', sym: ''};
 var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function hmMin(hm) { hm = (hm || '').slice(0, 5); return hm.length === 5 ? +hm.slice(0, 2) * 60 + +hm.slice(3) : null; }
@@ -1632,7 +1712,7 @@ function stTrades() {                      // every trade that passes the page f
   var tg = ST.tag ? ST.tag.split('\u0001') : null, g = tg ? TAG_GROUPS.filter(function (q) { return q[0] === tg[0]; })[0] : null;
   return ALL_DAYS.trades.filter(function (x) {
     return keep(x) && (ST.test === 'ALL' || x.test === ST.test) && (ST.rule === 'ALL' || x.rule === ST.rule)
-      && (ST.ib === 'ALL' || ibState(x) === ST.ib) && (!ST.from || x._day >= ST.from) && (!ST.to || x._day <= ST.to) && (!g || g[1](x) === tg[1]);
+      && (ST.ib === 'ALL' || ibState(x) === ST.ib) && (!ST.sym || x.symbol === ST.sym) && (!ST.from || x._day >= ST.from) && (!ST.to || x._day <= ST.to) && (!g || g[1](x) === tg[1]);
   }).sort(function (a, b) { return (a._day + a.entry_time).localeCompare(b._day + b.entry_time); });
 }
 function byDay(list) {
@@ -1656,10 +1736,14 @@ function stFilters() {                     // fill the filter dropdowns (keeps t
   });
   if (ST.tag && !tags.some(function (t) { return t[0] === ST.tag; })) ST.tag = '';
   fill('stTag', tags, ST.tag);
+  var sl = document.getElementById('stSymList'), syms = {}; sl.innerHTML = '';     // symbol list for the Symbol box
+  all.forEach(function (x) { syms[x.symbol] = 1; });
+  Object.keys(syms).sort().forEach(function (v) { sl.appendChild(el('option', {value: v})); });
+  document.getElementById('stSym').value = ST.sym;
 }
-function stSet(k, v) { ST[k] = v; buildStats(); }
+function stSet(k, v) { ST[k] = v; if (k === 'sym') TL_PAGE = 0; buildStats(); navPush(); }
 function stSub(v) { ST.sub = v; buildStats(); }
-function stClear() { ST.ib = 'ALL'; document.getElementById('stIb').value = 'ALL'; ST.test = 'ALL'; ST.rule = 'ALL'; ST.tag = ''; ST.from = ''; ST.to = ''; document.getElementById('stFrom').value = ''; document.getElementById('stTo').value = ''; buildStats(); }
+function stClear() { ST.ib = 'ALL'; document.getElementById('stIb').value = 'ALL'; ST.test = 'ALL'; ST.rule = 'ALL'; ST.tag = ''; ST.sym = ''; TL_PAGE = 0; ST.from = ''; ST.to = ''; document.getElementById('stFrom').value = ''; document.getElementById('stTo').value = ''; buildStats(); navPush(); }
 
 // --- small SVG charts (no library): bars (green / red) and a line --------------------------------------------
 function svgEl(tag, a) { var e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (var k in a) e.setAttribute(k, a[k]); return e; }
@@ -1971,7 +2055,10 @@ function tradeTable(parent, rows) {
   rows.forEach(function (x) {
     var tr = el('tr', {cls: 'click', title: 'Open this trade with its charts'});
     tr.appendChild(el('td', null, x._day)); tr.appendChild(el('td', null, (x.entry_time || '').slice(0, 5)));
-    var sy = el('td', {style: 'font-weight:700;white-space:nowrap;'}, x.symbol);   // IB / BAO badges like the day view
+    var sy = el('td', {style: 'font-weight:700;white-space:nowrap;'});   // IB / BAO badges like the day view
+    var sl_ = el('span', {cls: 'rv-sym', title: 'Only ' + x.symbol + ' (all its trades, every day)'}, x.symbol);
+    sl_.onclick = function (e) { e.stopPropagation(); stSet('sym', x.symbol); };
+    sy.appendChild(sl_);
     sy.appendChild(ibBadge(x));
     var bd = (BAO_DAYS || {})[x._day] || {};
     if ((x.tags || {}).bao_posted || bd[String(x.symbol || '').replace(/[.$#\[\]\/]/g, '_')]) sy.appendChild(el('span', {cls: 'rv-badge bao', title: 'BAO posted ' + x.symbol + ' on X that day'}, 'BAO'));
@@ -1996,9 +2083,10 @@ function tradeTable(parent, rows) {
     if (tt.way) chips.push(tt.way);
     chips.forEach(function (c) { tg.appendChild(el('span', {cls: 'st-chip'}, c)); });
     tr.appendChild(tg);
-    tr.onclick = function () {
-      showView('day');
-      loadDay(x._day, function () { var k = VISIBLE.indexOf(VISIBLE.filter(function (y) { return y._key && y.id === x.id; })[0]); if (k < 0) k = VISIBLE.map(function (y) { return y.symbol + y.entry_time + y.rule; }).indexOf(x.symbol + x.entry_time + x.rule); if (k >= 0) openTrade(k, true); });
+    tr.onclick = function () {                  // open it; Prev / Next then walk THIS list (filters kept), Back returns here
+      var lst = stTrades();
+      NAV = {list: lst, i: lst.indexOf(x), y: window.scrollY, page: TL_PAGE};
+      openListItem(NAV.i, true);
     };
     tb.appendChild(tr);
   });
