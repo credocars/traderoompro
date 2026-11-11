@@ -217,10 +217,11 @@ body{display:flex;}
 .rv-table th.sk{cursor:pointer;user-select:none;}
 .rv-table th.sk:hover{color:var(--t1);}
 .rv-table th.sk.on{color:var(--cyan,#06b6d4);}
-.rv-md{padding:6px 18px 16px;font-size:13.5px;line-height:1.6;color:var(--t1);}
-.rv-md h1{font-size:17px;margin:12px 0 6px;} .rv-md h2{font-size:15px;margin:16px 0 6px;color:var(--cyan);} .rv-md h3{font-size:14px;margin:12px 0 4px;}
+.rv-md{padding:6px 18px 16px;font-size:13.5px;line-height:1.65;color:#b8c1ce;}
+.rv-md b{color:#d5dbe4;font-weight:600;} .rv-md .rv-table td{color:#b8c1ce;} .rv-md h1,.rv-md h3{color:#cfd6e0;}
+.rv-md h1{font-size:17px;margin:12px 0 6px;} .rv-md h2{font-size:15px;margin:16px 0 6px;color:#7fb3c2;} .rv-md h3{font-size:14px;margin:12px 0 4px;}
 .rv-md p{margin:6px 0;} .rv-md ul{margin:4px 0 8px;padding-left:20px;} .rv-md li{margin:2px 0;}
-.rv-md a{color:var(--cyan);text-decoration:none;} .rv-md a:hover{text-decoration:underline;}
+.rv-md a{color:#7fb3c2;text-decoration:none;} .rv-md a:hover{text-decoration:underline;}
 .rv-md code{background:var(--card2);padding:1px 5px;border-radius:4px;font-size:12px;}
 .rv-md .rv-scroll{margin:6px 0 10px;} .rv-md table{font-size:12.5px;} .rv-md td{white-space:normal;}
 .rv-md.closed{display:none;}
@@ -469,7 +470,7 @@ body{display:flex;}
     <div id="viewDay" style="display:none;">
       <div class="stats-row" id="dayCards"></div>
       <div class="rv-card" id="claudeCard" style="display:none;">
-        <div class="rv-card-title rv-rule-head" style="cursor:pointer;" onclick="toggleClaude()"><span id="claudeTitle">Claude's daily paper trading review</span><span class="st-note" id="claudeMeta"></span></div>
+        <div class="rv-card-title rv-rule-head" style="cursor:pointer;" onclick="toggleClaude()"><span id="claudeTitle" style="color:#cfd6e0;">Claude's daily paper trading review</span><span class="st-note" id="claudeMeta"></span></div>
         <div class="rv-md" id="claudeBody"></div>
       </div>
       <div class="rv-tabs" id="testTabs"></div>
