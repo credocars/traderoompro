@@ -217,6 +217,13 @@ body{display:flex;}
 .rv-table th.sk{cursor:pointer;user-select:none;}
 .rv-table th.sk:hover{color:var(--t1);}
 .rv-table th.sk.on{color:var(--cyan,#06b6d4);}
+.rv-md{padding:6px 18px 16px;font-size:13.5px;line-height:1.6;color:var(--t1);}
+.rv-md h1{font-size:17px;margin:12px 0 6px;} .rv-md h2{font-size:15px;margin:16px 0 6px;color:var(--cyan);} .rv-md h3{font-size:14px;margin:12px 0 4px;}
+.rv-md p{margin:6px 0;} .rv-md ul{margin:4px 0 8px;padding-left:20px;} .rv-md li{margin:2px 0;}
+.rv-md a{color:var(--cyan);text-decoration:none;} .rv-md a:hover{text-decoration:underline;}
+.rv-md code{background:var(--card2);padding:1px 5px;border-radius:4px;font-size:12px;}
+.rv-md .rv-scroll{margin:6px 0 10px;} .rv-md table{font-size:12.5px;} .rv-md td{white-space:normal;}
+.rv-md.closed{display:none;}
 .rv-rule-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .rv-rule-btns{display:flex;gap:6px;flex-wrap:wrap;}
 .rv-rule-btns .rv-tab{padding:4px 10px;font-size:11px;text-transform:none;letter-spacing:0;}
@@ -461,6 +468,10 @@ body{display:flex;}
 
     <div id="viewDay" style="display:none;">
       <div class="stats-row" id="dayCards"></div>
+      <div class="rv-card" id="claudeCard" style="display:none;">
+        <div class="rv-card-title rv-rule-head" style="cursor:pointer;" onclick="toggleClaude()"><span id="claudeTitle">Claude's daily paper trading review</span><span class="st-note" id="claudeMeta"></span></div>
+        <div class="rv-md" id="claudeBody"></div>
+      </div>
       <div class="rv-tabs" id="testTabs"></div>
       <div class="rv-card" id="chartCard" style="display:none;">
         <div class="rv-chart-head">
@@ -805,11 +816,60 @@ function loadDay(d, then) {
                                                                        function () { NOTES = {}; }).then(function () {
       return firebase.database().ref(ROOT + '/bao/' + d).get().then(function (bs) { BAO = bs.val() || {}; }, function () { BAO = {}; });
     }).then(function () {
-      buildCards(); buildTestTabs(); buildRows(); buildRules();
+      return firebase.database().ref(ROOT + '/claude/' + d).get().then(function (cs) { CLAUDE = cs.val(); }, function () { CLAUDE = null; });
+    }).then(function () {
+      buildCards(); buildClaude(); buildTestTabs(); buildRows(); buildRules();
       if (then) then();
     });
   });
 }
+
+// Claude's daily paper trading review (Max 11-11): admin_review/claude/<day> (claude_reviews.py), markdown -> html
+var CLAUDE = null, CLAUDE_OPEN = true;
+function mdInline(t) {
+  t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+  t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, '$1<i>$2</i>');
+  return t;
+}
+function mdHtml(src) {
+  var L = (src || '').replace(/\r/g, '').split('\n'), out = [], i = 0, list = false;
+  var close = function () { if (list) { out.push('</ul>'); list = false; } };
+  while (i < L.length) {
+    var l = L[i];
+    if (/^\s*\|.*\|\s*$/.test(l) && i + 1 < L.length && /^\s*\|?\s*:?-{2,}/.test(L[i + 1])) {          // a table
+      close();
+      var row = function (x) { return x.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function (c) { return mdInline(c.trim()); }); };
+      var h = row(l), body = []; i += 2;
+      while (i < L.length && /^\s*\|.*\|\s*$/.test(L[i])) { body.push(row(L[i])); i++; }
+      var hasHead = h.some(function (c) { return c !== ''; });
+      out.push('<div class="rv-scroll"><table class="rv-table">' + (hasHead ? '<thead><tr>' + h.map(function (c) { return '<th>' + c + '</th>'; }).join('') + '</tr></thead>' : '') +
+               '<tbody>' + body.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>');
+      continue;
+    }
+    var m = l.match(/^(#{1,3})\s+(.*)$/);
+    if (m) { close(); out.push('<h' + m[1].length + '>' + mdInline(m[2]) + '</h' + m[1].length + '>'); i++; continue; }
+    m = l.match(/^\s*[-*]\s+(.*)$/);
+    if (m) { if (!list) { out.push('<ul>'); list = true; } out.push('<li>' + mdInline(m[1]) + '</li>'); i++; continue; }
+    if (!l.trim()) { close(); i++; continue; }
+    close(); out.push('<p>' + mdInline(l) + '</p>'); i++;
+  }
+  close();
+  return out.join('\n');
+}
+function buildClaude() {
+  var c = document.getElementById('claudeCard'); if (!c) return;
+  if (!CLAUDE || !CLAUDE.text) { c.style.display = 'none'; return; }
+  c.style.display = '';
+  var body = document.getElementById('claudeBody');
+  body.innerHTML = mdHtml(CLAUDE.text.replace(/^#\s+[^\n]*\n/, ''));                  // its own title -> the card title
+  var t = (CLAUDE.text.match(/^#\s+([^\n]+)/) || [])[1];
+  document.getElementById('claudeTitle').textContent = '🤖 ' + (t ? 'Claude — ' + t : "Claude's daily paper trading review") + (CLAUDE_OPEN ? '  ▾' : '  ▸');
+  document.getElementById('claudeMeta').textContent = CLAUDE.updated ? 'written ' + CLAUDE.updated.replace('T', ' ').slice(0, 16) + ' UTC' : '';
+  body.classList.toggle('closed', !CLAUDE_OPEN);
+}
+function toggleClaude() { CLAUDE_OPEN = !CLAUDE_OPEN; buildClaude(); }
 
 function buildCards() {
   var box = document.getElementById('dayCards'); box.innerHTML = '';
