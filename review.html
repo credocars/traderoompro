@@ -225,6 +225,9 @@ body{display:flex;}
 .rv-md code{background:var(--card2);padding:1px 5px;border-radius:4px;font-size:12px;}
 .rv-md .rv-scroll{margin:6px 0 10px;} .rv-md table{font-size:12.5px;} .rv-md td{white-space:normal;}
 .rv-md.closed{display:none;}
+.cr-item{display:block;width:100%;text-align:left;background:none;border:none;color:var(--t2);font:inherit;font-size:13px;padding:7px 16px;cursor:pointer;}
+.cr-item:hover{background:rgba(255,255,255,.03);color:var(--t1);} .cr-item.on{background:rgba(6,182,212,.08);color:#cfd6e0;font-weight:600;}
+@media (max-width:760px){#crGrid{grid-template-columns:1fr !important;}}
 .rv-md .md-up{color:#5cc98a;font-weight:600;} .rv-md .md-dn{color:#e5797b;font-weight:600;}
 .rv-rule-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .rv-rule-btns{display:flex;gap:6px;flex-wrap:wrap;}
@@ -443,6 +446,7 @@ body{display:flex;}
       <button class="rv-side-item" data-v="score" onclick="showView('score')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 4h16v16H4z"/><path d="M8 15l2.5-3 2 2L16 9"/></svg><span>Scorecard</span></button>
       <button class="rv-side-item" data-v="stocks" onclick="showView('stocks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Stocks</span></button>
       <button class="rv-side-item" data-v="best" onclick="showView('best')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg><span>Best performers</span></button>
+      <button class="rv-side-item" data-v="claude" onclick="showView('claude')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><circle cx="17" cy="17" r="3"/></svg><span>Claude reports</span></button>
       <button class="rv-side-item" data-v="reports" onclick="showView('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Text reports</span></button>
       <div class="rv-side-note">Tests = simulated fills. Live ladder = real money.</div>
     </nav>
@@ -576,6 +580,17 @@ body{display:flex;}
           <b>Grade</b> A ≥ 80, B ≥ 65, C ≥ 50, D ≥ 35, F below. <b>Status</b>: under 20 trades = TOO EARLY, 20–59 = provisional, 60+ = decision-grade
           (KEEP = B or better; RETIRE? = F with PF below 1 in both halves); no trade in the last 7 days = INACTIVE.
           Paper fills are simulated and optimistic. Admin only (instructors) — the same as the whole Daily Review.
+        </div>
+      </div>
+    </div>
+
+    <div id="viewClaude" style="display:none;">
+      <div class="rv-tabs" id="crTabs"></div>
+      <div style="display:grid;grid-template-columns:minmax(150px,200px) 1fr;gap:16px;align-items:start;" id="crGrid">
+        <div class="rv-card" style="margin:0;"><div class="rv-card-title">Reports</div><div id="crList" style="padding:6px 0;max-height:70vh;overflow:auto;"></div></div>
+        <div class="rv-card" style="margin:0;">
+          <div class="rv-card-title rv-rule-head"><span id="crTitle" style="color:#cfd6e0;">—</span><span class="st-note" id="crMeta"></span></div>
+          <div class="rv-md" id="crBody"><p>Pick a report.</p></div>
         </div>
       </div>
     </div>
@@ -759,8 +774,8 @@ function navRestore() {                      // browser Back / Forward or a save
 }
 window.addEventListener('popstate', function () { if (ALL_DAYS) navRestore(); });
 var CUR_VIEW = 'dash';
-var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', best: 'viewBest', reports: 'viewReports'};
-var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', best: 'Best performers', reports: 'Text reports'};
+var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', best: 'viewBest', claude: 'viewClaude', reports: 'viewReports'};
+var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', best: 'Best performers', claude: 'Claude reports', reports: 'Text reports'};
 function showView(v) {
   CUR_VIEW = v;
   Object.keys(VIEW_ID).forEach(function (x) { document.getElementById(VIEW_ID[x]).style.display = (x === v) ? 'block' : 'none'; });
@@ -772,6 +787,7 @@ function showView(v) {
   if (v === 'score') buildScore();
   if (v === 'stocks') buildStocks();
   if (v === 'best') buildBest();
+  if (v === 'claude') buildCR();
   navPush();
 }
 
@@ -878,6 +894,56 @@ function buildClaude() {
   body.classList.toggle('closed', !CLAUDE_OPEN);
 }
 function toggleClaude() { CLAUDE_OPEN = !CLAUDE_OPEN; buildClaude(); }
+
+// Claude reports (Max 11-11): daily paper reviews, weekly test reviews, weekly trading reviews, monthly, yearly
+var CR = null, CR_KIND = 'daily', CR_KEY = {};
+var CR_KINDS = [['daily', 'Daily paper review'], ['weekly_tests', 'Weekly test review'], ['weekly_trading', 'Weekly trading review'],
+                ['monthly', 'Monthly review'], ['yearly', 'Yearly review']];
+function crLabel(kind, key) {
+  if (kind === 'monthly') { var d = new Date(key + '-15T12:00:00'); return isNaN(d) ? key : d.toLocaleString('en-US', {month: 'long', year: 'numeric'}); }
+  if (kind === 'yearly') return key;
+  var w = new Date(key + 'T12:00:00'); return isNaN(w) ? key : key + ' · ' + WD[w.getDay()];
+}
+function buildCR() {
+  if (CR === null) {
+    CR = {};
+    firebase.database().ref(ROOT + '/claude_reports').get().then(function (s) { CR = s.val() || {}; buildCR(); }, function () { CR = {}; buildCR(); });
+  }
+  var tabs = document.getElementById('crTabs'); tabs.innerHTML = '';
+  CR_KINDS.forEach(function (k) {
+    var n = Object.keys(CR[k[0]] || {}).length;
+    var b = el('button', {cls: 'rv-tab' + (k[0] === CR_KIND ? ' active' : '')}, k[1] + (n ? ' (' + n + ')' : ''));
+    b.onclick = function () { CR_KIND = k[0]; buildCR(); }; tabs.appendChild(b);
+  });
+  var list = document.getElementById('crList'); list.innerHTML = '';
+  var keys = Object.keys(CR[CR_KIND] || {}).sort().reverse();
+  if (!keys.length) {
+    list.appendChild(el('div', {cls: 'st-note', style: 'padding:8px 16px;'}, CR === null ? 'loading…' : 'None yet.'));
+    document.getElementById('crTitle').textContent = '—'; document.getElementById('crMeta').textContent = '';
+    document.getElementById('crBody').innerHTML = '<p>' + ({monthly: 'The first monthly review is written on the 1st weekday of next month.',
+      yearly: 'The first yearly review is written in early January.'}[CR_KIND] || 'No report yet.') + '</p>';
+    return;
+  }
+  if (!CR_KEY[CR_KIND] || keys.indexOf(CR_KEY[CR_KIND]) < 0) CR_KEY[CR_KIND] = keys[0];
+  keys.forEach(function (k) {
+    var b = el('button', {cls: 'cr-item' + (k === CR_KEY[CR_KIND] ? ' on' : '')}, crLabel(CR_KIND, k));
+    b.onclick = function () { CR_KEY[CR_KIND] = k; buildCR(); }; list.appendChild(b);
+  });
+  showCR(CR_KIND, CR_KEY[CR_KIND]);
+}
+function showCR(kind, key) {
+  var doc = (CR[kind] || {})[key] || {}, body = document.getElementById('crBody');
+  var put = function (d) {
+    var txt = (d && d.text) || '', t = (txt.match(/^#\s+([^\n]+)/) || [])[1];
+    document.getElementById('crTitle').textContent = t || crLabel(kind, key);
+    document.getElementById('crMeta').textContent = d && d.updated ? 'written ' + d.updated.replace('T', ' ').slice(0, 16) + ' UTC' : '';
+    body.innerHTML = txt ? mdHtml(txt.replace(/^#\s+[^\n]*\n/, '')) : '<p>Empty.</p>';
+  };
+  if (doc.ref && !doc.text) {                                        // a daily review: the text lives on claude/<day>
+    body.innerHTML = '<p>loading…</p>';
+    firebase.database().ref(ROOT + '/claude/' + key).get().then(function (s) { doc.text = (s.val() || {}).text || ''; put(s.val()); }, function () { put(null); });
+  } else put(doc);
+}
 
 function buildCards() {
   var box = document.getElementById('dayCards'); box.innerHTML = '';
