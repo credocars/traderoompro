@@ -433,6 +433,7 @@ body{display:flex;}
       <button class="rv-side-item" data-v="totals" onclick="showView('totals')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Running totals</span></button>
       <button class="rv-side-item" data-v="score" onclick="showView('score')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 4h16v16H4z"/><path d="M8 15l2.5-3 2 2L16 9"/></svg><span>Scorecard</span></button>
       <button class="rv-side-item" data-v="stocks" onclick="showView('stocks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Stocks</span></button>
+      <button class="rv-side-item" data-v="best" onclick="showView('best')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg><span>Best performers</span></button>
       <button class="rv-side-item" data-v="reports" onclick="showView('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Text reports</span></button>
       <div class="rv-side-note">Tests = simulated fills. Live ladder = real money.</div>
     </nav>
@@ -564,6 +565,19 @@ body{display:flex;}
           Paper fills are simulated and optimistic. Admin only (instructors) — the same as the whole Daily Review.
         </div>
       </div>
+    </div>
+
+    <div id="viewBest" style="display:none;">
+      <div class="rv-card">
+        <div class="rv-card-title rv-rule-head"><span id="bestLabel">Best performers</span><span class="rv-rule-btns" id="bestScopeBtns"><button class="rv-tab" data-s="day" onclick="ruleScope('best', 'day')">By rule — this day</button><button class="rv-tab active" data-s="all" onclick="ruleScope('best', 'all')">By rule — All time</button></span></div>
+        <div class="st-bar" style="padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <span class="st-note">Rank by</span><span id="bestBy"></span>
+          <span class="st-note">min trades</span><span id="bestMin"></span>
+          <span class="st-note">Groups with fewer trades are left out (small samples). Click a row = its trades.</span>
+        </div>
+      </div>
+      <div class="rv-card"><div class="rv-stats4" id="bestTiles"></div></div>
+      <div id="bestBody"></div>
     </div>
 
     <div id="viewStocks" style="display:none;">
@@ -732,8 +746,8 @@ function navRestore() {                      // browser Back / Forward or a save
 }
 window.addEventListener('popstate', function () { if (ALL_DAYS) navRestore(); });
 var CUR_VIEW = 'dash';
-var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', reports: 'viewReports'};
-var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', reports: 'Text reports'};
+var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', best: 'viewBest', reports: 'viewReports'};
+var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', best: 'Best performers', reports: 'Text reports'};
 function showView(v) {
   CUR_VIEW = v;
   Object.keys(VIEW_ID).forEach(function (x) { document.getElementById(VIEW_ID[x]).style.display = (x === v) ? 'block' : 'none'; });
@@ -744,6 +758,7 @@ function showView(v) {
   if (['dash', 'cal', 'stats', 'trades'].indexOf(v) >= 0) buildStats();
   if (v === 'score') buildScore();
   if (v === 'stocks') buildStocks();
+  if (v === 'best') buildBest();
   navPush();
 }
 
@@ -885,7 +900,7 @@ function ruleCells(tr, x) {
   tr.appendChild(el('td', {cls: 'r ' + cls(x.worst)}, money(x.worst)));
 }
 // By rule tables (Max 11-11): buttons "this day" / "All time" + click a column header to sort (again = reverse)
-var RULE_SCOPE = {day: 'day', stat: 'day', score: 'all', stocks: 'all'};                          // 'day' = the day shown, 'all' = every day sent
+var RULE_SCOPE = {day: 'day', stat: 'day', score: 'all', stocks: 'all', best: 'all'};                          // 'day' = the day shown, 'all' = every day sent
 var RULE_SORT = {day: {k: 'testName', d: 1}, stat: {k: 'rule', d: 1}, score: {k: 'score', d: -1}, stocks: {k: 'day', d: -1}};
 var STAT_T = null;                                                   // the trade open in the detail view
 function rulesOf(test) {
@@ -939,7 +954,7 @@ function scopeBtns(which, boxId) {
 function ruleScope(which, scope) {
   RULE_SCOPE[which] = scope;
   if (scope === 'all' && !ALL_DAYS) { loadAllDays().then(function () { ruleScope(which, scope); }); return; }
-  if (which === 'day') buildRules(); else if (which === 'score') buildScore(); else if (which === 'stocks') buildStocks(); else if (STAT_T) statRules(STAT_T);
+  if (which === 'day') buildRules(); else if (which === 'score') buildScore(); else if (which === 'stocks') buildStocks(); else if (which === 'best') buildBest(); else if (STAT_T) statRules(STAT_T);
 }
 function scopeText(which) {
   if (RULE_SCOPE[which] !== 'all') return 'this day' + (DAY ? ' · ' + DAY : '');
@@ -1108,6 +1123,104 @@ function buildStocks() {
   document.getElementById('stocksLabel').textContent = 'Stocks — ' + scopeText('stocks') + ' · ' + rows.length + ' stock-days, ' + withDb + ' in the spike database';
   scopeBtns('stocks', 'stocksScopeBtns');
   sortHead('stocks', 'stocksHead', buildStocks);
+}
+
+// Best performers (Max 11-11 "what performs best by day and all time"): leaders / laggards of every dimension we track
+var BEST = {by: 'net', min: {day: 1, all: 5}};
+var BEST_DIMS = [   // [title, value of a trade, click = filter]
+  ['Tests', function (x) { return TEST_NAME[x.test] || x.test; }, function (v, L) { ST.test = L[0].test; }],
+  ['Rules', function (x) { return (TEST_NAME[x.test] || x.test) + ' · ' + (x.rule || '-'); }, function (v, L) { ST.test = L[0].test; ST.rule = L[0].rule; }],
+  ['Stocks', function (x) { return x.symbol || '?'; }, function (v) { ST.sym = v; }],
+  ['Cap | Float | Gap', 'Cap | Float | Gap (your categories)'],
+  ['Pattern (spike database)', 'DB pattern'],
+  ['Market cap', 'Market cap'], ['Float', 'Float'], ['Premarket gap', 'Premarket gap'],
+  ['Entry time (30 min)', 'Entry time (30 min)'], ['Price at entry', 'Price at entry'],
+  ['Volume vs 20-day avg', 'Volume vs 20-day avg'], ['News kind', 'News kind (before 09:30)'],
+  ['Country', 'Country'], ['Exit reason', 'Exit reason'], ['Round', 'Round (first spike / re-entry)']];
+function bestKey(r) { return BEST.by === 'pf' ? r.pfv : BEST.by === 'avg' ? r.avg : BEST.by === 'win' ? r.win : r.net; }
+function bestTable(parent, title, rows, onPick) {
+  var body = card(parent, title);
+  if (!rows.length) { body.appendChild(el('div', {cls: 'st-empty'}, 'No group with enough trades.')); return; }
+  var t = el('table', {cls: 'rv-table'}), hr = el('tr');
+  ['', 'Group', 'Trades', 'Win', 'Net', 'PF', 'Avg'].forEach(function (c, i) { hr.appendChild(el('th', i > 1 ? {cls: 'r'} : null, c)); });
+  var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
+  rows.forEach(function (r) {
+    var tr = el('tr', {cls: 'click'});
+    tr.appendChild(el('td', {style: 'color:var(--t3);width:24px;'}, r.rank));
+    tr.appendChild(el('td', {style: 'font-weight:600;white-space:normal;'}, r.name));
+    tr.appendChild(el('td', {cls: 'r'}, r.n)); tr.appendChild(el('td', {cls: 'r'}, r.win + '%'));
+    tr.appendChild(el('td', {cls: 'r ' + cls(r.net)}, money(r.net))); tr.appendChild(el('td', {cls: 'r'}, r.pf));
+    tr.appendChild(el('td', {cls: 'r ' + cls(r.avg)}, money(r.avg)));
+    tr.onclick = function () { onPick(r); };
+    tb.appendChild(tr);
+  });
+  var w = el('div', {cls: 'rv-scroll'}); w.appendChild(t); body.appendChild(w);
+}
+function buildBest() {
+  var by = document.getElementById('bestBy'); if (!by) return;
+  var scope = RULE_SCOPE.best, list = scopeTrades('best');
+  by.innerHTML = ''; seg(by, [['net', 'Net $'], ['pf', 'PF'], ['avg', 'Avg / trade'], ['win', 'Win %']], BEST.by, function (v) { BEST.by = v; buildBest(); });
+  var mb = document.getElementById('bestMin'); mb.innerHTML = '';
+  seg(mb, [[1, '1+'], [3, '3+'], [5, '5+'], [10, '10+'], [20, '20+']], BEST.min[scope], function (v) { BEST.min[scope] = v; buildBest(); });
+  document.getElementById('bestLabel').textContent = 'Best performers — ' + scopeText('best') + ' · ' + list.length + ' trades';
+  scopeBtns('best', 'bestScopeBtns');
+  // tiles: the whole scope + the single best / worst trade
+  var tiles = document.getElementById('bestTiles'); tiles.innerHTML = '';
+  var all = ruleStats(list), bestT = null, worstT = null;
+  list.forEach(function (x) { if (!bestT || x.net > bestT.net) bestT = x; if (!worstT || x.net < worstT.net) worstT = x; });
+  var tile = function (lab, val, c, sub) { var d = el('div', {cls: 'rv-stat'}); d.appendChild(el('div', {cls: 'k'}, lab)); d.appendChild(el('div', {cls: 'v ' + (c || '')}, val)); if (sub) d.appendChild(el('div', {cls: 'rv-stat-s', style: 'font-size:11px;color:var(--t3);margin-top:2px;'}, sub)); tiles.appendChild(d); };
+  tile('Net', money(all.net), cls(all.net), all.n + ' trades · win ' + all.win + '% · PF ' + all.pf);
+  tile('Best trade', bestT ? money(bestT.net) : '—', 'pos', bestT ? bestT.symbol + ' · ' + (bestT.rule || '') + ' · ' + (bestT._day || DAY) : '');
+  tile('Worst trade', worstT ? money(worstT.net) : '—', 'neg', worstT ? worstT.symbol + ' · ' + (worstT.rule || '') + ' · ' + (worstT._day || DAY) : '');
+  var days = {}; list.forEach(function (x) { var d = x._day || DAY; days[d] = (days[d] || 0) + (x.net || 0); });
+  var dk = Object.keys(days), bd = dk.sort(function (a, b) { return days[b] - days[a]; })[0];
+  tile(scope === 'all' ? 'Best day' : 'Day', bd ? money(days[bd]) : '—', bd ? cls(days[bd]) : '', bd ? bd + (scope === 'all' ? ' · ' + dk.filter(function (d) { return days[d] > 0; }).length + ' of ' + dk.length + ' days green' : '') : '');
+  var box = document.getElementById('bestBody'); box.innerHTML = '';
+  var min = BEST.min[scope];
+  BEST_DIMS.forEach(function (dim) {
+    var fn = dim[1], pick = dim[2];
+    if (typeof fn === 'string') {                                   // a Tag Breakdown category
+      var tg = TAG_GROUPS.filter(function (q) { return q[0] === fn; })[0]; if (!tg) return;
+      var tname = fn; fn = tg[1];
+      pick = function (v) { ST.tag = tname + '\u0001' + v; };
+    }
+    var g = {};
+    list.forEach(function (x) { var v = fn(x); if (v === '?' || v === undefined || v === null || v === '') return; (g[v] = g[v] || []).push(x); });
+    var rows = Object.keys(g).filter(function (k) { return g[k].length >= min; }).map(function (k) {
+      var r = ruleStats(g[k]); r.name = k; r.list = g[k]; r.pfv = r.pf === '∞' ? 1e9 : (r.pf === '—' ? -1 : parseFloat(r.pf)); return r;
+    });
+    if (!rows.length && dim[0] !== 'Tests') return;
+    rows.sort(function (a, b) { return bestKey(b) - bestKey(a) || b.net - a.net; });
+    var top = rows.slice(0, 5), bot = rows.length > 5 ? rows.slice(-5).reverse() : [];
+    top.forEach(function (r, i) { r.rank = i + 1; }); bot.forEach(function (r, i) { r.rank = rows.length - i; });
+    var go = function (r) { ST.test = 'ALL'; ST.rule = 'ALL'; ST.tag = ''; ST.sym = ''; pick(r.name, r.list); showView('trades'); };
+    var gg = grid2(box);
+    bestTable(gg, dim[0] + ' — best ' + Math.min(5, rows.length) + ' of ' + rows.length, top, go);
+    if (bot.length) bestTable(gg, dim[0] + ' — weakest', bot, go);
+  });
+  // day by day: the winner and the loser of every day
+  if (scope === 'all') {
+    var byD = {}; list.forEach(function (x) { var d = x._day || DAY; (byD[d] = byD[d] || []).push(x); });
+    var b2 = card(box, 'Day by day — best and worst rule of every day');
+    var t = el('table', {cls: 'rv-table'}), hr = el('tr');
+    ['Day', 'Trades', 'Net', 'Best rule', '', 'Worst rule', '', 'Best stock', ''].forEach(function (c, i) { hr.appendChild(el('th', [1, 2, 4, 6, 8].indexOf(i) >= 0 ? {cls: 'r'} : null, c)); });
+    var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
+    Object.keys(byD).sort().reverse().forEach(function (d) {
+      var L = byD[d], rr = {}, ss = {};
+      L.forEach(function (x) { var k = x.rule || '-'; rr[k] = (rr[k] || 0) + (x.net || 0); ss[x.symbol] = (ss[x.symbol] || 0) + (x.net || 0); });
+      var rk = Object.keys(rr).sort(function (a, b) { return rr[b] - rr[a]; }), sk = Object.keys(ss).sort(function (a, b) { return ss[b] - ss[a]; });
+      var net = L.reduce(function (a, x) { return a + (x.net || 0); }, 0), tr = el('tr', {cls: 'click'});
+      tr.appendChild(el('td', {style: 'font-weight:600;'}, d)); tr.appendChild(el('td', {cls: 'r'}, L.length));
+      tr.appendChild(el('td', {cls: 'r ' + cls(net)}, money(net)));
+      tr.appendChild(el('td', null, rk[0] || '—')); tr.appendChild(el('td', {cls: 'r ' + cls(rr[rk[0]])}, rk.length ? money(rr[rk[0]]) : ''));
+      var w = rk.length > 1 ? rk[rk.length - 1] : null;
+      tr.appendChild(el('td', null, w || '—')); tr.appendChild(el('td', {cls: 'r ' + cls(w ? rr[w] : 0)}, w ? money(rr[w]) : ''));
+      tr.appendChild(el('td', null, sk[0] || '—')); tr.appendChild(el('td', {cls: 'r ' + cls(ss[sk[0]])}, sk.length ? money(ss[sk[0]]) : ''));
+      tr.onclick = function () { NAV = null; showView('day'); loadDay(d); };
+      tb.appendChild(tr);
+    });
+    var w2 = el('div', {cls: 'rv-scroll'}); w2.appendChild(t); b2.appendChild(w2);
+  }
 }
 
 function buildTotals() {
