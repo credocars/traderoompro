@@ -214,6 +214,12 @@ body{display:flex;}
 .rv-table tbody tr.click:hover{background:rgba(255,255,255,.03);}
 .rv-table tbody tr.sel{background:rgba(6,182,212,.08);}
 .rv-table .r{text-align:right;}
+.rv-table th.sk{cursor:pointer;user-select:none;}
+.rv-table th.sk:hover{color:var(--t1);}
+.rv-table th.sk.on{color:var(--cyan,#06b6d4);}
+.rv-rule-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.rv-rule-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.rv-rule-btns .rv-tab{padding:4px 10px;font-size:11px;text-transform:none;letter-spacing:0;}
 .pos{color:var(--green);} .neg{color:var(--red);}
 /* left navigation like Tradervue */
 .rv-shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:start;}
@@ -484,8 +490,8 @@ body{display:flex;}
           <div class="rv-stats4" id="ctxGrid"></div>
         </div>
         <div class="rv-block">
-          <div class="rv-card-title" id="statRulesLabel">By rule — this day</div>
-          <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="statRules"></tbody></table></div>
+          <div class="rv-card-title rv-rule-head"><span id="statRulesLabel">By rule — this day</span><span class="rv-rule-btns" id="statScopeBtns"><button class="rv-tab active" data-s="day" onclick="ruleScope('stat', 'day')">By rule — this day</button><button class="rv-tab" data-s="all" onclick="ruleScope('stat', 'all')">By rule — All time</button></span></div>
+          <div class="rv-scroll"><table class="rv-table"><thead id="statRulesHead"><tr><th class="sk" data-k="rule">Rule</th><th class="r sk" data-k="n">Trades</th><th class="r sk" data-k="win">Win</th><th class="r sk" data-k="net">Net</th><th class="r sk" data-k="pfv">PF</th><th class="r sk" data-k="avg">Avg</th><th class="r sk" data-k="best">Best</th><th class="r sk" data-k="worst">Worst</th></tr></thead><tbody id="statRules"></tbody></table></div>
         </div>
         <div class="rv-block">
           <div class="rv-card-title" id="sofarLabel">Totals so far</div>
@@ -538,8 +544,8 @@ body{display:flex;}
         </div>
       </div>
       <div class="rv-card">
-        <div class="rv-card-title">By rule — this day</div>
-        <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Test</th><th>Rule</th><th class="r">Trades</th><th class="r">Win</th><th class="r">Net</th><th class="r">PF</th><th class="r">Avg</th><th class="r">Best</th><th class="r">Worst</th></tr></thead><tbody id="ruleRows"></tbody></table></div>
+        <div class="rv-card-title rv-rule-head"><span id="ruleRowsLabel">By rule — this day</span><span class="rv-rule-btns" id="dayScopeBtns"><button class="rv-tab active" data-s="day" onclick="ruleScope('day', 'day')">By rule — this day</button><button class="rv-tab" data-s="all" onclick="ruleScope('day', 'all')">By rule — All time</button></span></div>
+        <div class="rv-scroll"><table class="rv-table"><thead id="ruleRowsHead"><tr><th class="sk" data-k="testName">Test</th><th class="sk" data-k="ruleName">Rule</th><th class="r sk" data-k="n">Trades</th><th class="r sk" data-k="days">Days</th><th class="r sk" data-k="win">Win</th><th class="r sk" data-k="net">Net</th><th class="r sk" data-k="pfv">PF</th><th class="r sk" data-k="avg">Avg</th><th class="r sk" data-k="best">Best</th><th class="r sk" data-k="worst">Worst</th></tr></thead><tbody id="ruleRows"></tbody></table></div>
       </div>
     </div>
 
@@ -851,33 +857,109 @@ function ruleCells(tr, x) {
   tr.appendChild(el('td', {cls: 'r ' + cls(x.avg)}, money(x.avg))); tr.appendChild(el('td', {cls: 'r ' + cls(x.best)}, money(x.best)));
   tr.appendChild(el('td', {cls: 'r ' + cls(x.worst)}, money(x.worst)));
 }
+// By rule tables (Max 11-11): buttons "this day" / "All time" + click a column header to sort (again = reverse)
+var RULE_SCOPE = {day: 'day', stat: 'day'};                          // 'day' = the day shown, 'all' = every day sent
+var RULE_SORT = {day: {k: 'testName', d: 1}, stat: {k: 'rule', d: 1}};
+var STAT_T = null;                                                   // the trade open in the detail view
 function rulesOf(test) {
   var by = {};
   TRADES.forEach(function (x) { if (x.test === test) (by[x.rule || '-'] = by[x.rule || '-'] || []).push(x); });
   return by;
 }
-function buildRules() {
-  var body = document.getElementById('ruleRows'); body.innerHTML = '';
-  TESTS.forEach(function (t) {
-    var by = rulesOf(t);
-    Object.keys(by).sort().forEach(function (r) {
-      var tr = el('tr'); tr.appendChild(el('td', null, TEST_NAME[t])); tr.appendChild(el('td', null, r));
-      ruleCells(tr, ruleStats(by[r])); body.appendChild(tr);
-    });
+function scopeTrades(which) {                                       // the trades a By rule table counts
+  return RULE_SCOPE[which] === 'all' && ALL_DAYS ? ALL_DAYS.trades.filter(keep) : TRADES;
+}
+function ruleRow(test, rule, list) {
+  var x = ruleStats(list), days = {};
+  list.forEach(function (y) { days[y._day || DAY] = 1; });
+  x.test = test; x.testName = TEST_NAME[test] || test; x.rule = rule; x.ruleName = rn(rule);
+  x.days = Object.keys(days).length;
+  x.pfv = x.pf === '∞' ? 1e9 : (x.pf === '—' ? -1 : parseFloat(x.pf));
+  return x;
+}
+function sortRows(rows, which) {
+  var o = RULE_SORT[which];
+  rows.sort(function (a, b) {
+    var va = a[o.k], vb = b[o.k];
+    if (typeof va === 'string' || typeof vb === 'string') {
+      va = String(va || '').toLowerCase(); vb = String(vb || '').toLowerCase();
+      if (va !== vb) return va < vb ? -o.d : o.d;
+      return String(a.ruleName).toLowerCase() < String(b.ruleName).toLowerCase() ? -1 : 1;
+    }
+    return (va - vb) * o.d || (b.net - a.net);
+  });
+  return rows;
+}
+function sortHead(which, headId, redraw) {                          // header arrows + click to sort
+  var o = RULE_SORT[which];
+  Array.prototype.forEach.call(document.querySelectorAll('#' + headId + ' th.sk'), function (th) {
+    var k = th.dataset.k, base = th.dataset.base || th.textContent.replace(/ [▲▼]$/, '');
+    th.dataset.base = base;
+    th.classList.toggle('on', k === o.k);
+    th.textContent = base + (k === o.k ? (o.d > 0 ? ' ▲' : ' ▼') : '');
+    th.onclick = function () {
+      if (o.k === k) o.d = -o.d;
+      else { o.k = k; o.d = (k === 'testName' || k === 'ruleName' || k === 'rule') ? 1 : -1; }   // numbers: biggest first
+      redraw();
+    };
   });
 }
-function statRules(t) {                 // the trade's test: every rule of that day, its own rule highlighted
+function scopeBtns(which, boxId) {
+  Array.prototype.forEach.call(document.querySelectorAll('#' + boxId + ' .rv-tab'), function (b) {
+    b.classList.toggle('active', b.dataset.s === RULE_SCOPE[which]);
+  });
+}
+function ruleScope(which, scope) {
+  RULE_SCOPE[which] = scope;
+  if (scope === 'all' && !ALL_DAYS) { loadAllDays().then(function () { ruleScope(which, scope); }); return; }
+  if (which === 'day') buildRules(); else if (STAT_T) statRules(STAT_T);
+}
+function scopeText(which) {
+  if (RULE_SCOPE[which] !== 'all') return 'this day' + (DAY ? ' · ' + DAY : '');
+  var ds = {}; scopeTrades(which).forEach(function (y) { ds[y._day] = 1; });
+  return 'All time · ' + Object.keys(ds).length + ' days';
+}
+function buildRules() {
+  var body = document.getElementById('ruleRows'); body.innerHTML = '';
+  var by = {};
+  scopeTrades('day').forEach(function (x) {
+    var k = x.test + '\u0001' + (x.rule || '-');
+    (by[k] = by[k] || []).push(x);
+  });
+  var rows = Object.keys(by).map(function (k) { var p = k.split('\u0001'); return ruleRow(p[0], p[1], by[k]); });
+  sortRows(rows, 'day').forEach(function (x) {
+    var tr = el('tr'); tr.appendChild(el('td', null, x.testName)); tr.appendChild(el('td', null, x.ruleName));
+    tr.appendChild(el('td', {cls: 'r'}, x.n)); tr.appendChild(el('td', {cls: 'r'}, x.days));
+    tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
+    tr.appendChild(el('td', {cls: 'r ' + cls(x.net)}, money(x.net))); tr.appendChild(el('td', {cls: 'r'}, x.pf));
+    tr.appendChild(el('td', {cls: 'r ' + cls(x.avg)}, money(x.avg))); tr.appendChild(el('td', {cls: 'r ' + cls(x.best)}, money(x.best)));
+    tr.appendChild(el('td', {cls: 'r ' + cls(x.worst)}, money(x.worst)));
+    body.appendChild(tr);
+  });
+  if (!rows.length) { var r = el('tr'); r.appendChild(el('td', {colspan: 10, style: 'color:var(--t3);'}, 'No closed trades.')); body.appendChild(r); }
+  document.getElementById('ruleRowsLabel').textContent = 'By rule — ' + scopeText('day');
+  scopeBtns('day', 'dayScopeBtns');
+  sortHead('day', 'ruleRowsHead', buildRules);
+}
+function statRules(t) {                 // the trade's test: every rule (this day or all time), its own rule highlighted
+  STAT_T = t;
   var body = document.getElementById('statRules'); body.innerHTML = '';
-  document.getElementById('statRulesLabel').textContent = 'By rule — this day · ' + (TEST_NAME[t.test] || t.test);
-  var by = rulesOf(t.test), keys = Object.keys(by).sort();
-  keys.forEach(function (r) {
-    var tr = el('tr', r === t.rule ? {cls: 'sel'} : null);
-    tr.appendChild(el('td', {style: r === t.rule ? 'font-weight:700;' : ''}, rn(r))); ruleCells(tr, ruleStats(by[r])); body.appendChild(tr);
+  document.getElementById('statRulesLabel').textContent = 'By rule — ' + scopeText('stat') + ' · ' + (TEST_NAME[t.test] || t.test);
+  var by = {};
+  scopeTrades('stat').forEach(function (x) { if (x.test === t.test) (by[x.rule || '-'] = by[x.rule || '-'] || []).push(x); });
+  var keys = Object.keys(by);
+  var rows = sortRows(keys.map(function (r) { return ruleRow(t.test, r, by[r]); }), 'stat');
+  rows.forEach(function (x) {
+    var mine = x.rule === t.rule;
+    var tr = el('tr', mine ? {cls: 'sel'} : null);
+    tr.appendChild(el('td', {style: mine ? 'font-weight:700;' : ''}, x.ruleName)); ruleCells(tr, x); body.appendChild(tr);
   });
   if (keys.length > 1) {
     var all = [].concat.apply([], keys.map(function (k) { return by[k]; }));
     var tr = el('tr'); tr.appendChild(el('td', {style: 'color:var(--t2);'}, 'all rules')); ruleCells(tr, ruleStats(all)); body.appendChild(tr);
   }
+  scopeBtns('stat', 'statScopeBtns');
+  sortHead('stat', 'statRulesHead', function () { statRules(STAT_T); });
 }
 
 function buildTotals() {
