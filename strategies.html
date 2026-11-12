@@ -436,6 +436,14 @@ body{display:flex;}
       </tr></thead><tbody></tbody></table></div>
     </div>
 
+    <div class="sl-card" id="replayCard" style="display:none;">
+      <div class="sl-card-head"><div class="sl-h">Exit replay — old trades, today's exits</div><div class="sl-sub" id="replaySub">Every paper trade keeps its real entry; only the exit is re-run on the 1-min bars with the rules from 11-13: entries end 09:00, all out 09:30, a losing trade out after 30 min, money management, the test's own TP / target / VWAP / stop / trend exits; midpoint, scale-out, 1-min reversal, 5-min close, break-even, half-room TP, EMA9 touch and the 09:28 rules removed. Approximate (1-min bars). Click a row for its exits and trades.</div></div>
+      <div style="overflow-x:auto;"><table class="rv-table" id="replayTable"><thead><tr>
+        <th>Test</th><th>Rule</th><th class="r">Trades</th><th class="r">Old net</th><th class="r">Old PF</th><th class="r">New net</th><th class="r">New PF</th><th class="r">New win</th><th class="r">Change</th><th class="r">Dropped (09:00+)</th>
+      </tr></thead><tbody></tbody></table></div>
+      <div id="replayDetail"></div>
+    </div>
+
     <div class="sl-group">BAO_ALL — short the spike (+30% in 15 min, near the high, 10%+ above VWAP)</div>
     <div id="grpBao"></div>
     <div class="sl-group">S/R levels — short the retest of today's resistance after 08:00</div>
@@ -702,8 +710,82 @@ function card(s) {
   return {node: c, box: box};
 }
 
+// ══ EXIT REPLAY ══ (exit_replay.py -> traderoom/admin_review/exit_replay, instructors only)
+var REPLAY = null;
+function loadReplay() {
+  return firebase.database().ref('traderoom/admin_review/exit_replay').get().then(function (snap) { REPLAY = snap.val(); })
+    .catch(function () { REPLAY = null; });
+}
+function colorTd(td, v) { td.style.color = v >= 0 ? 'var(--green)' : 'var(--red)'; return td; }
+function replayDetail(key) {
+  var box = document.getElementById('replayDetail'), s = REPLAY.rules[key];
+  box.innerHTML = '';
+  if (!s) return;
+  box.appendChild(el('div', {cls: 'sl-lbl'}, s.test + ' ' + s.rule + ' — exits under the new rules'));
+  var t = el('table', {cls: 'sl-tbl'}), hd = el('tr');
+  ['Exit', 'Trades', 'Win', 'Net', 'Avg', 'PF'].forEach(function (h, i) { hd.appendChild(el('th', i ? {cls: 'r'} : null, h)); });
+  t.appendChild(hd);
+  Object.keys(s.exits || {}).map(function (k) { return [k, s.exits[k]]; }).sort(function (a, b) { return b[1].net - a[1].net; })
+    .forEach(function (x) {
+      var tr = el('tr'), v = x[1];
+      tr.appendChild(el('td', null, x[0])); tr.appendChild(el('td', {cls: 'r'}, v.n));
+      tr.appendChild(el('td', {cls: 'r'}, (v.win === null || v.win === undefined ? '—' : v.win + '%')));
+      tr.appendChild(colorTd(el('td', {cls: 'r'}, money(v.net)), v.net));
+      tr.appendChild(colorTd(el('td', {cls: 'r'}, money(v.net / v.n)), v.net));
+      tr.appendChild(el('td', {cls: 'r'}, pfTxt(v.pf >= 99 ? Infinity : v.pf)));
+      t.appendChild(tr);
+    });
+  var w = el('div', {cls: 'sl-tbl-wrap'}); w.appendChild(t); box.appendChild(w);
+  box.appendChild(el('div', {cls: 'sl-lbl'}, 'Trades (old exit → new exit), newest first'));
+  var t2 = el('table', {cls: 'sl-tbl'}), h2 = el('tr');
+  ['Day', 'Time', 'Stock', 'Old exit', 'Old net', 'New exit', 'New net', 'Change'].forEach(function (h, i) { h2.appendChild(el('th', [4, 6, 7].indexOf(i) >= 0 ? {cls: 'r'} : null, h)); });
+  t2.appendChild(h2);
+  (REPLAY.trades || []).filter(function (x) { return x.test + '|' + x.rule === key; })
+    .sort(function (a, b) { return (b.d + b.et).localeCompare(a.d + a.et); })
+    .forEach(function (x) {
+      var tr = el('tr', {cls: 'click'});
+      tr.onclick = function () { location.href = 'review.html?day=' + x.d + '&id=' + encodeURIComponent(x.id || ''); };
+      tr.appendChild(el('td', null, (x.d || '').slice(5))); tr.appendChild(el('td', null, x.et || ''));
+      tr.appendChild(el('td', {style: 'font-weight:700;'}, x.sym || ''));
+      tr.appendChild(el('td', null, x.old_why || ''));
+      tr.appendChild(colorTd(el('td', {cls: 'r'}, money(x.old || 0)), x.old || 0));
+      tr.appendChild(el('td', null, (x.new_why || '') + (x.new_t ? ' ' + x.new_t : '')));
+      if (x.new === undefined || x.new === null) { tr.appendChild(el('td', {cls: 'r'}, '—')); tr.appendChild(el('td', {cls: 'r'}, '—')); }
+      else {
+        tr.appendChild(colorTd(el('td', {cls: 'r'}, money(x.new)), x.new));
+        tr.appendChild(colorTd(el('td', {cls: 'r'}, money(x.new - (x.old || 0))), x.new - (x.old || 0)));
+      }
+      t2.appendChild(tr);
+    });
+  var w2 = el('div', {cls: 'sl-tbl-wrap'}); w2.appendChild(t2); box.appendChild(w2);
+  box.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
+function showReplay() {
+  if (!REPLAY || !REPLAY.rules) return;
+  document.getElementById('replayCard').style.display = 'block';
+  var keys = Object.keys(REPLAY.rules).sort(), tb = document.querySelector('#replayTable tbody'), O = 0, N = 0, n = 0;
+  keys.forEach(function (k) {
+    var s = REPLAY.rules[k], o = s.old || {}, w = s.new || {}, tr = el('tr', {cls: 'click'}), ch = (w.net || 0) - (o.net || 0);
+    O += o.net || 0; N += w.net || 0; n += w.n || 0;
+    tr.onclick = function () { replayDetail(k); };
+    tr.appendChild(el('td', null, s.test)); tr.appendChild(el('td', {style: 'font-weight:700;'}, s.rule));
+    tr.appendChild(el('td', {cls: 'r'}, w.n || 0));
+    tr.appendChild(colorTd(el('td', {cls: 'r'}, money(o.net || 0)), o.net || 0));
+    tr.appendChild(el('td', {cls: 'r'}, w.n ? pfTxt(o.pf >= 99 ? Infinity : o.pf) : '—'));
+    tr.appendChild(colorTd(el('td', {cls: 'r'}, money(w.net || 0)), w.net || 0));
+    tr.appendChild(el('td', {cls: 'r'}, w.n ? pfTxt(w.pf >= 99 ? Infinity : w.pf) : '—'));
+    tr.appendChild(el('td', {cls: 'r'}, w.n ? w.win + '%' : '—'));
+    tr.appendChild(colorTd(el('td', {cls: 'r'}, money(ch)), ch));
+    tr.appendChild(el('td', {cls: 'r'}, s.dropped ? s.dropped + ' (' + money(s.dropped_net) + ')' : '—'));
+    tb.appendChild(tr);
+  });
+  document.getElementById('replaySub').appendChild(el('div', {style: 'margin-top:6px;font-weight:700;'},
+    'Updated ' + REPLAY.updated + ' — ' + n + ' trades replayed: old ' + money(O) + ' → new ' + money(N) + ' (' + money(N - O) + ').'));
+}
+
 function startLab() {
   document.getElementById('labPanel').style.display = 'block';
+  loadReplay().then(showReplay);
   loadLive().then(function () {
     var tb = document.querySelector('#sumTable tbody');
     STRATS.forEach(function (s) {
