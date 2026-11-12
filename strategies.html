@@ -439,7 +439,7 @@ body{display:flex;}
     <div class="sl-card" id="replayCard" style="display:none;">
       <div class="sl-card-head"><div class="sl-h">Exit replay — old trades, today's exits</div><div class="sl-sub" id="replaySub">Every paper trade keeps its real entry; only the exit is re-run on the 1-min bars with the rules from 11-13: entries end 09:00, all out 09:30, a losing trade out after 30 min, money management, the test's own TP / target / VWAP / stop / trend exits; midpoint, scale-out, 1-min reversal, 5-min close, break-even, half-room TP, EMA9 touch and the 09:28 rules removed. Approximate (1-min bars). Click a row for its exits and trades.</div></div>
       <div style="overflow-x:auto;"><table class="rv-table" id="replayTable"><thead><tr>
-        <th>Test</th><th>Rule</th><th class="r">Trades</th><th class="r">Old net</th><th class="r">Old PF</th><th class="r">New net</th><th class="r">New PF</th><th class="r">New win</th><th class="r">Change</th><th class="r">Dropped (09:00+)</th>
+        <th>Test</th><th>Rule</th><th class="r">Trades</th><th class="r">Old net</th><th class="r">Old PF</th><th class="r">New net</th><th class="r">New PF</th><th class="r">New win</th><th class="r">Change</th><th class="r" title="the new exits without the $250 cap / ESL 1-2 (BAO_ALL, BAOX, PAPER)">New w/o MM</th><th class="r">Dropped (09:00+)</th>
       </tr></thead><tbody></tbody></table></div>
       <div id="replayDetail"></div>
     </div>
@@ -776,6 +776,7 @@ function showReplay() {
     tr.appendChild(el('td', {cls: 'r'}, w.n ? pfTxt(w.pf >= 99 ? Infinity : w.pf) : '—'));
     tr.appendChild(el('td', {cls: 'r'}, w.n ? w.win + '%' : '—'));
     tr.appendChild(colorTd(el('td', {cls: 'r'}, money(ch)), ch));
+    var nm = (s.nomm || w).net || 0; tr.appendChild(colorTd(el('td', {cls: 'r'}, money(nm)), nm));
     tr.appendChild(el('td', {cls: 'r'}, s.dropped ? s.dropped + ' (' + money(s.dropped_net) + ')' : '—'));
     tb.appendChild(tr);
   });
