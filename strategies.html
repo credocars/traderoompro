@@ -430,7 +430,7 @@ body{display:flex;}
     </div>
 
     <div class="sl-card">
-      <div class="sl-card-head"><div class="sl-h">All rules</div><div class="sl-sub">History = replay on IB 1-min bars (simulated fills, slippage + commission, no locate). Live = the paper test since 11-02, premarket entries only.</div></div>
+      <div class="sl-card-head"><div class="sl-h">All rules</div><div class="sl-sub">History = replay on IB 1-min bars (simulated fills, slippage + commission, no locate) — with the exits before 11-13. Live = the paper test since 11-02, premarket entries only. <b>From 11-13 every test runs the new exits</b>: entries end 09:00, all out 09:30, a losing trade out after 30 min; midpoint, scale-out, 1-min reversal, 5-min close, break-even 30c, half-room TP, EMA9 touch and the 09:28 rules removed. The Exit replay below shows the old trades with the new exits.</div></div>
       <div style="overflow-x:auto;"><table class="rv-table" id="sumTable"><thead><tr>
         <th>Rule</th><th>Test</th><th>Status</th><th class="r">History trades</th><th class="r">History net</th><th class="r">History PF</th><th class="r">2026 PF</th><th class="r">Live trades</th><th class="r">Live net</th><th class="r">Live PF</th>
       </tr></thead><tbody></tbody></table></div>
@@ -484,25 +484,25 @@ function SRday(hod) {
 }
 var STRATS = [
   {id: 'L', test: 'BAO_ALL', rule: 'BAOALL_L', name: 'Ladder no stop', status: 'paper',
-   rules: ['5 × 200 sh: the first at the signal, then one every 2% higher', 'Cover ALL at VWAP or the spike midpoint (whichever first)', 'After 60 min only if red; everything covered at 09:28', 'NO stop — a squeeze that does not come back is the risk'],
+   rules: ['Entries 04:00–09:00: 5 × 200 sh, the first at the signal, then one every 2% higher', 'Cover ALL at VWAP (no midpoint exit from 11-13)', 'A LOSING trade is covered after 30 min; everything still open is covered at 09:30', 'No stop of its own — only the money management: ESL by price (half at avg +0.20 on $1–3 / +0.50 on $3–10, the rest at +0.40 / +1.00) and a $250 cap per trade'],
    hist: {n: 1508, net: 101971, pf: 1.53, pf26: 1.00, note: '2 years, 1,000 sh max. $3–10: +$107.7K; $1–3: −$5.3K. Worst trade −$4,609. 2026 only break-even.'},
    sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.72], ['07:50', 2.84], ['07:52', 2.70], ['08:00', 2.48], ['08:06', 2.36], ['08:14', 2.30]],
-   vwap: [2.00, 2.32], marks: [['07:47', 2.72, 'S', ''], ['07:48', 2.77, 'S', ''], ['07:49', 2.83, 'S', '3 × 200 short (+2% steps)'], ['08:02', 2.42, 'C', 'cover all at the midpoint']],
-   lines: [[2.42, C.green, 'midpoint 2.42']]},
+   vwap: [2.00, 2.32], marks: [['07:47', 2.72, 'S', ''], ['07:48', 2.77, 'S', ''], ['07:49', 2.83, 'S', '3 × 200 short (+2% steps)'], ['08:14', 2.31, 'C', 'cover all at VWAP']],
+   lines: []},
   {id: 'LM', test: 'BAO_ALL', rule: 'BAOALL_LM', name: 'Ladder + $ limit', status: 'paper',
-   rules: ['The same ladder and exits as Ladder no stop', '+ cover everything when the open loss reaches your bot\'s $500 limit'],
+   rules: ['The same ladder and exits as Ladder no stop (VWAP, 30 min red, 09:30, money management)', '+ cover everything when the open loss reaches your bot\'s per-trade limit (BASE_PER_TRADE_LOSS_LIMIT)'],
    hist: {n: 1455, net: 17909, pf: 1.08, pf26: 0.82, note: 'The $500 limit was hit 346 times (−$207K): many of those came back to VWAP. A wider limit or smaller size is still to test.'},
    sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.72], ['07:50', 2.92], ['07:53', 3.05], ['07:57', 3.30], ['08:03', 3.45], ['08:14', 3.25]],
-   vwap: [2.00, 2.55], marks: [['07:47', 2.72, 'S', ''], ['07:49', 2.83, 'S', ''], ['07:50', 2.94, 'S', '5 × 200 short, avg 2.83'], ['07:58', 3.33, 'C', 'cover all: −$500']],
-   lines: [[3.33, C.red, 'loss $500']]},
+   vwap: [2.00, 2.55], marks: [['07:47', 2.72, 'S', ''], ['07:49', 2.83, 'S', ''], ['07:50', 2.94, 'S', '5 × 200 short, avg 2.83'], ['07:58', 3.33, 'C', 'cover all: bot loss limit']],
+   lines: [[3.33, C.red, 'loss limit']]},
   {id: 'M', test: 'BAO_ALL', rule: 'BAOALL_M', name: 'Bot 500 + 2x100', status: 'paper',
-   rules: ['500 sh at the signal, 2 adds of 100 (max 700)', 'Your bot\'s rules from .env: TP 100 every step, break-even, ESL, hold time, $500 limit', 'Steps by price: $0.05 under $1, $0.10 $1–3, $0.25 $3–10'],
+   rules: ['Entries 04:00–09:00: 500 sh at the signal, 2 adds of 100 (max 700)', 'Your bot\'s rules from .env: TP 100 every step, ESL, trend exit (2 green 2-min candles once in profit), per-trade $ limit', 'No break-even at 30c (from 11-13); a LOSING trade is covered after 30 min; all out at 09:30', 'Steps by price: $0.05 under $1, $0.10 $1–3, $0.25 $3–10'],
    hist: {n: 1359, net: 18156, pf: 1.15, pf26: 0.74, note: 'Smallest losses (worst −$1,020) but break-even exits cut many winners early.'},
    sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.70], ['07:50', 2.92], ['07:52', 2.86], ['07:56', 2.62], ['08:00', 2.48], ['08:04', 2.56], ['08:08', 2.66], ['08:14', 2.60]],
-   vwap: [2.00, 2.40], marks: [['07:47', 2.70, 'S', ''], ['07:48', 2.80, 'S', ''], ['07:49', 2.87, 'S', '500 + 100 + 100 short'], ['07:55', 2.64, 'C', ''], ['07:57', 2.58, 'C', ''], ['07:59', 2.50, 'C', '3 × TP 100'], ['08:08', 2.66, 'C', 'rest at break-even']],
-   lines: [[2.66, C.green, 'break-even']]},
+   vwap: [2.00, 2.40], marks: [['07:47', 2.70, 'S', ''], ['07:48', 2.80, 'S', ''], ['07:49', 2.87, 'S', '500 + 100 + 100 short'], ['07:55', 2.64, 'C', ''], ['07:57', 2.58, 'C', ''], ['07:59', 2.50, 'C', '3 × TP 100'], ['08:08', 2.66, 'C', 'rest: 2 green 2-min candles']],
+   lines: []},
   {id: 'S5', test: 'SR', rule: 'SR_S5_08', name: 'S/R stop 5%', status: 'paper',
-   rules: ['Resistance = today\'s 5-min top (a level 10 min after the top); support = 5-min low or VWAP', 'From 08:00: a push of 5%+ in 10 min into the level, 3%+ above VWAP', 'Room: (entry − target) ≥ 2 × (stop − entry)', 'Stop = level + 5% (off round numbers); size = $100 / stop distance', 'Exit: target (1¢ through), stop or 09:28'],
+   rules: ['Resistance = today\'s 5-min top (a level 10 min after the top); support = 5-min low or VWAP', 'From 08:00: a push of 5%+ in 10 min into the level, 3%+ above VWAP', 'Room: (entry − target) ≥ 2 × (stop − entry)', 'Stop = level + 5% (off round numbers); size = $100 / stop distance', 'Entries 08:00–09:00; exit: target (1¢ through), stop or 09:30'],
    hist: {n: 435, net: 55776, pf: 3.98, pf26: 2.61, note: '$100 risk per trade. Win 68%. $3–10 PF 4.82, $1–3 PF 2.59. Target fill check: no change.'},
    sample: SRday(false), vwap: [2.00, 2.20], marks: [['07:48', 2.50, 'X', 'first top = level 10 min later'], ['08:26', 2.48, 'S', 'short 2.48 (room 2.6x)'], ['08:40', 2.10, 'C', 'cover at support 2.10']],
    lines: [[2.625, C.red, 'stop 2.625'], [2.50, C.gold, 'resistance 2.50'], [2.10, C.green, 'target 2.10']], start: '08:00'},
