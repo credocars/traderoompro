@@ -437,6 +437,7 @@ body{display:flex;}
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
         <button id="pmBtn" class="rv-tab active" onclick="togglePm()" title="Hide trades entered at or after 09:30 (regular hours)">Premarket only</button>
+        <button id="oldBtn" class="rv-tab" onclick="toggleOld()" title="From 11-13 every test runs the new exits (entries end 09:00, all out 09:30, 30 min red, removed exits). Click to also show the days before (old rules).">New rules (from 11-13)</button>
         <select id="daySel" class="rv-select" onchange="NAV = null; loadDay(this.value).then(function () { navPush(); })"></select>
         <a href="admin.html" class="rv-link">← Roster</a>
       </div>
@@ -708,7 +709,21 @@ var ROOT = 'traderoom/admin_review';
 var TESTS = ['LIVE_LADDER', 'LADDER_TWIN', 'BAOX', 'BAO_ALL', 'SR', 'PAPER'];
 var TEST_NAME = {LIVE_LADDER: 'Live ladder (real)', LADDER_TWIN: 'Ladder twin', BAOX: 'BAOX', BAO_ALL: 'BAO_ALL', SR: 'S/R levels', PAPER: 'Paper (SPIKE / FLUSH)'};
 var ALL_DAYS = null, PM_ONLY = true;                       // hide trades entered at/after 09:30 (regular hours) - the tests trade premarket only
-function keep(t) { return !PM_ONLY || !((t.entry_time || '') >= '09:30'); }
+// Max 11-13: every test runs new exits from RULES_FROM - stats start there; the old days stay (button "Old rules")
+var RULES_FROM = '2026-11-13', OLD_RULES = false;
+function keep(t) {
+  if (!OLD_RULES && (t._day || DAY || '') < RULES_FROM) return false;
+  return !PM_ONLY || !((t.entry_time || '') >= '09:30');
+}
+function toggleOld() {
+  OLD_RULES = !OLD_RULES;
+  var b = document.getElementById('oldBtn');
+  b.classList.toggle('active', OLD_RULES);
+  b.textContent = OLD_RULES ? 'All days (old rules too)' : 'New rules (from 11-13)';
+  buildIndex();
+  var days = dayList();
+  if (days.length) loadDay(days.indexOf(DAY) >= 0 ? DAY : days.slice(-1)[0]);
+}
 var IB_FILTER = 'ALL';                     // day view: ALL / yes / no (shortable at IB)
 var INDEX = {}, DAY = null, TRADES = [], TEST_FILTER = 'ALL', CHART = null, REPORTS = {};
 var BAO = {};                              // BAO's X posts of this day {SYM: [post]} (review_sync v1.5)
@@ -735,6 +750,7 @@ function startReview() {
   loadAllDays().then(function () {
     buildIndex();
     var q = new URLSearchParams(location.search), rule = q.get('rule'), day = q.get('day'), id = q.get('id');
+    if (day && day < RULES_FROM && !OLD_RULES) { toggleOld(); }   // a link to an old-rules trade (Exit replay) shows it
     if (day && INDEX[day]) {                      // review.html?day=YYYY-MM-DD&id=... (Strategy Lab trade link)
       showView('day');
       return loadDay(day, function () {
@@ -744,7 +760,7 @@ function startReview() {
       });
     }
     if (location.hash && navRestore()) return;          // a page link / reload keeps the place
-    loadDay(dayList().slice(-1)[0]);
+    if (dayList().length) loadDay(dayList().slice(-1)[0]);
     if (rule) { ST.rule = rule; showView('trades'); }   // review.html?rule=SR_S5_08 = every trade of one rule
     else showView('dash');
     history.replaceState(null, '', navHash());
@@ -827,7 +843,7 @@ function buildIndex() {                   // day list + running totals from the 
   });
   var days = Object.keys(INDEX).sort().reverse(), sel = document.getElementById('daySel');
   sel.innerHTML = '';
-  if (!days.length) sel.appendChild(el('option', null, 'no days yet'));
+  if (!days.length) sel.appendChild(el('option', null, OLD_RULES ? 'no days yet' : 'no trades with the new rules yet (from 11-13)'));
   days.forEach(function (d) { sel.appendChild(el('option', {value: d}, d)); });
   buildTotals();
   buildStats();
@@ -848,7 +864,7 @@ function loadDay(d, then) {
   document.getElementById('chartCard').style.display = 'none';
   return firebase.database().ref(ROOT + '/days/' + d).get().then(function (snap) {
     var v = snap.val() || {};
-    TRADES = Object.keys(v.trades || {}).map(function (k) { var t = v.trades[k]; t._key = k; return t; }).filter(keep);
+    TRADES = Object.keys(v.trades || {}).map(function (k) { var t = v.trades[k]; t._key = k; t._day = d; return t; }).filter(keep);
     TRADES.sort(function (a, b) { return (a.entry_time || '').localeCompare(b.entry_time || ''); });
     return firebase.database().ref(ROOT + '/notes/' + d).get().then(function (ns) { NOTES = ns.val() || {}; },
                                                                        function () { NOTES = {}; }).then(function () {
