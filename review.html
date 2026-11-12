@@ -2673,9 +2673,47 @@ function stDash(box, list, days, dk) {
   var rec = card(box, 'Latest trades');
   tradeTable(rec, list.slice(-12).reverse());
 }
-function tradeTable(parent, rows) {
+// Trades page sorting (Max 11-12): click a header = sort the whole filtered list, click again = reverse
+var TL_SORT = {k: '', d: -1}, TL_ROWS = null;
+var TL_KEYS = [['date', 1], ['time', 1], ['sym', 1], null, ['shares', 1], ['net', 1], ['test', 1], ['rule', 1], ['avg', 1], ['exit', 1], ['reason', 1], null];
+function tlAvg(x) {
+  var sells = (x.fills || []).filter(function (f) { return f[1] === 'SELL'; }), sq = sells.reduce(function (s_, f) { return s_ + f[2]; }, 0);
+  return sq ? sells.reduce(function (s_, f) { return s_ + f[2] * f[3]; }, 0) / sq : x.entry;
+}
+function tlVal(x, k) {
+  if (k === 'date') return (x._day || '') + ' ' + (x.entry_time || '');
+  if (k === 'time') return x.entry_time || '';
+  if (k === 'sym') return String(x.symbol || '').toLowerCase();
+  if (k === 'test') return String(TEST_NAME[x.test] || x.test || '').toLowerCase();
+  if (k === 'rule') return String(rn(x.rule) || '').toLowerCase();
+  if (k === 'reason') return String((x.reason || '').split(' (')[0]).toLowerCase();
+  if (k === 'avg') return +tlAvg(x) || 0;
+  if (k === 'exit') return +x.exit || 0;
+  if (k === 'shares') return +x.shares || 0;
+  return +x.net || 0;
+}
+function tlSort(rows) {
+  if (!TL_SORT.k) return rows;
+  var k = TL_SORT.k, d = TL_SORT.d;
+  return rows.slice().sort(function (a, b) {
+    var va = tlVal(a, k), vb = tlVal(b, k);
+    if (va < vb) return -d; if (va > vb) return d;
+    return tlVal(a, 'date') < tlVal(b, 'date') ? 1 : -1;               // ties: newest first
+  });
+}
+function tradeTable(parent, rows, sortable) {
   var t = el('table', {cls: 'rv-table'}), hr = el('tr');
-  ['Date', 'Time', 'Symbol', 'Side', 'Shares', 'P&L', 'Test', 'Rule', 'Avg entry', 'Exit', 'Reason', 'Tags'].forEach(function (c, i) { hr.appendChild(el('th', [4, 5, 8, 9].indexOf(i) >= 0 ? {cls: 'r'} : null, c)); });
+  ['Date', 'Time', 'Symbol', 'Side', 'Shares', 'P&L', 'Test', 'Rule', 'Avg entry', 'Exit', 'Reason', 'Tags'].forEach(function (c, i) {
+    var kk = sortable ? TL_KEYS[i] : null, on = kk && TL_SORT.k === kk[0];
+    var h = el('th', {cls: ([4, 5, 8, 9].indexOf(i) >= 0 ? 'r' : '') + (kk ? ' sk' : '') + (on ? ' on' : ''), title: kk ? 'Sort by ' + c.toLowerCase() + ' (click again = reverse)' : ''},
+               c + (on ? (TL_SORT.d > 0 ? ' ▲' : ' ▼') : ''));
+    if (kk) h.onclick = function () {
+      if (TL_SORT.k === kk[0]) TL_SORT.d = -TL_SORT.d;
+      else { TL_SORT.k = kk[0]; TL_SORT.d = ['sym', 'test', 'rule', 'reason'].indexOf(kk[0]) >= 0 ? 1 : -1; }   // text A-Z, numbers / dates biggest first
+      TL_PAGE = 0; buildStats();
+    };
+    hr.appendChild(h);
+  });
   var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
   rows.forEach(function (x) {
     var tr = el('tr', {cls: 'click', title: 'Open this trade with its charts'});
@@ -2709,7 +2747,7 @@ function tradeTable(parent, rows) {
     chips.forEach(function (c) { tg.appendChild(el('span', {cls: 'st-chip'}, c)); });
     tr.appendChild(tg);
     tr.onclick = function () {                  // open it; Prev / Next then walk THIS list (filters kept), Back returns here
-      var lst = stTrades();
+      var lst = (sortable && TL_ROWS) ? TL_ROWS : stTrades();          // Prev / Next follow the sorted order
       NAV = {list: lst, i: lst.indexOf(x), y: window.scrollY, page: TL_PAGE};
       openListItem(NAV.i, true);
     };
@@ -2719,13 +2757,15 @@ function tradeTable(parent, rows) {
 }
 var TL_PAGE = 0;
 function stTradeList(box, list) {
-  var per = 100, rows = list.slice().reverse(), pages = Math.max(1, Math.ceil(rows.length / per));
+  var per = 100, rows = tlSort(list.slice().reverse()), pages = Math.max(1, Math.ceil(rows.length / per));
+  TL_ROWS = rows;
   if (TL_PAGE >= pages) TL_PAGE = 0;
   var bar = el('div', {cls: 'st-bar'}); box.appendChild(bar);
-  bar.appendChild(el('span', {cls: 'st-note', style: 'font-size:13px;color:var(--t2);'}, rows.length + ' trades, newest first · click a trade for its charts and notes'));
+  bar.appendChild(el('span', {cls: 'st-note', style: 'font-size:13px;color:var(--t2);'}, rows.length + ' trades, ' + (TL_SORT.k ? 'sorted by ' + TL_SORT.k + (TL_SORT.d > 0 ? ' ▲' : ' ▼') : 'newest first') + ' · click a header to sort · click a trade for its charts and notes'));
+  if (TL_SORT.k) { var rs = el('button', {cls: 'rv-tab', style: 'margin-left:8px;'}, 'Newest first'); rs.onclick = function () { TL_SORT.k = ''; TL_PAGE = 0; buildStats(); }; bar.appendChild(rs); }
   if (pages > 1) seg(bar, Array.apply(null, Array(pages)).map(function (_, i) { return [i, String(i + 1)]; }), TL_PAGE, function (v) { TL_PAGE = v; buildStats(); });
   var c = card(box, 'Trades');
-  tradeTable(c, rows.slice(TL_PAGE * per, TL_PAGE * per + per));
+  tradeTable(c, rows.slice(TL_PAGE * per, TL_PAGE * per + per), true);
   if (BAO_DAYS === null) {                  // BAO posts of all days, once - then the list again with the BAO badges
     BAO_DAYS = {};
     firebase.database().ref(ROOT + '/bao').get().then(function (s) { BAO_DAYS = s.val() || {}; if (CUR_VIEW === 'trades') buildStats(); }, function () {});
