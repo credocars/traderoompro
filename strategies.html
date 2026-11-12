@@ -441,6 +441,7 @@ body{display:flex;}
       <div style="overflow-x:auto;"><table class="rv-table" id="replayTable"><thead><tr>
         <th>Test</th><th>Rule</th><th class="r">Trades</th><th class="r">Old net</th><th class="r">Old PF</th><th class="r">New net</th><th class="r">New PF</th><th class="r">New win</th><th class="r">Change</th><th class="r" title="the new exits without the $250 cap / ESL 1-2 (BAO_ALL, BAOX, PAPER)">New w/o MM</th><th class="r">Dropped (09:00+)</th>
       </tr></thead><tbody></tbody></table></div>
+      <div id="replayGrid"></div>
       <div id="replayDetail"></div>
     </div>
 
@@ -717,6 +718,45 @@ function loadReplay() {
     .catch(function () { REPLAY = null; });
 }
 function colorTd(td, v) { td.style.color = v >= 0 ? 'var(--green)' : 'var(--red)'; return td; }
+// v1.2 stop / time-exit variants: cap $250 / $500 / $1,000 / none, ESL on / off, 30 / 60 min red / none
+function gridLabel(k) {
+  var p = k.split('_'), c = +p[0].slice(1), e = p[1] === 'e1', h = +p[2].slice(1);
+  return [c ? '$' + c.toLocaleString('en-US') : 'none', e ? 'yes' : '—', h ? h + ' min red' : 'none'];
+}
+function gridTable(g, title) {
+  var box = el('div', {cls: 'sl-trades'});
+  box.appendChild(el('div', {cls: 'sl-lbl'}, title));
+  var t = el('table', {cls: 'sl-tbl'}), hd = el('tr');
+  ['$ cap', 'ESL', 'Time exit (losers)', 'Trades', 'Net', 'PF', 'Win', 'Worst trade'].forEach(function (h, i) { hd.appendChild(el('th', i > 2 ? {cls: 'r'} : null, h)); });
+  t.appendChild(hd);
+  Object.keys(g || {}).sort(function (a, b) { return g[b].net - g[a].net; }).forEach(function (k) {
+    var v = g[k], tr = el('tr'), lb = gridLabel(k);
+    if (k === 'c250_e1_h30') { tr.style.outline = '1px solid var(--gold, #d4a017)'; tr.title = "today's rules"; }
+    lb.forEach(function (x, i) { tr.appendChild(el('td', i === 0 ? {style: 'font-weight:700;'} : null, x + (i === 2 && k === 'c250_e1_h30' ? '  ← today' : ''))); });
+    tr.appendChild(el('td', {cls: 'r'}, v.n));
+    tr.appendChild(colorTd(el('td', {cls: 'r'}, money(v.net)), v.net));
+    tr.appendChild(el('td', {cls: 'r'}, v.n ? pfTxt(v.pf >= 99 ? Infinity : v.pf) : '—'));
+    tr.appendChild(el('td', {cls: 'r'}, v.n ? v.win + '%' : '—'));
+    tr.appendChild(colorTd(el('td', {cls: 'r'}, v.worst === undefined || v.worst === null ? '—' : money(v.worst)), v.worst || 0));
+    t.appendChild(tr);
+  });
+  var w = el('div', {cls: 'sl-tbl-wrap'}); w.appendChild(t); box.appendChild(w);
+  return box;
+}
+function showGrid(test) {
+  var box = document.getElementById('replayGrid'); box.innerHTML = '';
+  if (!REPLAY.grid) return;
+  var bar = el('div', {style: 'display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px;'});
+  Object.keys(REPLAY.grid).forEach(function (k) {
+    var b = el('button', {cls: 'sl-more'}, k === 'ALL' ? 'All tests' : k);
+    if (k === test) b.style.fontWeight = '800';
+    b.onclick = function () { showGrid(k); };
+    bar.appendChild(b);
+  });
+  box.appendChild(el('div', {cls: 'sl-lbl'}, 'Stop / time-exit variants — the same trades, best net first ($ cap / ESL only change BAO_ALL, BAOX, PAPER; the ladder twin and S/R keep their own stops)'));
+  box.appendChild(bar);
+  box.appendChild(gridTable(REPLAY.grid[test], (test === 'ALL' ? 'All tests' : test) + ' — 24 combinations'));
+}
 function replayDetail(key) {
   var box = document.getElementById('replayDetail'), s = REPLAY.rules[key];
   box.innerHTML = '';
@@ -736,6 +776,7 @@ function replayDetail(key) {
       t.appendChild(tr);
     });
   var w = el('div', {cls: 'sl-tbl-wrap'}); w.appendChild(t); box.appendChild(w);
+  if (s.grid) box.appendChild(gridTable(s.grid, s.test + ' ' + s.rule + ' — stop / time-exit variants'));
   box.appendChild(el('div', {cls: 'sl-lbl'}, 'Trades (old exit → new exit), newest first'));
   var t2 = el('table', {cls: 'sl-tbl'}), h2 = el('tr');
   ['Day', 'Time', 'Stock', 'Old exit', 'Old net', 'New exit', 'New net', 'Change'].forEach(function (h, i) { h2.appendChild(el('th', [4, 6, 7].indexOf(i) >= 0 ? {cls: 'r'} : null, h)); });
@@ -780,6 +821,7 @@ function showReplay() {
     tr.appendChild(el('td', {cls: 'r'}, s.dropped ? s.dropped + ' (' + money(s.dropped_net) + ')' : '—'));
     tb.appendChild(tr);
   });
+  showGrid('ALL');
   document.getElementById('replaySub').appendChild(el('div', {style: 'margin-top:6px;font-weight:700;'},
     'Updated ' + REPLAY.updated + ' — ' + n + ' trades replayed: old ' + money(O) + ' → new ' + money(N) + ' (' + money(N - O) + ').'));
 }
