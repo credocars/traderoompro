@@ -591,6 +591,33 @@ function loadLive() {
   }).catch(function () { LIVE = {}; });
 }
 
+// Max 11-12: what each exit made for this rule (live paper trades), best net first
+function exitTable(rule) {
+  var g = {};
+  (LIVE[rule] || []).forEach(function (x) {
+    var k = ((x.reason || '').split(' (')[0] || '?').trim(), r = g[k] = g[k] || {why: k, n: 0, win: 0, net: 0, w: 0, l: 0}, v = +x.net || 0;
+    r.n++; r.net += v; if (v > 0) { r.win++; r.w += v; } else r.l -= v;
+  });
+  var rows = Object.keys(g).map(function (k) { return g[k]; }).sort(function (a, b) { return b.net - a.net; });
+  var box = el('div', {cls: 'sl-trades'});
+  box.appendChild(el('div', {cls: 'sl-lbl'}, 'Exits (live paper) — what each exit made'));
+  var wrap = el('div', {cls: 'sl-tbl-wrap'}), t = el('table', {cls: 'sl-tbl'}), hd = el('tr');
+  ['Exit', 'Trades', 'Win', 'Net', 'Avg', 'PF'].forEach(function (h, i) { hd.appendChild(el('th', i ? {cls: 'r'} : null, h)); });
+  t.appendChild(hd);
+  rows.forEach(function (r) {
+    var tr = el('tr'), pf = r.l ? r.w / r.l : (r.w ? Infinity : 0);
+    tr.appendChild(el('td', null, r.why));
+    tr.appendChild(el('td', {cls: 'r'}, r.n));
+    tr.appendChild(el('td', {cls: 'r'}, Math.round(100 * r.win / r.n) + '%'));
+    var n = el('td', {cls: 'r'}, money(r.net)); n.style.color = r.net >= 0 ? 'var(--green)' : 'var(--red)'; tr.appendChild(n);
+    var a = el('td', {cls: 'r'}, money(r.net / r.n)); a.style.color = r.net >= 0 ? 'var(--green)' : 'var(--red)'; tr.appendChild(a);
+    tr.appendChild(el('td', {cls: 'r'}, pfTxt(pf)));
+    t.appendChild(tr);
+  });
+  wrap.appendChild(t); box.appendChild(wrap);
+  return box;
+}
+
 // every live paper trade of one rule, newest first - a row opens that trade's chart in the Daily Review
 function tradeList(rule) {
   var rr = (LIVE[rule] || []).slice().sort(function (a, b) {
@@ -668,6 +695,7 @@ function card(s) {
   var a = el('a', {cls: 'rv-link', href: 'review.html?rule=' + encodeURIComponent(s.rule)},
              ls.n ? 'All ' + ls.n + ' trades of this rule in the Daily Review →' : 'Daily Review (this rule) →');
   right.appendChild(a);
+  if (ls.n) right.appendChild(exitTable(s.rule));
   if (ls.n) right.appendChild(tradeList(s.rule));
   row.appendChild(right);
   c.appendChild(row);

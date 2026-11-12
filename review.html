@@ -2755,13 +2755,52 @@ function tradeTable(parent, rows, sortable) {
   });
   var w = el('div', {cls: 'rv-scroll'}); w.appendChild(t); parent.appendChild(w);
 }
-var TL_PAGE = 0;
+var TL_PAGE = 0, TL_REASON = '';
+function exitWhy(x) { return ((x.reason || '').split(' (')[0] || '?').trim(); }
+function exitStats(list) {                  // what each exit made: one row per exit reason, best net first
+  var g = {};
+  list.forEach(function (x) {
+    var k = exitWhy(x), r = g[k] = g[k] || {why: k, n: 0, win: 0, net: 0, w: 0, l: 0, worst: null, best: null}, v = +x.net || 0;
+    r.n++; r.net += v; if (v > 0) { r.win++; r.w += v; } else r.l -= v;
+    r.worst = r.worst === null ? v : Math.min(r.worst, v); r.best = r.best === null ? v : Math.max(r.best, v);
+  });
+  return Object.keys(g).map(function (k) { var r = g[k]; r.pf = r.l ? r.w / r.l : (r.w ? Infinity : 0); return r; })
+    .sort(function (a, b) { return b.net - a.net; });
+}
+function exitCard(box, list) {
+  var rows = exitStats(list); if (!rows.length) return;
+  var c = card(box, 'Exits — what each exit made (' + list.length + ' trades in this list' + (TL_REASON ? ', before the exit filter' : '') + ')');
+  c.appendChild(el('div', {cls: 'st-note', style: 'padding:0 16px 8px;'}, 'The exit that closed the trade (its last part). Filter a test / rule above to compare one strategy; click a row = only those trades below.'));
+  var t = el('table', {cls: 'rv-table'}), hr = el('tr');
+  ['Exit', 'Trades', 'Win %', 'Net', 'Avg / trade', 'PF', 'Best', 'Worst'].forEach(function (h, i) { hr.appendChild(el('th', i ? {cls: 'r'} : null, h)); });
+  var th = el('thead'); th.appendChild(hr); t.appendChild(th); var tb = el('tbody'); t.appendChild(tb);
+  rows.forEach(function (r) {
+    var tr = el('tr', {cls: 'click' + (TL_REASON === r.why ? ' on' : ''), title: 'Only the trades closed by: ' + r.why});
+    tr.appendChild(el('td', {style: 'font-weight:600;' + (TL_REASON === r.why ? 'color:var(--cyan,#06b6d4);' : '')}, r.why));
+    tr.appendChild(el('td', {cls: 'r'}, r.n));
+    tr.appendChild(el('td', {cls: 'r'}, Math.round(100 * r.win / r.n) + '%'));
+    tr.appendChild(el('td', {cls: 'r ' + cls(r.net), style: 'font-weight:700;'}, money(r.net)));
+    tr.appendChild(el('td', {cls: 'r ' + cls(r.net / r.n)}, money(r.net / r.n)));
+    tr.appendChild(el('td', {cls: 'r'}, r.pf === Infinity ? '∞' : r.pf.toFixed(2)));
+    tr.appendChild(el('td', {cls: 'r ' + cls(r.best)}, money(r.best)));
+    tr.appendChild(el('td', {cls: 'r ' + cls(r.worst)}, money(r.worst)));
+    tr.onclick = function () { TL_REASON = TL_REASON === r.why ? '' : r.why; TL_PAGE = 0; buildStats(); };
+    tb.appendChild(tr);
+  });
+  var w = el('div', {cls: 'rv-scroll'}); w.appendChild(t); c.appendChild(w);
+}
 function stTradeList(box, list) {
+  exitCard(box, list);                        // Max 11-12: how profitable each exit is
+  if (TL_REASON) {
+    var f = list.filter(function (x) { return exitWhy(x) === TL_REASON; });
+    if (f.length) list = f; else TL_REASON = '';
+  }
   var per = 100, rows = tlSort(list.slice().reverse()), pages = Math.max(1, Math.ceil(rows.length / per));
   TL_ROWS = rows;
   if (TL_PAGE >= pages) TL_PAGE = 0;
   var bar = el('div', {cls: 'st-bar'}); box.appendChild(bar);
   bar.appendChild(el('span', {cls: 'st-note', style: 'font-size:13px;color:var(--t2);'}, rows.length + ' trades, ' + (TL_SORT.k ? 'sorted by ' + TL_SORT.k + (TL_SORT.d > 0 ? ' ▲' : ' ▼') : 'newest first') + ' · click a header to sort · click a trade for its charts and notes'));
+  if (TL_REASON) { var rx = el('button', {cls: 'rv-tab active', style: 'margin-left:8px;'}, 'exit: ' + TL_REASON + ' ✕'); rx.onclick = function () { TL_REASON = ''; TL_PAGE = 0; buildStats(); }; bar.appendChild(rx); }
   if (TL_SORT.k) { var rs = el('button', {cls: 'rv-tab', style: 'margin-left:8px;'}, 'Newest first'); rs.onclick = function () { TL_SORT.k = ''; TL_PAGE = 0; buildStats(); }; bar.appendChild(rs); }
   if (pages > 1) seg(bar, Array.apply(null, Array(pages)).map(function (_, i) { return [i, String(i + 1)]; }), TL_PAGE, function (v) { TL_PAGE = v; buildStats(); });
   var c = card(box, 'Trades');
