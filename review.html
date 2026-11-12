@@ -227,7 +227,14 @@ body{display:flex;}
 .rv-md.closed{display:none;}
 .cr-item{display:block;width:100%;text-align:left;background:none;border:none;color:var(--t2);font:inherit;font-size:13px;padding:7px 16px;cursor:pointer;}
 .cr-item:hover{background:rgba(255,255,255,.03);color:var(--t1);} .cr-item.on{background:rgba(6,182,212,.08);color:#cfd6e0;font-weight:600;}
-@media (max-width:760px){#crGrid{grid-template-columns:1fr !important;}}
+@media (max-width:760px){#crGrid,#bcGrid{grid-template-columns:1fr !important;}}
+.bc-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;padding:12px 16px 16px;}
+.bc-card{border:1px solid var(--border);border-radius:8px;background:var(--card2);overflow:hidden;}
+.bc-head{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px;}
+.bc-head a{color:#cfd6e0;font-weight:700;text-decoration:none;} .bc-head .bc-t{color:var(--t2);margin-left:auto;font-size:12px;}
+.bc-pic{display:block;background:#0b0e14;} .bc-pic img{display:block;width:100%;max-height:360px;object-fit:contain;cursor:zoom-in;}
+.bc-txt{padding:8px 10px;font-size:12px;color:var(--t2);white-space:pre-wrap;word-break:break-word;}
+.bc-foot{display:flex;gap:12px;padding:0 10px 10px;font-size:12px;} .bc-foot a{color:#1d9bf0;text-decoration:none;}
 .rv-md .md-up{color:#5cc98a;font-weight:600;} .rv-md .md-dn{color:#e5797b;font-weight:600;}
 .rv-rule-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .rv-rule-btns{display:flex;gap:6px;flex-wrap:wrap;}
@@ -447,6 +454,7 @@ body{display:flex;}
       <button class="rv-side-item" data-v="stocks" onclick="showView('stocks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Stocks</span></button>
       <button class="rv-side-item" data-v="best" onclick="showView('best')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg><span>Best performers</span></button>
       <button class="rv-side-item" data-v="claude" onclick="showView('claude')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/><circle cx="17" cy="17" r="3"/></svg><span>Claude reports</span></button>
+      <button class="rv-side-item" data-v="baoc" onclick="showView('baoc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M6 14l3-4 3 2 3-5 3 4"/></svg><span>BAO charts</span></button>
       <button class="rv-side-item" data-v="reports" onclick="showView('reports')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Text reports</span></button>
       <div class="rv-side-note">Tests = simulated fills. Live ladder = real money.</div>
     </nav>
@@ -591,6 +599,17 @@ body{display:flex;}
         <div class="rv-card" style="margin:0;">
           <div class="rv-card-title rv-rule-head"><span id="crTitle" style="color:#cfd6e0;">—</span><span class="st-note" id="crMeta"></span></div>
           <div class="rv-md" id="crBody"><p>Pick a report.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="viewBaoC" style="display:none;">
+      <div style="display:grid;grid-template-columns:minmax(150px,200px) 1fr;gap:16px;align-items:start;" id="bcGrid">
+        <div class="rv-card" style="margin:0;"><div class="rv-card-title">Days</div><div id="bcList" style="padding:6px 0;max-height:70vh;overflow:auto;"></div></div>
+        <div class="rv-card" style="margin:0;">
+          <div class="rv-card-title rv-rule-head"><span id="bcTitle" style="color:#cfd6e0;">—</span><span class="st-note" id="bcMeta"></span></div>
+          <div class="st-note" style="padding:8px 16px 0;">Private research (instructors only): BAO's own posts on X, shown from X. Stocks we traded that day are marked OURS.</div>
+          <div id="bcBody" class="bc-cards"></div>
         </div>
       </div>
     </div>
@@ -774,8 +793,8 @@ function navRestore() {                      // browser Back / Forward or a save
 }
 window.addEventListener('popstate', function () { if (ALL_DAYS) navRestore(); });
 var CUR_VIEW = 'dash';
-var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', best: 'viewBest', claude: 'viewClaude', reports: 'viewReports'};
-var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', best: 'Best performers', claude: 'Claude reports', reports: 'Text reports'};
+var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', best: 'viewBest', claude: 'viewClaude', baoc: 'viewBaoC', reports: 'viewReports'};
+var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', best: 'Best performers', claude: 'Claude reports', baoc: 'BAO charts', reports: 'Text reports'};
 function showView(v) {
   CUR_VIEW = v;
   Object.keys(VIEW_ID).forEach(function (x) { document.getElementById(VIEW_ID[x]).style.display = (x === v) ? 'block' : 'none'; });
@@ -788,6 +807,7 @@ function showView(v) {
   if (v === 'stocks') buildStocks();
   if (v === 'best') buildBest();
   if (v === 'claude') buildCR();
+  if (v === 'baoc') buildBC();
   navPush();
 }
 
@@ -943,6 +963,67 @@ function showCR(kind, key) {
     body.innerHTML = '<p>loading…</p>';
     firebase.database().ref(ROOT + '/claude/' + key).get().then(function (s) { doc.text = (s.val() || {}).text || ''; put(s.val()); }, function () { put(null); });
   } else put(doc);
+}
+
+// BAO charts (Max 11-12): every chart BAO posted on X, by day (bao_index / bao from review_sync.py v1.7)
+var BC = null, BC_DAY = null, BC_DATA = {};
+function buildBC() {
+  if (BC === null) {
+    BC = {};
+    firebase.database().ref(ROOT + '/bao_index').get().then(function (s) { BC = s.val() || {}; buildBC(); }, function () { BC = {}; buildBC(); });
+  }
+  var list = document.getElementById('bcList'); list.innerHTML = '';
+  var days = Object.keys(BC || {}).sort().reverse();
+  if (!days.length) {
+    list.appendChild(el('div', {cls: 'st-note', style: 'padding:8px 16px;'}, BC === null ? 'loading…' : 'None yet.'));
+    document.getElementById('bcTitle').textContent = '—'; document.getElementById('bcMeta').textContent = '';
+    document.getElementById('bcBody').innerHTML = '<p class="st-note">No BAO posts sent yet - the server sends them with every review sync.</p>';
+    return;
+  }
+  if (!BC_DAY || days.indexOf(BC_DAY) < 0) BC_DAY = days[0];
+  days.forEach(function (d) {
+    var x = BC[d] || {}, w = new Date(d + 'T12:00:00');
+    var b = el('button', {cls: 'cr-item' + (d === BC_DAY ? ' on' : '')}, d + ' · ' + (isNaN(w) ? '' : WD[w.getDay()]) + ' · ' + (x.n || 0) + (x.ours && x.ours.length ? ' · ours ' + x.ours.length : ''));
+    b.onclick = function () { BC_DAY = d; buildBC(); }; list.appendChild(b);
+  });
+  showBC(BC_DAY);
+}
+function showBC(day) {
+  var body = document.getElementById('bcBody'), x = BC[day] || {};
+  document.getElementById('bcTitle').textContent = 'BAO charts ' + day;
+  document.getElementById('bcMeta').textContent = (x.n || 0) + ' posts · ' + ((x.syms || []).length) + ' stocks';
+  var draw = function (posts) {
+    body.innerHTML = '';
+    var ours = x.ours || [], cards = [];
+    Object.keys(posts || {}).forEach(function (sym) {
+      (posts[sym] || []).forEach(function (p) { cards.push({sym: sym, p: p}); });
+    });
+    cards.sort(function (a, b) { return ((a.p.date || '') + (a.p.time || '')).localeCompare((b.p.date || '') + (b.p.time || '')); });
+    if (!cards.length) { body.innerHTML = '<p class="st-note">No posts.</p>'; return; }
+    cards.forEach(function (c) {
+      var p = c.p, card = el('div', {cls: 'bc-card'}), head = el('div', {cls: 'bc-head'});
+      var a = el('a', {href: 'https://www.tradingview.com/chart/qED1iZnl/?symbol=' + encodeURIComponent(c.sym), target: '_blank', rel: 'noopener'}, c.sym);
+      head.appendChild(a);
+      if (ours.indexOf(c.sym) >= 0) head.appendChild(el('span', {cls: 'rv-badge'}, 'OURS'));
+      if (p.others && p.others.length) head.appendChild(el('span', {cls: 'st-note'}, '+ ' + p.others.join(', ')));
+      head.appendChild(el('span', {cls: 'bc-t'}, (p.time || '') + (p.when ? ' · ' + p.when : '')));
+      card.appendChild(head);
+      (p.photos || []).slice(0, 2).forEach(function (u) {
+        var link = el('a', {cls: 'bc-pic', href: p.url, target: '_blank', rel: 'noopener'});
+        var img = el('img', {src: u, alt: 'BAO chart ' + c.sym, loading: 'lazy', referrerpolicy: 'no-referrer'});
+        link.appendChild(img); card.appendChild(link);
+      });
+      if (p.text) card.appendChild(el('div', {cls: 'bc-txt'}, p.text));
+      var foot = el('div', {cls: 'bc-foot'});
+      foot.appendChild(el('a', {href: p.url, target: '_blank', rel: 'noopener'}, 'Open on X ↗'));
+      if (!(p.photos || []).length) foot.appendChild(el('span', {cls: 'st-note'}, 'no picture link yet'));
+      card.appendChild(foot);
+      body.appendChild(card);
+    });
+  };
+  if (BC_DATA[day]) { draw(BC_DATA[day]); return; }
+  body.innerHTML = '<p class="st-note">loading…</p>';
+  firebase.database().ref(ROOT + '/bao/' + day).get().then(function (s) { BC_DATA[day] = s.val() || {}; draw(BC_DATA[day]); }, function () { draw({}); });
 }
 
 function buildCards() {
