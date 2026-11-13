@@ -430,7 +430,7 @@ body{display:flex;}
     </div>
 
     <div class="sl-card">
-      <div class="sl-card-head"><div class="sl-h">All rules</div><div class="sl-sub">History = 2-year replay on IB 1-min bars with the NEW exits (pending: the stop / time-exit test runs now; the old-exit history was removed). Live = the paper test with the new rules, from 11-13. <b>From 11-13 every test runs the new exits</b>: entries end 09:00, all out 09:30, a losing trade out after 30 min; midpoint, scale-out, 1-min reversal, 5-min close, break-even 30c, half-room TP, EMA9 touch and the 09:28 rules removed. The Exit replay below shows the old trades with the new exits.</div></div>
+      <div class="sl-card-head"><div class="sl-h">All rules</div><div class="sl-sub">History = replay on IB 1-min bars with the NEW exits (L and M: 3,000 spike stock-days 2025-05 .. 2026-11, $250 cap + ESL; LM and S/R: re-run still to do). Live = the paper test with the new rules, from 11-13. <b>From 11-13 every test runs the new exits</b>: entries end 09:00, all out 09:30, a losing trade out after 30 min; midpoint, scale-out, 1-min reversal, 5-min close, break-even 30c, half-room TP, EMA9 touch and the 09:28 rules removed. The Exit replay below shows the old trades with the new exits.</div></div>
       <div style="overflow-x:auto;"><table class="rv-table" id="sumTable"><thead><tr>
         <th>Rule</th><th>Test</th><th>Status</th><th class="r">History trades</th><th class="r">History net</th><th class="r">History PF</th><th class="r">2026 PF</th><th class="r">Live trades</th><th class="r">Live net</th><th class="r">Live PF</th>
       </tr></thead><tbody></tbody></table></div>
@@ -485,7 +485,7 @@ function SRday(hod) {
 var STRATS = [
   {id: 'L', test: 'BAO_ALL', rule: 'BAOALL_L', name: 'Ladder no stop', status: 'paper',
    rules: ['Entries 04:00–09:00: 5 × 200 sh, the first at the signal, then one every 2% higher', 'Cover ALL at VWAP (no midpoint exit from 11-13)', 'A LOSING trade is covered after 30 min; everything still open is covered at 09:30', 'No stop of its own — only the money management: ESL by price (half at avg +0.20 on $1–3 / +0.50 on $3–10, the rest at +0.40 / +1.00) and a $250 cap per trade'],
-   hist: {n: null, net: null, pf: null, pf26: null, note: 'History removed 11-13 (old exits). The 2-year test with the new exits (stop / time-exit variants) is running; its numbers come here.'},
+   hist: {n: 812, net: 17047, pf: 1.60, pf26: 1.05, note: 'Replay with the new exits (11-13) on 3,000 spike stock-days 2025-05-21 .. 2026-11-11, $250 cap + ESL / 30 min red. Worst trade −$381, worst day −$931. 2025 PF 2.70, 2026 PF 1.05.'},
    sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.72], ['07:50', 2.84], ['07:52', 2.70], ['08:00', 2.48], ['08:06', 2.36], ['08:14', 2.30]],
    vwap: [2.00, 2.32], marks: [['07:47', 2.72, 'S', ''], ['07:48', 2.77, 'S', ''], ['07:49', 2.83, 'S', '3 × 200 short (+2% steps)'], ['08:14', 2.31, 'C', 'cover all at VWAP']],
    lines: []},
@@ -497,7 +497,7 @@ var STRATS = [
    lines: [[3.33, C.red, 'loss limit']]},
   {id: 'M', test: 'BAO_ALL', rule: 'BAOALL_M', name: 'Bot 500 + 2x100', status: 'paper',
    rules: ['Entries 04:00–09:00: 500 sh at the signal, 2 adds of 100 (max 700)', 'Your bot\'s rules from .env: TP 100 every step, ESL, trend exit (2 green 2-min candles once in profit), per-trade $ limit', 'No break-even at 30c (from 11-13); a LOSING trade is covered after 30 min; all out at 09:30', 'Steps by price: $0.05 under $1, $0.10 $1–3, $0.25 $3–10'],
-   hist: {n: null, net: null, pf: null, pf26: null, note: 'History removed 11-13 (old exits). The 2-year test with the new exits (stop / time-exit variants) is running; its numbers come here.'},
+   hist: {n: 795, net: 23887, pf: 1.35, pf26: 1.02, note: 'Replay with the new exits (11-13) on 3,000 spike stock-days 2025-05-21 .. 2026-11-11, $250 cap + ESL / 30 min red. Worst trade −$1,240, worst day −$1,636. With a $500 cap + ESL: +$33,513, PF 1.50.'},
    sample: [['07:30', 2.00], ['07:40', 2.02], ['07:44', 2.45], ['07:47', 2.70], ['07:50', 2.92], ['07:52', 2.86], ['07:56', 2.62], ['08:00', 2.48], ['08:04', 2.56], ['08:08', 2.66], ['08:14', 2.60]],
    vwap: [2.00, 2.40], marks: [['07:47', 2.70, 'S', ''], ['07:48', 2.80, 'S', ''], ['07:49', 2.87, 'S', '500 + 100 + 100 short'], ['07:55', 2.64, 'C', ''], ['07:57', 2.58, 'C', ''], ['07:59', 2.50, 'C', '3 × TP 100'], ['08:08', 2.66, 'C', 'rest: 2 green 2-min candles']],
    lines: []},
