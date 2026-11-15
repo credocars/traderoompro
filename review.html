@@ -1677,6 +1677,52 @@ function stat(k, v, c, grid) {
   document.getElementById(grid || 'statGrid').appendChild(d);
 }
 function session(hm) { hm = (hm || '').slice(0, 5); return !hm ? '?' : hm < '07:00' ? '04:00-07:00' : hm < '09:30' ? '07:00-09:30' : 'after the open'; }
+// ── Price zones on the trade chart (zone_day.py -> admin_review/zones/<day>/rows/<SYM>): where moves of this market
+//    cap x float group usually top, learned only from earlier days. Bands: Z1-Z2 yellow, Z2-Z3 green (A+), Z3-Z4 light
+//    yellow (late), above Z4 red (squeeze). Premarket zones only (Max trades premarket only).
+var ZONES = {};
+function loadZone(sym) {
+  var k = DAY + '|' + sym;
+  if (!ZONES[k]) ZONES[k] = firebase.database().ref(ROOT + '/zones/' + DAY + '/rows/' + sym.replace(/[.$#\[\]\/]/g, '_')).get()
+    .then(function (s) { return s.val(); }, function () { return null; });
+  return ZONES[k];
+}
+function zoneName(p, z) { return p < z[0] ? 'below Z1' : p < z[1] ? 'Z1–Z2' : p < z[2] ? 'Z2–Z3 (A+ zone)' : p < z[3] ? 'Z3–Z4 (late)' : 'above Z4 (squeeze)'; }
+function drawZones(t, ch, cs, candles, pf) {
+  return loadZone(t.symbol).then(function (z) {
+    if (!z || !z.pm || CUR_T !== t || CHART !== ch) return null;
+    var hi = Math.max.apply(null, candles.map(function (c) { return c.high; }));
+    function band(lo, top, col, from, to) {
+      var pts = candles.filter(function (c) { return c.time >= from && c.time < to; }).map(function (c) { return {time: c.time, value: top}; });
+      if (!pts.length || top <= lo) return;
+      ch.addSeries(LightweightCharts.BaselineSeries, {baseValue: {type: 'price', price: lo}, topFillColor1: col, topFillColor2: col,
+        topLineColor: 'rgba(0,0,0,0)', bottomLineColor: 'rgba(0,0,0,0)', bottomFillColor1: 'rgba(0,0,0,0)', bottomFillColor2: 'rgba(0,0,0,0)',
+        lineWidth: 1, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false, priceFormat: pf,
+        autoscaleInfoProvider: function () { return null; }}).setData(pts);
+    }
+    function bands(q, from, to) {
+      band(q[0], q[1], 'rgba(250,204,21,0.13)', from, to);
+      band(q[1], q[2], 'rgba(34,197,94,0.17)', from, to);
+      band(q[2], q[3], 'rgba(250,204,21,0.07)', from, to);
+      band(q[3], Math.max(hi, q[3]) * 1.5, 'rgba(239,68,68,0.13)', from, to);
+    }
+    bands(z.pm, 0, 1e12);                  // premarket zones (Max trades premarket only)
+    var cols = ['#facc15', '#4ade80', '#4ade80', '#f87171'];
+    ['Z1', 'Z2', 'Z3', 'Z4'].forEach(function (k, i) {
+      cs.createPriceLine({price: z.pm[i], color: cols[i], lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: k + ' PM'});
+    });
+    return z;
+  });
+}
+function zoneLine(t, z) {                  // 'entry 4.12 in Z2–Z3 (A+ zone) · stock-day grade A+ ...'
+  if (!z || !z.pm) return 'no zones (stock-day not in zone_day: premarket move under +20% or no data)';
+  var fs = fillsSorted(t).filter(function (f) { return f[1] === 'SELL'; }), q = 0, v = 0;
+  fs.forEach(function (f) { q += +f[2]; v += +f[2] * +f[3]; });
+  var avg = q ? v / q : t.entry;
+  return 'entry ' + px(avg) + ' (+' + ((avg / z.pc - 1) * 100).toFixed(0) + '%) in ' + zoneName(avg, z.pm) +
+    ' · stock-day grade ' + z.grade + ' (PM high ' + px(z.pmh) + ' +' + Math.round(z.pmh_pct) + '% at ' + z.pmh_t + ', ' + zoneName(z.pmh, z.pm) + ')' +
+    ' · ' + z.group + ' · zones PM: ' + z.pm.map(function (x) { return px(x); }).join(' / ');
+}
 function showStats(t, pnl, candles, vwap) {
   ['statGrid', 'ctxGrid'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
   var fs = fillsSorted(t), pos = 0, maxPos = 0, sq = 0, sv = 0, bq = 0, bv = 0;
@@ -2097,6 +2143,12 @@ function showChart(t, scroll) {
     candles.forEach(function (c) { ev = ev === null ? c.close : al * c.close + (1 - al) * ev; ema.push({time: c.time, value: ev}); });
     var emS = CHART.addSeries(LightweightCharts.LineSeries, {color: '#3b5bdb', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false});
     emS.setData(ema);
+    drawZones(t, CHART, cs, candles, pf).then(function (z) {
+      if (CUR_T !== t) return;
+      var zl = zoneLine(t, z), first = zl.split(' · ')[0].replace(/^entry \S+ \([^)]*\) in /, '');
+      stat('Price zone at entry', z ? first + ' · day grade ' + z.grade : '—', /A\+/.test(first) ? 'pos' : (/squeeze/.test(first) ? 'neg' : ''), 'ctxGrid');
+      var cn = document.getElementById('chartNote'); cn.textContent = (cn.textContent || '') + ' Zones: ' + zl + '.';
+    });
     // executions at their price: red = short / add, green = cover (no text, like Tradervue)
     var fm = fillsSorted(t).map(function (f) {
       var sell = f[1] === 'SELL', tm = f[0].split(':');
