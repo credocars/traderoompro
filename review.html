@@ -746,9 +746,38 @@ function money(v) {
 function px(v) { return (v === null || v === undefined) ? '—' : Number(v).toFixed(v < 1 ? 4 : 2); }
 function cls(v) { return v > 0 ? 'pos' : (v < 0 ? 'neg' : ''); }
 
+// Zone badge on every trade row (Max 11-15): the zone of the average short, from admin_review/zones_index (zone_day.py)
+var ZIDX = null;
+function loadZidx() {
+  if (ZIDX) return Promise.resolve(ZIDX);
+  return firebase.database().ref(ROOT + '/zones_index').get().then(function (s) {
+    var v = s.val() || {}, out = {};
+    Object.keys(v).forEach(function (d) {
+      var rs = v[d].rows || {};
+      (Array.isArray(rs) ? rs : Object.keys(rs).map(function (k) { return rs[k]; })).forEach(function (r) {
+        if (r && r.sym && r.pm) out[d + '|' + r.sym] = r;
+      });
+    });
+    ZIDX = out; return out;
+  }, function () { ZIDX = {}; return ZIDX; });
+}
+var ZB = [['Z0', 'below Z1', '#475569'], ['Z1', 'Z1–Z2 (watch)', '#ca8a04'], ['Z2', 'Z2–Z3 (A+ zone)', '#16a34a'],
+          ['Z3', 'Z3–Z4 (late)', '#a16207'], ['Z4', 'above Z4 (squeeze)', '#dc2626']];
+function zoneBadge(x) {                    // span or null
+  var z = ZIDX && ZIDX[(x._day || DAY) + '|' + x.symbol];
+  if (!z) return null;
+  var sells = (x.fills || []).filter(function (f) { return f[1] === 'SELL'; }), q = 0, v = 0;
+  sells.forEach(function (f) { q += +f[2]; v += +f[2] * +f[3]; });
+  var p = q ? v / q : x.entry; if (!p) return null;
+  var i = p < z.pm[0] ? 0 : p < z.pm[1] ? 1 : p < z.pm[2] ? 2 : p < z.pm[3] ? 3 : 4, b = ZB[i];
+  var e = el('span', {cls: 'rv-badge', title: 'Entry ' + px(p) + ' (+' + Math.round((p / z.pc - 1) * 100) + '%) in ' + b[1] +
+    ' · stock-day grade ' + z.grade + ' · zones ' + z.pm.map(function (y) { return px(y); }).join(' / ') + ' (' + z.group + ')',
+    style: 'background:' + b[2] + ';border-color:' + b[2] + ';color:#fff;'}, b[0]);
+  return e;
+}
 function startReview() {
   document.getElementById('reviewPanel').style.display = 'block';
-  loadAllDays().then(function () {
+  loadZidx().then(loadAllDays).then(function () {
     buildIndex();
     var q = new URLSearchParams(location.search), rule = q.get('rule'), day = q.get('day'), id = q.get('id');
     if (day && day < RULES_FROM && !OLD_RULES) { toggleOld(); }   // a link to an old-rules trade (Exit replay) shows it
@@ -1097,6 +1126,7 @@ function buildRows() {
     tr.appendChild(tdT);
     var tdS = el('td', {style: 'font-weight:700;'}, t.symbol);
     tdS.appendChild(ibBadge(t));
+    var zb1 = zoneBadge(t); if (zb1) tdS.appendChild(zb1);
     var bpS = baoOf(t);
     if (bpS.length) tdS.appendChild(el('span', {cls: 'rv-badge bao', title: 'BAO posted ' + t.symbol + ' on X: ' + bpS.map(function (b) { return b.time + (b.when ? ' (' + b.when + ')' : ''); }).join(', ')}, 'BAO'));
     if (NOTES[t._key] && NOTES[t._key].text) tdS.appendChild(el('span', {cls: 'rv-badge', title: 'has a note'}, '📝'));
@@ -2792,6 +2822,7 @@ function tradeTable(parent, rows, sortable) {
     sl_.onclick = function (e) { e.stopPropagation(); stSet('sym', x.symbol); };
     sy.appendChild(sl_);
     sy.appendChild(ibBadge(x));
+    var zb2 = zoneBadge(x); if (zb2) sy.appendChild(zb2);
     var bd = (BAO_DAYS || {})[x._day] || {};
     if ((x.tags || {}).bao_posted || bd[String(x.symbol || '').replace(/[.$#\[\]\/]/g, '_')]) sy.appendChild(el('span', {cls: 'rv-badge bao', title: 'BAO posted ' + x.symbol + ' on X that day'}, 'BAO'));
     tr.appendChild(sy);
