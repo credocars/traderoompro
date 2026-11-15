@@ -447,6 +447,9 @@ body{display:flex;}
 
     <div class="sl-group">BAO_ALL — short the spike (+30% in 15 min, near the high, 10%+ above VWAP)</div>
     <div id="grpBao"></div>
+    <div class="sl-group">A+ ZONE — short inside the price zone (Z2–Z3 = A+), exits = our rules</div>
+    <div class="sl-sub" style="margin:-4px 0 10px;">Zones = how high the PREMARKET HIGH usually tops for the stock's market cap × float group, in % over yesterday's 16:00 close (2,696 in-play days): Z1 = 1 in 4 days topped below it, Z2 = half, Z3 = 3 in 4, Z4 = 9 in 10. See the <a href="zones.html" style="color:#4ADE80;">Price zones</a> page. Example: close $2.00, cap $20M, float 3M → Z1 $2.72 · <b style="color:#4ADE80">A+ $3.41–4.37</b> · Z4 $5.99. Paper only (simulated fills) from 11-16; the live column fills in once the zone trades are in the Daily Review.</div>
+    <div id="grpZap"></div>
     <div class="sl-group">S/R levels — short the retest of today's resistance after 08:00</div>
     <div id="grpSr"></div>
 
@@ -507,6 +510,18 @@ var STRATS = [
    sample: [['07:30', 2.40], ['07:40', 2.42], ['07:44', 2.95], ['07:47', 3.30], ['07:49', 3.42], ['07:52', 3.30], ['08:00', 3.05], ['08:06', 2.92], ['08:14', 2.88]],
    vwap: [2.40, 2.90], marks: [['07:48', 3.40, 'S', 'one 500 sh short, 17% over VWAP'], ['08:13', 2.89, 'C', 'cover all at VWAP']],
    lines: [[3.91, C.red, 'stop +15%']]},
+  {id: 'ZL', test: 'ZAP', rule: 'ZAP_LIMIT', name: 'A+ zone limit', status: 'ON PAPER from 11-16 (simulated fills)', statusShort: 'paper from 11-16',
+   rules: ['Stocks = the MOMO scanner filters: $2–10, +$0.30 AND +5% over the 16:00 close, 250K+ volume premarket, float 1–50M, cap ≤ $500M, owners ≤ 80%', 'Zones of the stock\'s cap × float group (zone.py): A+ = Z2–Z3', 'ENTRY: 500 sh short as soon as the price trades up INTO the A+ zone (≥ Z2) — the limit waits for the zone', 'No entry: the high was already past Z3 when the stock first showed up (late = B), or it jumped over Z4', 'Entries 04:00–09:00, each stock once a day', 'EXITS = our rules (the same as Bot 500 + 2x100): your bot\'s TP every step + 2 adds of 100 (max 700), steps $0.05 / $0.10 / $0.25 by price, ESL, per-trade $ limit, trend exit (2 green 2-min candles), targets ≥ $0.10, money management ($250 cap + ESL 1 / 2), trend-day cover, a LOSING trade out after 30 min, all out 09:30'],
+   hist: {n: null, net: null, pf: null, pf26: null, note: '2-year backtest (zone_aplus_replay.py, walk-forward zones, the same entry / exit code) — numbers here after the first run.'},
+   sample: [['04:30', 2.15], ['05:30', 2.40], ['06:30', 2.80], ['07:10', 3.20], ['07:20', 3.45], ['07:30', 3.80], ['07:36', 3.95], ['07:44', 3.70], ['07:55', 3.40], ['08:10', 3.10], ['08:25', 3.05], ['08:40', 3.15]],
+   vwap: [2.10, 3.05], marks: [['07:19', 3.41, 'S', '500 short at Z2 3.41'], ['07:30', 3.80, 'S', '+100 add'], ['07:48', 3.60, 'C', ''], ['07:56', 3.38, 'C', 'TP steps'], ['08:12', 3.10, 'C', ''], ['08:40', 3.15, 'C', 'rest: 2 green 2-min']],
+   lines: [[2.72, C.gold, 'Z1 2.72'], [3.41, C.green, 'Z2 3.41 — A+ starts'], [4.37, C.green, 'Z3 4.37 — A+ ends'], [5.99, C.red, 'Z4 5.99 squeeze']]},
+  {id: 'ZR', test: 'ZAP', rule: 'ZAP_RED', name: 'A+ zone + red candle', status: 'ON PAPER from 11-16 (simulated fills)', statusShort: 'paper from 11-16',
+   rules: ['The same stocks and zones as A+ zone limit', 'ENTRY: the high of the day is INSIDE the A+ zone (Z2–Z3), then the FIRST finished red 1-min candle at most 3 min after that high → 500 sh short', 'No entry: the high ran past Z3 before a red candle (late = B), or the price is already back under Z1', 'Entries 04:00–09:00, each stock once a day', 'EXITS = our rules (the same as Bot 500 + 2x100 — see A+ zone limit)'],
+   hist: {n: null, net: null, pf: null, pf26: null, note: '2-year backtest (zone_aplus_replay.py, walk-forward zones, the same entry / exit code) — numbers here after the first run.'},
+   sample: [['04:30', 2.15], ['05:30', 2.40], ['06:30', 2.80], ['07:10', 3.20], ['07:20', 3.45], ['07:30', 3.80], ['07:36', 3.95], ['07:38', 3.86], ['07:44', 3.70], ['07:55', 3.40], ['08:10', 3.10], ['08:25', 3.05], ['08:40', 3.15]],
+   vwap: [2.10, 3.05], marks: [['07:36', 3.95, 'X', 'high 3.95 inside A+'], ['07:38', 3.86, 'S', 'first red 1-min: 500 short'], ['07:50', 3.55, 'C', ''], ['07:58', 3.36, 'C', 'TP steps'], ['08:12', 3.10, 'C', ''], ['08:40', 3.15, 'C', 'rest: 2 green 2-min']],
+   lines: [[2.72, C.gold, 'Z1 2.72'], [3.41, C.green, 'Z2 3.41 — A+ starts'], [4.37, C.green, 'Z3 4.37 — A+ ends'], [5.99, C.red, 'Z4 5.99 squeeze']]},
   {id: 'S5', test: 'SR', rule: 'SR_S5_08', name: 'S/R stop 5%', status: 'paper',
    rules: ['Resistance = today\'s 5-min top (a level 10 min after the top); support = 5-min low or VWAP', 'From 08:00: a push of 5%+ in 10 min into the level, 3%+ above VWAP', 'Room: (entry − target) ≥ 2 × (stop − entry)', 'Stop = level + 5% (off round numbers); size = $100 / stop distance', 'Entries 08:00–09:00; exit: target (1¢ through), stop or 09:30', 'No trend-day block and no 2-min exit for S/R (11-14 history: the 47 trades the block would skip WON +$4,184, PF 2.92; the 2-min exit cost −$826)'],
    hist: {n: null, net: null, pf: null, pf26: null, note: 'History removed 11-13 (old exits). A 2-year re-run with the new exits (entries end 09:00, all out 09:30) is still to do.'},
@@ -842,7 +857,7 @@ function startLab() {
       var ls = liveStats(s.rule), tr = el('tr', {cls: 'click'});
       tr.onclick = function () { document.getElementById('card_' + s.id).scrollIntoView({behavior: 'smooth'}); };
       tr.appendChild(el('td', {style: 'font-weight:700;'}, s.name));
-      tr.appendChild(el('td', null, s.test === 'SR' ? 'S/R levels' : 'BAO_ALL'));
+      tr.appendChild(el('td', null, s.test === 'SR' ? 'S/R levels' : s.test === 'ZAP' ? 'A+ ZONE' : 'BAO_ALL'));
       tr.appendChild(el('td', null, s.statusShort || 'paper'));
       tr.appendChild(el('td', {cls: 'r'}, s.hist.n === null ? '—' : s.hist.n.toLocaleString('en-US')));
       var hn = el('td', {cls: 'r'}, money(s.hist.net)); if (s.hist.net !== null) hn.style.color = s.hist.net >= 0 ? 'var(--green)' : 'var(--red)'; tr.appendChild(hn);
@@ -853,7 +868,7 @@ function startLab() {
       tr.appendChild(el('td', {cls: 'r'}, pfTxt(ls.pf)));
       tb.appendChild(tr);
       var c = card(s);
-      document.getElementById(s.test === 'SR' ? 'grpSr' : 'grpBao').appendChild(c.node);
+      document.getElementById(s.test === 'SR' ? 'grpSr' : s.test === 'ZAP' ? 'grpZap' : 'grpBao').appendChild(c.node);
       drawSample(c.box, s);
     });
   });
