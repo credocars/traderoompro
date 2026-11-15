@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Admin — Price Zones · TradeRoom PRO</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyC4hdBaS1sHam9OPSlv8yswbcwYAiBZyH4",authDomain:"traderoom-42339.firebaseapp.com",databaseURL:"https://traderoom-42339-default-rtdb.firebaseio.com",projectId:"traderoom-42339",storageBucket:"traderoom-42339.firebasestorage.app",messagingSenderId:"997045199477",appId:"1:997045199477:web:22c5861bfc0965ec960e3c"});
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--panel:#16203A;--card:#1e2535;--card2:#1a2030;--border:#243044;--border-hi:#2d3d57;--green:#22c55e;--red:#ef4444;--t1:#f1f5f9;--t2:#94a3b8;--t3:#475569;--fg:#CBD5E1;--mute:#7C8AA5}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--t1);font:14px/1.45 Inter,system-ui,sans-serif}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px 24px 6px}
+.title{font-size:24px;font-weight:800;letter-spacing:-.3px}.sub{color:var(--t2);font-size:13px;margin-top:2px}
+a.lnk{color:var(--green);text-decoration:none;font-weight:600;font-size:13px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 24px}
+.tab{font:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--border-hi);background:var(--card);color:var(--t2);cursor:pointer}
+.tab.on{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08)}
+select{background:var(--card2);border:1px solid var(--border-hi);border-radius:8px;padding:8px 12px;font:inherit;color:var(--t1)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:4px 24px 0;font-size:12.5px;color:var(--fg)}
+.legend span{display:inline-flex;align-items:center;gap:6px}.sw{width:16px;height:12px;border-radius:2px;display:inline-block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:14px;padding:12px 24px 30px}
+.card{background:var(--panel);border-radius:10px;padding:12px 12px 8px}
+.ctop{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sym{font-size:18px;font-weight:700;color:#fff}.sym a{color:#FDE68A;text-decoration:none}
+.meta{color:var(--mute);font-size:12px}.res{font-size:12.5px;margin:4px 0 6px;color:var(--fg)}
+canvas{width:100%;height:330px;display:block}
+.tag{padding:1px 7px;border-radius:9px;font-size:12px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}th{background:var(--card2);padding:9px 12px;text-align:left;font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}.r{text-align:right}
+.box{background:var(--card);border:1px solid var(--border);border-radius:10px;margin:12px 24px;overflow:auto}
+.note{padding:10px 24px 24px;color:var(--mute);font-size:12.5px;max-width:1100px}
+#denied{display:none;padding:60px;text-align:center;color:var(--t2)}
+.g{font-weight:800}
+</style>
+</head>
+<body>
+<div id="loading" style="padding:60px;color:var(--t2)">Loading…</div>
+<div id="denied"><h2 style="color:#fff">Restricted Area</h2>This page is for course instructors only. <a class="lnk" href="courses.html">← Back to Courses</a></div>
+<div id="app" style="display:none">
+  <div class="top">
+    <div><div class="title">Price Zones</div><div class="sub">Where moves of the same market cap × float group usually top — learned only from earlier days. Private — instructors only.</div></div>
+    <div style="display:flex;gap:10px;align-items:center"><select id="daySel" onchange="loadDay(this.value)"></select><a class="lnk" href="review.html">← Daily Review</a></div>
+  </div>
+  <div class="bar" id="views">
+    <button class="tab on" data-v="charts" onclick="view('charts')">Charts</button>
+    <button class="tab" data-v="score" onclick="view('score')">Scorecard</button>
+    <span style="flex:0 0 14px"></span><span id="gradeBtns"></span>
+  </div>
+  <div class="legend">
+    <span><i class="sw" style="background:rgba(250,204,21,.30)"></i>Z1–Z2 watch</span>
+    <span><i class="sw" style="background:rgba(34,197,94,.34)"></i>Z2–Z3 A+ short zone</span>
+    <span><i class="sw" style="background:rgba(250,204,21,.18)"></i>Z3–Z4 late (small size)</span>
+    <span><i class="sw" style="background:rgba(239,68,68,.30)"></i>above Z4 squeeze / stop zone</span>
+    <span style="color:var(--mute)">labels: premarket zones at the left edge, day zones (from 9:30) on the right · grade = where the premarket high topped: A+ green · A Z1–Z2 · B Z3–Z4 · C above Z4 · D below Z1</span>
+  </div>
+  <div id="charts" class="grid"></div>
+  <div id="score" style="display:none"></div>
+  <div class="note">Zones: Z1 = 1 in 4 tops are lower, Z2 = half, Z3 = 3 in 4, Z4 = 9 in 10 (premarket high before 9:30, day high after), from the scan database's in-play premarket days before this day. Market cap / float: the spike database at the day, else today's profile. Stocks under $1 use the $1+ groups (rough). Grades describe the setup, not a tested entry rule.</div>
+</div>
+<script>
+var ROOT='traderoom/admin_review', IDX={}, DAY=null, ROWS=[], GRADE='ALL', VIEW='charts';
+firebase.auth().onAuthStateChanged(function(u){
+  if(!u){location.href='courses.html';return;}
+  firebase.database().ref('traderoom/users/'+u.uid).get().then(function(s){
+    var p=s.exists()?s.val():null;document.getElementById('loading').style.display='none';
+    if(p&&p.role==='instructor')start();else document.getElementById('denied').style.display='block';
+  }).catch(function(){document.getElementById('loading').style.display='none';document.getElementById('denied').style.display='block';});
+});
+function start(){
+  document.getElementById('app').style.display='block';
+  firebase.database().ref(ROOT+'/zones_index').get().then(function(s){
+    IDX=s.val()||{};var days=Object.keys(IDX).sort().reverse(),sel=document.getElementById('daySel');sel.innerHTML='';
+    if(!days.length){sel.innerHTML='<option>no days yet</option>';return;}
+    days.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=d+'  ('+(IDX[d].n||0)+')';sel.appendChild(o);});
+    var q=(location.hash||'').replace('#','');loadDay(IDX[q]?q:days[0]);
+  });
+}
+function loadDay(d){DAY=d;document.getElementById('daySel').value=d;if(location.hash!=='#'+d)history.replaceState(null,'','#'+d);
+  firebase.database().ref(ROOT+'/zones/'+d).get().then(function(s){var v=s.val()||{},r=v.rows||{};ROWS=Object.keys(r).map(function(k){return r[k];});
+    ROWS.forEach(function(x){['o','h','l','c','v'].forEach(function(k){if(!Array.isArray(x[k])){var a=[],o=x[k]||{};for(var i in o)a[+i]=o[i];for(var j=0;j<a.length;j++)if(a[j]===undefined)a[j]=null;x[k]=a;}});});
+    ROWS.sort(function(a,b){return b.pmh_pct-a.pmh_pct;});render();});}
+function view(v){VIEW=v;document.querySelectorAll('#views .tab').forEach(function(b){b.classList.toggle('on',b.dataset.v===v);});render();}
+var GCOL={'A+':'#16A34A','A':'#CA8A04','B':'#A16207','C':'#DC2626','D':'#64748B'};
+function gradeBtns(){var box=document.getElementById('gradeBtns');box.innerHTML='';
+  ['ALL','A+','A','B','C','D'].forEach(function(g){var n=g==='ALL'?ROWS.length:ROWS.filter(function(r){return r.grade===g;}).length;
+    var b=document.createElement('button');b.className='tab'+(g===GRADE?' on':'');b.textContent=(g==='ALL'?'All':'Grade '+g)+' ('+n+')';
+    b.onclick=function(){GRADE=g;render();};box.appendChild(b);});}
+const Z=['Z1','Z2','Z3','Z4'];
+function fmt(p,pc){return pc<1?p.toFixed(4):p.toFixed(2)}
+function tm(i,t0){const [h,m]=t0.split(':').map(Number);const x=h*60+m+i;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
+function nn(a){return a.filter(v=>v!==null&&v!==undefined)}
+function pmLen(r){const [h,m]=r.t0.split(':').map(Number);return Math.max(0,Math.min(r.c.length,570-(h*60+m)))}
+function zoneOf(p,z){if(p<z[0])return 'below Z1';if(p<z[1])return 'Z1–Z2';if(p<z[2])return 'Z2–Z3 (A+)';if(p<z[3])return 'Z3–Z4';return 'above Z4'}
+const col={'below Z1':'#64748B','Z1–Z2':'#CA8A04','Z2–Z3 (A+)':'#16A34A','Z3–Z4':'#A16207','above Z4':'#DC2626'};
+function draw(cv,r){
+  const dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;
+  const g=cv.getContext('2d');g.scale(dpr,dpr);
+  const n=r.c.length,pmN=pmLen(r),L=8,Rm=62,T=8,B=20,w=W-L-Rm,h=H-T-B;
+  let hi=Math.max(...nn(r.h)),lo=Math.min(...nn(r.l),r.pc);
+  let top=Math.max(hi,r.pm[2],r.day[1])*1.04; if(r.pm[3]<hi*1.6) top=Math.max(top,r.pm[3]*1.03);
+  const y=p=>T+h*(1-(p-lo)/(top-lo)), x=i=>L+w*(i+0.5)/n, bw=Math.max(1,w/n*0.7);
+  function bands(z,i0,i1){
+    const xs=L+w*i0/n,xe=L+w*i1/n,c=[[z[0],z[1],'rgba(250,204,21,.22)'],[z[1],z[2],'rgba(34,197,94,.28)'],[z[2],z[3],'rgba(250,204,21,.13)'],[z[3],top*2,'rgba(239,68,68,.24)']];
+    for(const [a,b,cl] of c){const ya=y(Math.min(b,top)),yb=y(a);if(yb>T&&a<top){g.fillStyle=cl;g.fillRect(xs,Math.max(T,ya),xe-xs,Math.min(yb,T+h)-Math.max(T,ya))}}
+    g.font='10px system-ui';
+    z.forEach((p,k)=>{if(p<top){g.strokeStyle='rgba(255,255,255,.18)';g.setLineDash([3,3]);g.beginPath();g.moveTo(xs,y(p));g.lineTo(xe,y(p));g.stroke();g.setLineDash([])}});
+  }
+  g.fillStyle='#0B1222';g.fillRect(L,T,w,h);
+  bands(r.pm,0,pmN); if(n>pmN) bands(r.day,pmN,n);
+  // grid times
+  g.fillStyle='#7C8AA5';g.font='10px system-ui';
+  for(let i=0;i<n;i+=60){g.fillText(tm(i,r.t0),x(i)-12,H-6);g.strokeStyle='#1E2A45';g.beginPath();g.moveTo(x(i),T);g.lineTo(x(i),T+h);g.stroke()}
+  if(n>pmN){g.strokeStyle='#64748B';g.setLineDash([4,3]);g.beginPath();g.moveTo(L+w*pmN/n,T);g.lineTo(L+w*pmN/n,T+h);g.stroke();g.setLineDash([]);g.fillText('9:30',L+w*pmN/n+3,T+11)}
+  g.strokeStyle='#94A3B8';g.beginPath();g.moveTo(L,y(r.pc));g.lineTo(L+w,y(r.pc));g.stroke();
+  for(let i=0;i<n;i++){if(r.c[i]==null||r.o[i]==null)continue;const up=r.c[i]>=r.o[i];g.strokeStyle=g.fillStyle=up?'#22C55E':'#EF4444';
+    g.beginPath();g.moveTo(x(i),y(r.h[i]));g.lineTo(x(i),y(r.l[i]));g.stroke();
+    const a=y(Math.max(r.o[i],r.c[i])),b=y(Math.min(r.o[i],r.c[i]));g.fillRect(x(i)-bw/2,a,bw,Math.max(1,b-a))}
+  // labels: premarket zones on the left edge, day zones on the right axis
+  g.font='11px system-ui';
+  const cl=j=>j==1||j==2?'#4ADE80':j==3?'#F87171':'#FACC15';
+  let up=0;
+  Z.forEach((k,j)=>{const p=r.pm[j];if(p<top&&p>lo){g.fillStyle=cl(j);g.fillText(k+' '+fmt(p,r.pc),L+4,y(p)-3)}});
+  const dz=n>pmN?r.day:r.pm;
+  g.fillStyle='#94A3B8';g.fillText('PC '+fmt(r.pc,r.pc),L+w+4,y(r.pc)+4);
+  Z.forEach((k,j)=>{const p=dz[j];g.fillStyle=cl(j);
+    if(p<top&&p>lo)g.fillText(k+' '+fmt(p,r.pc),L+w+4,y(p)+4);
+    else if(p>=top){g.fillText(k+' '+fmt(p,r.pc)+' ↑',L+w+4,T+10+12*up);up++}});
+}
+
+function render(){
+  gradeBtns();
+  document.getElementById('charts').style.display=VIEW==='charts'?'grid':'none';
+  document.getElementById('score').style.display=VIEW==='score'?'block':'none';
+  document.getElementById('gradeBtns').style.display=VIEW==='charts'?'':'none';
+  if(VIEW==='score')return scorecard();
+  var g=document.getElementById('charts');g.innerHTML='';
+  ROWS.filter(function(r){return GRADE==='ALL'||r.grade===GRADE;}).forEach(function(r){
+    var pmN=Math.max(1,pmLen(r)),pmh=Math.max.apply(null,nn(r.h.slice(0,pmN))),ipm=r.h.slice(0,pmN).indexOf(pmh),hod=Math.max.apply(null,nn(r.h));
+    var after=Math.min.apply(null,nn(r.l.slice(ipm))),close=nn(r.c).slice(-1)[0],zn=zoneOf(pmh,r.pm);
+    var el=document.createElement('div');el.className='card';
+    el.innerHTML='<div class="ctop"><div class="sym"><a href="https://www.tradingview.com/chart/qED1iZnl/?symbol='+r.sym+'" target="_blank" rel="noopener">'+r.sym+'</a> <span class="meta">'+(r.name||'')+(r.cty?' · '+r.cty:'')+'</span></div>'+
+      '<div class="meta">prev close '+fmt(r.pc,r.pc)+' · cap '+(r.cap==null?'?':'$'+(+r.cap).toFixed(1)+'M')+' · float '+(r.float==null?'?':(+r.float).toFixed(2)+'M')+' · '+r.group+' ('+r.gn+' days)</div></div>'+
+      '<div class="res">PM zones: Z1 '+fmt(r.pm[0],r.pc)+' · <b style="color:#4ADE80">Z2 '+fmt(r.pm[1],r.pc)+' – Z3 '+fmt(r.pm[2],r.pc)+'</b> · Z4 '+fmt(r.pm[3],r.pc)+
+      ' &nbsp;|&nbsp; PM high <b>'+fmt(pmh,r.pc)+'</b> (+'+((pmh/r.pc-1)*100).toFixed(0)+'%) at '+tm(ipm,r.t0)+' <span class="tag" style="background:'+(GCOL[r.grade]||'#64748B')+';color:#fff">grade '+r.grade+'</span>'+
+      ' · low after '+fmt(after,r.pc)+' ('+((after/pmh-1)*100).toFixed(0)+'%) · '+(r.broken?'<b style="color:#F87171">PM high broken after open</b>':'PM high held')+' · HOD '+fmt(hod,r.pc)+' · last '+fmt(close,r.pc)+'</div><canvas></canvas>';
+    g.appendChild(el);r._cv=el.querySelector('canvas');draw(r._cv,r);
+  });
+  if(!g.children.length)g.innerHTML='<div class="meta" style="padding:20px">No tickers.</div>';
+}
+function med(a){if(!a.length)return null;var s=a.slice().sort(function(x,y){return x-y;}),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function scorecard(){
+  var box=document.getElementById('score'),all=[],days=Object.keys(IDX).sort();
+  days.forEach(function(d){var rs=IDX[d].rows||{};Object.keys(rs).forEach(function(k){var x=rs[k];x._d=d;all.push(x);});});
+  var by={};all.forEach(function(x){(by[x.grade]=by[x.grade]||[]).push(x);});
+  var h='<div class="box"><table><thead><tr><th>Grade</th><th>Where the PM high topped</th><th class="r">Tickers</th><th class="r">Per day</th><th class="r">Median PM high</th><th class="r">Median drop after PM high</th><th class="r">Dropped 20%+</th><th class="r">PM high broken after open</th><th class="r">Median last vs PM high</th></tr></thead><tbody>';
+  var WHERE={'A+':'Z2–Z3 (green)','A':'Z1–Z2','B':'Z3–Z4 (late)','C':'above Z4 (squeeze)','D':'below Z1 (no setup)'};
+  ['A+','A','B','C','D'].forEach(function(g){var L=by[g]||[];if(!L.length)return;
+    var drop=L.map(function(x){return x.drop_pct;}).filter(function(v){return v!=null;}),last=L.map(function(x){return x.last_vs_pmh;}).filter(function(v){return v!=null;});
+    h+='<tr><td class="g" style="color:'+GCOL[g]+'">'+g+'</td><td>'+WHERE[g]+'</td><td class="r">'+L.length+'</td><td class="r">'+(L.length/days.length).toFixed(1)+'</td><td class="r">+'+Math.round(med(L.map(function(x){return x.pmh_pct;})))+'%</td>'+
+      '<td class="r">'+(drop.length?Math.round(med(drop))+'%':'—')+'</td><td class="r">'+Math.round(drop.filter(function(v){return v<=-20;}).length/Math.max(1,drop.length)*100)+'%</td>'+
+      '<td class="r">'+Math.round(L.filter(function(x){return x.broken;}).length/L.length*100)+'%</td><td class="r">'+(last.length?Math.round(med(last))+'%':'—')+'</td></tr>';});
+  h+='</tbody></table></div>';
+  h+='<div class="box"><table><thead><tr><th>Day</th><th class="r">Tickers</th><th>A+</th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead><tbody>';
+  days.slice().reverse().forEach(function(d){var rs=IDX[d].rows||{},L=Object.keys(rs).map(function(k){return rs[k];});
+    var cell=function(g){return L.filter(function(x){return x.grade===g;}).map(function(x){return '<span title="drop '+x.drop_pct+'%">'+x.sym+'</span>';}).join(' ');};
+    h+='<tr style="cursor:pointer" onclick="loadDay(\''+d+'\');view(\'charts\')"><td>'+d+'</td><td class="r">'+L.length+'</td><td>'+cell('A+')+'</td><td>'+cell('A')+'</td><td>'+cell('B')+'</td><td>'+cell('C')+'</td><td>'+cell('D')+'</td></tr>';});
+  h+='</tbody></table></div><div class="note">Scorecard over '+days.length+' day(s), '+all.length+' tickers. It fills in every day after the session; judge a grade only after 60+ tickers.</div>';
+  box.innerHTML=h;
+}
+addEventListener('resize',function(){if(VIEW==='charts')ROWS.forEach(function(r){if(r._cv)draw(r._cv,r);});});
+</script>
+</body>
+</html>
