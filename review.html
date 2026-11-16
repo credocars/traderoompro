@@ -536,13 +536,13 @@ body{display:flex;}
         </div>
         <div class="rv-block" id="chartsBar" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;flex-wrap:wrap;">
           <div class="rv-card-title" style="padding:0;border:none;">Charts</div>
-          <div class="rv-nav" style="margin-left:auto;">
+          <a class="rv-tab active" id="tvLayout" style="margin-left:auto;text-decoration:none;" target="_blank" rel="noopener" title="Your own TradingView layout with this symbol, new tab">Open in my TradingView ↗</a>
+          <div class="rv-nav">
             <button class="rv-tab" id="btnBack3" onclick="goBack()" title="Back to the list (Esc)">‹ Back</button>
             <button class="rv-tab" id="btnPrev3" onclick="stepAt(-1, 'chartsBar')" title="Previous trade (← key)">◀ Prev</button>
             <span class="rv-count" id="navCount3">—</span>
             <button class="rv-tab" id="btnNext3" onclick="stepAt(1, 'chartsBar')" title="Next trade (→ key)">Next ▶</button>
           </div>
-          <a class="rv-tab active" id="tvLayout" target="_blank" rel="noopener" style="text-decoration:none;" title="Your own TradingView layout with this symbol, new tab">Open in my TradingView ↗</a>
         </div>
         <div class="rv-row">
           <div class="rv-cbox"><div class="rv-clabel">1 minute</div><div id="chartBox" class="rv-chart"></div></div>
