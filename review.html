@@ -1830,7 +1830,7 @@ var TV_SYM = null;
 // readable rule names (Max 10-30); the codes stay in the data
 var RULE_NAME = {BAOALL_L: 'Ladder no stop', BAOALL_LM: 'Ladder + $ limit', BAOALL_LS: 'Ladder + 30% stop',
   BAOALL_C: 'Ladder + confirm', BAOALL_F: 'Fade every push', BAOALL_SP: 'Scale-in 3%', BAOALL_SD: 'Scale-in $ steps',
-  BAOALL_B: 'Bot 5% 1000 sh', BAOALL_X: 'Scale-out 2/4/6%', BAOALL_R: '1-min reversal', BAOALL_M: 'Bot 500 + 2x100', BAOALL_1: 'One shot',
+  BAOALL_B: 'Bot 5% 1000 sh', BAOALL_X: 'Scale-out 2/4/6%', BAOALL_R: '1-min reversal', BAOALL_M: 'Bot 500 + 2x100', BAOALL_1: 'One shot', BAOALL_LF: 'One piece filtered',
   SR_S5_08: 'S/R stop 5%', SR_R3_08: 'S/R room 3x', SR_S5_08H: 'S/R stop 5% HOD', SR_R3_08H: 'S/R room 3x HOD'};
 function rn(r) { return RULE_NAME[r] || r || ''; }
 var RULE_INFO = {
@@ -1848,6 +1848,7 @@ var RULE_INFO = {
   BAOALL_SP: 'scale in: 5 x 200 sh every 3% up, TP 200 every 3% down (min $0.05 under $1), stop top entry + 1 step',
   BAOALL_SD: 'scale in: 5 x 200 sh every $0.05 / $0.10 / $0.25 up (by price), TP 200 every step down, stop top entry + 1 step',
   BAOALL_M: 'Max size: 500 sh + 2 adds of 100 (max 700), bot rules, $ steps by price, loss limit per trade',
+  BAOALL_LF: 'one short of 500 sh at the spike signal (no ladder): $2-10 only, 300K+ shares in the spike window, entry 15%+ above VWAP, price zone Z1-Z4 (from 11-16); stop +15% + ESL, cover at VWAP, a losing trade out after 30 min or on 2 green 2-min candles, all out 09:30; trend-day block',
   BAOALL_LM: 'BAOALL_L ladder + max loss per trade (the bot limit)',
   BAOALL_F: 'fade every push: L ladder, out on the first 6% dip / VWAP / 15 min + confirmed stop; re-short each new push 8% over the last cover (max 10 rounds, -$150, 2 losers)',
   BAOX_C1: 'climax top, 1 finished 1-min candle: no new high, less volume',
