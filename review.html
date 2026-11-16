@@ -554,6 +554,14 @@ body{display:flex;}
         <div class="rv-cbox" style="border-top:1px solid var(--border);">
           <div class="rv-card-title">Executions</div>
           <div class="rv-scroll"><table class="rv-table"><thead><tr><th>Time</th><th>Side</th><th class="r">Qty</th><th class="r">Price</th><th>Why</th><th class="r">Position</th><th class="r">Avg</th><th class="r">Realized</th></tr></thead><tbody id="execRows"></tbody></table></div>
+          <div class="rv-chart-head" style="border-top:1px solid var(--border);border-bottom:none;justify-content:flex-end;">
+            <div class="rv-nav">
+              <button class="rv-tab" id="btnBack2" onclick="goBack()" title="Back to the list (Esc)">‹ Back</button>
+              <button class="rv-tab" id="btnPrev2" onclick="stepBottom(-1)" title="Previous trade (← key)">◀ Prev</button>
+              <span class="rv-count" id="navCount2">—</span>
+              <button class="rv-tab" id="btnNext2" onclick="stepBottom(1)" title="Next trade (→ key)">Next ▶</button>
+            </div>
+          </div>
         </div>
         <div class="rv-cbox" id="baoExecCard" style="display:none;border-top:1px solid var(--border);">
           <div class="rv-card-title" id="baoExecTitle">BAO executions</div>
@@ -1542,7 +1550,18 @@ function openTrade(i, scroll) {
   navPush();
 }
 function dayList() { return Object.keys(INDEX).sort(); }
-function updateNav() {
+function updateNav() {                      // the top bar + the copy under the executions table (Max 11-16)
+  navTop();
+  [['btnBack', 'btnBack2'], ['btnPrev', 'btnPrev2'], ['btnNext', 'btnNext2'], ['navCount', 'navCount2']].forEach(function (p) {
+    var a = document.getElementById(p[0]), b = document.getElementById(p[1]);
+    if (a && b) { b.textContent = a.textContent; b.disabled = a.disabled; }
+  });
+}
+function stepBottom(d) {                    // Prev / Next under the executions: the next trade from its top
+  stepTrade(d);
+  setTimeout(function () { document.getElementById('chartCard').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 50);
+}
+function navTop() {
   document.getElementById('btnBack').textContent = NAV ? '‹ Back to Trades' : '‹ Back';
   if (NAV) {                                 // walking the Trades list (e.g. one symbol, every day)
     var L = NAV.list, i = NAV.i, f = function (x) { return x._day.slice(5) + ' ' + x.symbol; };
