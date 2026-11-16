@@ -534,8 +534,14 @@ body{display:flex;}
           <div class="rv-clabel" style="border-top:1px solid var(--border);">Last days</div>
           <div class="rv-days" id="sofarDays"></div>
         </div>
-        <div class="rv-block" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;">
+        <div class="rv-block" id="chartsBar" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;flex-wrap:wrap;">
           <div class="rv-card-title" style="padding:0;border:none;">Charts</div>
+          <div class="rv-nav" style="margin-left:auto;">
+            <button class="rv-tab" id="btnBack3" onclick="goBack()" title="Back to the list (Esc)">‹ Back</button>
+            <button class="rv-tab" id="btnPrev3" onclick="stepAt(-1, 'chartsBar')" title="Previous trade (← key)">◀ Prev</button>
+            <span class="rv-count" id="navCount3">—</span>
+            <button class="rv-tab" id="btnNext3" onclick="stepAt(1, 'chartsBar')" title="Next trade (→ key)">Next ▶</button>
+          </div>
           <a class="rv-tab active" id="tvLayout" target="_blank" rel="noopener" style="text-decoration:none;" title="Your own TradingView layout with this symbol, new tab">Open in my TradingView ↗</a>
         </div>
         <div class="rv-row">
@@ -1552,15 +1558,16 @@ function openTrade(i, scroll) {
 function dayList() { return Object.keys(INDEX).sort(); }
 function updateNav() {                      // the top bar + the copy under the executions table (Max 11-16)
   navTop();
-  [['btnBack', 'btnBack2'], ['btnPrev', 'btnPrev2'], ['btnNext', 'btnNext2'], ['navCount', 'navCount2']].forEach(function (p) {
-    var a = document.getElementById(p[0]), b = document.getElementById(p[1]);
-    if (a && b) { b.textContent = a.textContent; b.disabled = a.disabled; }
+  ['btnBack', 'btnPrev', 'btnNext', 'navCount'].forEach(function (id) {   // copies: 2 = under the executions, 3 = above the charts
+    var a = document.getElementById(id);
+    ['2', '3'].forEach(function (n) { var b = document.getElementById(id + n); if (a && b) { b.textContent = a.textContent; b.disabled = a.disabled; } });
   });
 }
-function stepBottom(d) {                    // Prev / Next under the executions: the next trade from its top
+function stepAt(d, anchor) {                // Prev / Next from a lower bar: the next trade, scrolled to that bar's place
   stepTrade(d);
-  setTimeout(function () { document.getElementById('chartCard').scrollIntoView({behavior: 'smooth', block: 'start'}); }, 50);
+  setTimeout(function () { document.getElementById(anchor).scrollIntoView({behavior: 'smooth', block: 'start'}); }, 50);
 }
+function stepBottom(d) { stepAt(d, 'chartCard'); }   // under the executions: the next trade from its top
 function navTop() {
   document.getElementById('btnBack').textContent = NAV ? '‹ Back to Trades' : '‹ Back';
   if (NAV) {                                 // walking the Trades list (e.g. one symbol, every day)
