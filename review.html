@@ -334,6 +334,7 @@ body{display:flex;}
 .rv-stat{padding:12px 16px;border-bottom:1px solid var(--border);}
 .rv-stat:nth-child(odd){border-right:1px solid var(--border);}
 .rv-stat .k{font-size:12px;color:var(--t2);margin-bottom:4px;}
+.rv-stat .s{font-size:11px;color:var(--t3);margin-top:3px;line-height:1.35;white-space:normal;}
 .rv-stat .v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
 .rv-note{width:100%;min-height:110px;background:var(--card2);border:1px solid var(--border-hi);border-radius:8px;color:var(--t1);font-family:inherit;font-size:13px;padding:10px;resize:vertical;}
 .rv-note:focus{outline:none;border-color:var(--green);}
@@ -514,6 +515,8 @@ body{display:flex;}
         <div class="rv-block">
           <div class="rv-card-title">Trade stats</div>
           <div class="rv-stats4" id="statGrid"></div>
+          <div class="rv-clabel" style="border-top:1px solid var(--border);">Stock — what we track (cap, float, group, zone, pattern, news, owners, borrow)</div>
+          <div class="rv-stats4" id="stockGrid"></div>
         </div>
         <div class="rv-block">
           <div class="rv-card-title">What we track on this trade</div>
@@ -1646,7 +1649,7 @@ function dropCharts() {
   [CHART, DCHART, PCHART, DPCHART].forEach(function (c) { if (c) c.remove(); });
   if (BCHART) BCHART.remove(); BCHART = null; var bx = document.getElementById('baoExecBox'); if (bx) bx.innerHTML = '';
   CHART = DCHART = PCHART = DPCHART = null;
-  ['chartBox', 'dailyBox', 'pnlBox', 'dayPnlBox', 'statGrid'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
+  ['chartBox', 'dailyBox', 'pnlBox', 'dayPnlBox', 'statGrid', 'stockGrid'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
 }
 function fillsSorted(t) {
   return (t.fills || []).slice().sort(function (a, b) { return a[0].localeCompare(b[0]); });
@@ -1779,6 +1782,52 @@ function zoneLine(t, z) {                  // 'entry 4.12 in Z2–Z3 (A+ zone) �
     ' · stock-day grade ' + z.grade + ' (PM high ' + px(z.pmh) + ' +' + Math.round(z.pmh_pct) + '% at ' + z.pmh_t + ', ' + zoneName(z.pmh, z.pm) + ')' +
     ' · ' + z.group + ' · zones PM: ' + z.pm.map(function (x) { return px(x); }).join(' / ');
 }
+// Stock tiles (Max 11-17 "add the stock info in Trade stats: MC / float / zone / news / pattern / group, all we track")
+function sTile(k, v, sub, c) {
+  var d = el('div', {cls: 'rv-stat'}); d.appendChild(el('div', {cls: 'k'}, k));
+  d.appendChild(el('div', {cls: 'v ' + (c || '')}, v === undefined || v === null || v === '' ? '—' : v));
+  if (sub) d.appendChild(el('div', {cls: 's'}, sub));
+  document.getElementById('stockGrid').appendChild(d); return d;
+}
+function stockStats(t, avgIn) {
+  var box = document.getElementById('stockGrid'); if (!box) return; box.innerHTML = '';
+  var D = t.db || {}, tg = t.tags || {}, has = function (v) { return v !== undefined && v !== null && v !== ''; };
+  var n1 = function (v, suf) { return has(v) ? (Math.round(v * 10) / 10).toLocaleString('en-US') + (suf || '') : null; };
+  var pc = function (v) { return has(v) ? (v > 0 ? '+' : '') + Math.round(v) + '%' : null; };
+  var src = D.src === 'db' ? 'spike database (that day)' : D.src === 'today' ? "today's profile" : '';
+  // zone first: loaded async (admin_review/zones), the tile is filled when it comes
+  var zt = sTile('Zone at entry', '…', 'loading zones'), gt = sTile('Group (cap | float)', '…', ' '), gr = sTile('Stock-day grade', '…', ' ');
+  loadZone(t.symbol).then(function (z) {
+    if (CUR_T !== t) return;
+    var setT = function (tile, v, sub, c) { tile.children[1].textContent = v; tile.children[1].className = 'v ' + (c || ''); if (tile.children[2]) tile.children[2].textContent = sub || ''; };
+    if (!z || !z.pm) {
+      setT(zt, '—', 'no zones for this stock-day (PM move under +20% or no data)');
+      setT(gt, has(D.mcap_m) || has(D.float_m) ? [has(D.mcap_m) ? mcb(D.mcap_m) : 'MC?', has(D.float_m) ? fbk(D.float_m) : 'F?'].join(' | ') : '—', 'from the spike database');
+      setT(gr, '—', ''); return;
+    }
+    var i = avgIn < z.pm[0] ? 0 : avgIn < z.pm[1] ? 1 : avgIn < z.pm[2] ? 2 : avgIn < z.pm[3] ? 3 : 4;
+    setT(zt, ZB[i][0] + ' · ' + zoneName(avgIn, z.pm), 'entry ' + px(avgIn) + ' = ' + pc((avgIn / z.pc - 1) * 100) + ' from the close ' + px(z.pc) +
+      ' · Z1–Z4 ' + z.pm.map(function (x) { return px(x); }).join(' / '), i === 2 ? 'pos' : i === 4 || i === 0 ? 'neg' : '');
+    setT(gt, z.group || '—', 'zone table group (market cap | float)');
+    setT(gr, z.grade || '—', 'PM high ' + px(z.pmh) + ' (' + pc(z.pmh_pct) + ') at ' + (z.pmh_t || '?') + ' · ' + zoneName(z.pmh, z.pm), z.grade === 'A+' ? 'pos' : '');
+  });
+  sTile('Market cap', has(D.mcap_m) ? '$' + (+D.mcap_m).toFixed(D.mcap_m < 10 ? 2 : 1) + 'M' : null, has(D.mcap_m) ? mcb(D.mcap_m) : '');
+  sTile('Float', has(D.float_m) ? (+D.float_m).toFixed(D.float_m < 10 ? 2 : 1) + 'M' : (tg.float_b || null), has(D.float_m) ? fbk(D.float_m) + (has(D.turnover) ? ' · turnover ' + n1(D.turnover, 'x') : '') : '');
+  sTile('Pattern', D.pattern || null, D.category || '');
+  sTile('News (before 09:30)', has(D.news_kind) && D.news_kind !== 'NONE' ? D.news_kind : (D.src === 'db' ? 'no news' : null), '');
+  sTile('Gap', pc(D.pm_gap_pct) ? 'PM ' + pc(D.pm_gap_pct) : pc(D.gap_pct), [pc(D.gap_pct) ? 'open ' + pc(D.gap_pct) : '', has(D.high_pct) ? 'spike (HOD) ' + pc(D.high_pct) : '', has(D.close_pct) ? 'close ' + pc(D.close_pct) : ''].filter(Boolean).join(' · '));
+  sTile('Volume', has(D.vol_mult) ? n1(D.vol_mult, 'x 20-day') : null, [has(D.dollar_vol_m) ? '$' + n1(D.dollar_vol_m, 'M') : '', has(D.pm_vol_pct) ? 'PM ' + pc(D.pm_vol_pct) + ' of the day' : ''].filter(Boolean).join(' · '));
+  sTile('Country / sector', tg.country_b || D.country || null, D.sector || '');
+  sTile('IB borrow', tg.borrow ? (tg.borrow === 'shares' ? 'shortable' : tg.borrow) : null, [tg.borrow_sh ? tg.borrow_sh + ' sh' : '', has(tg.fee) && tg.fee !== '' ? 'fee ' + (+tg.fee).toFixed(1) + '%/yr' : ''].filter(Boolean).join(' · '), tg.borrow && tg.borrow !== 'shares' ? 'neg' : '');
+  sTile('Short interest', pc(D.short_float_pct) ? pc(D.short_float_pct) + ' of float' : null, has(D.short_vol_pct) ? 'short volume ' + pc(D.short_vol_pct) + ' (FINRA, day)' : '');
+  sTile('Owners', [has(D.inst_pct) ? 'inst ' + pc(D.inst_pct).replace('+', '') : '', has(D.insiders_pct) ? 'insiders ' + pc(D.insiders_pct).replace('+', '') : ''].filter(Boolean).join(' · ') || null, '');
+  sTile('Dilution', [D.offer_90d ? 'offering ≤90d' : '', D.offer_after ? 'offering on/after' : '', has(D.shares_chg_pct) ? 'shares ' + pc(D.shares_chg_pct) + ' in 4 mo' : ''].filter(Boolean).join(' · ') || (D.src === 'db' ? 'none found' : null),
+    [has(D.rs_days) ? 'reverse split ' + D.rs_days + ' days ago' : '', D.f_ma ? 'merger filing' : ''].filter(Boolean).join(' · '), D.offer_90d || D.offer_after ? 'neg' : '');
+  sTile('Run before', pc(D.run_pct), has(D.green_streak) ? D.green_streak + ' green days in a row' : '');
+  sTile('Resistance above', tg.crr_h5 !== undefined ? (tg.crr_h5 === null ? 'nothing above' : '+' + Math.round(tg.crr_h5) + '%') : null, crrTxt(tg));
+  sTile('HOD / next day', D.hod_time || null, has(D.n1_oc) ? 'next day open → close ' + pc(D.n1_oc) : '');
+  sTile('BAO / data', tg.bao_posted ? 'BAO posted' : (tg.bao_posted === false ? 'not posted' : null), src);
+}
 function showStats(t, pnl, candles, vwap) {
   ['statGrid', 'ctxGrid'].forEach(function (id) { document.getElementById(id).innerHTML = ''; });
   var fs = fillsSorted(t), pos = 0, maxPos = 0, sq = 0, sv = 0, bq = 0, bv = 0;
@@ -1811,13 +1860,7 @@ function showStats(t, pnl, candles, vwap) {
   stat('Round', tg.round ? (tg.round > 1 ? 'R' + tg.round + ' (re-entry)' : '1 (first spike)') : '—', tg.round > 1 ? 'neg' : '', g);
   stat('Runner risk', tg.risk || '—', tg.risk === 'HIGH' ? 'neg' : '', g);
   stat('Top-signal score', tg.score !== undefined ? tg.score + ' / 5' : '—', '', g);
-  stat('Stock', [tg.country_b, tg.float_b ? 'float ' + tg.float_b : '', tg.borrow ? 'IB ' + tg.borrow : '', crrTxt(tg), tg.bao_posted ? 'BAO posted' : ''].filter(Boolean).join(' · ') || '—', '', g);
-  var D = t.db || {}, f1 = function (v, suf) { return v === undefined || v === null ? null : (Math.round(v * 10) / 10) + suf; };
-  if (t.db) stat('Spike database', [D.pattern, D.mcap_m !== undefined ? 'cap $' + f1(D.mcap_m, 'M') : '', D.float_m !== undefined ? 'float ' + f1(D.float_m, 'M') : '',
-      D.gap_pct !== undefined ? 'gap ' + f1(D.gap_pct, '%') : '', D.pm_gap_pct !== undefined ? 'PM gap ' + f1(D.pm_gap_pct, '%') : '',
-      D.vol_mult !== undefined ? 'vol ' + f1(D.vol_mult, 'x') : '', D.turnover !== undefined ? 'turnover ' + f1(D.turnover, 'x') : '',
-      D.offer_90d ? 'offering ≤90d' : '', D.news_kind && D.news_kind !== 'NONE' ? 'news ' + D.news_kind : '',
-      D.src === 'today' ? "(today's profile)" : ''].filter(Boolean).join(' · ') || '—', '', g);
+  stockStats(t, avgIn);
   statRules(t);
   soFar(t);
 }
