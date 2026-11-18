@@ -650,7 +650,7 @@ body{display:flex;}
       <div class="rv-card">
         <div class="rv-card-title rv-rule-head"><span id="stocksLabel">Stocks</span><span class="rv-rule-btns" id="stocksScopeBtns"><button class="rv-tab" data-s="day" onclick="ruleScope('stocks', 'day')">By rule — this day</button><button class="rv-tab active" data-s="all" onclick="ruleScope('stocks', 'all')">By rule — All time</button></span></div>
         <div class="rv-scroll"><table class="rv-table"><thead id="stocksHead"><tr></tr></thead><tbody id="stocksRows"></tbody></table></div>
-        <div class="rv-chart-note" style="white-space:normal;line-height:1.55;">One row per stock-day the tests traded, with that day's facts from the spike database (cap / float at the event, gap, premarket gap, spike, volume vs 20 days, turnover, offerings, news ...). Owners and short interest = the nearest saved snapshot. <i>today</i> in the last column = not in the database, today's profile. Click a column to sort, click a row = its trades.</div>
+        <div class="rv-chart-note" style="white-space:normal;line-height:1.55;">One row per stock-day the tests traded, with that day's facts from the spike database (cap / float at the event, gap, premarket gap, spike, volume vs 20 days, turnover, offerings, news ...). Owners and short interest = the nearest saved snapshot. <i>today</i> in the last column = not in the database, today's profile; <i>calc</i> = worked out from that day's stock facts + price bars (gap = 09:30 open, PM gap = premarket high, spike = day high, all vs the previous close). Click a column to sort, click a row = its trades.</div>
       </div>
     </div>
 
@@ -1391,8 +1391,8 @@ function buildStocks() {
   rows.forEach(function (r) {
     var tr = el('tr', {cls: 'click', title: 'Every trade of ' + r.sym});
     STOCK_COLS.forEach(function (c) {
-      var v = r[c[0]], txt = c[0] === 'src' ? (v === 'today' ? 'today' : v === 'db' ? 'db' : '—') : stockCell(v, c[2]);
-      tr.appendChild(el('td', {cls: (c[2] === 's' ? '' : 'r ') + (c[0] === 'net' ? cls(v) : ''), style: c[0] === 'sym' ? 'font-weight:700;' : (c[0] === 'src' && v === 'today' ? 'color:var(--t3);font-style:italic;' : '')}, txt));
+      var v = r[c[0]], txt = c[0] === 'src' ? (v === 'today' ? 'today' : v === 'db' ? 'db' : v === 'calc' ? 'calc' : '—') : stockCell(v, c[2]);
+      tr.appendChild(el('td', {cls: (c[2] === 's' ? '' : 'r ') + (c[0] === 'net' ? cls(v) : ''), style: c[0] === 'sym' ? 'font-weight:700;' : (c[0] === 'src' && (v === 'today' || v === 'calc') ? 'color:var(--t3);font-style:italic;' : '')}, txt));
     });
     tr.onclick = function () { ST.sym = r.sym; showView('trades'); };
     body.appendChild(tr);
