@@ -529,37 +529,44 @@ var TIPS = [];
 function tipOn(i, e) { var t = document.getElementById('tip'); t.innerHTML = TIPS[i]; t.style.display = 'block'; t.style.left = (e.clientX + 12) + 'px'; t.style.top = (e.clientY + 12) + 'px'; }
 function tipOff() { document.getElementById('tip').style.display = 'none'; }
 function tipAttr(html) { TIPS.push(html); var i = TIPS.length - 1; return ' onmousemove="tipOn(' + i + ',event)" onmouseleave="tipOff()"'; }
+function niceStep(range, n) {
+  var raw = range / n, mag = Math.pow(10, Math.floor(Math.log10(raw || 1))), r = raw / mag;
+  return (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * mag;
+}
 function svgChart(pts, o) {
-  // pts: [{x: label, v: number, tip: html}]  o: {type: 'bar'|'line'|'area', h, fmt, color}
-  o = o || {}; var W = 640, H = o.h || 200, pl = 56, pr = 8, pt = 8, pb = 22;
+  // pts: [{x: label, v: number, tip: html, click}]  o: {type: 'bar'|'line'|'area', h, fmt, color}
+  // drawn at 640 wide and scaled evenly with the card (no stretching): wide cards = taller charts, round axis values
+  o = o || {}; var W = 640, H = Math.round((o.h || 200) * 1.35), pl = 60, pr = 10, pt = 10, pb = 26;
   if (!pts.length) return '<div class="ms-empty">No data</div>';
   var vs = pts.map(function (p) { return p.v; }), mx = Math.max.apply(null, vs.concat([0])), mn = Math.min.apply(null, vs.concat([0]));
   if (mx === mn) mx = mn + 1;
-  var pad = (mx - mn) * .06; mx += mx > 0 ? pad : 0; mn -= mn < 0 ? pad : 0;
+  var step = niceStep(mx - mn, 5);
+  mx = Math.ceil(mx / step - 1e-9) * step; mn = Math.floor(mn / step + 1e-9) * step;
+  if (mx === mn) mx = mn + step;
   var iw = W - pl - pr, ih = H - pt - pb, n = pts.length;
   function Y(v) { return pt + (mx - v) / (mx - mn) * ih; }
   var fmt = o.fmt || function (v) { return usd(v, 0); };
-  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="max-height:' + (H + 40) + 'px">';
-  for (var g = 0; g <= 4; g++) { var gv = mn + (mx - mn) * g / 4, gy = Y(gv);
-    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + gy + '" y2="' + gy + '" stroke="#243044" stroke-width="1"/>' +
-      '<text x="' + (pl - 6) + '" y="' + (gy + 3) + '" fill="#64748b" font-size="10" text-anchor="end">' + esc(fmt(gv)) + '</text>'; }
-  s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="#475569" stroke-width="1"/>';
-  var step = iw / n, every = Math.max(1, Math.ceil(n / 16));
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" font-family="Inter,sans-serif">';
+  for (var gv = mn; gv <= mx + step / 2; gv += step) { var gy = Y(gv);
+    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + gy.toFixed(1) + '" y2="' + gy.toFixed(1) + '" stroke="#243044" stroke-width="1"/>' +
+      '<text x="' + (pl - 7) + '" y="' + (gy + 3.5).toFixed(1) + '" fill="#94a3b8" font-size="10.5" font-weight="600" text-anchor="end">' + esc(fmt(Math.abs(gv) < step / 1e6 ? 0 : gv)) + '</text>'; }
+  s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="#64748b" stroke-width="1"/>';
+  var sw = iw / n, every = n <= 14 ? 1 : Math.max(1, Math.ceil(n / 16));
   if (o.type === 'line' || o.type === 'area') {
-    var path = '', area = '';
-    pts.forEach(function (p, i) { var x = pl + step * (i + .5), y = Y(p.v); path += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; });
-    if (o.type === 'area') { area = path + 'L' + (pl + step * (n - .5)).toFixed(1) + ' ' + Y(0) + ' L' + (pl + step * .5).toFixed(1) + ' ' + Y(0) + ' Z';
-      s += '<path d="' + area + '" fill="' + (o.color || '#ef4444') + '" fill-opacity=".18"/>'; }
+    var path = '';
+    pts.forEach(function (p, i) { var x = pl + sw * (i + .5), y = Y(p.v); path += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; });
+    if (o.type === 'area') s += '<path d="' + path + 'L' + (pl + sw * (n - .5)).toFixed(1) + ' ' + Y(0) + ' L' + (pl + sw * .5).toFixed(1) + ' ' + Y(0) + ' Z" fill="' + (o.color || '#ef4444') + '" fill-opacity=".18"/>';
     var last = pts[n - 1].v, col = o.color || (last >= 0 ? '#22c55e' : '#ef4444');
-    s += '<path d="' + path + '" fill="none" stroke="' + col + '" stroke-width="2"/>';
-    pts.forEach(function (p, i) { var x = pl + step * i; s += '<rect x="' + x.toFixed(1) + '" y="' + pt + '" width="' + Math.max(step, 1).toFixed(1) + '" height="' + ih + '" fill="transparent"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + '/>'; });
+    s += '<path d="' + path + '" fill="none" stroke="' + col + '" stroke-width="2" vector-effect="non-scaling-stroke"/>';
+    pts.forEach(function (p, i) { s += '<rect x="' + (pl + sw * i).toFixed(1) + '" y="' + pt + '" width="' + Math.max(sw, 1).toFixed(1) + '" height="' + ih + '" fill="transparent"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + '/>'; });
   } else {
-    var bw = Math.max(step * .72, 1);
-    pts.forEach(function (p, i) { var x = pl + step * i + (step - bw) / 2, y0 = Y(0), y1 = Y(p.v);
-      var col = o.color || (p.v >= 0 ? '#22c55e' : '#ef4444');
-      s += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(Math.abs(y1 - y0), .5).toFixed(1) + '" fill="' + col + '" rx="1"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + (p.click ? ' style="cursor:pointer" onclick="' + p.click + '"' : '') + '/>'; });
+    var bw = Math.max(sw * (n <= 14 ? .78 : .7), 1);
+    pts.forEach(function (p, i) { var x = pl + sw * i + (sw - bw) / 2, y0 = Y(0), y1 = Y(p.v);
+      var col = o.color || (p.v >= 0 ? '#4ade80' : '#ef4444');
+      if (o.color && p.v < 0) col = '#ef4444';
+      s += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(Math.abs(y1 - y0), p.v ? .8 : 0).toFixed(1) + '" fill="' + col + '" rx="1.5"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + (p.click ? ' style="cursor:pointer" onclick="' + p.click + '"' : '') + '/>'; });
   }
-  pts.forEach(function (p, i) { if (i % every === 0) s += '<text x="' + (pl + step * (i + .5)).toFixed(1) + '" y="' + (H - 6) + '" fill="#64748b" font-size="10" text-anchor="middle">' + esc(p.lx != null ? p.lx : p.x) + '</text>'; });
+  pts.forEach(function (p, i) { if (i % every === 0) s += '<text x="' + (pl + sw * (i + .5)).toFixed(1) + '" y="' + (H - 8) + '" fill="#94a3b8" font-size="10.5" font-weight="600" text-anchor="middle">' + esc(p.lx != null ? p.lx : p.x) + '</text>'; });
   return s + '</svg>';
 }
 function shortD(d) { return d.slice(5).replace('-', '/'); }
@@ -690,6 +697,7 @@ function viewRep(el) {
 // ═══ YEAR / MONTH / DAY (like Tradervue reports/overview?subrep=ymd) - whole years, the date range is ignored ═══
 var YMD_Y = null, YMD_M = null;
 var MN3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function cntFmt(v) { return Math.round(v).toLocaleString(); }
 function ymdPick(y, m) { if (y != null) YMD_Y = y; YMD_M = m; render(); }
 function ymdRep() {
   var rows = ALL.filter(function (t) { return match(t, true); });
@@ -701,12 +709,16 @@ function ymdRep() {
   yr.forEach(function (t) { byM[+t.d.slice(5, 7) - 1].push(t); });
   if (YMD_M == null || !byM[YMD_M].length) { YMD_M = 11; while (YMD_M > 0 && !byM[YMD_M].length) YMD_M--; }
   var ys = stats(yr);
-  var h = '<div class="ms-head"><div class="ms-sub" style="margin:0">' + years.map(function (y) {
+  var h = '<div class="mut" style="font-size:11.5px;margin:-4px 0 10px">Whole years - the date range filter is not used here; the other filters are.</div>';
+  var byY = years.map(function (y) { return rows.filter(function (t) { return t.y === y; }); });
+  h += '<div class="ms-grid2">' + card('Trade distribution by year <small>click a year</small>', svgChart(byY.map(function (a, i) { return {x: years[i], v: a.length, tip: '<b>' + years[i] + '</b><br>' + a.length + ' trades', click: "ymdPick('" + years[i] + "',null)"}; }), {h: 230, color: '#4ade80', fmt: cntFmt})) +
+    card('Performance by year', svgChart(byY.map(function (a, i) { var n = sum(a.map(function (t) { return t.n; })); return {x: years[i], v: n, tip: '<b>' + years[i] + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: "ymdPick('" + years[i] + "',null)"}; }), {h: 230})) + '</div>';
+  h += '<div class="ms-head"><div class="ms-sub" style="margin:0">' + years.map(function (y) {
       return '<button class="ms-tab' + (y === YMD_Y ? ' active' : '') + '" onclick="ymdPick(\'' + y + '\',null)">' + y + '</button>'; }).join('') + '</div>' +
-    '<div class="mut" style="font-size:12px">' + YMD_Y + ': ' + pn(ys.net, 0) + ' · ' + ys.n + ' trades · ' + f2(ys.wr, 0) + '% win · PF ' + f2(ys.pf) + ' · whole years (the date range filter is not used here)</div></div>';
+    '<div class="mut" style="font-size:12px">' + YMD_Y + ': ' + pn(ys.net, 0) + ' · ' + ys.n + ' trades · ' + f2(ys.wr, 0) + '% win · PF ' + f2(ys.pf) + '</div></div>';
   var cnt = byM.map(function (a, i) { return {x: MN3[i], v: a.length, tip: '<b>' + MN3[i] + ' ' + YMD_Y + '</b><br>' + a.length + ' trades', click: 'ymdPick(null,' + i + ')'}; });
   var net = byM.map(function (a, i) { var n = sum(a.map(function (t) { return t.n; })); return {x: MN3[i], v: n, tip: '<b>' + MN3[i] + ' ' + YMD_Y + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: 'ymdPick(null,' + i + ')'}; });
-  h += '<div class="ms-grid2">' + card('Trade distribution by month <small>click a month</small>', svgChart(cnt, {h: 230, color: '#22c55e', fmt: function (v) { return Math.round(v); }})) +
+  h += '<div class="ms-grid2">' + card('Trade distribution by month <small>click a month</small>', svgChart(cnt, {h: 230, color: '#4ade80', fmt: cntFmt})) +
     card('Performance by month', svgChart(net, {h: 230})) + '</div>';
   h += '<div class="ms-head" style="justify-content:center"><b style="font-size:13px">' + YMD_Y + ':</b><div class="ms-sub" style="margin:0">' + MN3.map(function (m, i) {
       var has = byM[i].length; return '<button class="ms-tab' + (i === YMD_M ? ' active' : '') + '"' + (has ? ' onclick="ymdPick(null,' + i + ')"' : ' disabled style="opacity:.35;cursor:default"') + '>' + m + '</button>'; }).join('') + '</div></div>';
@@ -716,7 +728,7 @@ function ymdRep() {
   var ms = stats(mo), pre = YMD_Y + '-' + ('0' + (YMD_M + 1)).slice(-2) + '-';
   var dc = byD.map(function (a, i) { var dd = pre + ('0' + (i + 1)).slice(-2); return {x: String(i + 1), v: a.length, tip: '<b>' + dd + '</b><br>' + a.length + ' trades', click: a.length ? "go('day','" + dd + "')" : null}; });
   var dn = byD.map(function (a, i) { var dd = pre + ('0' + (i + 1)).slice(-2), n = sum(a.map(function (t) { return t.n; })); return {x: String(i + 1), v: n, tip: '<b>' + dd + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: a.length ? "go('day','" + dd + "')" : null}; });
-  h += '<div class="ms-grid2">' + card('Trade distribution by day <small>' + MN3[YMD_M] + ' ' + YMD_Y + ' · click a day</small>', svgChart(dc, {h: 230, color: '#22c55e', fmt: function (v) { return f2(v, v < 3 ? 2 : 0); }})) +
+  h += '<div class="ms-grid2">' + card('Trade distribution by day <small>' + MN3[YMD_M] + ' ' + YMD_Y + ' · click a day</small>', svgChart(dc, {h: 230, color: '#4ade80', fmt: cntFmt})) +
     card('Performance by day of month <small>' + pn(ms.net, 0) + ' · ' + ms.n + ' trades · ' + f2(ms.wr, 0) + '% win</small>', svgChart(dn, {h: 230})) + '</div>';
   var days = byDay(mo).reverse();
   h += card('Days of ' + MN3[YMD_M] + ' ' + YMD_Y, days.length ? '<div class="ms-scroll"><table class="ms-tbl"><thead><tr><th class="l">Day</th><th>Trades</th><th>Net</th><th>Win %</th><th>Shares</th></tr></thead><tbody>' +
