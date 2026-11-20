@@ -1021,15 +1021,13 @@ function drawChart(t, bars, fl) {
   CHART.addSeries(LC.LineSeries, {color: '#3b82f6', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false}).setData(em);
   var mk = fl.filter(function (f) { return !f[1]; }).map(function (f) {
     var p = f[0].split(':'), tm = Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), +p[0], +p[1]) / 1000;
-    return {time: tm, position: f[2] < 0 ? 'aboveBar' : 'belowBar', color: f[2] < 0 ? '#ef4444' : '#22c55e', shape: f[2] < 0 ? 'arrowDown' : 'arrowUp', text: (f[2] < 0 ? 'S' : 'B') + Math.abs(f[2])};
+    return {time: tm, position: 'atPriceMiddle', price: +f[3], color: f[2] < 0 ? '#ff3b5c' : '#c6ff00', shape: f[2] < 0 ? 'arrowDown' : 'arrowUp', size: 1.4};   // like the Daily Review
   }).sort(function (a, b) { return a.time - b.time; });
   try { LC.createSeriesMarkers(cs, mk); } catch (e) { try { cs.setMarkers(mk); } catch (e2) {} }
-  if (t.e) cs.createPriceLine({price: t.e, color: '#e2e8f0', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'avg entry'});
-  if (t.xp) cs.createPriceLine({price: t.xp, color: '#06b6d4', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'avg exit'});
   var a = Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), Math.floor(t.mins / 60), t.mins % 60) / 1000;
   var endM = t.x && !t.on ? (+t.x.slice(11, 13) * 60 + +t.x.slice(14, 16)) : t.mins + 60;
   try { CHART.timeScale().setVisibleRange({from: a - 45 * 60, to: Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), Math.floor(endM / 60), endM % 60) / 1000 + 45 * 60}); } catch (e) {}
-  note.innerHTML = 'ET · <span style="color:#fbbf24">VWAP</span> · <span style="color:#3b82f6">EMA 9</span> · arrows = your fills · dashed = avg entry / exit';
+  note.innerHTML = 'ET · <span style="color:#fbbf24">VWAP</span> · <span style="color:#3b82f6">EMA 9</span> · <span style="color:#ff3b5c">▼ short / add</span> · <span style="color:#c6ff00">▲ cover</span>';
 }
 function lcChart(box, intraday) {
   var c = LightweightCharts.createChart(box, {layout: {background: {color: '#1e2535'}, textColor: '#94a3b8', fontFamily: 'Inter, sans-serif'},
@@ -1056,12 +1054,11 @@ function drawDaily(t, d) {
   c.priceScale('vol').applyOptions({scaleMargins: {top: .8, bottom: 0}});
   vs.setData(vol);
   if (d.d.indexOf(t.d) >= 0) {
-    var mk = [{time: t.d, position: t.sd === 'L' ? 'belowBar' : 'aboveBar', color: t.sd === 'L' ? '#22c55e' : '#ef4444', shape: t.sd === 'L' ? 'arrowUp' : 'arrowDown', text: (t.sd === 'L' ? 'long ' : 'short ') + px(t.e)}];
+    var mk = [{time: t.d, position: 'atPriceMiddle', price: t.e, color: t.sd === 'L' ? '#c6ff00' : '#ff3b5c', shape: t.sd === 'L' ? 'arrowUp' : 'arrowDown', size: 1.4}];
     try { LC.createSeriesMarkers(cs, mk); } catch (e) { try { cs.setMarkers(mk); } catch (e2) {} }
   }
-  if (t.e) cs.createPriceLine({price: t.e, color: '#e2e8f0', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'entry'});
   try { var n = data.length; c.timeScale().setVisibleLogicalRange({from: Math.max(0, n - 90), to: n + 3}); } catch (e) {}
-  note.textContent = d.d.length + ' days to ' + d.d[d.d.length - 1] + ' · arrow = this trade';
+  note.textContent = d.d.length + ' days to ' + d.d[d.d.length - 1] + ' · arrow = this trade at the entry price';
 }
 function saveTrade(k) {
   var n = document.getElementById('tnote').value, tg = document.getElementById('utags').value.split(',').map(function (x) { return x.trim().replace(/\s+/g, '_'); }).filter(Boolean);
