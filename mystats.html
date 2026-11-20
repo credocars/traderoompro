@@ -337,7 +337,7 @@ firebase.auth().onAuthStateChanged(function(u) {
 var ROOT = 'traderoom/admin_review', MY = ROOT + '/my';
 var ALL = [], BYKEY = {}, META = {}, NOTES = {}, UTAGS = {}, DAYN = {}, TVJ = null, FILLS = {}, BARS = {};
 var F = {r: '90', from: '', to: '', sym: '', side: '', tag: '', time: '', hold: '', px: '', src: ''};
-var ROWS = [], VIEW = 'dash', SUB = 'overview', TSORT = {k: 'dt', d: -1}, TPAGE = 0, JPAGE = 0, CHART = null;
+var ROWS = [], VIEW = 'dash', SUB = 'ymd', TSORT = {k: 'dt', d: -1}, TPAGE = 0, JPAGE = 0, CHART = null;
 var TV = 'https://www.tradingview.com/chart/qED1iZnl/?symbol=';
 function db(p) { return firebase.database().ref(p); }
 
@@ -545,7 +545,7 @@ function svgChart(pts, o) {
     s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + gy + '" y2="' + gy + '" stroke="#243044" stroke-width="1"/>' +
       '<text x="' + (pl - 6) + '" y="' + (gy + 3) + '" fill="#64748b" font-size="10" text-anchor="end">' + esc(fmt(gv)) + '</text>'; }
   s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="#475569" stroke-width="1"/>';
-  var step = iw / n, every = Math.max(1, Math.ceil(n / 8));
+  var step = iw / n, every = Math.max(1, Math.ceil(n / 16));
   if (o.type === 'line' || o.type === 'area') {
     var path = '', area = '';
     pts.forEach(function (p, i) { var x = pl + step * (i + .5), y = Y(p.v); path += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; });
@@ -639,14 +639,15 @@ function bucketGroups(rows, f, edges, fmt) {
 }
 function groupChart(groups) { TIPS = TIPS || []; return svgChart(groups.map(function (g) { return {x: g.k, v: g.s.net, tip: '<b>' + esc(g.k) + '</b><br>' + usd(g.s.net, 0) + ' · ' + g.s.n + ' trades · ' + f2(g.s.wr, 0) + '% win'}; }), {h: 180}); }
 
-var REP = [['overview', 'Overview'], ['detailed', 'Detailed'], ['winloss', 'Win vs loss days'], ['drawdown', 'Drawdown'], ['tags', 'Tags'],
+var REP = [['ymd', 'Year / Month / Day'], ['overview', 'Overview'], ['detailed', 'Detailed'], ['winloss', 'Win vs loss days'], ['drawdown', 'Drawdown'], ['tags', 'Tags'],
   ['setup', 'Setup / cap / float'], ['price', 'Price'], ['volume', 'Size'], ['time', 'Time of day'], ['weekday', 'Day / month'], ['hold', 'Hold time'],
   ['symbol', 'Symbols'], ['side', 'Short vs long'], ['mae', 'MAE / MFE']];
 function viewRep(el) {
   TIPS = [];
   var h = '<div class="ms-sub">' + REP.map(function (r) { return '<button class="ms-tab' + (SUB === r[0] ? ' active' : '') + '" onclick="SUB=\'' + r[0] + '\';go(\'rep\',\'' + r[0] + '\')">' + r[1] + '</button>'; }).join('') + '</div>';
   var R = ROWS, g;
-  if (SUB === 'detailed') h += detailed(R);
+  if (SUB === 'ymd') h += ymdRep();
+  else if (SUB === 'detailed') h += detailed(R);
   else if (SUB === 'winloss') {
     var days = byDay(R), wd = [], ld = [];
     days.forEach(function (d) { (d.net >= 0 ? wd : ld).push.apply(d.net >= 0 ? wd : ld, d.rows); });
@@ -686,6 +687,42 @@ function viewRep(el) {
   else if (SUB === 'mae') h += maeRep(R);
   else h += overview(R);
   el.innerHTML = h;
+}
+// ═══ YEAR / MONTH / DAY (like Tradervue reports/overview?subrep=ymd) - whole years, the date range is ignored ═══
+var YMD_Y = null, YMD_M = null;
+var MN3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function ymdPick(y, m) { if (y != null) YMD_Y = y; YMD_M = m; render(); }
+function ymdRep() {
+  var rows = ALL.filter(function (t) { return match(t, true); });
+  var years = Object.keys(rows.reduce(function (o, t) { o[t.y] = 1; return o; }, {})).sort();
+  if (!years.length) return '<div class="ms-empty">No trades</div>';
+  if (!YMD_Y || years.indexOf(YMD_Y) < 0) YMD_Y = years[years.length - 1];
+  var yr = rows.filter(function (t) { return t.y === YMD_Y; });
+  var byM = []; for (var i = 0; i < 12; i++) byM.push([]);
+  yr.forEach(function (t) { byM[+t.d.slice(5, 7) - 1].push(t); });
+  if (YMD_M == null || !byM[YMD_M].length) { YMD_M = 11; while (YMD_M > 0 && !byM[YMD_M].length) YMD_M--; }
+  var ys = stats(yr);
+  var h = '<div class="ms-head"><div class="ms-sub" style="margin:0">' + years.map(function (y) {
+      return '<button class="ms-tab' + (y === YMD_Y ? ' active' : '') + '" onclick="ymdPick(\'' + y + '\',null)">' + y + '</button>'; }).join('') + '</div>' +
+    '<div class="mut" style="font-size:12px">' + YMD_Y + ': ' + pn(ys.net, 0) + ' · ' + ys.n + ' trades · ' + f2(ys.wr, 0) + '% win · PF ' + f2(ys.pf) + ' · whole years (the date range filter is not used here)</div></div>';
+  var cnt = byM.map(function (a, i) { return {x: MN3[i], v: a.length, tip: '<b>' + MN3[i] + ' ' + YMD_Y + '</b><br>' + a.length + ' trades', click: 'ymdPick(null,' + i + ')'}; });
+  var net = byM.map(function (a, i) { var n = sum(a.map(function (t) { return t.n; })); return {x: MN3[i], v: n, tip: '<b>' + MN3[i] + ' ' + YMD_Y + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: 'ymdPick(null,' + i + ')'}; });
+  h += '<div class="ms-grid2">' + card('Trade distribution by month <small>click a month</small>', svgChart(cnt, {h: 230, color: '#22c55e', fmt: function (v) { return Math.round(v); }})) +
+    card('Performance by month', svgChart(net, {h: 230})) + '</div>';
+  h += '<div class="ms-head" style="justify-content:center"><b style="font-size:13px">' + YMD_Y + ':</b><div class="ms-sub" style="margin:0">' + MN3.map(function (m, i) {
+      var has = byM[i].length; return '<button class="ms-tab' + (i === YMD_M ? ' active' : '') + '"' + (has ? ' onclick="ymdPick(null,' + i + ')"' : ' disabled style="opacity:.35;cursor:default"') + '>' + m + '</button>'; }).join('') + '</div></div>';
+  var mo = byM[YMD_M], nd = new Date(+YMD_Y, YMD_M + 1, 0).getDate(), byD = [];
+  for (var d = 0; d < nd; d++) byD.push([]);
+  mo.forEach(function (t) { byD[+t.d.slice(8, 10) - 1].push(t); });
+  var ms = stats(mo), pre = YMD_Y + '-' + ('0' + (YMD_M + 1)).slice(-2) + '-';
+  var dc = byD.map(function (a, i) { var dd = pre + ('0' + (i + 1)).slice(-2); return {x: String(i + 1), v: a.length, tip: '<b>' + dd + '</b><br>' + a.length + ' trades', click: a.length ? "go('day','" + dd + "')" : null}; });
+  var dn = byD.map(function (a, i) { var dd = pre + ('0' + (i + 1)).slice(-2), n = sum(a.map(function (t) { return t.n; })); return {x: String(i + 1), v: n, tip: '<b>' + dd + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: a.length ? "go('day','" + dd + "')" : null}; });
+  h += '<div class="ms-grid2">' + card('Trade distribution by day <small>' + MN3[YMD_M] + ' ' + YMD_Y + ' · click a day</small>', svgChart(dc, {h: 230, color: '#22c55e', fmt: function (v) { return f2(v, v < 3 ? 2 : 0); }})) +
+    card('Performance by day of month <small>' + pn(ms.net, 0) + ' · ' + ms.n + ' trades · ' + f2(ms.wr, 0) + '% win</small>', svgChart(dn, {h: 230})) + '</div>';
+  var days = byDay(mo).reverse();
+  h += card('Days of ' + MN3[YMD_M] + ' ' + YMD_Y, days.length ? '<div class="ms-scroll"><table class="ms-tbl"><thead><tr><th class="l">Day</th><th>Trades</th><th>Net</th><th>Win %</th><th>Shares</th></tr></thead><tbody>' +
+    days.map(function (x) { return '<tr class="click" onclick="go(\'day\',\'' + x.d + '\')"><td class="l">' + x.d + '</td><td>' + x.n + '</td><td>' + pn(x.net, 0) + '</td><td>' + f2(x.w / x.n * 100, 0) + '%</td><td>' + x.vol.toLocaleString() + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<div class="ms-empty">No trades</div>');
+  return h;
 }
 function overview(R) {
   var gy = groupBy(R, function (t) { return t.y; });
