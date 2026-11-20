@@ -811,7 +811,12 @@ function maeRep(R) {
 // ═══ CALENDAR ═══ (like Tradervue reports/overview?subrep=cal: the open month big with week totals, the 12 months small)
 var CALY = null, CALM = null;
 var MNF = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-function calOpen(m) { CALM = m; render(); window.scrollTo({top: 0, behavior: 'smooth'}); }
+function calOpen(m) {
+  CALM = m; render();
+  var big = document.querySelector('.cal-big');            // the page scrolls inside .main, not the window
+  if (big) big.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+function toTop() { var m = document.querySelector('.main'); if (m) m.scrollTop = 0; window.scrollTo(0, 0); }
 function viewCal(el) {             // whole years - the date range is ignored here, the other filters count
   var rows = ALL.filter(function (t) { return match(t, true); });
   var days = byDay(rows), m = {}; days.forEach(function (d) { m[d.d] = d; });
@@ -932,7 +937,7 @@ function viewTrade(el, key) {
     '<div style="display:flex;justify-content:flex-end;margin-top:8px;"><button class="ms-btn" onclick="saveTrade(\'' + t.k + '\')">Save</button></div>' +
     (t.tvn ? '<h3 style="margin-top:14px">Tradervue notes</h3><pre class="ms-pre">' + esc(t.tvn) + '</pre>' : '') + '</div></div>';
   el.innerHTML = h;
-  window.scrollTo(0, 0);
+  toTop();
   if (t.src === 'TV') { document.getElementById('execs').innerHTML = '<div class="ms-empty">Tradervue history - no executions in the export.</div>'; }
   Promise.all([t.src === 'TV' ? Promise.resolve({}) : loadFills(t.d), loadBars(t.d, t.s)]).then(function (r) {
     if (VIEW !== 'trade' || BYKEY[key] !== t) return;
