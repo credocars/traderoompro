@@ -172,24 +172,50 @@ body{display:flex;}
 .ms-cal .dy .n{font-size:11.5px;font-weight:700;margin-top:3px;white-space:nowrap;}
 .ms-cal .dy .c{font-size:9.5px;color:var(--t3);}
 .ms-cal .dy.emp{background:transparent;}
- .cal-big{padding:18px 22px;}
-.cal-bh{display:flex;justify-content:space-between;align-items:center;font-size:20px;font-weight:700;margin-bottom:12px;}
-.cal-bg{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border-top:1px solid var(--border);border-left:1px solid var(--border);}
-.cal-hd{font-size:12px;color:var(--t2);font-weight:700;text-align:center;padding:6px 0;border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--card2);}
-.cal-c{min-height:0;aspect-ratio:1.45/1;padding:9px 11px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-width:0;}
-.cal-c .dn{font-size:17px;font-weight:700;display:flex;justify-content:space-between;}
-.cal-c .nt{font-size:12px;}
-.cal-c .pl{font-size:15px;font-weight:700;margin-top:8px;white-space:nowrap;}
-.cal-c .tc{font-size:12px;color:var(--t2);margin-top:2px;}
-.cal-c.out .dn{color:var(--t3);opacity:.5;}
+ .cal-big{padding:22px 26px 26px;}
+.cal-in{max-width:1180px;margin:0 auto;}
+.cal-bh{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 14px;}
+.cal-bh .mt{font-size:22px;font-weight:700;letter-spacing:-.3px;}
+.cal-bh .mp{font-size:13.5px;color:var(--t2);font-weight:600;}
+.cal-bh .mp b{font-size:15px;}
+.cal-dh{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) minmax(0,1.05fr);margin-bottom:6px;}
+.cal-dh div{font-size:12.5px;color:var(--t2);font-weight:600;text-align:center;}
+.cal-bg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) minmax(0,1.05fr);border:1px solid var(--border-hi);border-radius:10px;overflow:hidden;}
+.cal-c{min-height:0;aspect-ratio:1.3/1;padding:10px 12px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-width:0;position:relative;transition:background .12s;}
+.cal-bg .cal-c:nth-child(8n){border-right:none;}
+.cal-bg .cal-c:nth-last-child(-n+8){border-bottom:none;}
+.cal-c .dn{font-size:16px;font-weight:700;color:var(--t1);display:flex;justify-content:space-between;align-items:center;}
+.cal-c .nt{font-size:12px;opacity:.85;}
+.cal-c .pl{font-size:15px;font-weight:700;margin-top:10px;white-space:nowrap;}
+.cal-c .tc{font-size:12px;color:var(--t2);margin-top:3px;}
+.cal-c.none .pl,.cal-c.none .tc{color:var(--t3);font-weight:500;}
+.cal-c.out{background:rgba(0,0,0,.12);}
+.cal-c.out .dn{color:var(--t3);opacity:.45;font-weight:500;}
 .cal-c.has{cursor:pointer;}
-.cal-c.has:hover{background:rgba(255,255,255,.04);}
-.cal-c.g{background:rgba(34,197,94,.07);} .cal-c.r{background:rgba(239,68,68,.07);}
+.cal-c.g{background:linear-gradient(180deg,rgba(34,197,94,.13),rgba(34,197,94,.05));box-shadow:inset 3px 0 0 #22c55e;}
+.cal-c.r{background:linear-gradient(180deg,rgba(239,68,68,.13),rgba(239,68,68,.05));box-shadow:inset 3px 0 0 #ef4444;}
+.cal-c.has:hover{filter:brightness(1.25);}
+.cal-c.today .dn span:first-child{background:var(--green);color:#0f1117;border-radius:6px;padding:0 6px;}
 .cal-c.wk{background:var(--card2);}
-.ms-cal .dy.sm{min-height:0;aspect-ratio:1.15/1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;padding:0;}
-.ms-cal .dy.emp{aspect-ratio:1.15/1;min-height:0;}
-.ms-month .ms-cal{gap:4px;}
-.ms-month.cur{border-color:var(--green);}
+.cal-c.wk .dn{font-size:14px;color:var(--t2);}
+.sm-wrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.sm-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px 18px;}
+.sm-card.cur{border-color:var(--green);box-shadow:0 0 0 1px rgba(34,197,94,.25);}
+.sm-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;}
+.sm-h .mt{font-size:15px;font-weight:700;}
+.sm-h .r{display:flex;gap:10px;align-items:center;font-size:14px;font-weight:700;}
+.sm-g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:420px;margin:0 auto;}
+.sm-g .hd{font-size:11px;color:var(--t2);font-weight:600;text-align:center;padding-bottom:4px;}
+.sm-g .d{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t2);border-radius:7px;font-weight:500;}
+.sm-g .d.o{color:var(--t3);opacity:.4;}
+.sm-g .d.has{cursor:pointer;font-weight:700;}
+.sm-g .d.g{background:rgba(34,197,94,.18);color:#4ade80;}
+.sm-g .d.r{background:rgba(239,68,68,.18);color:#f87171;}
+.sm-g .d.g.big{background:rgba(34,197,94,.36);color:#bbf7d0;}
+.sm-g .d.r.big{background:rgba(239,68,68,.36);color:#fecaca;}
+.sm-g .d.has:hover{outline:1px solid var(--border-hi);}
+@media (max-width:1200px){.sm-wrap{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:760px){.sm-wrap{grid-template-columns:1fr;}.cal-c{aspect-ratio:auto;min-height:74px;padding:6px;}.cal-c .pl{font-size:12px;}}
 .ms-note{width:100%;min-height:110px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--t1);font-family:inherit;font-size:13px;line-height:1.5;resize:vertical;}
 .ms-note:focus{outline:none;border-color:var(--green);}
 .ms-pre{white-space:pre-wrap;font-size:12.5px;line-height:1.55;color:var(--t1);background:var(--card2);border-radius:8px;padding:10px 12px;max-height:340px;overflow:auto;margin:0;font-family:inherit;}
@@ -832,38 +858,37 @@ function viewCal(el) {             // whole years - the date range is ignored he
     years.map(function (y) { return '<button class="ms-tab' + (y === CALY ? ' active' : '') + '" onclick="CALY=\'' + y + '\';CALM=null;render()">' + y + '</button>'; }).join('') + '</div></div>';
   // the open month
   var y = +CALY, mo = CALM, first = new Date(y, mo, 1), nd = new Date(y, mo + 1, 0).getDate(), start = 1 - first.getDay();
-  var big = '<div class="ms-card cal-big"><div class="cal-bh"><span>' + MNF[mo] + ', ' + y + '</span><span class="mut" style="font-size:13px;font-weight:600">Monthly P&amp;L: ' + pn(monthNet[mo]) + ' · ' + monthN[mo] + ' trades</span></div>' +
-    '<div class="cal-bg">' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Total'].map(function (x) { return '<div class="cal-hd">' + x + '</div>'; }).join('');
+  var today = isoDay(new Date());
+  var big = '<div class="ms-card cal-big"><div class="cal-in"><div class="cal-bh"><span class="mt">' + MNF[mo] + ', ' + y + '</span><span class="mp">Monthly P&amp;L: <b>' + pn(monthNet[mo]) + '</b> · ' + monthN[mo] + ' trades</span></div>' +
+    '<div class="cal-dh">' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Total'].map(function (x) { return '<div>' + x + '</div>'; }).join('') + '</div><div class="cal-bg">';
   var wk = 0;
   for (var d = start; d <= nd; d += 7) {
     wk++; var wnet = 0, wn = 0;
     for (var c = 0; c < 7; c++) {
       var dd = d + c;
-      if (dd < 1 || dd > nd) { var od = new Date(y, mo, dd); big += '<div class="cal-c out"><div class="dn">' + od.getDate() + '</div></div>'; continue; }
+      if (dd < 1 || dd > nd) { var od = new Date(y, mo, dd); big += '<div class="cal-c out"><div class="dn"><span>' + od.getDate() + '</span></div></div>'; continue; }
       var k = key(y, mo, dd), x = m[k], note = DAYN[k] ? '<span class="nt" title="day note">📝</span>' : '';
       if (x) { wnet += x.net; wn += x.n; }
-      big += '<div class="cal-c' + (x ? ' has ' + (x.net >= 0 ? 'g' : 'r') : '') + '"' + (x ? ' onclick="go(\'day\',\'' + k + '\')"' : '') + '><div class="dn">' + dd + note + '</div>' +
-        '<div class="pl">' + (x ? pn(x.net) : '<span class="mut">$0</span>') + '</div><div class="tc">' + (x ? x.n : 0) + ' trade' + ((x ? x.n : 0) === 1 ? '' : 's') + '</div></div>';
+      big += '<div class="cal-c' + (x ? ' has ' + (x.net >= 0 ? 'g' : 'r') : ' none') + (k === today ? ' today' : '') + '"' + (x ? ' onclick="go(\'day\',\'' + k + '\')" title="' + k + ' - click for the trades"' : '') + '><div class="dn"><span>' + dd + '</span>' + note + '</div>' +
+        '<div class="pl">' + (x ? pn(x.net, 2) : '$0') + '</div><div class="tc">' + (x ? x.n : 0) + ' trade' + ((x ? x.n : 0) === 1 ? '' : 's') + '</div></div>';
     }
-    big += '<div class="cal-c wk"><div class="dn">Week ' + wk + '</div><div class="pl">' + (wn ? pn(wnet) : '<span class="mut">$0</span>') + '</div><div class="tc">' + wn + ' trade' + (wn === 1 ? '' : 's') + '</div></div>';
+    big += '<div class="cal-c wk' + (wn ? '' : ' none') + '"><div class="dn">Week ' + wk + '</div><div class="pl">' + (wn ? pn(wnet, 2) : '$0') + '</div><div class="tc">' + wn + ' trade' + (wn === 1 ? '' : 's') + '</div></div>';
   }
-  big += '</div></div>';
+  big += '</div></div></div>';
   // the 12 small months
-  var small = '<div class="ms-cal-wrap">';
+  var small = '<div class="sm-wrap">';
   for (var q = 0; q <= 11; q++) {
-    var f1 = new Date(y, q, 1), n1 = new Date(y, q + 1, 0).getDate();
-    var g = '<div class="ms-cal">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (z) { return '<div class="hd">' + z + '</div>'; }).join('');
-    for (var b = 0; b < f1.getDay(); b++) g += '<div class="dy emp"></div>';
-    for (var e = 1; e <= n1; e++) {
+    var f1 = new Date(y, q, 1), n1 = new Date(y, q + 1, 0).getDate(), s0 = 1 - f1.getDay();
+    var g = '<div class="sm-g">' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (z) { return '<div class="hd">' + z + '</div>'; }).join('');
+    for (var e = s0; e <= n1 || (e - s0) % 7; e++) {
+      if (e < 1 || e > n1) { g += '<div class="d o">' + new Date(y, q, e).getDate() + '</div>'; continue; }
       var kk = key(y, q, e), xx = m[kk];
-      if (xx) { var a = Math.min(Math.abs(xx.net) / 1500, 1) * .45 + .12, bg = xx.net >= 0 ? 'rgba(34,197,94,' + a + ')' : 'rgba(239,68,68,' + a + ')';
-        g += '<div class="dy has sm" style="background:' + bg + '" onclick="go(\'day\',\'' + kk + '\')" title="' + kk + ': ' + usd(xx.net, 0) + ', ' + xx.n + ' trades">' + e + '</div>'; }
-      else g += '<div class="dy sm">' + e + '</div>';
+      g += xx ? '<div class="d has ' + (xx.net >= 0 ? 'g' : 'r') + (Math.abs(xx.net) >= 500 ? ' big' : '') + '" onclick="go(\'day\',\'' + kk + '\')" title="' + kk + ': ' + usd(xx.net, 2) + ' · ' + xx.n + ' trade' + (xx.n === 1 ? '' : 's') + '">' + e + '</div>' : '<div class="d">' + e + '</div>';
     }
     g += '</div>';
-    small += '<div class="ms-card ms-month' + (q === mo ? ' cur' : '') + '"><h4><span>' + MNF[q] + ', ' + y + '</span><span style="display:flex;gap:8px;align-items:center">' +
+    small += '<div class="sm-card' + (q === mo ? ' cur' : '') + '"><div class="sm-h"><span class="mt">' + MNF[q] + ', ' + y + '</span><span class="r">' +
       (monthN[q] ? pn(monthNet[q], 0) : '<span class="mut" style="font-size:12px;font-weight:500">no trades</span>') +
-      '<button class="ms-btn" onclick="calOpen(' + q + ')"' + (monthN[q] ? '' : ' disabled style="opacity:.35;cursor:default"') + '>Open</button></span></h4>' + g + '</div>';
+      '<button class="ms-btn" onclick="calOpen(' + q + ')"' + (monthN[q] ? '' : ' disabled style="opacity:.35;cursor:default"') + '>Open</button></span></div>' + g + '</div>';
   }
   el.innerHTML = h + big + small + '</div>';
 }
