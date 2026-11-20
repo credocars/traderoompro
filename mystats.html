@@ -120,16 +120,16 @@ body{display:flex;}
 .ms-tab.active{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green);}
 .ms-sub{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 14px;}
 .ms-sub .ms-tab{padding:6px 12px;font-size:12px;}
-.ms-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:16px;}
+.ms-filters{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:16px;}
 .ms-filters label{font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-.ms-in,.ms-sel{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:6px 9px;font-size:12px;color:var(--t1);font-family:inherit;outline:none;}
+.ms-in,.ms-sel{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:5px 7px;font-size:12px;flex-shrink:0;max-width:118px;color:var(--t1);font-family:inherit;outline:none;}
 .ms-in:focus,.ms-sel:focus{border-color:var(--green);}
-.ms-in.sym{width:90px;text-transform:uppercase;}
-.ms-in.dt{width:130px;}
-.ms-rng{display:flex;gap:3px;}
-.ms-rng button{padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.ms-in.sym{width:72px;text-transform:uppercase;}
+.ms-in.dt{width:122px;}
+.ms-rng{display:flex;gap:3px;flex-shrink:0;}
+.ms-rng button{padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
 .ms-rng button.active{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);}
-.ms-btn{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--t1);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.ms-btn{flex-shrink:0;padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--t1);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
 .ms-btn:hover{border-color:var(--green);color:var(--green);}
 .ms-tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:16px;}
 .ms-tile{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:0;}
@@ -290,21 +290,20 @@ body{display:flex;}
       <button class="ms-tab" data-v="journal" onclick="go('journal')">Journal</button>
     </div>
     <div class="ms-filters" id="msFilters">
-      <label>Range</label>
       <div class="ms-rng" id="fRange">
         <button data-r="30">30D</button><button data-r="60">60D</button><button data-r="90">90D</button>
         <button data-r="ytd">YTD</button><button data-r="365">1Y</button><button data-r="all">All</button>
       </div>
-      <input class="ms-in dt" type="date" id="fFrom" title="From"> <input class="ms-in dt" type="date" id="fTo" title="To">
-      <label>Symbol</label><input class="ms-in sym" id="fSym" placeholder="ANY">
-      <label>Side</label><select class="ms-sel" id="fSide"><option value="">All</option><option value="S">Short</option><option value="L">Long</option></select>
-      <label>Tag</label><select class="ms-sel" id="fTag"><option value="">All</option></select>
-      <label>Time</label><select class="ms-sel" id="fTime"><option value="">All</option><option value="pm">Premarket (&lt;9:30)</option><option value="open">9:30-10:30</option><option value="late">After 10:30</option></select>
-      <label>Hold</label><select class="ms-sel" id="fHold"><option value="">All</option><option value="day">Intraday</option><option value="multi">Multi-day</option></select>
-      <label>Price</label><select class="ms-sel" id="fPx"><option value="">All</option><option value="0-1">&lt;$1</option><option value="1-2">$1-2</option><option value="2-5">$2-5</option><option value="5-10">$5-10</option><option value="10-999999">$10+</option></select>
-      <label>Source</label><select class="ms-sel" id="fSrc"><option value="">All</option><option value="IB">IB</option><option value="TV">Tradervue</option></select>
+      <input class="ms-in dt" type="date" id="fFrom" title="From"><input class="ms-in dt" type="date" id="fTo" title="To">
+      <input class="ms-in sym" id="fSym" placeholder="Symbol" title="Symbol (starts with)">
+      <select class="ms-sel" id="fSide" title="Side"><option value="">All sides</option><option value="S">Short</option><option value="L">Long</option></select>
+      <select class="ms-sel" id="fTag" title="Tag"><option value="">All tags</option></select>
+      <select class="ms-sel" id="fTime" title="Entry time"><option value="">Any time</option><option value="pm">Premarket (&lt;9:30)</option><option value="open">9:30-10:30</option><option value="late">After 10:30</option></select>
+      <select class="ms-sel" id="fHold" title="Hold"><option value="">Any hold</option><option value="day">Intraday</option><option value="multi">Multi-day</option></select>
+      <select class="ms-sel" id="fPx" title="Entry price"><option value="">Any price</option><option value="0-1">&lt;$1</option><option value="1-2">$1-2</option><option value="2-5">$2-5</option><option value="5-10">$5-10</option><option value="10-999999">$10+</option></select>
+      <select class="ms-sel" id="fSrc" title="Source"><option value="">All sources</option><option value="IB">IB</option><option value="TV">Tradervue</option></select>
       <button class="ms-btn" onclick="resetFilters()">Reset</button>
-      <span id="fCount" class="mut" style="font-size:12px;margin-left:auto;"></span>
+      <span id="fCount" class="mut" style="font-size:11.5px;margin-left:auto;white-space:nowrap;"></span>
     </div>
     <div id="msView"></div>
   </div>
@@ -384,7 +383,7 @@ function initFilters() {
   var tags = {};
   ALL.forEach(function (t) { t.tags.forEach(function (x) { tags[x] = (tags[x] || 0) + 1; }); });
   var sel = document.getElementById('fTag');
-  sel.innerHTML = '<option value="">All</option>' + Object.keys(tags).sort().map(function (x) {
+  sel.innerHTML = '<option value="">All tags</option>' + Object.keys(tags).sort().map(function (x) {
     return '<option value="' + esc(x) + '">' + esc(x) + ' (' + tags[x] + ')</option>'; }).join('');
   [].forEach.call(document.querySelectorAll('#fRange button'), function (b) {
     b.onclick = function () { F.r = b.getAttribute('data-r'); F.from = F.to = ''; applyFilters(); };
@@ -422,7 +421,7 @@ function rangeFrom() {
 function filterRows() {
   ROWS = ALL.filter(function (t) { return match(t, false); });
   [].forEach.call(document.querySelectorAll('#fRange button'), function (b) { b.classList.toggle('active', b.getAttribute('data-r') === F.r && !F.from); });
-  document.getElementById('fCount').textContent = ROWS.length.toLocaleString() + ' of ' + ALL.length.toLocaleString() + ' trades';
+  document.getElementById('fCount').textContent = ROWS.length.toLocaleString() + ' / ' + ALL.length.toLocaleString();
 }
 function match(t, anyDate) {
     var from = rangeFrom(), to = F.to || '9999', px = F.px ? F.px.split('-').map(Number) : null;
@@ -785,7 +784,7 @@ function viewCal(el) {             // like Tradervue: whole years - the date ran
   if (!CALY || years.indexOf(CALY) < 0) CALY = years[years.length - 1];
   var h = '<div class="ms-sub">' + years.map(function (y) { return '<button class="ms-tab' + (y === CALY ? ' active' : '') + '" onclick="CALY=\'' + y + '\';render()">' + y + '</button>'; }).join('') + '</div><div class="ms-cal-wrap">';
   var MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  for (var mo = 11; mo >= 0; mo--) {
+  for (var mo = 0; mo <= 11; mo++) {
     var first = new Date(+CALY, mo, 1), nd = new Date(+CALY, mo + 1, 0).getDate(), tot = 0, n = 0, has = false;
     var g = '<div class="ms-cal">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (x) { return '<div class="hd">' + x + '</div>'; }).join('');
     for (var i = 0; i < first.getDay(); i++) g += '<div class="dy emp"></div>';
