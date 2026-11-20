@@ -381,7 +381,7 @@ firebase.auth().onAuthStateChanged(function(u) {
 var ROOT = 'traderoom/admin_review', MY = ROOT + '/my';
 var ALL = [], BYKEY = {}, META = {}, NOTES = {}, UTAGS = {}, DAYN = {}, TVJ = null, FILLS = {}, BARS = {};
 var F = {r: '90', from: '', to: '', sym: '', side: '', tag: '', time: '', hold: '', px: '', src: '', test: ''};
-var ROWS = [], VIEW = 'dash', SUB = 'ymd', TSORT = {k: 'dt', d: -1}, TPAGE = 0, JPAGE = 0, CHART = null;
+var ROWS = [], VIEW = 'dash', SUB = 'ymd', TSORT = {k: 'dt', d: -1}, TPAGE = 0, JPAGE = 0, CHART = null, CHARTS = [], DAILY = {};
 var TV = 'https://www.tradingview.com/chart/qED1iZnl/?symbol=';
 function db(p) { return firebase.database().ref(p); }
 
@@ -501,7 +501,7 @@ function render(arg) {
   [].forEach.call(document.querySelectorAll('#msTabs .ms-tab'), function (b) {
     var v = b.getAttribute('data-v'); b.classList.toggle('active', v === VIEW || (VIEW === 'trade' && v === 'trades') || (VIEW === 'day' && v === 'journal'));
   });
-  if (CHART) { try { CHART.remove(); } catch (e) {} CHART = null; }
+  CHARTS.forEach(function (c) { try { c.remove(); } catch (e) {} }); CHARTS = []; CHART = null;
   document.getElementById('msFilters').style.display = (VIEW === 'trade') ? 'none' : 'flex';
   var el = document.getElementById('msView');
   var title = {dash: 'Dashboard', cal: 'Calendar', rep: 'Reports', trades: 'Trades', journal: 'Journal', trade: 'Trade', day: 'Day'}[VIEW] || 'My Stats';
@@ -937,10 +937,18 @@ function loadFills(day) {
   if (FILLS[day]) return Promise.resolve(FILLS[day]);
   return db(MY + '/fills/' + day).get().then(function (s) { FILLS[day] = s.val() || {}; return FILLS[day]; });
 }
-function loadBars(day, sym) {
-  var k = day + '/' + sym.replace(/[.$#\[\]\/]/g, '_');
+function fkeyJs(x) { return String(x).replace(/[.$#\[\]\/]/g, '_'); }
+function loadBars(day, sym) {             // ours, else the Daily Review's (test trades on the same stock)
+  var k = day + '/' + fkeyJs(sym);
   if (k in BARS) return Promise.resolve(BARS[k]);
-  return db(MY + '/bars/' + k).get().then(function (s) { BARS[k] = s.val(); return BARS[k]; });
+  return db(MY + '/bars/' + k).get().then(function (s) { return s.val() || db(ROOT + '/bars/' + k).get().then(function (s2) { return s2.val(); }); })
+    .then(function (v) { BARS[k] = v; return v; }).catch(function () { BARS[k] = null; return null; });
+}
+function loadDaily(day, sym) {
+  var k = day + '/' + fkeyJs(sym);
+  if (k in DAILY) return Promise.resolve(DAILY[k]);
+  return db(MY + '/daily/' + k).get().then(function (s) { return s.val() || db(ROOT + '/daily/' + k).get().then(function (s2) { return s2.val(); }); })
+    .then(function (v) { DAILY[k] = v; return v; }).catch(function () { DAILY[k] = null; return null; });
 }
 function viewTrade(el, key) {
   var t = BYKEY[key];
@@ -955,21 +963,23 @@ function viewTrade(el, key) {
     tile('Entry → exit', px(t.e) + ' → ' + px(t.xp), t.mv != null ? (t.mv > 0 ? '+' : '') + f2(t.mv) + '% captured' : '') + tile('Hold', t.on ? 'overnight' : mins(t.h), 'closed ' + (t.x || '—')) +
     tile('MAE / MFE', (t.mae != null ? pn(t.mae, 0) : '—') + ' / ' + (t.mfe != null ? pn(t.mfe, 0) : '—'), t.mfe ? 'kept ' + f2(t.n / t.mfe * 100, 0) + '% of MFE' : '') +
     tile('Stock', (t.fl != null ? f2(t.fl, 1) + 'M float' : '—'), (t.mc != null ? '$' + f2(t.mc, 0) + 'M cap' : '') + (t.gp != null ? ' · gap ' + f2(t.gp, 0) + '%' : '')) + '</div>';
-  h += '<div class="ms-card"><h3>1-min chart <small id="chartNote">loading…</small></h3><div id="tchart" class="ms-tchart"></div></div>';
+  h += '<div class="ms-grid2"><div class="ms-card"><h3><span>' + esc(t.s) + ' · 1 min</span><small id="chartNote">loading…</small></h3><div id="tchart" class="ms-tchart"></div></div>' +
+    '<div class="ms-card"><h3><span>' + esc(t.s) + ' · daily</span><small id="dchartNote">loading…</small></h3><div id="dchart" class="ms-tchart"></div></div></div>';
   h += '<div class="ms-grid2"><div class="ms-card"><h3>Executions</h3><div id="execs" class="ms-empty">loading…</div></div><div class="ms-card"><h3>Notes and tags</h3>' +
     '<div style="margin-bottom:8px;">' + (t.tg || []).map(chip).join('') + '</div>' +
-    '<input class="ms-in" id="utags" style="width:100%;margin-bottom:8px;" placeholder="your tags, comma separated (A+, FOMO, chased …)" value="' + esc([].concat(UTAGS[t.k] || []).join(', ')) + '">' +
+    '<input class="ms-in" id="utags" style="width:100%;max-width:none;margin-bottom:8px;" placeholder="your tags, comma separated (A+, FOMO, chased …)" value="' + esc([].concat(UTAGS[t.k] || []).join(', ')) + '">' +
     '<textarea class="ms-note" id="tnote" placeholder="Your notes on this trade (only instructors see them)">' + esc(NOTES[t.k] || '') + '</textarea>' +
     '<div style="display:flex;justify-content:flex-end;margin-top:8px;"><button class="ms-btn" onclick="saveTrade(\'' + t.k + '\')">Save</button></div>' +
     (t.tvn ? '<h3 style="margin-top:14px">Tradervue notes</h3><pre class="ms-pre">' + esc(t.tvn) + '</pre>' : '') + '</div></div>';
   el.innerHTML = h;
   toTop();
   if (t.src === 'TV') { document.getElementById('execs').innerHTML = '<div class="ms-empty">Tradervue history - no executions in the export.</div>'; }
-  Promise.all([t.src === 'TV' ? Promise.resolve({}) : loadFills(t.d), loadBars(t.d, t.s)]).then(function (r) {
+  Promise.all([t.src === 'TV' ? Promise.resolve({}) : loadFills(t.d), loadBars(t.d, t.s), loadDaily(t.d, t.s)]).then(function (r) {
     if (VIEW !== 'trade' || BYKEY[key] !== t) return;
     var fl = (r[0] || {})[t.k] || [];
     if (t.src !== 'TV') { var ex = document.getElementById('execs'); ex.className = ''; ex.innerHTML = execTable(t, fl); }
     drawChart(t, r[1], fl);
+    drawDaily(t, r[2]);
   });
 }
 function execTable(t, fl) {
@@ -998,24 +1008,60 @@ function drawChart(t, bars, fl) {
     data.push({time: tm, open: bars.o[i], high: bars.h[i], low: bars.l[i], close: bars.c[i]});
     vol.push({time: tm, value: bars.v[i] || 0, color: bars.c[i] >= bars.o[i] ? 'rgba(34,197,94,.35)' : 'rgba(239,68,68,.35)'}); }
   var LC = LightweightCharts;
-  CHART = LC.createChart(box, {layout: {background: {color: '#1e2535'}, textColor: '#94a3b8'}, grid: {vertLines: {color: '#243044'}, horzLines: {color: '#243044'}},
-    timeScale: {timeVisible: true, secondsVisible: false}, rightPriceScale: {borderColor: '#243044'}, crosshair: {mode: 0}, autoSize: true});
+  CHART = lcChart(box, true);
   var cs = CHART.addSeries(LC.CandlestickSeries, {upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444'});
   cs.setData(data);
   var vs = CHART.addSeries(LC.HistogramSeries, {priceFormat: {type: 'volume'}, priceScaleId: 'vol'});
   CHART.priceScale('vol').applyOptions({scaleMargins: {top: .8, bottom: 0}});
   vs.setData(vol);
+  var vw = [], em = [], pv = 0, vv = 0, e9 = null, kk = 2 / 10;      // VWAP from the first bar (04:00) + EMA 9, like the Daily Review
+  data.forEach(function (b, i) { var v = vol[i].value || 0, tp = (b.high + b.low + b.close) / 3; pv += tp * v; vv += v;
+    if (vv) vw.push({time: b.time, value: +(pv / vv).toFixed(4)}); e9 = e9 == null ? b.close : b.close * kk + e9 * (1 - kk); em.push({time: b.time, value: +e9.toFixed(4)}); });
+  CHART.addSeries(LC.LineSeries, {color: '#fbbf24', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false}).setData(vw);
+  CHART.addSeries(LC.LineSeries, {color: '#3b82f6', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false}).setData(em);
   var mk = fl.filter(function (f) { return !f[1]; }).map(function (f) {
     var p = f[0].split(':'), tm = Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), +p[0], +p[1]) / 1000;
     return {time: tm, position: f[2] < 0 ? 'aboveBar' : 'belowBar', color: f[2] < 0 ? '#ef4444' : '#22c55e', shape: f[2] < 0 ? 'arrowDown' : 'arrowUp', text: (f[2] < 0 ? 'S' : 'B') + Math.abs(f[2])};
   }).sort(function (a, b) { return a.time - b.time; });
   try { LC.createSeriesMarkers(cs, mk); } catch (e) { try { cs.setMarkers(mk); } catch (e2) {} }
-  if (t.e) cs.createPriceLine({price: t.e, color: '#fbbf24', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'avg entry'});
+  if (t.e) cs.createPriceLine({price: t.e, color: '#e2e8f0', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'avg entry'});
   if (t.xp) cs.createPriceLine({price: t.xp, color: '#06b6d4', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'avg exit'});
   var a = Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), Math.floor(t.mins / 60), t.mins % 60) / 1000;
   var endM = t.x && !t.on ? (+t.x.slice(11, 13) * 60 + +t.x.slice(14, 16)) : t.mins + 60;
   try { CHART.timeScale().setVisibleRange({from: a - 45 * 60, to: Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), Math.floor(endM / 60), endM % 60) / 1000 + 45 * 60}); } catch (e) {}
-  note.textContent = bars.t0 + ' ET start · arrows = your fills · yellow = avg entry · blue = avg exit (times ET)';
+  note.innerHTML = 'ET · <span style="color:#fbbf24">VWAP</span> · <span style="color:#3b82f6">EMA 9</span> · arrows = your fills · dashed = avg entry / exit';
+}
+function lcChart(box, intraday) {
+  var c = LightweightCharts.createChart(box, {layout: {background: {color: '#1e2535'}, textColor: '#94a3b8', fontFamily: 'Inter, sans-serif'},
+    grid: {vertLines: {color: '#243044'}, horzLines: {color: '#243044'}}, timeScale: {timeVisible: intraday, secondsVisible: false, borderColor: '#243044'},
+    rightPriceScale: {borderColor: '#243044'}, crosshair: {mode: 0}, autoSize: true});
+  CHARTS.push(c);
+  return c;
+}
+function drawDaily(t, d) {
+  var box = document.getElementById('dchart'), note = document.getElementById('dchartNote');
+  if (!box) return;
+  if (!d || !d.c || !window.LightweightCharts) {
+    box.style.height = 'auto';
+    box.innerHTML = '<div class="ms-empty">No daily candles for this trade on the site yet (the server adds them with the 1-min bars).</div>';
+    note.textContent = ''; return;
+  }
+  var LC = LightweightCharts, c = lcChart(box, false), data = [], vol = [];
+  for (var i = 0; i < d.c.length; i++) { if (d.c[i] == null) continue;
+    data.push({time: d.d[i], open: d.o[i], high: d.h[i], low: d.l[i], close: d.c[i]});
+    vol.push({time: d.d[i], value: d.v[i] || 0, color: d.c[i] >= d.o[i] ? 'rgba(34,197,94,.35)' : 'rgba(239,68,68,.35)'}); }
+  var cs = c.addSeries(LC.CandlestickSeries, {upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444'});
+  cs.setData(data);
+  var vs = c.addSeries(LC.HistogramSeries, {priceFormat: {type: 'volume'}, priceScaleId: 'vol'});
+  c.priceScale('vol').applyOptions({scaleMargins: {top: .8, bottom: 0}});
+  vs.setData(vol);
+  if (d.d.indexOf(t.d) >= 0) {
+    var mk = [{time: t.d, position: t.sd === 'L' ? 'belowBar' : 'aboveBar', color: t.sd === 'L' ? '#22c55e' : '#ef4444', shape: t.sd === 'L' ? 'arrowUp' : 'arrowDown', text: (t.sd === 'L' ? 'long ' : 'short ') + px(t.e)}];
+    try { LC.createSeriesMarkers(cs, mk); } catch (e) { try { cs.setMarkers(mk); } catch (e2) {} }
+  }
+  if (t.e) cs.createPriceLine({price: t.e, color: '#e2e8f0', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'entry'});
+  try { var n = data.length; c.timeScale().setVisibleLogicalRange({from: Math.max(0, n - 90), to: n + 3}); } catch (e) {}
+  note.textContent = d.d.length + ' days to ' + d.d[d.d.length - 1] + ' · arrow = this trade';
 }
 function saveTrade(k) {
   var n = document.getElementById('tnote').value, tg = document.getElementById('utags').value.split(',').map(function (x) { return x.trim().replace(/\s+/g, '_'); }).filter(Boolean);
