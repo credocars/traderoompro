@@ -122,10 +122,10 @@ body{display:flex;}
 .ms-sub .ms-tab{padding:6px 12px;font-size:12px;}
 .ms-filters{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:16px;}
 .ms-filters label{font-size:11px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-.ms-in,.ms-sel{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:5px 7px;font-size:12px;flex-shrink:0;max-width:118px;color:var(--t1);font-family:inherit;outline:none;}
+.ms-in,.ms-sel{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:5px 7px;font-size:12px;flex-shrink:0;max-width:112px;color:var(--t1);font-family:inherit;outline:none;}
 .ms-in:focus,.ms-sel:focus{border-color:var(--green);}
 .ms-in.sym{width:72px;text-transform:uppercase;}
-.ms-in.dt{width:122px;}
+.ms-in.dt{width:116px;}
 .ms-rng{display:flex;gap:3px;flex-shrink:0;}
 .ms-rng button{padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
 .ms-rng button.active{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);}
@@ -172,6 +172,22 @@ body{display:flex;}
 .ms-cal .dy .n{font-size:11.5px;font-weight:700;margin-top:3px;white-space:nowrap;}
 .ms-cal .dy .c{font-size:9.5px;color:var(--t3);}
 .ms-cal .dy.emp{background:transparent;}
+ .cal-big{padding:18px 22px;}
+.cal-bh{display:flex;justify-content:space-between;align-items:center;font-size:20px;font-weight:700;margin-bottom:12px;}
+.cal-bg{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border-top:1px solid var(--border);border-left:1px solid var(--border);}
+.cal-hd{font-size:12px;color:var(--t2);font-weight:700;text-align:center;padding:6px 0;border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--card2);}
+.cal-c{min-height:92px;padding:9px 11px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-width:0;}
+.cal-c .dn{font-size:17px;font-weight:700;display:flex;justify-content:space-between;}
+.cal-c .nt{font-size:12px;}
+.cal-c .pl{font-size:15px;font-weight:700;margin-top:8px;white-space:nowrap;}
+.cal-c .tc{font-size:12px;color:var(--t2);margin-top:2px;}
+.cal-c.out .dn{color:var(--t3);opacity:.5;}
+.cal-c.has{cursor:pointer;}
+.cal-c.has:hover{background:rgba(255,255,255,.04);}
+.cal-c.g{background:rgba(34,197,94,.07);} .cal-c.r{background:rgba(239,68,68,.07);}
+.cal-c.wk{background:var(--card2);}
+.ms-cal .dy.sm{min-height:30px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;padding:0;}
+.ms-month.cur{border-color:var(--green);}
 .ms-note{width:100%;min-height:110px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--t1);font-family:inherit;font-size:13px;line-height:1.5;resize:vertical;}
 .ms-note:focus{outline:none;border-color:var(--green);}
 .ms-pre{white-space:pre-wrap;font-size:12.5px;line-height:1.55;color:var(--t1);background:var(--card2);border-radius:8px;padding:10px 12px;max-height:340px;overflow:auto;margin:0;font-family:inherit;}
@@ -301,6 +317,7 @@ body{display:flex;}
       <select class="ms-sel" id="fTime" title="Entry time"><option value="">Any time</option><option value="pm">Premarket (&lt;9:30)</option><option value="open">9:30-10:30</option><option value="late">After 10:30</option></select>
       <select class="ms-sel" id="fHold" title="Hold"><option value="">Any hold</option><option value="day">Intraday</option><option value="multi">Multi-day</option></select>
       <select class="ms-sel" id="fPx" title="Entry price"><option value="">Any price</option><option value="0-1">&lt;$1</option><option value="1-2">$1-2</option><option value="2-5">$2-5</option><option value="5-10">$5-10</option><option value="10-999999">$10+</option></select>
+      <select class="ms-sel" id="fTest" title="Live-test trades (ladder, SR LIVE, SPIKE LIVE, BAO LIVE2)"><option value="">All trades</option><option value="no">No live tests</option><option value="only">Live tests only</option></select>
       <select class="ms-sel" id="fSrc" title="Source"><option value="">All sources</option><option value="IB">IB</option><option value="TV">Tradervue</option></select>
       <button class="ms-btn" onclick="resetFilters()">Reset</button>
       <span id="fCount" class="mut" style="font-size:11.5px;margin-left:auto;white-space:nowrap;"></span>
@@ -335,7 +352,7 @@ firebase.auth().onAuthStateChanged(function(u) {
 // ═══ DATA ═══ traderoom/admin_review/my (my_stats_sync.py on the server) - instructors only (firebase-rules-v6)
 var ROOT = 'traderoom/admin_review', MY = ROOT + '/my';
 var ALL = [], BYKEY = {}, META = {}, NOTES = {}, UTAGS = {}, DAYN = {}, TVJ = null, FILLS = {}, BARS = {};
-var F = {r: '90', from: '', to: '', sym: '', side: '', tag: '', time: '', hold: '', px: '', src: ''};
+var F = {r: '90', from: '', to: '', sym: '', side: '', tag: '', time: '', hold: '', px: '', src: '', test: ''};
 var ROWS = [], VIEW = 'dash', SUB = 'ymd', TSORT = {k: 'dt', d: -1}, TPAGE = 0, JPAGE = 0, CHART = null;
 var TV = 'https://www.tradingview.com/chart/qED1iZnl/?symbol=';
 function db(p) { return firebase.database().ref(p); }
@@ -354,6 +371,7 @@ function startStats() {
     document.getElementById('msMeta').textContent = ALL.length ? (ALL.length.toLocaleString() + ' trades ' + (META.first || '') + ' → ' + (META.last || '') +
       ' · IB ' + (META.ib || 0) + ' · Tradervue ' + (META.tv || 0) + ' · updated ' + (META.updated || '?') + ' · private — instructors only') :
       'No trades yet - run py my_stats_sync.py on the server.';
+    if (!META.tv) document.getElementById('fSrc').style.display = 'none';   // no Tradervue history yet = no source filter
     initFilters();
     window.addEventListener('hashchange', route);
     route();
@@ -388,7 +406,7 @@ function initFilters() {
   [].forEach.call(document.querySelectorAll('#fRange button'), function (b) {
     b.onclick = function () { F.r = b.getAttribute('data-r'); F.from = F.to = ''; applyFilters(); };
   });
-  var map = {fFrom: 'from', fTo: 'to', fSym: 'sym', fSide: 'side', fTag: 'tag', fTime: 'time', fHold: 'hold', fPx: 'px', fSrc: 'src'};
+  var map = {fFrom: 'from', fTo: 'to', fSym: 'sym', fSide: 'side', fTag: 'tag', fTime: 'time', fHold: 'hold', fPx: 'px', fSrc: 'src', fTest: 'test'};
   Object.keys(map).forEach(function (id) {
     var el = document.getElementById(id);
     el.value = F[map[id]] || '';
@@ -401,8 +419,8 @@ function initFilters() {
   filterRows();
 }
 function resetFilters() {
-  F = {r: '90', from: '', to: '', sym: '', side: '', tag: '', time: '', hold: '', px: '', src: ''};
-  ['fFrom', 'fTo', 'fSym', 'fSide', 'fTag', 'fTime', 'fHold', 'fPx', 'fSrc'].forEach(function (id) { document.getElementById(id).value = ''; });
+  F = {r: '90', from: '', to: '', sym: '', side: '', tag: '', time: '', hold: '', px: '', src: '', test: ''};
+  ['fFrom', 'fTo', 'fSym', 'fSide', 'fTag', 'fTime', 'fHold', 'fPx', 'fSrc', 'fTest'].forEach(function (id) { document.getElementById(id).value = ''; });
   applyFilters();
 }
 function applyFilters() {
@@ -431,6 +449,8 @@ function match(t, anyDate) {
     if (F.side && t.sd !== F.side) return false;
     if (F.tag && t.tags.indexOf(F.tag) < 0) return false;
     if (F.src && t.src !== F.src) return false;
+    if (F.test === 'no' && t.lt) return false;
+    if (F.test === 'only' && !t.lt) return false;
     if (F.hold === 'day' && t.on) return false;
     if (F.hold === 'multi' && !t.on) return false;
     if (F.time === 'pm' && t.mins >= 570) return false;
@@ -786,31 +806,59 @@ function maeRep(R) {
     card('Result by how far it went against you (MAE)', groupChart(gl) + groupTable(gl, 'MAE')) + card('MAE per trade (last 400)', svgChart(pts, {h: 170, color: '#ef4444'}));
 }
 
-// ═══ CALENDAR ═══
-var CALY = null;
-function viewCal(el) {             // like Tradervue: whole years - the date range is ignored here, the other filters count
+// ═══ CALENDAR ═══ (like Tradervue reports/overview?subrep=cal: the open month big with week totals, the 12 months small)
+var CALY = null, CALM = null;
+var MNF = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function calOpen(m) { CALM = m; render(); window.scrollTo({top: 0, behavior: 'smooth'}); }
+function viewCal(el) {             // whole years - the date range is ignored here, the other filters count
   var rows = ALL.filter(function (t) { return match(t, true); });
   var days = byDay(rows), m = {}; days.forEach(function (d) { m[d.d] = d; });
   var years = Object.keys(rows.reduce(function (o, t) { o[t.y] = 1; return o; }, {})).sort();
-  if (!years.length) { el.innerHTML = '<div class="ms-empty">No trades in this range</div>'; return; }
-  if (!CALY || years.indexOf(CALY) < 0) CALY = years[years.length - 1];
-  var h = '<div class="ms-sub">' + years.map(function (y) { return '<button class="ms-tab' + (y === CALY ? ' active' : '') + '" onclick="CALY=\'' + y + '\';render()">' + y + '</button>'; }).join('') + '</div><div class="ms-cal-wrap">';
-  var MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  for (var mo = 0; mo <= 11; mo++) {
-    var first = new Date(+CALY, mo, 1), nd = new Date(+CALY, mo + 1, 0).getDate(), tot = 0, n = 0, has = false;
-    var g = '<div class="ms-cal">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (x) { return '<div class="hd">' + x + '</div>'; }).join('');
-    for (var i = 0; i < first.getDay(); i++) g += '<div class="dy emp"></div>';
-    for (var dd = 1; dd <= nd; dd++) {
-      var key = CALY + '-' + ('0' + (mo + 1)).slice(-2) + '-' + ('0' + dd).slice(-2), x = m[key];
-      if (x) { has = true; tot += x.net; n += x.n;
-        var a = Math.min(Math.abs(x.net) / 1500, 1) * .45 + .08, bg = x.net >= 0 ? 'rgba(34,197,94,' + a + ')' : 'rgba(239,68,68,' + a + ')';
-        g += '<div class="dy has" style="background:' + bg + '" onclick="go(\'day\',\'' + key + '\')" title="' + key + ': ' + usd(x.net, 0) + ', ' + x.n + ' trades"><div>' + dd + '</div><div class="n">' + usd(x.net, 0) + '</div><div class="c">' + x.n + ' tr</div></div>'; }
-      else g += '<div class="dy">' + dd + '</div>';
+  if (!years.length) { el.innerHTML = '<div class="ms-empty">No trades</div>'; return; }
+  if (!CALY || years.indexOf(CALY) < 0) { CALY = years[years.length - 1]; CALM = null; }
+  var monthNet = [], monthN = [];
+  for (var i = 0; i < 12; i++) { monthNet.push(0); monthN.push(0); }
+  days.forEach(function (d) { if (d.d.slice(0, 4) === CALY) { var k = +d.d.slice(5, 7) - 1; monthNet[k] += d.net; monthN[k] += d.n; } });
+  if (CALM == null) { CALM = 11; while (CALM > 0 && !monthN[CALM]) CALM--; }
+  function key(y, mo, d) { return y + '-' + ('0' + (mo + 1)).slice(-2) + '-' + ('0' + d).slice(-2); }
+  var h = '<div class="ms-head"><div class="mut" style="font-size:11.5px">Whole years - the date range filter is not used here; the other filters are.</div><div class="ms-sub" style="margin:0">' +
+    years.map(function (y) { return '<button class="ms-tab' + (y === CALY ? ' active' : '') + '" onclick="CALY=\'' + y + '\';CALM=null;render()">' + y + '</button>'; }).join('') + '</div></div>';
+  // the open month
+  var y = +CALY, mo = CALM, first = new Date(y, mo, 1), nd = new Date(y, mo + 1, 0).getDate(), start = 1 - first.getDay();
+  var big = '<div class="ms-card cal-big"><div class="cal-bh"><span>' + MNF[mo] + ', ' + y + '</span><span class="mut" style="font-size:13px;font-weight:600">Monthly P&amp;L: ' + pn(monthNet[mo]) + ' · ' + monthN[mo] + ' trades</span></div>' +
+    '<div class="cal-bg">' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Total'].map(function (x) { return '<div class="cal-hd">' + x + '</div>'; }).join('');
+  var wk = 0;
+  for (var d = start; d <= nd; d += 7) {
+    wk++; var wnet = 0, wn = 0;
+    for (var c = 0; c < 7; c++) {
+      var dd = d + c;
+      if (dd < 1 || dd > nd) { var od = new Date(y, mo, dd); big += '<div class="cal-c out"><div class="dn">' + od.getDate() + '</div></div>'; continue; }
+      var k = key(y, mo, dd), x = m[k], note = DAYN[k] ? '<span class="nt" title="day note">📝</span>' : '';
+      if (x) { wnet += x.net; wn += x.n; }
+      big += '<div class="cal-c' + (x ? ' has ' + (x.net >= 0 ? 'g' : 'r') : '') + '"' + (x ? ' onclick="go(\'day\',\'' + k + '\')"' : '') + '><div class="dn">' + dd + note + '</div>' +
+        '<div class="pl">' + (x ? pn(x.net) : '<span class="mut">$0</span>') + '</div><div class="tc">' + (x ? x.n : 0) + ' trade' + ((x ? x.n : 0) === 1 ? '' : 's') + '</div></div>';
+    }
+    big += '<div class="cal-c wk"><div class="dn">Week ' + wk + '</div><div class="pl">' + (wn ? pn(wnet) : '<span class="mut">$0</span>') + '</div><div class="tc">' + wn + ' trade' + (wn === 1 ? '' : 's') + '</div></div>';
+  }
+  big += '</div></div>';
+  // the 12 small months
+  var small = '<div class="ms-cal-wrap">';
+  for (var q = 0; q <= 11; q++) {
+    var f1 = new Date(y, q, 1), n1 = new Date(y, q + 1, 0).getDate();
+    var g = '<div class="ms-cal">' + ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(function (z) { return '<div class="hd">' + z + '</div>'; }).join('');
+    for (var b = 0; b < f1.getDay(); b++) g += '<div class="dy emp"></div>';
+    for (var e = 1; e <= n1; e++) {
+      var kk = key(y, q, e), xx = m[kk];
+      if (xx) { var a = Math.min(Math.abs(xx.net) / 1500, 1) * .45 + .12, bg = xx.net >= 0 ? 'rgba(34,197,94,' + a + ')' : 'rgba(239,68,68,' + a + ')';
+        g += '<div class="dy has sm" style="background:' + bg + '" onclick="go(\'day\',\'' + kk + '\')" title="' + kk + ': ' + usd(xx.net, 0) + ', ' + xx.n + ' trades">' + e + '</div>'; }
+      else g += '<div class="dy sm">' + e + '</div>';
     }
     g += '</div>';
-    if (has) h += '<div class="ms-card ms-month"><h4><span>' + MN[mo] + ' ' + CALY + '</span><span>' + pn(tot, 0) + ' <span class="mut" style="font-size:11px;font-weight:500">' + n + ' trades</span></span></h4>' + g + '</div>';
+    small += '<div class="ms-card ms-month' + (q === mo ? ' cur' : '') + '"><h4><span>' + MNF[q] + ', ' + y + '</span><span style="display:flex;gap:8px;align-items:center">' +
+      (monthN[q] ? pn(monthNet[q], 0) : '<span class="mut" style="font-size:12px;font-weight:500">no trades</span>') +
+      '<button class="ms-btn" onclick="calOpen(' + q + ')"' + (monthN[q] ? '' : ' disabled style="opacity:.35;cursor:default"') + '>Open</button></span></h4>' + g + '</div>';
   }
-  el.innerHTML = h + '</div>';
+  el.innerHTML = h + big + small + '</div>';
 }
 
 // ═══ TRADES ═══
