@@ -216,6 +216,11 @@ body{display:flex;}
 .sm-g .d.has:hover{outline:1px solid var(--border-hi);}
 @media (max-width:1200px){.sm-wrap{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:760px){.sm-wrap{grid-template-columns:1fr;}.cal-c{aspect-ratio:auto;min-height:74px;padding:6px;}.cal-c .pl{font-size:12px;}}
+.rv-legend{position:absolute;left:10px;top:6px;z-index:5;pointer-events:none;font-size:12px;line-height:1.55;color:#d1d4dc;font-variant-numeric:tabular-nums;text-shadow:0 0 3px #131722;}
+.rv-legend .sym{font-weight:700;font-size:14px;color:#fff;margin-right:8px;}
+.rv-legend .k{color:#8a8f9c;margin:0 2px 0 6px;}
+.rv-legend .up{color:#26a69a;} .rv-legend .dn{color:#ef5350;} .rv-legend .vw{color:#f5c542;} .rv-legend .em{color:#3b5bdb;}
+.ms-tchart{border-radius:8px;overflow:hidden;}
 .ms-note{width:100%;min-height:110px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--t1);font-family:inherit;font-size:13px;line-height:1.5;resize:vertical;}
 .ms-note:focus{outline:none;border-color:var(--green);}
 .ms-pre{white-space:pre-wrap;font-size:12.5px;line-height:1.55;color:var(--t1);background:var(--card2);border-radius:8px;padding:10px 12px;max-height:340px;overflow:auto;margin:0;font-family:inherit;}
@@ -995,6 +1000,27 @@ function execTable(t, fl) {
   });
   return h + '</tbody></table></div><div class="mut" style="font-size:11px;margin-top:6px;">Realized before fees. Net after fees: ' + usd(t.n) + '</div>';
 }
+// ── trade charts like the Daily Review: TradingView colours, premarket shaded, VWAP + EMA 9, zones, arrows at the fill
+//    price, a legend (O H L C, volume, VWAP, EMA) that follows the mouse; wheel = zoom, drag = scroll
+function etS(day, hm) { var p = day.split('-'), h = hm.split(':'); return Date.UTC(+p[0], +p[1] - 1, +p[2], +h[0], +h[1], +(h[2] || 0)) / 1000; }
+function pfmt(p) { var pr = p < 1 ? 4 : (p < 10 ? 3 : 2); return {type: 'price', precision: pr, minMove: Math.pow(10, -pr)}; }
+function lcChart(box, intraday) {
+  box.innerHTML = ''; box.style.position = 'relative';
+  var c = LightweightCharts.createChart(box, {layout: {background: {color: '#131722'}, textColor: '#bbb', fontFamily: 'Inter, sans-serif'},
+    grid: {vertLines: {color: '#1f2433'}, horzLines: {color: '#1f2433'}}, rightPriceScale: {borderColor: '#2a2e39'},
+    timeScale: {timeVisible: intraday, secondsVisible: false, borderColor: '#2a2e39'}, crosshair: {mode: 0}, localization: {locale: 'en-US'}, autoSize: true});
+  CHARTS.push(c);
+  return c;
+}
+function legendBox(box) { var lg = document.createElement('div'); lg.className = 'rv-legend'; box.appendChild(lg); return lg; }
+function lgLine(parts) { return '<div>' + parts.map(function (p) { return '<span class="' + (p[1] || '') + '">' + esc(p[0]) + '</span>'; }).join('') + '</div>'; }
+function ohlc(sym, tf, c, prev, pr) {
+  var chg = prev ? c.close - prev : c.close - c.open, base = prev || c.open, dir = chg >= 0 ? 'up' : 'dn', f = function (v) { return v == null ? '—' : v.toFixed(pr); };
+  return [[sym + ' · ' + tf, 'sym'], ['O', 'k'], [f(c.open), dir], ['H', 'k'], [f(c.high), dir], ['L', 'k'], [f(c.low), dir], ['C', 'k'], [f(c.close), dir],
+    [' ' + (chg >= 0 ? '+' : '') + f(chg) + ' (' + (chg >= 0 ? '+' : '') + (base ? (chg / base * 100).toFixed(2) : '0') + '%)', dir]];
+}
+function volTxt(v) { return v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(2) + 'K' : String(Math.round(v)); }
+function loadZoneMy(day, sym) { return db(ROOT + '/zones/' + day + '/rows/' + fkeyJs(sym)).get().then(function (s) { return s.val(); }, function () { return null; }); }
 function drawChart(t, bars, fl) {
   var box = document.getElementById('tchart'), note = document.getElementById('chartNote');
   if (!bars || !bars.c || !window.LightweightCharts) {
@@ -1002,39 +1028,58 @@ function drawChart(t, bars, fl) {
     box.innerHTML = '<div class="ms-empty">No 1-min bars for this day on the site yet (the server downloads them a few each morning, newest first - or run <b>py my_stats_sync.py bars 200</b>). <a style="color:var(--green)" target="_blank" rel="noopener" href="' + TV + encodeURIComponent(t.s) + '">Open in my TradingView ↗</a></div>';
     note.textContent = ''; return;
   }
-  var d0 = t.d, t0 = bars.t0.split(':'), base = Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), +t0[0], +t0[1]) / 1000;
-  var data = [], vol = [];
+  var LC = LightweightCharts, d0 = t.d, base = etS(d0, bars.t0), candles = [], vol = [];
   for (var i = 0; i < bars.c.length; i++) { if (bars.c[i] == null) continue; var tm = base + i * 60;
-    data.push({time: tm, open: bars.o[i], high: bars.h[i], low: bars.l[i], close: bars.c[i]});
-    vol.push({time: tm, value: bars.v[i] || 0, color: bars.c[i] >= bars.o[i] ? 'rgba(34,197,94,.35)' : 'rgba(239,68,68,.35)'}); }
-  var LC = LightweightCharts;
-  CHART = lcChart(box, true);
-  var cs = CHART.addSeries(LC.CandlestickSeries, {upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444'});
-  cs.setData(data);
-  var vs = CHART.addSeries(LC.HistogramSeries, {priceFormat: {type: 'volume'}, priceScaleId: 'vol'});
-  CHART.priceScale('vol').applyOptions({scaleMargins: {top: .8, bottom: 0}});
+    candles.push({time: tm, open: bars.o[i], high: bars.h[i], low: bars.l[i], close: bars.c[i]});
+    vol.push({time: tm, value: bars.v[i] || 0, color: bars.c[i] >= bars.o[i] ? 'rgba(38,166,154,.45)' : 'rgba(239,83,80,.45)'}); }
+  var pf = pfmt(t.e || candles[candles.length - 1].close), ch = lcChart(box, true);
+  CHART = ch;
+  var sb = ch.addSeries(LC.AreaSeries, {priceScaleId: 'sess', lastValueVisible: false, priceLineVisible: false, lineColor: 'rgba(0,0,0,0)', lineWidth: 1,
+    topColor: 'rgba(255,152,0,0.08)', bottomColor: 'rgba(255,152,0,0.08)', crosshairMarkerVisible: false,
+    autoscaleInfoProvider: function () { return {priceRange: {minValue: 0, maxValue: 1}}; }});
+  ch.priceScale('sess').applyOptions({scaleMargins: {top: 0, bottom: 0}, visible: false});
+  sb.setData(candles.map(function (c) { var d = new Date(c.time * 1000), m = d.getUTCHours() * 60 + d.getUTCMinutes();
+    return m < 570 || m >= 960 ? {time: c.time, value: 1} : {time: c.time}; }));       // premarket / after hours shaded
+  var vs = ch.addSeries(LC.HistogramSeries, {priceFormat: {type: 'volume'}, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false});
+  ch.priceScale('vol').applyOptions({scaleMargins: {top: 0.82, bottom: 0}});
   vs.setData(vol);
-  var vw = [], em = [], pv = 0, vv = 0, e9 = null, kk = 2 / 10;      // VWAP from the first bar (04:00) + EMA 9, like the Daily Review
-  data.forEach(function (b, i) { var v = vol[i].value || 0, tp = (b.high + b.low + b.close) / 3; pv += tp * v; vv += v;
-    if (vv) vw.push({time: b.time, value: +(pv / vv).toFixed(4)}); e9 = e9 == null ? b.close : b.close * kk + e9 * (1 - kk); em.push({time: b.time, value: +e9.toFixed(4)}); });
-  CHART.addSeries(LC.LineSeries, {color: '#fbbf24', lineWidth: 2, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false}).setData(vw);
-  CHART.addSeries(LC.LineSeries, {color: '#3b82f6', lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false}).setData(em);
+  var cs = ch.addSeries(LC.CandlestickSeries, {upColor: '#26a69a', downColor: '#ef5350', borderVisible: false, wickUpColor: '#26a69a', wickDownColor: '#ef5350', priceFormat: pf});
+  cs.setData(candles);
+  var vw = [], em = [], pv = 0, vv = 0, e9 = null, al = 2 / 10;
+  candles.forEach(function (c, k) { var v = vol[k].value || 0; pv += (c.high + c.low + c.close) / 3 * v; vv += v;
+    vw.push({time: c.time, value: vv ? pv / vv : c.close}); e9 = e9 == null ? c.close : al * c.close + (1 - al) * e9; em.push({time: c.time, value: e9}); });
+  ch.addSeries(LC.LineSeries, {color: '#f5c542', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false}).setData(vw);
+  ch.addSeries(LC.LineSeries, {color: '#3b5bdb', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false}).setData(em);
   var mk = fl.filter(function (f) { return !f[1]; }).map(function (f) {
-    var p = f[0].split(':'), tm = Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), +p[0], +p[1]) / 1000;
-    return {time: tm, position: 'atPriceMiddle', price: +f[3], color: f[2] < 0 ? '#ff3b5c' : '#c6ff00', shape: f[2] < 0 ? 'arrowDown' : 'arrowUp', size: 1.4};   // like the Daily Review
+    return {time: etS(d0, f[0].slice(0, 5)), position: 'atPriceMiddle', price: +f[3], color: f[2] < 0 ? '#ff3b5c' : '#c6ff00', shape: f[2] < 0 ? 'arrowDown' : 'arrowUp', size: 1.4};
   }).sort(function (a, b) { return a.time - b.time; });
-  try { LC.createSeriesMarkers(cs, mk); } catch (e) { try { cs.setMarkers(mk); } catch (e2) {} }
-  var a = Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), Math.floor(t.mins / 60), t.mins % 60) / 1000;
+  try { LC.createSeriesMarkers(cs, mk); } catch (e) {}
+  // zones (zone_day, premarket) when the stock-day has them
+  loadZoneMy(d0, t.s).then(function (z) {
+    if (!z || !z.pm || CHART !== ch) return;
+    var hi = Math.max.apply(null, candles.map(function (c) { return c.high; }));
+    function band(lo, top, col) { if (top <= lo) return;
+      ch.addSeries(LC.BaselineSeries, {baseValue: {type: 'price', price: lo}, topFillColor1: col, topFillColor2: col, topLineColor: 'rgba(0,0,0,0)', bottomLineColor: 'rgba(0,0,0,0)',
+        bottomFillColor1: 'rgba(0,0,0,0)', bottomFillColor2: 'rgba(0,0,0,0)', lineWidth: 1, lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false,
+        priceFormat: pf, autoscaleInfoProvider: function () { return null; }}).setData(candles.map(function (c) { return {time: c.time, value: top}; })); }
+    band(z.pm[0], z.pm[1], 'rgba(250,204,21,0.13)'); band(z.pm[1], z.pm[2], 'rgba(34,197,94,0.17)');
+    band(z.pm[2], z.pm[3], 'rgba(250,204,21,0.07)'); band(z.pm[3], Math.max(hi, z.pm[3]) * 1.5, 'rgba(239,68,68,0.13)');
+    ['#facc15', '#4ade80', '#4ade80', '#f87171'].forEach(function (col, k) { cs.createPriceLine({price: z.pm[k], color: col, lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'Z' + (k + 1) + ' PM'}); });
+  });
+  // legend follows the mouse
+  var lg = legendBox(box), byT = {}; candles.forEach(function (c, k) { byT[c.time] = k; });
+  function draw(k) { var c = candles[k]; if (!c) return;
+    lg.innerHTML = lgLine(ohlc(t.s, '1', c, k > 0 ? candles[k - 1].close : null, pf.precision)) +
+      lgLine([['Volume', 'k'], [volTxt(vol[k].value), c.close >= c.open ? 'up' : 'dn']]) +
+      lgLine([['VWAP', 'k'], [vw[k].value.toFixed(pf.precision), 'vw'], ['EMA 9', 'k'], [em[k].value.toFixed(pf.precision), 'em']]); }
+  var te = etS(d0, t.t || '04:00'), k0 = candles.length - 1;
+  for (var q = 0; q < candles.length; q++) { if (candles[q].time >= te) { k0 = q; break; } }
+  draw(k0);
+  ch.subscribeCrosshairMove(function (prm) { var k = prm && prm.time !== undefined ? byT[prm.time] : undefined; draw(k === undefined ? k0 : k); });
   var endM = t.x && !t.on ? (+t.x.slice(11, 13) * 60 + +t.x.slice(14, 16)) : t.mins + 60;
-  try { CHART.timeScale().setVisibleRange({from: a - 45 * 60, to: Date.UTC(+d0.slice(0, 4), +d0.slice(5, 7) - 1, +d0.slice(8, 10), Math.floor(endM / 60), endM % 60) / 1000 + 45 * 60}); } catch (e) {}
-  note.innerHTML = 'ET · <span style="color:#fbbf24">VWAP</span> · <span style="color:#3b82f6">EMA 9</span> · <span style="color:#ff3b5c">▼ short / add</span> · <span style="color:#c6ff00">▲ cover</span>';
-}
-function lcChart(box, intraday) {
-  var c = LightweightCharts.createChart(box, {layout: {background: {color: '#1e2535'}, textColor: '#94a3b8', fontFamily: 'Inter, sans-serif'},
-    grid: {vertLines: {color: '#243044'}, horzLines: {color: '#243044'}}, timeScale: {timeVisible: intraday, secondsVisible: false, borderColor: '#243044'},
-    rightPriceScale: {borderColor: '#243044'}, crosshair: {mode: 0}, autoSize: true});
-  CHARTS.push(c);
-  return c;
+  var a = te - 30 * 60, b = etS(d0, Math.floor(endM / 60) + ':' + (endM % 60)) + 30 * 60;
+  try { ch.timeScale().setVisibleRange({from: a, to: Math.max(b, a + 3600)}); } catch (e) {}
+  note.innerHTML = 'ET · shaded = premarket · <span style="color:#f5c542">VWAP</span> · <span style="color:#3b5bdb">EMA 9</span> · <span style="color:#ff3b5c">▼ short / add</span> · <span style="color:#c6ff00">▲ cover</span> · wheel = zoom, drag = scroll';
 }
 function drawDaily(t, d) {
   var box = document.getElementById('dchart'), note = document.getElementById('dchartNote');
@@ -1044,21 +1089,27 @@ function drawDaily(t, d) {
     box.innerHTML = '<div class="ms-empty">No daily candles for this trade on the site yet (the server adds them with the 1-min bars).</div>';
     note.textContent = ''; return;
   }
-  var LC = LightweightCharts, c = lcChart(box, false), data = [], vol = [];
-  for (var i = 0; i < d.c.length; i++) { if (d.c[i] == null) continue;
-    data.push({time: d.d[i], open: d.o[i], high: d.h[i], low: d.l[i], close: d.c[i]});
-    vol.push({time: d.d[i], value: d.v[i] || 0, color: d.c[i] >= d.o[i] ? 'rgba(34,197,94,.35)' : 'rgba(239,68,68,.35)'}); }
-  var cs = c.addSeries(LC.CandlestickSeries, {upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444'});
-  cs.setData(data);
-  var vs = c.addSeries(LC.HistogramSeries, {priceFormat: {type: 'volume'}, priceScaleId: 'vol'});
-  c.priceScale('vol').applyOptions({scaleMargins: {top: .8, bottom: 0}});
-  vs.setData(vol);
-  if (d.d.indexOf(t.d) >= 0) {
-    var mk = [{time: t.d, position: 'atPriceMiddle', price: t.e, color: t.sd === 'L' ? '#c6ff00' : '#ff3b5c', shape: t.sd === 'L' ? 'arrowUp' : 'arrowDown', size: 1.4}];
-    try { LC.createSeriesMarkers(cs, mk); } catch (e) { try { cs.setMarkers(mk); } catch (e2) {} }
-  }
-  try { var n = data.length; c.timeScale().setVisibleLogicalRange({from: Math.max(0, n - 90), to: n + 3}); } catch (e) {}
-  note.textContent = d.d.length + ' days to ' + d.d[d.d.length - 1] + ' · arrow = this trade at the entry price';
+  var LC = LightweightCharts, c = lcChart(box, false), cd = [], vd = [], idx = {};
+  d.d.forEach(function (day, i) { if (d.c[i] == null) return; idx[day] = cd.length;
+    cd.push({time: day, open: d.o[i], high: d.h[i], low: d.l[i], close: d.c[i]});
+    vd.push({time: day, value: d.v[i] || 0, color: d.c[i] >= d.o[i] ? 'rgba(38,166,154,.45)' : 'rgba(239,83,80,.45)'}); });
+  var dpf = pfmt(cd.length ? cd[cd.length - 1].close : (t.e || 1));
+  var vs = c.addSeries(LC.HistogramSeries, {priceFormat: {type: 'volume'}, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false});
+  c.priceScale('vol').applyOptions({scaleMargins: {top: 0.82, bottom: 0}});
+  vs.setData(vd);
+  var cs = c.addSeries(LC.CandlestickSeries, {upColor: '#26a69a', downColor: '#ef5350', borderVisible: false, wickUpColor: '#26a69a', wickDownColor: '#ef5350', priceFormat: dpf});
+  cs.setData(cd);
+  if (t.e && idx[t.d] !== undefined) { try { LC.createSeriesMarkers(cs, [{time: t.d, position: 'atPriceMiddle', price: t.e, color: t.sd === 'L' ? '#c6ff00' : '#ff3b5c', shape: t.sd === 'L' ? 'arrowUp' : 'arrowDown', size: 1.4}]); } catch (e) {} }
+  var lg = legendBox(box);
+  function draw(k) { var x = cd[k]; if (!x) return;
+    lg.innerHTML = lgLine(ohlc(t.s, '1D', x, k > 0 ? cd[k - 1].close : null, dpf.precision)) + lgLine([['Volume', 'k'], [volTxt(vd[k].value), x.close >= x.open ? 'up' : 'dn']]); }
+  var kd = idx[t.d] !== undefined ? idx[t.d] : cd.length - 1;
+  draw(kd);
+  c.subscribeCrosshairMove(function (prm) { var tm = prm ? prm.time : undefined;
+    if (tm && typeof tm === 'object') tm = tm.year + '-' + ('0' + tm.month).slice(-2) + '-' + ('0' + tm.day).slice(-2);
+    var k = tm !== undefined ? idx[tm] : undefined; draw(k === undefined ? kd : k); });
+  try { c.timeScale().setVisibleLogicalRange({from: Math.max(0, cd.length - 60), to: cd.length + 2}); } catch (e) {}
+  note.textContent = cd.length + ' days to ' + d.d[d.d.length - 1] + ' · arrow = this trade at the entry price · wheel = zoom, drag = scroll';
 }
 function saveTrade(k) {
   var n = document.getElementById('tnote').value, tg = document.getElementById('utags').value.split(',').map(function (x) { return x.trim().replace(/\s+/g, '_'); }).filter(Boolean);
