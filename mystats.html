@@ -597,7 +597,7 @@ var BAR_G = '#4caf6e', BAR_R = '#d9534f';   // chart bars: muted green / red (Ma
 function svgChart(pts, o) {
   // pts: [{x: label, v: number, tip: html, click}]  o: {type: 'bar'|'line'|'area', h, fmt, color}
   // drawn at 640 wide and scaled evenly with the card (no stretching): wide cards = taller charts, round axis values
-  o = o || {}; var W = 640, H = Math.round((o.h || 200) * 1.35), pl = 60, pr = 10, pt = 10, pb = 26;
+  o = o || {}; var W = 640, H = Math.round((o.h || 200) * 1.35), pl = 72, pr = 10, pt = 10, pb = 26;
   if (!pts.length) return '<div class="ms-empty">No data</div>';
   var vs = pts.map(function (p) { return p.v; }), ext = o.refLine != null ? [0, o.refLine] : [0], mx = Math.max.apply(null, vs.concat(ext)), mn = Math.min.apply(null, vs.concat(ext));
   if (mx === mn) mx = mn + 1;
@@ -636,27 +636,32 @@ function svgChart(pts, o) {
 function shortD(d) { return d.slice(5).replace('-', '/'); }
 
 // ═══ DASHBOARD ═══
-// Recent like Tradervue (Max 11-21): the last 30 / 60 / 90 trading days, every filter except the date range
-var RECENT_N = 30;
-try { RECENT_N = +localStorage.getItem('ms_recent') || 30; } catch (e) {}
-function recentPick(n) { RECENT_N = n; try { localStorage.setItem('ms_recent', n); } catch (e) {} render(); }
+// Recent like Tradervue (Max 11-21): follows the range buttons on top (30D 60D 90D YTD 1Y All / dates) and every filter
+function rangeName() {
+  if (F.from || F.to) return (F.from || '…') + ' → ' + (F.to || 'today');
+  return {'30': '30D', '60': '60D', '90': '90D', 'ytd': 'YTD', '365': '1Y', 'all': 'All'}[F.r] || 'All';
+}
 function recentBlock() {
-  var all = byDay(ALL.filter(function (t) { return match(t, true); })), days = all.slice(-RECENT_N), N = RECENT_N + ' Days';
-  var h = '<div class="ms-head"><b style="font-size:14px">Recent</b><div class="ms-sub" style="margin:0">' + [30, 60, 90].map(function (k) {
-    return '<button class="ms-tab' + (k === RECENT_N ? ' active' : '') + '" onclick="recentPick(' + k + ')">' + k + ' Days</button>'; }).join('') + '</div></div>';
-  if (!days.length) return h + '<div class="ms-empty">No trades</div>';
+  var days = byDay(ROWS), N = rangeName(), mon = days.length > 120;   // long ranges: one bar a month
+  if (!days.length) return '<div class="ms-empty">No trades in this range</div>';
+  var pts = days;
+  if (mon) { var m = {}; days.forEach(function (d) { var k = d.d.slice(0, 7), x = m[k] || (m[k] = {d: k, n: 0, net: 0, gross: 0, vol: 0, w: 0});
+      x.n += d.n; x.net += d.net; x.gross += d.gross; x.vol += d.vol; x.w += d.w; });
+    pts = Object.keys(m).sort().map(function (k) { return m[k]; }); }
   var cum = 0, g = [], c = [], v = [], w = [], dstop = Math.abs(+META.daily_stop || 500);   // your bot's BASE_DAILY_LOSS_LIMIT (sync), else $500
-  days.forEach(function (d) {
+  pts.forEach(function (d) {
     cum += d.gross;
-    var tipD = '<b>' + d.d + '</b><br>';
-    g.push({x: d.d, lx: d.d, v: d.gross, tip: tipD + 'gross ' + usd(d.gross, 0) + ' · net ' + usd(d.net, 0) + ' · ' + d.n + ' trades', click: "go('day','" + d.d + "')"});
-    c.push({x: d.d, lx: d.d, v: cum, tip: tipD + 'cumulative gross ' + usd(cum, 0)});
-    v.push({x: d.d, lx: d.d, v: d.vol, tip: tipD + d.vol.toLocaleString() + ' shares'});
-    w.push({x: d.d, lx: d.d, v: d.w / d.n * 100, tip: tipD + f2(d.w / d.n * 100, 0) + '% win (' + d.w + '/' + d.n + ')'});
+    var tipD = '<b>' + d.d + '</b><br>', lab = mon ? d.d : d.d;
+    g.push({x: d.d, lx: lab, v: d.gross, tip: tipD + 'gross ' + usd(d.gross, 0) + ' · net ' + usd(d.net, 0) + ' · ' + d.n + ' trades', click: mon ? null : "go('day','" + d.d + "')"});
+    c.push({x: d.d, lx: lab, v: cum, tip: tipD + 'cumulative gross ' + usd(cum, 0)});
+    v.push({x: d.d, lx: lab, v: d.vol, tip: tipD + d.vol.toLocaleString() + ' shares'});
+    w.push({x: d.d, lx: lab, v: d.w / d.n * 100, tip: tipD + f2(d.w / d.n * 100, 0) + '% win (' + d.w + '/' + d.n + ')'});
   });
-  return h + '<div class="ms-grid2">' + card('Gross daily P&amp;L (' + N + ') <small>red line = daily stop loss ' + usd(-dstop, 0) + ' · click a bar = that day</small>', svgChart(g, {h: 262, maxLab: 6, refLine: -dstop, refTip: 'daily stop loss ' + usd(-dstop, 0)})) +
+  var per = mon ? 'Monthly' : 'Daily', go1 = {h: 262, maxLab: 6};
+  return '<div class="ms-grid2">' + card('Gross ' + per.toLowerCase() + ' P&amp;L (' + N + ')' + (mon ? '' : ' <small>red line = daily stop loss ' + usd(-dstop, 0) + ' · click a bar = that day</small>'),
+      svgChart(g, mon ? go1 : {h: 262, maxLab: 6, refLine: -dstop, refTip: 'daily stop loss ' + usd(-dstop, 0)})) +
     card('Gross cumulative P&amp;L (' + N + ')', svgChart(c, {type: 'line', h: 262, color: BAR_G, maxLab: 6})) + '</div>' +
-    '<div class="ms-grid2">' + card('Daily volume (' + N + ')', svgChart(v, {h: 262, color: BAR_G, maxLab: 6, fmt: function (x) { return Math.round(x).toLocaleString(); }})) +
+    '<div class="ms-grid2">' + card(per + ' volume (' + N + ')', svgChart(v, {h: 262, color: BAR_G, maxLab: 6, fmt: function (x) { return Math.round(x).toLocaleString(); }})) +
     card('Win % (' + N + ')', svgChart(w, {h: 262, color: BAR_G, maxLab: 6, fmt: function (x) { return Math.round(x); }})) + '</div>';
 }
 
@@ -689,8 +694,8 @@ function viewDash(el) {
   });
   var sh = days.length > 120;   // long ranges: monthly bars for the daily charts
   h += recentBlock();
-  h += '<div class="ms-grid2">' + card('Drawdown <small>selected range</small>', svgChart(ddPts, {type: 'area', h: 262, color: '#ef4444'})) +
-    card('Average trade by day <small>selected range</small>', svgChart(sh ? monthPts(days, 'net') : avgPts, {h: 262})) + '</div>';
+  h += '<div class="ms-grid2">' + card('Drawdown (' + rangeName() + ')', svgChart(ddPts, {type: 'area', h: 262, color: '#ef4444'})) +
+    card((sh ? 'Net P&amp;L by month' : 'Average trade by day') + ' (' + rangeName() + ')', svgChart(sh ? monthPts(days, 'net') : avgPts, {h: 262})) + '</div>';
   var recent = ROWS.slice(-12).reverse();
   var sy = groupBy(ROWS, function (t) { return t.s; }).sort(function (a, b) { return b.s.net - a.s.net; });
   h += '<div class="ms-grid2">' + card('Latest trades', tradeTable(recent, true)) +
