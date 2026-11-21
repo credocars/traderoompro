@@ -242,7 +242,7 @@ body{display:flex;}
 @media (max-width:1300px){.ms-tiles{grid-template-columns:repeat(4,minmax(0,1fr));}.ms-cal-wrap{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:1000px){.ms-grid2,.ms-grid3{grid-template-columns:1fr;}.ms-kv{grid-template-columns:1fr;}}
 @media (max-width:700px){.ms-tiles{grid-template-columns:repeat(2,minmax(0,1fr));}.ms-cal-wrap{grid-template-columns:1fr;}}
-.ms-stats td{padding:5px 8px;font-size:12.5px}.ms-stats td:nth-child(2){font-weight:700;white-space:nowrap}.ms-stats td:nth-child(3){font-size:11.5px}
+.ms-exec td,.ms-exec th{padding:7px 12px;font-size:13px}.ms-stats td{padding:5px 8px;font-size:12.5px}.ms-stats td:nth-child(2){font-weight:700;white-space:nowrap}.ms-stats td:nth-child(3){font-size:11.5px}
 </style>
 </head>
 <body>
@@ -998,14 +998,16 @@ function viewTrade(el, key) {
   h += '<div class="ms-grid2"><div class="ms-card"><h3><span>Trade running P&amp;L</span><small>before costs, minute closes</small></h3><div id="pchart" class="ms-pchart"></div></div>' +
     '<div class="ms-card"><h3><span>Day running P&amp;L</span><small id="dpNote">all your trades that day</small></h3><div id="dpchart" class="ms-pchart"></div></div></div>';
   h += '<div class="ms-card"><h3><span>Stock</span><small id="stockNote">' + esc(t.s) + ' on ' + t.d + '</small></h3><div class="rv-grid" id="stockGrid"></div></div>';
-  h += '<div class="ms-grid2"><div class="ms-card"><h3>Executions</h3><div id="execs" class="ms-empty">loading…</div></div><div style="display:flex;flex-direction:column;gap:14px;">' +
-    '<div class="ms-card"><h3><span>Trade stats</span><small>from the executions and the 1-min bars</small></h3><div id="tstats" class="ms-empty">loading…</div></div>' +
+  h += '<div class="ms-card"><h3><span>Executions</span><span style="display:flex;gap:6px;">' +   // one full row like the Daily Review (Max 11-21)
+    (prev ? '<button class="ms-btn" onclick="go(\'trade\',\'' + prev.k + '\')">‹ Prev</button>' : '') +
+    (next ? '<button class="ms-btn" onclick="go(\'trade\',\'' + next.k + '\')">Next ›</button>' : '') + '</span></h3><div id="execs" class="ms-empty">loading…</div></div>';
+  h += '<div class="ms-grid2"><div class="ms-card"><h3><span>Trade stats</span><small>from the executions and the 1-min bars</small></h3><div id="tstats" class="ms-empty">loading…</div></div>' +
     '<div class="ms-card"><h3>Notes and tags</h3>' +
     '<div style="margin-bottom:8px;">' + (t.tg || []).map(chip).join('') + '</div>' +
     '<input class="ms-in" id="utags" style="width:100%;max-width:none;margin-bottom:8px;" placeholder="your tags, comma separated (A+, FOMO, chased …)" value="' + esc([].concat(UTAGS[t.k] || []).join(', ')) + '">' +
     '<textarea class="ms-note" id="tnote" placeholder="Your notes on this trade (only instructors see them)">' + esc(NOTES[t.k] || '') + '</textarea>' +
     '<div style="display:flex;justify-content:flex-end;margin-top:8px;"><button class="ms-btn" onclick="saveTrade(\'' + t.k + '\')">Save</button></div>' +
-    (t.tvn ? '<h3 style="margin-top:14px">Tradervue notes</h3><pre class="ms-pre">' + esc(t.tvn) + '</pre>' : '') + '</div></div></div>';
+    (t.tvn ? '<h3 style="margin-top:14px">Tradervue notes</h3><pre class="ms-pre">' + esc(t.tvn) + '</pre>' : '') + '</div></div>';
   el.innerHTML = h;
   toTop();
   if (t.src === 'TV') { document.getElementById('execs').innerHTML = '<div class="ms-empty">Tradervue history - no executions in the export.</div>'; }
@@ -1086,16 +1088,19 @@ function tradeStats(t, bars, fl) {
 }
 function execTable(t, fl) {
   if (!fl.length) return '<div class="ms-empty">No executions</div>';
-  var pos = 0, cash = 0, h = '<div class="ms-scroll"><table class="ms-tbl"><thead><tr><th class="l">Time</th><th class="l">Side</th><th>Qty</th><th>Price</th><th>Position</th><th>Realized</th></tr></thead><tbody>';
-  var avg = 0;
+  var short = t.sd !== 'L', pos = 0, avg = 0, real = 0;
+  var h = '<div class="ms-scroll"><table class="ms-tbl ms-exec"><thead><tr><th class="l">Time</th><th class="l">Side</th><th>Qty</th><th>Price</th><th>Position</th><th>Avg</th><th>Realized</th><th>Value</th></tr></thead><tbody>';
   fl.forEach(function (f) {
-    var q = f[2], p = f[3], real = '';
-    if (pos === 0 || (pos > 0) === (q > 0)) { avg = (avg * Math.abs(pos) + p * Math.abs(q)) / (Math.abs(pos) + Math.abs(q)); }
-    else { var closed = Math.min(Math.abs(q), Math.abs(pos)); var pl = (pos < 0 ? avg - p : p - avg) * closed; cash += pl; real = pn(cash); }
+    var q = f[2], p = +f[3], opening = pos === 0 || (pos > 0) === (q > 0);
+    if (opening) { avg = (avg * Math.abs(pos) + p * Math.abs(q)) / (Math.abs(pos) + Math.abs(q)); }
+    else { var cl = Math.min(Math.abs(q), Math.abs(pos)); real += (pos < 0 ? avg - p : p - avg) * cl; }
     pos += q; if (Math.abs(pos) < 1e-6) { pos = 0; }
-    h += '<tr><td class="l">' + f[0] + (f[1] ? ' <span class="mut">+' + f[1] + 'd</span>' : '') + '</td><td class="l">' + (q < 0 ? '<span class="neg">SELL</span>' : '<span class="pos">BUY</span>') + '</td><td>' + Math.abs(q).toLocaleString() + '</td><td>' + px(p) + '</td><td>' + pos.toLocaleString() + '</td><td>' + real + '</td></tr>';
+    var side = short ? (q < 0 ? 'Short' : 'Cover') : (q > 0 ? 'Buy' : 'Sell'), sc = opening ? (short ? 'neg' : 'pos') : (short ? 'pos' : 'neg');
+    h += '<tr><td class="l">' + f[0] + (f[1] ? ' <span class="mut">+' + f[1] + 'd</span>' : '') + '</td><td class="l"><span class="' + sc + '" style="font-weight:700">' + side + '</span>' + (opening && Math.abs(pos) > Math.abs(q) + 1e-6 ? ' <span class="mut" style="font-weight:400">add</span>' : '') + '</td>' +
+      '<td>' + Math.abs(q).toLocaleString() + '</td><td>' + px(p) + '</td><td>' + (pos ? Math.round(pos).toLocaleString() : '0') + '</td><td>' + (pos ? px(avg) : '—') + '</td>' +
+      '<td><span class="' + (real > 0 ? 'pos' : real < 0 ? 'neg' : 'mut') + '">' + (opening && !real ? '—' : usd(real)) + '</span></td><td class="mut">' + usd(Math.abs(q) * p, 0) + '</td></tr>';
   });
-  return h + '</tbody></table></div><div class="mut" style="font-size:11px;margin-top:6px;">Realized before fees. Net after fees: ' + usd(t.n) + '</div>';
+  return h + '</tbody></table></div><div class="mut" style="font-size:11px;margin-top:6px;">Realized before fees · fees ' + usd(t.c) + ' · net after fees ' + usd(t.n) + '</div>';
 }
 // ── trade charts like the Daily Review: TradingView colours, premarket shaded, VWAP + EMA 9, zones, arrows at the fill
 //    price, a legend (O H L C, volume, VWAP, EMA) that follows the mouse; wheel = zoom, drag = scroll
