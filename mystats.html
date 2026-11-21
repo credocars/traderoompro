@@ -997,10 +997,10 @@ function viewTrade(el, key) {
     '<div class="ms-card"><h3><span>' + esc(t.s) + ' · daily</span><small id="dchartNote">loading…</small></h3><div id="dchart" class="ms-tchart"></div></div></div>';
   h += '<div class="ms-grid2"><div class="ms-card"><h3><span>Trade running P&amp;L</span><small>before costs, minute closes</small></h3><div id="pchart" class="ms-pchart"></div></div>' +
     '<div class="ms-card"><h3><span>Day running P&amp;L</span><small id="dpNote">all your trades that day</small></h3><div id="dpchart" class="ms-pchart"></div></div></div>';
-  h += '<div class="ms-card"><h3><span>Stock</span><small id="stockNote">' + esc(t.s) + ' on ' + t.d + '</small></h3><div class="rv-grid" id="stockGrid"></div></div>';
   h += '<div class="ms-card"><h3><span>Executions</span><span style="display:flex;gap:6px;">' +   // one full row like the Daily Review (Max 11-21)
     (prev ? '<button class="ms-btn" onclick="go(\'trade\',\'' + prev.k + '\')">‹ Prev</button>' : '') +
     (next ? '<button class="ms-btn" onclick="go(\'trade\',\'' + next.k + '\')">Next ›</button>' : '') + '</span></h3><div id="execs" class="ms-empty">loading…</div></div>';
+  h += '<div class="ms-card"><h3><span>Stock</span><small id="stockNote">' + esc(t.s) + ' on ' + t.d + '</small></h3><div class="rv-grid" id="stockGrid"></div></div>';
   h += '<div class="ms-grid2"><div class="ms-card"><h3><span>Trade stats</span><small>from the executions and the 1-min bars</small></h3><div id="tstats" class="ms-empty">loading…</div></div>' +
     '<div class="ms-card"><h3>Notes and tags</h3>' +
     '<div style="margin-bottom:8px;">' + (t.tg || []).map(chip).join('') + '</div>' +
