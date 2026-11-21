@@ -620,7 +620,8 @@ function svgChart(pts, o) {
     s += '<path d="' + path + '" fill="none" stroke="' + col + '" stroke-width="2" vector-effect="non-scaling-stroke"/>';
     pts.forEach(function (p, i) { s += '<rect x="' + (pl + sw * i).toFixed(1) + '" y="' + pt + '" width="' + Math.max(sw, 1).toFixed(1) + '" height="' + ih + '" fill="transparent"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + '/>'; });
   } else {
-    var bw = Math.max(sw * (n <= 14 ? .78 : .7), 1);
+    // bar width like Tradervue: a chart with few bars keeps the width of a 7-bar chart (no fat bars), 80% of a slot
+    var bw = Math.max(n <= 14 ? iw / Math.max(n, 7) * .8 : sw * .7, 1);
     pts.forEach(function (p, i) { var x = pl + sw * i + (sw - bw) / 2, y0 = Y(0), y1 = Y(p.v);
       var col = o.color || (p.v >= 0 ? '#4ade80' : '#ef4444');
       if (o.color && p.v < 0) col = '#ef4444';
