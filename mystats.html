@@ -996,7 +996,9 @@ function viewTrade(el, key) {
     '<div class="ms-tile" id="tBest"><div class="l">Best / worst open P&amp;L</div><div class="v">…</div><div class="s">from the 1-min bars</div></div>' +
     '<div class="ms-tile" id="tKept"><div class="l">Kept of the best</div><div class="v">…</div><div class="s">low / high while in</div></div>' + '</div>';
   // big 1-min chart on its own row like Tradervue (Max 11-21), the daily chart under it
-  h += '<div class="ms-card"><h3><span>' + esc(t.s) + ' · 1 min</span><small id="chartNote">loading…</small></h3><div id="tchart" class="ms-tchart ms-big"></div></div>' +
+  h += '<div class="ms-card"><h3><span style="display:flex;align-items:center;gap:10px;">' + esc(t.s) + '<span class="ms-rng" id="tfBtns">' +   // 1 / 2 / 5 / 15 min (Max 11-21)
+    [1, 2, 5, 15].map(function (m) { return '<button data-tf="' + m + '"' + (m === TF ? ' class="active"' : '') + '>' + m + ' min</button>'; }).join('') +
+    '</span></span><small id="chartNote">loading…</small></h3><div id="tchart" class="ms-tchart ms-big"></div></div>' +
     '<div class="ms-card"><h3><span>' + esc(t.s) + ' · daily</span><small id="dchartNote">loading…</small></h3><div id="dchart" class="ms-tchart ms-mid"></div></div>';
   h += '<div class="ms-grid2"><div class="ms-card"><h3><span>Trade running P&amp;L</span><small>before costs, minute closes</small></h3><div id="pchart" class="ms-pchart"></div></div>' +
     '<div class="ms-card"><h3><span>Day running P&amp;L</span><small id="dpNote">all your trades that day</small></h3><div id="dpchart" class="ms-pchart"></div></div></div>';
@@ -1020,6 +1022,8 @@ function viewTrade(el, key) {
     var fl = (r[0] || {})[t.k] || [];
     if (t.src !== 'TV') { var ex = document.getElementById('execs'); ex.className = ''; ex.innerHTML = execTable(t, fl); }
     drawChart(t, r[1], fl);
+    Array.prototype.forEach.call(document.querySelectorAll('#tfBtns button'), function (bt) {
+      bt.onclick = function () { setTF(+bt.getAttribute('data-tf')); redrawChart(t, r[1], fl); }; });
     drawDaily(t, r[2]);
     tradePnl(t, r[1], fl);
     tradeStats(t, r[1], fl);
@@ -1126,7 +1130,16 @@ function ohlc(sym, tf, c, prev, pr) {
 }
 function volTxt(v) { return v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(2) + 'K' : String(Math.round(v)); }
 function loadZoneMy(day, sym) { return db(ROOT + '/zones/' + day + '/rows/' + fkeyJs(sym)).get().then(function (s) { return s.val(); }, function () { return null; }); }
-function drawChart(t, bars, fl) {
+var TF = (function () { try { var v = +localStorage.getItem('ms_tf'); return [1, 2, 5, 15].indexOf(v) >= 0 ? v : 1; } catch (e) { return 1; } })();
+function setTF(m) { TF = m; try { localStorage.setItem('ms_tf', String(m)); } catch (e) {}
+  Array.prototype.forEach.call(document.querySelectorAll('#tfBtns button'), function (bt) { bt.className = +bt.getAttribute('data-tf') === m ? 'active' : ''; }); }
+function redrawChart(t, bars, fl) {   // keep the same time window when the timeframe changes
+  var rng = null; try { rng = CHART && CHART.timeScale().getVisibleRange(); } catch (e) {}
+  if (CHART) { var i = CHARTS.indexOf(CHART); if (i >= 0) CHARTS.splice(i, 1); try { CHART.remove(); } catch (e) {} CHART = null; }
+  document.getElementById('tchart').innerHTML = '';
+  drawChart(t, bars, fl, rng);
+}
+function drawChart(t, bars, fl, keepRange) {
   var box = document.getElementById('tchart'), note = document.getElementById('chartNote');
   if (!bars || !bars.c || !window.LightweightCharts) {
     box.style.height = 'auto';
@@ -1134,9 +1147,14 @@ function drawChart(t, bars, fl) {
     note.textContent = ''; return;
   }
   var LC = LightweightCharts, d0 = t.d, base = etS(d0, bars.t0), candles = [], vol = [];
-  for (var i = 0; i < bars.c.length; i++) { if (bars.c[i] == null) continue; var tm = base + i * 60;
-    candles.push({time: tm, open: bars.o[i], high: bars.h[i], low: bars.l[i], close: bars.c[i]});
-    vol.push({time: tm, value: bars.v[i] || 0, color: bars.c[i] >= bars.o[i] ? 'rgba(38,166,154,.45)' : 'rgba(239,83,80,.45)'}); }
+  var tfS = TF * 60, cur = null, cv = 0;
+  function bkt(tm) { return Math.floor(tm / tfS) * tfS; }
+  function flush() { if (!cur) return; candles.push(cur);
+    vol.push({time: cur.time, value: cv, color: cur.close >= cur.open ? 'rgba(38,166,154,.45)' : 'rgba(239,83,80,.45)'}); }
+  for (var i = 0; i < bars.c.length; i++) { if (bars.c[i] == null) continue; var tm = bkt(base + i * 60);   // 1-min bars joined into TF-min candles
+    if (cur && cur.time === tm) { cur.high = Math.max(cur.high, bars.h[i]); cur.low = Math.min(cur.low, bars.l[i]); cur.close = bars.c[i]; cv += bars.v[i] || 0; continue; }
+    flush(); cur = {time: tm, open: bars.o[i], high: bars.h[i], low: bars.l[i], close: bars.c[i]}; cv = bars.v[i] || 0; }
+  flush();
   var pf = pfmt(t.e || candles[candles.length - 1].close), ch = lcChart(box, true);
   CHART = ch;
   function mOf(tm) { var d = new Date(tm * 1000); return d.getUTCHours() * 60 + d.getUTCMinutes(); }
@@ -1159,7 +1177,7 @@ function drawChart(t, bars, fl) {
   ch.addSeries(LC.LineSeries, {color: '#f5c542', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false}).setData(vw);
   ch.addSeries(LC.LineSeries, {color: '#3b5bdb', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, priceFormat: pf, crosshairMarkerVisible: false}).setData(em);
   var mk = fl.filter(function (f) { return !f[1]; }).map(function (f) {
-    return {time: etS(d0, f[0].slice(0, 5)), position: 'atPriceMiddle', price: +f[3], color: f[2] < 0 ? '#ff3b5c' : '#c6ff00', shape: f[2] < 0 ? 'arrowDown' : 'arrowUp', size: 1.4};
+    return {time: bkt(etS(d0, f[0].slice(0, 5))), position: 'atPriceMiddle', price: +f[3], color: f[2] < 0 ? '#ff3b5c' : '#c6ff00', shape: f[2] < 0 ? 'arrowDown' : 'arrowUp', size: 1.4};
   }).sort(function (a, b) { return a.time - b.time; });
   try { LC.createSeriesMarkers(cs, mk); } catch (e) {}
   // zones (zone_day, premarket) when the stock-day has them
@@ -1177,16 +1195,16 @@ function drawChart(t, bars, fl) {
   // legend follows the mouse
   var lg = legendBox(box), byT = {}; candles.forEach(function (c, k) { byT[c.time] = k; });
   function draw(k) { var c = candles[k]; if (!c) return;
-    lg.innerHTML = lgLine(ohlc(t.s, '1', c, k > 0 ? candles[k - 1].close : null, pf.precision)) +
+    lg.innerHTML = lgLine(ohlc(t.s, String(TF), c, k > 0 ? candles[k - 1].close : null, pf.precision)) +
       lgLine([['Volume', 'k'], [volTxt(vol[k].value), c.close >= c.open ? 'up' : 'dn']]) +
       lgLine([['VWAP', 'k'], [vw[k].value.toFixed(pf.precision), 'vw'], ['EMA 9', 'k'], [em[k].value.toFixed(pf.precision), 'em']]); }
   var te = etS(d0, t.t || '04:00'), k0 = candles.length - 1;
-  for (var q = 0; q < candles.length; q++) { if (candles[q].time >= te) { k0 = q; break; } }
+  for (var q = 0; q < candles.length; q++) { if (candles[q].time >= bkt(te)) { k0 = q; break; } }
   draw(k0);
   ch.subscribeCrosshairMove(function (prm) { var k = prm && prm.time !== undefined ? byT[prm.time] : undefined; draw(k === undefined ? k0 : k); });
   var endM = t.x && !t.on ? (+t.x.slice(11, 13) * 60 + +t.x.slice(14, 16)) : t.mins + 60;
   var a = te - 30 * 60, b = etS(d0, Math.floor(endM / 60) + ':' + (endM % 60)) + 30 * 60;
-  try { ch.timeScale().setVisibleRange({from: a, to: Math.max(b, a + 3600)}); } catch (e) {}
+  try { ch.timeScale().setVisibleRange(keepRange || {from: a, to: Math.max(b, a + 3600)}); } catch (e) {}
   note.innerHTML = 'ET · shaded = premarket / after hours · <span style="color:#f5c542">VWAP</span> · <span style="color:#3b5bdb">EMA 9</span> · <span style="color:#ff3b5c">▼ short / add</span> · <span style="color:#c6ff00">▲ cover</span> · wheel = zoom, drag = scroll';
 }
 function drawDaily(t, d) {
