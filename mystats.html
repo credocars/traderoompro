@@ -599,7 +599,7 @@ function svgChart(pts, o) {
   // drawn at 640 wide and scaled evenly with the card (no stretching): wide cards = taller charts, round axis values
   o = o || {}; var W = 640, H = Math.round((o.h || 200) * 1.35), pl = 60, pr = 10, pt = 10, pb = 26;
   if (!pts.length) return '<div class="ms-empty">No data</div>';
-  var vs = pts.map(function (p) { return p.v; }), mx = Math.max.apply(null, vs.concat([0])), mn = Math.min.apply(null, vs.concat([0]));
+  var vs = pts.map(function (p) { return p.v; }), ext = o.refLine != null ? [0, o.refLine] : [0], mx = Math.max.apply(null, vs.concat(ext)), mn = Math.min.apply(null, vs.concat(ext));
   if (mx === mn) mx = mn + 1;
   var step = niceStep(mx - mn, 5);
   mx = Math.ceil(mx / step - 1e-9) * step; mn = Math.floor(mn / step + 1e-9) * step;
@@ -628,8 +628,8 @@ function svgChart(pts, o) {
       if (o.color && p.v < 0) col = BAR_R;
       s += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(Math.abs(y1 - y0), p.v ? .8 : 0).toFixed(1) + '" fill="' + col + '" rx="1.5"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + (p.click ? ' style="cursor:pointer" onclick="' + p.click + '"' : '') + '/>'; });
   }
-  if (o.avgLine) { var av = sum(vs) / n, ay = Y(av);
-    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + ay.toFixed(1) + '" y2="' + ay.toFixed(1) + '" stroke="' + BAR_G + '" stroke-width="2"' + tipAttr('average ' + fmt(av)) + '/>'; }
+  if (o.refLine != null) { var ry = Y(o.refLine);   // daily stop loss line (Max 11-21: red, like Tradervue's)
+    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + ry.toFixed(1) + '" y2="' + ry.toFixed(1) + '" stroke="' + BAR_R + '" stroke-width="2"' + tipAttr(o.refTip || fmt(o.refLine)) + '/>'; }
   pts.forEach(function (p, i) { if (i % every === 0) s += '<text x="' + (pl + sw * (i + .5)).toFixed(1) + '" y="' + (H - 8) + '" fill="#cbd5e1" font-size="12" font-weight="700" text-anchor="middle">' + esc(p.lx != null ? p.lx : p.x) + '</text>'; });
   return s + '</svg>';
 }
@@ -645,7 +645,7 @@ function recentBlock() {
   var h = '<div class="ms-head"><b style="font-size:14px">Recent</b><div class="ms-sub" style="margin:0">' + [30, 60, 90].map(function (k) {
     return '<button class="ms-tab' + (k === RECENT_N ? ' active' : '') + '" onclick="recentPick(' + k + ')">' + k + ' Days</button>'; }).join('') + '</div></div>';
   if (!days.length) return h + '<div class="ms-empty">No trades</div>';
-  var cum = 0, g = [], c = [], v = [], w = [];
+  var cum = 0, g = [], c = [], v = [], w = [], dstop = Math.abs(+META.daily_stop || 500);   // your bot's BASE_DAILY_LOSS_LIMIT (sync), else $500
   days.forEach(function (d) {
     cum += d.gross;
     var tipD = '<b>' + d.d + '</b><br>';
@@ -654,7 +654,7 @@ function recentBlock() {
     v.push({x: d.d, lx: d.d, v: d.vol, tip: tipD + d.vol.toLocaleString() + ' shares'});
     w.push({x: d.d, lx: d.d, v: d.w / d.n * 100, tip: tipD + f2(d.w / d.n * 100, 0) + '% win (' + d.w + '/' + d.n + ')'});
   });
-  return h + '<div class="ms-grid2">' + card('Gross daily P&amp;L (' + N + ') <small>line = average · click a bar = that day</small>', svgChart(g, {h: 262, avgLine: true, maxLab: 6})) +
+  return h + '<div class="ms-grid2">' + card('Gross daily P&amp;L (' + N + ') <small>red line = daily stop loss ' + usd(-dstop, 0) + ' · click a bar = that day</small>', svgChart(g, {h: 262, maxLab: 6, refLine: -dstop, refTip: 'daily stop loss ' + usd(-dstop, 0)})) +
     card('Gross cumulative P&amp;L (' + N + ')', svgChart(c, {type: 'line', h: 262, color: BAR_G, maxLab: 6})) + '</div>' +
     '<div class="ms-grid2">' + card('Daily volume (' + N + ')', svgChart(v, {h: 262, color: BAR_G, maxLab: 6, fmt: function (x) { return Math.round(x).toLocaleString(); }})) +
     card('Win % (' + N + ')', svgChart(w, {h: 262, color: BAR_G, maxLab: 6, fmt: function (x) { return Math.round(x); }})) + '</div>';
