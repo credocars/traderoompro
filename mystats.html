@@ -612,7 +612,7 @@ function svgChart(pts, o) {
     s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + gy.toFixed(1) + '" y2="' + gy.toFixed(1) + '" stroke="#243044" stroke-width="1"/>' +
       '<text x="' + (pl - 7) + '" y="' + (gy + 3.5).toFixed(1) + '" fill="#cbd5e1" font-size="12" font-weight="700" text-anchor="end">' + esc(fmt(Math.abs(gv) < step / 1e6 ? 0 : gv)) + '</text>'; }
   s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="#64748b" stroke-width="1"/>';
-  var sw = iw / n, every = n <= 12 ? 1 : Math.max(1, Math.ceil(n / 11));   // bigger labels: max ~11-12 so they never overlap
+  var sw = iw / n, ml = o.maxLab || 11, every = n <= ml ? 1 : Math.max(1, Math.ceil(n / ml));   // bigger labels: max ~11-12 so they never overlap
   if (o.type === 'line' || o.type === 'area') {
     var path = '';
     pts.forEach(function (p, i) { var x = pl + sw * (i + .5), y = Y(p.v); path += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; });
@@ -628,12 +628,38 @@ function svgChart(pts, o) {
       if (o.color && p.v < 0) col = BAR_R;
       s += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(Math.abs(y1 - y0), p.v ? .8 : 0).toFixed(1) + '" fill="' + col + '" rx="1.5"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + (p.click ? ' style="cursor:pointer" onclick="' + p.click + '"' : '') + '/>'; });
   }
+  if (o.avgLine) { var av = sum(vs) / n, ay = Y(av);
+    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + ay.toFixed(1) + '" y2="' + ay.toFixed(1) + '" stroke="' + BAR_G + '" stroke-width="2"' + tipAttr('average ' + fmt(av)) + '/>'; }
   pts.forEach(function (p, i) { if (i % every === 0) s += '<text x="' + (pl + sw * (i + .5)).toFixed(1) + '" y="' + (H - 8) + '" fill="#cbd5e1" font-size="12" font-weight="700" text-anchor="middle">' + esc(p.lx != null ? p.lx : p.x) + '</text>'; });
   return s + '</svg>';
 }
 function shortD(d) { return d.slice(5).replace('-', '/'); }
 
 // ═══ DASHBOARD ═══
+// Recent like Tradervue (Max 11-21): the last 30 / 60 / 90 trading days, every filter except the date range
+var RECENT_N = 30;
+try { RECENT_N = +localStorage.getItem('ms_recent') || 30; } catch (e) {}
+function recentPick(n) { RECENT_N = n; try { localStorage.setItem('ms_recent', n); } catch (e) {} render(); }
+function recentBlock() {
+  var all = byDay(ALL.filter(function (t) { return match(t, true); })), days = all.slice(-RECENT_N), N = RECENT_N + ' Days';
+  var h = '<div class="ms-head"><b style="font-size:14px">Recent</b><div class="ms-sub" style="margin:0">' + [30, 60, 90].map(function (k) {
+    return '<button class="ms-tab' + (k === RECENT_N ? ' active' : '') + '" onclick="recentPick(' + k + ')">' + k + ' Days</button>'; }).join('') + '</div></div>';
+  if (!days.length) return h + '<div class="ms-empty">No trades</div>';
+  var cum = 0, g = [], c = [], v = [], w = [];
+  days.forEach(function (d) {
+    cum += d.gross;
+    var tipD = '<b>' + d.d + '</b><br>';
+    g.push({x: d.d, lx: d.d, v: d.gross, tip: tipD + 'gross ' + usd(d.gross, 0) + ' · net ' + usd(d.net, 0) + ' · ' + d.n + ' trades', click: "go('day','" + d.d + "')"});
+    c.push({x: d.d, lx: d.d, v: cum, tip: tipD + 'cumulative gross ' + usd(cum, 0)});
+    v.push({x: d.d, lx: d.d, v: d.vol, tip: tipD + d.vol.toLocaleString() + ' shares'});
+    w.push({x: d.d, lx: d.d, v: d.w / d.n * 100, tip: tipD + f2(d.w / d.n * 100, 0) + '% win (' + d.w + '/' + d.n + ')'});
+  });
+  return h + '<div class="ms-grid2">' + card('Gross daily P&amp;L (' + N + ') <small>line = average · click a bar = that day</small>', svgChart(g, {h: 262, avgLine: true, maxLab: 6})) +
+    card('Gross cumulative P&amp;L (' + N + ')', svgChart(c, {type: 'line', h: 262, color: BAR_G, maxLab: 6})) + '</div>' +
+    '<div class="ms-grid2">' + card('Daily volume (' + N + ')', svgChart(v, {h: 262, color: BAR_G, maxLab: 6, fmt: function (x) { return Math.round(x).toLocaleString(); }})) +
+    card('Win % (' + N + ')', svgChart(w, {h: 262, color: BAR_G, maxLab: 6, fmt: function (x) { return Math.round(x); }})) + '</div>';
+}
+
 function viewDash(el) {
   TIPS = [];
   var s = stats(ROWS), days = byDay(ROWS);
@@ -662,14 +688,9 @@ function viewDash(el) {
     avgPts.push({x: d.d, lx: lab, v: d.net / d.n, tip: tipD + 'avg trade ' + usd(d.net / d.n)});
   });
   var sh = days.length > 120;   // long ranges: monthly bars for the daily charts
-  if (sh) { dayPts = monthPts(days, 'net'); volPts = monthPts(days, 'vol'); }
-  h += '<div class="ms-grid2">' +
-    card('Cumulative net P&amp;L', svgChart(cumPts, {type: 'line', h: 262})) +
-    card(sh ? 'Monthly net P&amp;L' : 'Daily net P&amp;L <small>click a bar = that day</small>', svgChart(dayPts, {h: 262})) + '</div>' +
-    '<div class="ms-grid2">' + card('Drawdown', svgChart(ddPts, {type: 'area', h: 262, color: '#ef4444'})) +
-    card(sh ? 'Monthly volume (shares)' : 'Daily volume (shares)', svgChart(volPts, {h: 262, color: '#4a78b8', fmt: function (v) { return Math.round(v).toLocaleString(); }})) + '</div>';
-  if (!sh) h += '<div class="ms-grid2">' + card('Win % by day', svgChart(wrPts, {h: 262, color: '#06b6d4', fmt: function (v) { return Math.round(v) + '%'; }})) +
-    card('Average trade by day', svgChart(avgPts, {h: 262})) + '</div>';
+  h += recentBlock();
+  h += '<div class="ms-grid2">' + card('Drawdown <small>selected range</small>', svgChart(ddPts, {type: 'area', h: 262, color: '#ef4444'})) +
+    card('Average trade by day <small>selected range</small>', svgChart(sh ? monthPts(days, 'net') : avgPts, {h: 262})) + '</div>';
   var recent = ROWS.slice(-12).reverse();
   var sy = groupBy(ROWS, function (t) { return t.s; }).sort(function (a, b) { return b.s.net - a.s.net; });
   h += '<div class="ms-grid2">' + card('Latest trades', tradeTable(recent, true)) +
