@@ -610,7 +610,7 @@ function svgChart(pts, o) {
   var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block" font-family="Inter,sans-serif">';
   for (var gv = mn; gv <= mx + step / 2; gv += step) { var gy = Y(gv);
     s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + gy.toFixed(1) + '" y2="' + gy.toFixed(1) + '" stroke="#243044" stroke-width="1"/>' +
-      '<text x="' + (pl - 7) + '" y="' + (gy + 3.5).toFixed(1) + '" fill="#94a3b8" font-size="10.5" font-weight="600" text-anchor="end">' + esc(fmt(Math.abs(gv) < step / 1e6 ? 0 : gv)) + '</text>'; }
+      '<text x="' + (pl - 7) + '" y="' + (gy + 3.5).toFixed(1) + '" fill="#cbd5e1" font-size="12" font-weight="700" text-anchor="end">' + esc(fmt(Math.abs(gv) < step / 1e6 ? 0 : gv)) + '</text>'; }
   s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="#64748b" stroke-width="1"/>';
   var sw = iw / n, every = n <= 14 ? 1 : Math.max(1, Math.ceil(n / 16));
   if (o.type === 'line' || o.type === 'area') {
@@ -622,13 +622,13 @@ function svgChart(pts, o) {
     pts.forEach(function (p, i) { s += '<rect x="' + (pl + sw * i).toFixed(1) + '" y="' + pt + '" width="' + Math.max(sw, 1).toFixed(1) + '" height="' + ih + '" fill="transparent"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + '/>'; });
   } else {
     // bar width like Tradervue: a chart with few bars keeps the width of a 7-bar chart (no fat bars), 80% of a slot
-    var bw = Math.max(n <= 14 ? iw / Math.max(n, 7) * .7 : sw * .65, 1);
+    var bw = Math.max(n <= 14 ? iw / Math.max(n, 7) * .8 : sw * .7, 1);
     pts.forEach(function (p, i) { var x = pl + sw * i + (sw - bw) / 2, y0 = Y(0), y1 = Y(p.v);
       var col = o.color || (p.v >= 0 ? BAR_G : BAR_R);   // softer, like Tradervue (Max 11-21)
       if (o.color && p.v < 0) col = BAR_R;
       s += '<rect x="' + x.toFixed(1) + '" y="' + Math.min(y0, y1).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(Math.abs(y1 - y0), p.v ? .8 : 0).toFixed(1) + '" fill="' + col + '" rx="1.5"' + tipAttr(p.tip || (esc(p.x) + ': ' + fmt(p.v))) + (p.click ? ' style="cursor:pointer" onclick="' + p.click + '"' : '') + '/>'; });
   }
-  pts.forEach(function (p, i) { if (i % every === 0) s += '<text x="' + (pl + sw * (i + .5)).toFixed(1) + '" y="' + (H - 8) + '" fill="#94a3b8" font-size="10.5" font-weight="600" text-anchor="middle">' + esc(p.lx != null ? p.lx : p.x) + '</text>'; });
+  pts.forEach(function (p, i) { if (i % every === 0) s += '<text x="' + (pl + sw * (i + .5)).toFixed(1) + '" y="' + (H - 8) + '" fill="#cbd5e1" font-size="12" font-weight="700" text-anchor="middle">' + esc(p.lx != null ? p.lx : p.x) + '</text>'; });
   return s + '</svg>';
 }
 function shortD(d) { return d.slice(5).replace('-', '/'); }
@@ -772,15 +772,15 @@ function ymdRep() {
   var ys = stats(yr);
   var h = '<div class="mut" style="font-size:11.5px;margin:-4px 0 10px">Whole years - the date range filter is not used here; the other filters are.</div>';
   var byY = years.map(function (y) { return rows.filter(function (t) { return t.y === y; }); });
-  h += '<div class="ms-grid2">' + card('Trade distribution by year <small>click a year</small>', svgChart(byY.map(function (a, i) { return {x: years[i], v: a.length, tip: '<b>' + years[i] + '</b><br>' + a.length + ' trades', click: "ymdPick('" + years[i] + "',null)"}; }), {h: 300, color: BAR_G, fmt: cntFmt})) +
-    card('Performance by year', svgChart(byY.map(function (a, i) { var n = sum(a.map(function (t) { return t.n; })); return {x: years[i], v: n, tip: '<b>' + years[i] + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: "ymdPick('" + years[i] + "',null)"}; }), {h: 300})) + '</div>';
+  h += '<div class="ms-grid2">' + card('Trade distribution by year <small>click a year</small>', svgChart(byY.map(function (a, i) { return {x: years[i], v: a.length, tip: '<b>' + years[i] + '</b><br>' + a.length + ' trades', click: "ymdPick('" + years[i] + "',null)"}; }), {h: 262, color: BAR_G, fmt: cntFmt})) +
+    card('Performance by year', svgChart(byY.map(function (a, i) { var n = sum(a.map(function (t) { return t.n; })); return {x: years[i], v: n, tip: '<b>' + years[i] + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: "ymdPick('" + years[i] + "',null)"}; }), {h: 262})) + '</div>';
   h += '<div class="ms-head"><div class="ms-sub" style="margin:0">' + years.map(function (y) {
       return '<button class="ms-tab' + (y === YMD_Y ? ' active' : '') + '" onclick="ymdPick(\'' + y + '\',null)">' + y + '</button>'; }).join('') + '</div>' +
     '<div class="mut" style="font-size:12px">' + YMD_Y + ': ' + pn(ys.net, 0) + ' · ' + ys.n + ' trades · ' + f2(ys.wr, 0) + '% win · PF ' + f2(ys.pf) + '</div></div>';
   var cnt = byM.map(function (a, i) { return {x: MN3[i], v: a.length, tip: '<b>' + MN3[i] + ' ' + YMD_Y + '</b><br>' + a.length + ' trades', click: 'ymdPick(null,' + i + ')'}; });
   var net = byM.map(function (a, i) { var n = sum(a.map(function (t) { return t.n; })); return {x: MN3[i], v: n, tip: '<b>' + MN3[i] + ' ' + YMD_Y + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: 'ymdPick(null,' + i + ')'}; });
-  h += '<div class="ms-grid2">' + card('Trade distribution by month <small>click a month</small>', svgChart(cnt, {h: 300, color: BAR_G, fmt: cntFmt})) +
-    card('Performance by month', svgChart(net, {h: 300})) + '</div>';
+  h += '<div class="ms-grid2">' + card('Trade distribution by month <small>click a month</small>', svgChart(cnt, {h: 262, color: BAR_G, fmt: cntFmt})) +
+    card('Performance by month', svgChart(net, {h: 262})) + '</div>';
   h += '<div class="ms-head" style="justify-content:center"><b style="font-size:13px">' + YMD_Y + ':</b><div class="ms-sub" style="margin:0">' + MN3.map(function (m, i) {
       var has = byM[i].length; return '<button class="ms-tab' + (i === YMD_M ? ' active' : '') + '"' + (has ? ' onclick="ymdPick(null,' + i + ')"' : ' disabled style="opacity:.35;cursor:default"') + '>' + m + '</button>'; }).join('') + '</div></div>';
   var mo = byM[YMD_M], nd = new Date(+YMD_Y, YMD_M + 1, 0).getDate(), byD = [];
@@ -789,8 +789,8 @@ function ymdRep() {
   var ms = stats(mo), pre = YMD_Y + '-' + ('0' + (YMD_M + 1)).slice(-2) + '-';
   var dc = byD.map(function (a, i) { var dd = pre + ('0' + (i + 1)).slice(-2); return {x: String(i + 1), v: a.length, tip: '<b>' + dd + '</b><br>' + a.length + ' trades', click: a.length ? "go('day','" + dd + "')" : null}; });
   var dn = byD.map(function (a, i) { var dd = pre + ('0' + (i + 1)).slice(-2), n = sum(a.map(function (t) { return t.n; })); return {x: String(i + 1), v: n, tip: '<b>' + dd + '</b><br>' + usd(n, 0) + ' · ' + a.length + ' trades', click: a.length ? "go('day','" + dd + "')" : null}; });
-  h += '<div class="ms-grid2">' + card('Trade distribution by day <small>' + MN3[YMD_M] + ' ' + YMD_Y + ' · click a day</small>', svgChart(dc, {h: 300, color: BAR_G, fmt: cntFmt})) +
-    card('Performance by day of month <small>' + pn(ms.net, 0) + ' · ' + ms.n + ' trades · ' + f2(ms.wr, 0) + '% win</small>', svgChart(dn, {h: 300})) + '</div>';
+  h += '<div class="ms-grid2">' + card('Trade distribution by day <small>' + MN3[YMD_M] + ' ' + YMD_Y + ' · click a day</small>', svgChart(dc, {h: 262, color: BAR_G, fmt: cntFmt})) +
+    card('Performance by day of month <small>' + pn(ms.net, 0) + ' · ' + ms.n + ' trades · ' + f2(ms.wr, 0) + '% win</small>', svgChart(dn, {h: 262})) + '</div>';
   var days = byDay(mo).reverse();
   h += card('Days of ' + MN3[YMD_M] + ' ' + YMD_Y, days.length ? '<div class="ms-scroll"><table class="ms-tbl"><thead><tr><th class="l">Day</th><th>Trades</th><th>Net</th><th>Win %</th><th>Shares</th></tr></thead><tbody>' +
     days.map(function (x) { return '<tr class="click" onclick="go(\'day\',\'' + x.d + '\')"><td class="l">' + x.d + '</td><td>' + x.n + '</td><td>' + pn(x.net, 0) + '</td><td>' + f2(x.w / x.n * 100, 0) + '%</td><td>' + x.vol.toLocaleString() + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<div class="ms-empty">No trades</div>');
