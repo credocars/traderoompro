@@ -232,6 +232,8 @@ body{display:flex;}
 .ms-note:focus{outline:none;border-color:var(--green);}
 .ms-pre{white-space:pre-wrap;font-size:12.5px;line-height:1.55;color:var(--t1);background:var(--card2);border-radius:8px;padding:10px 12px;max-height:340px;overflow:auto;margin:0;font-family:inherit;}
 .ms-tchart{height:460px;}
+.ms-tchart.ms-big{height:calc(100vh - 230px);min-height:560px;max-height:900px;}
+.ms-tchart.ms-mid{height:420px;}
 .ms-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
 .ms-head .t{font-size:22px;font-weight:800;}
 .ms-head a{color:var(--green);font-weight:600;font-size:13px;text-decoration:none;}
@@ -993,8 +995,9 @@ function viewTrade(el, key) {
     tile('Entry → exit', px(t.e) + ' → ' + px(t.xp), t.mv != null ? (t.mv > 0 ? '+' : '') + f2(t.mv) + '% captured' : '') + tile('Hold', t.on ? 'overnight' : mins(t.h), 'closed ' + (t.x || '—')) +
     '<div class="ms-tile" id="tBest"><div class="l">Best / worst open P&amp;L</div><div class="v">…</div><div class="s">from the 1-min bars</div></div>' +
     '<div class="ms-tile" id="tKept"><div class="l">Kept of the best</div><div class="v">…</div><div class="s">low / high while in</div></div>' + '</div>';
-  h += '<div class="ms-grid2"><div class="ms-card"><h3><span>' + esc(t.s) + ' · 1 min</span><small id="chartNote">loading…</small></h3><div id="tchart" class="ms-tchart"></div></div>' +
-    '<div class="ms-card"><h3><span>' + esc(t.s) + ' · daily</span><small id="dchartNote">loading…</small></h3><div id="dchart" class="ms-tchart"></div></div></div>';
+  // big 1-min chart on its own row like Tradervue (Max 11-21), the daily chart under it
+  h += '<div class="ms-card"><h3><span>' + esc(t.s) + ' · 1 min</span><small id="chartNote">loading…</small></h3><div id="tchart" class="ms-tchart ms-big"></div></div>' +
+    '<div class="ms-card"><h3><span>' + esc(t.s) + ' · daily</span><small id="dchartNote">loading…</small></h3><div id="dchart" class="ms-tchart ms-mid"></div></div>';
   h += '<div class="ms-grid2"><div class="ms-card"><h3><span>Trade running P&amp;L</span><small>before costs, minute closes</small></h3><div id="pchart" class="ms-pchart"></div></div>' +
     '<div class="ms-card"><h3><span>Day running P&amp;L</span><small id="dpNote">all your trades that day</small></h3><div id="dpchart" class="ms-pchart"></div></div></div>';
   h += '<div class="ms-card"><h3><span>Executions</span><span style="display:flex;gap:6px;">' +   // one full row like the Daily Review (Max 11-21)
