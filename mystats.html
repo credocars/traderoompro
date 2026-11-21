@@ -1320,6 +1320,9 @@ function stockTiles(t) {
       [has(D.rs_days) ? 'reverse split ' + D.rs_days + ' days ago' : '', D.f_ma ? 'merger filing' : ''].filter(Boolean).join(' · '), D.offer_90d || D.offer_after ? 'neg' : '');
     sT('Run before', pc(D.run_pct), has(D.green_streak) ? D.green_streak + ' green days in a row' : '');
     sT('HOD / next day', D.hod_time || null, has(D.n1_oc) ? 'next day open → close ' + pc(D.n1_oc) : '');
+    var oldN = document.getElementById('stockText'); if (oldN) oldN.remove();
+    if (D.note) { var pre = document.createElement('pre'); pre.id = 'stockText'; pre.className = 'ms-pre';   // the Tradervue STOCK note (Max 11-21)
+      pre.style.cssText = 'margin-top:12px;white-space:pre-wrap;font-size:12.5px;line-height:1.55;'; pre.textContent = D.note; g.parentNode.appendChild(pre); }
     document.getElementById('stockNote').textContent = t.s + ' on ' + t.d + ' · ' + (D.src === 'db' ? 'spike database (that day)' : D.src === 'today' ? "today's profile" : D.src === 'calc' ? 'worked out from our files' : r[0] ? '' : 'from your trade tags (the full facts come with the next server sync)');
   });
 }
