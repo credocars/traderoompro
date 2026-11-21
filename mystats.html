@@ -242,6 +242,7 @@ body{display:flex;}
 @media (max-width:1300px){.ms-tiles{grid-template-columns:repeat(4,minmax(0,1fr));}.ms-cal-wrap{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:1000px){.ms-grid2,.ms-grid3{grid-template-columns:1fr;}.ms-kv{grid-template-columns:1fr;}}
 @media (max-width:700px){.ms-tiles{grid-template-columns:repeat(2,minmax(0,1fr));}.ms-cal-wrap{grid-template-columns:1fr;}}
+.ms-stats td{padding:5px 8px;font-size:12.5px}.ms-stats td:nth-child(2){font-weight:700;white-space:nowrap}.ms-stats td:nth-child(3){font-size:11.5px}
 </style>
 </head>
 <body>
@@ -997,15 +998,18 @@ function viewTrade(el, key) {
   h += '<div class="ms-grid2"><div class="ms-card"><h3><span>Trade running P&amp;L</span><small>before costs, minute closes</small></h3><div id="pchart" class="ms-pchart"></div></div>' +
     '<div class="ms-card"><h3><span>Day running P&amp;L</span><small id="dpNote">all your trades that day</small></h3><div id="dpchart" class="ms-pchart"></div></div></div>';
   h += '<div class="ms-card"><h3><span>Stock</span><small id="stockNote">' + esc(t.s) + ' on ' + t.d + '</small></h3><div class="rv-grid" id="stockGrid"></div></div>';
-  h += '<div class="ms-grid2"><div class="ms-card"><h3>Executions</h3><div id="execs" class="ms-empty">loading…</div></div><div class="ms-card"><h3>Notes and tags</h3>' +
+  h += '<div class="ms-grid2"><div class="ms-card"><h3>Executions</h3><div id="execs" class="ms-empty">loading…</div></div><div style="display:flex;flex-direction:column;gap:14px;">' +
+    '<div class="ms-card"><h3><span>Trade stats</span><small>from the executions and the 1-min bars</small></h3><div id="tstats" class="ms-empty">loading…</div></div>' +
+    '<div class="ms-card"><h3>Notes and tags</h3>' +
     '<div style="margin-bottom:8px;">' + (t.tg || []).map(chip).join('') + '</div>' +
     '<input class="ms-in" id="utags" style="width:100%;max-width:none;margin-bottom:8px;" placeholder="your tags, comma separated (A+, FOMO, chased …)" value="' + esc([].concat(UTAGS[t.k] || []).join(', ')) + '">' +
     '<textarea class="ms-note" id="tnote" placeholder="Your notes on this trade (only instructors see them)">' + esc(NOTES[t.k] || '') + '</textarea>' +
     '<div style="display:flex;justify-content:flex-end;margin-top:8px;"><button class="ms-btn" onclick="saveTrade(\'' + t.k + '\')">Save</button></div>' +
-    (t.tvn ? '<h3 style="margin-top:14px">Tradervue notes</h3><pre class="ms-pre">' + esc(t.tvn) + '</pre>' : '') + '</div></div>';
+    (t.tvn ? '<h3 style="margin-top:14px">Tradervue notes</h3><pre class="ms-pre">' + esc(t.tvn) + '</pre>' : '') + '</div></div></div>';
   el.innerHTML = h;
   toTop();
   if (t.src === 'TV') { document.getElementById('execs').innerHTML = '<div class="ms-empty">Tradervue history - no executions in the export.</div>'; }
+  tradeStats(t, null, []);   // execution numbers at once; bar numbers fill in when the bars arrive
   Promise.all([t.src === 'TV' ? Promise.resolve({}) : loadFills(t.d), loadBars(t.d, t.s), loadDaily(t.d, t.s)]).then(function (r) {
     if (VIEW !== 'trade' || BYKEY[key] !== t) return;
     var fl = (r[0] || {})[t.k] || [];
@@ -1013,9 +1017,72 @@ function viewTrade(el, key) {
     drawChart(t, r[1], fl);
     drawDaily(t, r[2]);
     tradePnl(t, r[1], fl);
+    tradeStats(t, r[1], fl);
     dayPnl(t);
   });
   stockTiles(t);
+}
+// Trade stats (Max 11-21 "missing maybe trade stat? useful info"): execution numbers, what the stock did while you were in,
+// where you entered (vs VWAP / HOD / the run), and the day around the trade
+function tradeStats(t, bars, fl) {
+  var box = document.getElementById('tstats'); if (!box) return;
+  var short = t.sd !== 'L', rows = [], f0 = (fl || []).filter(function (f) { return !f[1]; });
+  function row(l, v, sub, cls) { rows.push('<tr><td class="l mut">' + l + '</td><td class="' + (cls || '') + '">' + v + '</td><td class="l mut">' + (sub || '') + '</td></tr>'); }
+  function sec(x) { rows.push('<tr><td colspan="3" class="l" style="padding-top:10px;color:var(--text);font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase">' + x + '</td></tr>'); }
+  sec('Execution');
+  if (f0.length) {
+    var inQ = 0, inV = 0, outQ = 0, outV = 0, pos = 0, maxPos = 0, maxCap = 0, adds = 0, scales = 0, last = 0;
+    f0.forEach(function (f) { var q = f[2], p = +f[3], opening = (short ? q < 0 : q > 0);
+      if (opening) { inQ += Math.abs(q); inV += Math.abs(q) * p; if (pos !== 0) adds++; }
+      else { outQ += Math.abs(q); outV += Math.abs(q) * p; if (Math.abs(pos + q) > 1e-6) scales++; }
+      last = q; pos += q; if (Math.abs(pos) > maxPos) { maxPos = Math.abs(pos); } maxCap = Math.max(maxCap, Math.abs(pos) * p); });
+    var ae = inQ ? inV / inQ : t.e, ax = outQ ? outV / outQ : t.xp;
+    row('Avg entry → avg exit', px(ae) + ' → ' + px(ax), (short ? ae - ax : ax - ae) >= 0 ? '+' + f2(Math.abs(ae - ax), 2) + ' a share' : '-' + f2(Math.abs(ae - ax), 2) + ' a share');
+    row('Shares in / out', Math.round(inQ).toLocaleString() + ' / ' + Math.round(outQ).toLocaleString(), f0.length + ' fills · ' + adds + ' adds · ' + scales + ' partial exits');
+    row('Max position', Math.round(maxPos).toLocaleString() + ' sh', '≈ ' + usd(maxCap, 0) + ' at work');
+    if (maxCap) row('Return on position', (t.n >= 0 ? '+' : '') + f2(t.n / maxCap * 100, 2) + '%', 'net P&amp;L / max $ at work', t.n >= 0 ? 'pos' : 'neg');
+    if (inQ) row('Net per share', usd(t.n / inQ, 3), 'fees ' + usd(Math.abs(t.c) / Math.max(inQ + outQ, 1), 4) + ' a share traded');
+  } else {
+    row('Entry → exit', px(t.e) + ' → ' + px(t.xp), '');
+    row('Shares (max)', Math.round(t.q).toLocaleString(), (t.ne || '?') + ' entries · ' + (t.nx || '?') + ' exits');
+  }
+  row('Gross / fees / net', usd(t.g, 0) + ' / ' + usd(t.c, 2) + ' / ' + usd(t.n, 0), t.g ? 'fees = ' + f2(Math.abs(t.c) / Math.abs(t.g) * 100, 1) + '% of gross' : '', t.n >= 0 ? 'pos' : 'neg');
+  if (bars && bars.c && f0.length) {
+    var cand = candlesOf(t.d, bars), pnl = runPnl(t.d, fl, cand);
+    var a = etS(t.d, f0[0][0]), z = etS(t.d, f0[f0.length - 1][0]);
+    if (pnl.length) {
+      sec('While you were in');
+      var vals = pnl.map(function (x) { return x.value; }), bi = 0, wi = 0, red = 0;
+      vals.forEach(function (v, k) { if (v > vals[bi]) bi = k; if (v < vals[wi]) wi = k; if (v < 0) red++; });
+      var hm = function (tm) { var d = new Date(tm * 1000); return ('0' + d.getUTCHours()).slice(-2) + ':' + ('0' + d.getUTCMinutes()).slice(-2); };
+      row('Best open P&amp;L', pn(vals[bi], 0), 'at ' + hm(pnl[bi].time) + ' · ' + Math.round((pnl[bi].time - a) / 60) + ' min after entry');
+      row('Worst open P&amp;L', pn(vals[wi], 0), 'at ' + hm(pnl[wi].time) + (vals[wi] <= -250 ? ' · ⚠ past the -$250 limit' : ''));
+      row('Left on the table', usd(Math.max(vals[bi] - t.g, 0), 0), 'best open P&amp;L − gross P&amp;L');
+      row('Minutes in the red', red + ' of ' + vals.length, vals.length ? Math.round(red / vals.length * 100) + '% of the time' : '');
+    }
+    var before = cand.filter(function (c) { return c.time < a; }), at = cand.filter(function (c) { return c.time <= a; });
+    if (at.length) {
+      sec('Your entry');
+      var pv = 0, vv = 0; at.forEach(function (c) { pv += (c.high + c.low + c.close) / 3 * (c.vol || 0); vv += (c.vol || 0); });
+      var vwap = vv ? pv / vv : null, e1 = +f0[0][3];
+      var hod = Math.max.apply(null, at.map(function (c) { return c.high; })), lod = Math.min.apply(null, at.map(function (c) { return c.low; }));
+      var hodT = at.reduce(function (m, c) { return c.high >= m.high ? c : m; }, at[0]).time;
+      if (vwap) row('First fill vs VWAP', px(e1) + ' vs ' + px(vwap), (e1 >= vwap ? '+' : '') + f2((e1 / vwap - 1) * 100, 1) + '% ' + (e1 >= vwap ? 'above' : 'below') + ' VWAP');
+      row('vs high of day so far', px(hod) + ' at ' + (function (tm) { var d = new Date(tm * 1000); return ('0' + d.getUTCHours()).slice(-2) + ':' + ('0' + d.getUTCMinutes()).slice(-2); })(hodT),
+        f2((e1 / hod - 1) * 100, 1) + '% from the high · ' + Math.round((a - hodT) / 60) + ' min after it');
+      row('Run before entry', '+' + f2((hod / lod - 1) * 100, 0) + '%', 'low ' + px(lod) + ' → high ' + px(hod) + ' (from ' + (bars.t0 || '04:00') + ')');
+      var vb = sum(before.map(function (c) { return c.vol || 0; }));
+      row('Volume before entry', volTxt(vb), (function (m) { return m < 570 ? 'premarket entry' : 'regular hours entry'; })(Math.floor((a % 86400) / 60)));
+    }
+  }
+  var same = ALL.filter(function (x) { return x.d === t.d; }).sort(function (x, y) { return (x.t || '') < (y.t || '') ? -1 : 1; });
+  if (same.length) {
+    sec('That day');
+    var k = same.indexOf(t), dn = sum(same.map(function (x) { return x.n; })), sym = same.filter(function (x) { return x.s === t.s; });
+    row('Trade of the day', (k + 1) + ' of ' + same.length, sym.length > 1 ? sym.length + ' trades in ' + esc(t.s) + ' that day' : '');
+    row('Day net', usd(dn, 0), 'P&amp;L before this trade ' + usd(sum(same.slice(0, k).map(function (x) { return x.n; })), 0), dn >= 0 ? 'pos' : 'neg');
+  }
+  box.className = ''; box.innerHTML = '<table class="ms-tbl ms-stats"><tbody>' + rows.join('') + '</tbody></table>';
 }
 function execTable(t, fl) {
   if (!fl.length) return '<div class="ms-empty">No executions</div>';
@@ -1145,7 +1212,7 @@ function drawDaily(t, d) {
 function candlesOf(day, bars) {
   var out = []; if (!bars || !bars.c) return out;
   var b0 = etS(day, bars.t0);
-  for (var i = 0; i < bars.c.length; i++) if (bars.c[i] != null) out.push({time: b0 + i * 60, high: bars.h[i], low: bars.l[i], close: bars.c[i]});
+  for (var i = 0; i < bars.c.length; i++) if (bars.c[i] != null) out.push({time: b0 + i * 60, high: bars.h[i], low: bars.l[i], close: bars.c[i], vol: (bars.v || [])[i] || 0});
   return out;
 }
 function runPnl(day, fl, candles) {
