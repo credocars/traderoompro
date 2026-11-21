@@ -612,7 +612,7 @@ function svgChart(pts, o) {
     s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + gy.toFixed(1) + '" y2="' + gy.toFixed(1) + '" stroke="#243044" stroke-width="1"/>' +
       '<text x="' + (pl - 7) + '" y="' + (gy + 3.5).toFixed(1) + '" fill="#cbd5e1" font-size="12" font-weight="700" text-anchor="end">' + esc(fmt(Math.abs(gv) < step / 1e6 ? 0 : gv)) + '</text>'; }
   s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="#64748b" stroke-width="1"/>';
-  var sw = iw / n, every = n <= 14 ? 1 : Math.max(1, Math.ceil(n / 16));
+  var sw = iw / n, every = n <= 12 ? 1 : Math.max(1, Math.ceil(n / 11));   // bigger labels: max ~11-12 so they never overlap
   if (o.type === 'line' || o.type === 'area') {
     var path = '';
     pts.forEach(function (p, i) { var x = pl + sw * (i + .5), y = Y(p.v); path += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; });
@@ -664,12 +664,12 @@ function viewDash(el) {
   var sh = days.length > 120;   // long ranges: monthly bars for the daily charts
   if (sh) { dayPts = monthPts(days, 'net'); volPts = monthPts(days, 'vol'); }
   h += '<div class="ms-grid2">' +
-    card('Cumulative net P&amp;L', svgChart(cumPts, {type: 'line', h: 220})) +
-    card(sh ? 'Monthly net P&amp;L' : 'Daily net P&amp;L <small>click a bar = that day</small>', svgChart(dayPts, {h: 220})) + '</div>' +
-    '<div class="ms-grid2">' + card('Drawdown', svgChart(ddPts, {type: 'area', h: 170, color: '#ef4444'})) +
-    card(sh ? 'Monthly volume (shares)' : 'Daily volume (shares)', svgChart(volPts, {h: 170, color: '#3b82f6', fmt: function (v) { return Math.round(v).toLocaleString(); }})) + '</div>';
-  if (!sh) h += '<div class="ms-grid2">' + card('Win % by day', svgChart(wrPts, {h: 160, color: '#06b6d4', fmt: function (v) { return Math.round(v) + '%'; }})) +
-    card('Average trade by day', svgChart(avgPts, {h: 160})) + '</div>';
+    card('Cumulative net P&amp;L', svgChart(cumPts, {type: 'line', h: 262})) +
+    card(sh ? 'Monthly net P&amp;L' : 'Daily net P&amp;L <small>click a bar = that day</small>', svgChart(dayPts, {h: 262})) + '</div>' +
+    '<div class="ms-grid2">' + card('Drawdown', svgChart(ddPts, {type: 'area', h: 262, color: '#ef4444'})) +
+    card(sh ? 'Monthly volume (shares)' : 'Daily volume (shares)', svgChart(volPts, {h: 262, color: '#4a78b8', fmt: function (v) { return Math.round(v).toLocaleString(); }})) + '</div>';
+  if (!sh) h += '<div class="ms-grid2">' + card('Win % by day', svgChart(wrPts, {h: 262, color: '#06b6d4', fmt: function (v) { return Math.round(v) + '%'; }})) +
+    card('Average trade by day', svgChart(avgPts, {h: 262})) + '</div>';
   var recent = ROWS.slice(-12).reverse();
   var sy = groupBy(ROWS, function (t) { return t.s; }).sort(function (a, b) { return b.s.net - a.s.net; });
   h += '<div class="ms-grid2">' + card('Latest trades', tradeTable(recent, true)) +
