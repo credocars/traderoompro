@@ -455,6 +455,7 @@ body{display:flex;}
       <button class="rv-side-item" data-v="trades" onclick="showView('trades')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg><span>Trades</span></button>
       <button class="rv-side-item" data-v="day" onclick="NAV = null; closeChart(); showView('day')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span>Day review</span></button>
       <button class="rv-side-item" data-v="totals" onclick="showView('totals')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Running totals</span></button>
+      <button class="rv-side-item" data-v="rules" onclick="showView('rules')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/><circle cx="18" cy="18" r="3"/></svg><span>Rules</span></button>
       <button class="rv-side-item" data-v="score" onclick="showView('score')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M4 4h16v16H4z"/><path d="M8 15l2.5-3 2 2L16 9"/></svg><span>Scorecard</span></button>
       <button class="rv-side-item" onclick="window.location.href='zones.html'" title="Price zones + setup grades (instructors only)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M3 20h18"/><rect x="4" y="5" width="16" height="4" rx="1"/><rect x="4" y="11" width="16" height="4" rx="1"/></svg><span>Price zones</span></button>
       <button class="rv-side-item" data-v="stocks" onclick="showView('stocks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Stocks</span></button>
@@ -679,6 +680,17 @@ body{display:flex;}
       <div id="stOut"></div>
     </div>
 
+    <div id="viewRules" style="display:none;">
+      <div class="rv-card">
+        <div class="rv-card-title" id="rulesLabel">Rules — what every test does</div>
+        <div style="display:flex;gap:10px;align-items:center;margin:6px 0 10px;flex-wrap:wrap;">
+          <input id="rulesQ" class="rv-select" placeholder="search: ZR, zone, VWAP, ladder…" oninput="buildRules()" style="min-width:260px;">
+          <span style="color:var(--t3);font-size:12px;">Active = traded in the last 10 trading days. Click a rule = its trades. Paper rules use simulated fills; LIVE = real money.</span>
+        </div>
+        <div style="overflow-x:auto;"><table class="rv-table"><thead><tr><th>Rule</th><th>Name</th><th>Test</th><th style="min-width:340px;">What it does</th><th class="r">Trades</th><th class="r">Net</th><th>First</th><th>Last</th><th>Status</th></tr></thead><tbody id="rulesRows"></tbody></table></div>
+      </div>
+    </div>
+
     <div id="viewReports" style="display:none;">
       <div class="rv-tabs" id="repTabs"></div>
       <div class="rv-card"><div class="rv-card-title" id="repUpdated"></div><pre class="rv-pre" id="repText">—</pre></div>
@@ -859,8 +871,8 @@ function navRestore() {                      // browser Back / Forward or a save
 }
 window.addEventListener('popstate', function () { if (ALL_DAYS) navRestore(); });
 var CUR_VIEW = 'dash';
-var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', best: 'viewBest', claude: 'viewClaude', baoc: 'viewBaoC', reports: 'viewReports'};
-var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', best: 'Best performers', claude: 'Claude reports', baoc: 'BAO charts', reports: 'Text reports'};
+var VIEW_ID = {dash: 'viewDash', cal: 'viewCal', stats: 'viewStats', trades: 'viewTrades', day: 'viewDay', totals: 'viewTotals', score: 'viewScore', stocks: 'viewStocks', best: 'viewBest', claude: 'viewClaude', baoc: 'viewBaoC', rules: 'viewRules', reports: 'viewReports'};
+var VIEW_TITLE = {dash: 'Dashboard', cal: 'Calendar', stats: 'Reports', trades: 'Trades', day: 'Day review', totals: 'Running totals', score: 'Scorecard', stocks: 'Stocks', best: 'Best performers', claude: 'Claude reports', baoc: 'BAO charts', rules: 'Rules', reports: 'Text reports'};
 function showView(v) {
   CUR_VIEW = v;
   Object.keys(VIEW_ID).forEach(function (x) { document.getElementById(VIEW_ID[x]).style.display = (x === v) ? 'block' : 'none'; });
@@ -874,6 +886,7 @@ function showView(v) {
   if (v === 'best') buildBest();
   if (v === 'claude') buildCR();
   if (v === 'baoc') buildBC();
+  if (v === 'rules') buildRules();
   navPush();
 }
 
@@ -1902,7 +1915,7 @@ var TV_SYM = null;
 // readable rule names (Max 10-30); the codes stay in the data
 var RULE_NAME = {BAOALL_L: 'Ladder no stop', BAOALL_LM: 'Ladder + $ limit', BAOALL_LS: 'Ladder + 30% stop',
   BAOALL_C: 'Ladder + confirm', BAOALL_F: 'Fade every push', BAOALL_SP: 'Scale-in 3%', BAOALL_SD: 'Scale-in $ steps',
-  BAOALL_B: 'Bot 5% 1000 sh', BAOALL_X: 'Scale-out 2/4/6%', BAOALL_R: '1-min reversal', BAOALL_M: 'Bot 500 + 2x100', BAOALL_1: 'One shot', BAOALL_LF: 'One piece filtered',
+  BAOALL_B: 'Bot 5% 1000 sh', BAOALL_X: 'Scale-out 2/4/6%', BAOALL_R: '1-min reversal', BAOALL_M: 'Bot 500 + 2x100', BAOALL_ZR: 'Zone risk $250', BAOALL_1: 'One shot', BAOALL_LF: 'One piece filtered',
   SR_S5_08: 'S/R stop 5%', SR_R3_08: 'S/R room 3x', SR_S5_08H: 'S/R stop 5% HOD', SR_R3_08H: 'S/R room 3x HOD'};
 function rn(r) { return RULE_NAME[r] || r || ''; }
 var RULE_INFO = {
@@ -1922,6 +1935,7 @@ var RULE_INFO = {
   BAOALL_M: 'Max size: 500 sh + 2 adds of 100 (max 700), bot rules, $ steps by price, loss limit per trade',
   BAOALL_LF: 'one short of 500 sh at the spike signal (no ladder): $2-10 only, 300K+ shares in the spike window, entry 15%+ above VWAP, price zone Z1-Z4 (from 11-16); stop +15% + ESL, cover at VWAP, a losing trade out after 30 min or on 2 green 2-min candles, all out 09:30; trend-day block',
   BAOALL_LM: 'BAOALL_L ladder + max loss per trade (the bot limit)',
+  BAOALL_ZR: 'zone risk (from 11-18, Max 11-17 "yes SPIKE_ZR"): the BAO_ALL spike signal, entries only inside the price zones Z1-Z4 (nothing below Z1 or above Z4); stop = the next zone line above the entry +1%; size = $250 / (stop - entry) in whole 100s, max 1,000 sh and never more than IB lends (no IB shares = no trade); cover at VWAP, all out 09:30. Backtest 11-17: 358 trades, PF 2.02, won in 2025 and 2026. 11-24 check: paper also used a -10c target and an ESL1 layer that are not in this design',
   BAOALL_F: 'fade every push: L ladder, out on the first 6% dip / VWAP / 15 min + confirmed stop; re-short each new push 8% over the last cover (max 10 rounds, -$150, 2 losers)',
   ZAP_LIMIT: 'A+ zone: 500 sh limit short at Z2 (the start of the A+ zone for the stock\'s market cap x float group), exits = our rules (bot 500 + 2 x 100, steps by price, 30 min red, all out 09:30)',
   ZAP_RED: 'A+ zone: 500 sh short on the first red 1-min candle after a high inside the A+ zone, exits = our rules (bot 500 + 2 x 100, steps by price, 30 min red, all out 09:30)',
@@ -1960,6 +1974,39 @@ var RULE_PREFIX = {
   PCT_: ['', ' - same signal, TP / ADD step 5% of the entry price (BAO style)'],
   G2_: ['', ' - same signal, no TP steps: all out on two green 2-min candles']
 };
+function buildRules() {                   // Max 11-24 "what it does": every rule with its description + where it traded
+  var body = document.getElementById('rulesRows'); if (!body) return;
+  loadAllDays().then(function (all) {
+    body.innerHTML = '';
+    var by = {}, days = {};
+    all.trades.forEach(function (x) {
+      var r = x.rule || '-', o = (by[r] = by[r] || {rule: r, test: x.test, list: [], first: x._day, last: x._day});
+      o.list.push(x); if (x._day < o.first) o.first = x._day; if (x._day > o.last) o.last = x._day; days[x._day] = 1;
+    });
+    Object.keys(RULE_INFO).forEach(function (r) { if (!by[r]) by[r] = {rule: r, test: '', list: [], first: '', last: ''}; });
+    var dl = Object.keys(days).sort().reverse(), cut = dl.length > 9 ? dl[9] : (dl[dl.length - 1] || '');
+    var q = (document.getElementById('rulesQ').value || '').toLowerCase();
+    var rows = Object.keys(by).map(function (r) { var o = by[r]; o.info = ruleInfo(r); o.active = !!o.last && o.last >= cut; return o; })
+      .filter(function (o) { return !q || (o.rule + ' ' + rn(o.rule) + ' ' + (TEST_NAME[o.test] || o.test) + ' ' + o.info).toLowerCase().indexOf(q) >= 0; });
+    rows.sort(function (a, b) { return (b.active - a.active) || (b.last || '').localeCompare(a.last || '') || a.rule.localeCompare(b.rule); });
+    rows.forEach(function (o) {
+      var st = o.active ? 'ACTIVE' : (o.last ? 'stopped' : 'no trades'), s = ruleStats(o.list.filter(keep));
+      var tr = el('tr', o.list.length ? {cls: 'click'} : null);
+      tr.appendChild(el('td', {style: 'font-weight:700;white-space:nowrap;'}, o.rule));
+      tr.appendChild(el('td', {style: 'white-space:nowrap;'}, RULE_NAME[o.rule] || ''));
+      tr.appendChild(el('td', {style: 'white-space:nowrap;color:var(--t2);'}, TEST_NAME[o.test] || o.test || ''));
+      tr.appendChild(el('td', {style: 'white-space:normal;max-width:560px;font-size:12px;' + (o.info ? 'color:var(--t2);' : 'color:var(--red);')}, o.info || 'no description yet'));
+      tr.appendChild(el('td', {cls: 'r'}, o.list.length || ''));
+      tr.appendChild(el('td', {cls: 'r ' + cls(s.net), title: 'net with the page filters (premarket only / new rules)'}, s.n ? money(s.net) : ''));
+      tr.appendChild(el('td', {style: 'color:var(--t3);white-space:nowrap;'}, o.first));
+      tr.appendChild(el('td', {style: 'color:var(--t3);white-space:nowrap;'}, o.last));
+      tr.appendChild(el('td', {style: o.active ? 'color:var(--green);font-weight:700;' : 'color:var(--t3);'}, st));
+      if (o.list.length) tr.onclick = function () { ST.rule = o.rule; showView('trades'); };
+      body.appendChild(tr);
+    });
+    document.getElementById('rulesLabel').textContent = 'Rules — what every test does · ' + rows.filter(function (o) { return o.active; }).length + ' active, ' + rows.length + ' shown';
+  });
+}
 function ruleInfo(r) {
   if (RULE_INFO[r]) return RULE_INFO[r];
   for (var p in RULE_PREFIX) {
