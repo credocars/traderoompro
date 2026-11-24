@@ -1918,7 +1918,7 @@ var RULE_NAME = {BAOALL_L: 'Ladder no stop', BAOALL_LM: 'Ladder + $ limit', BAOA
   BAOALL_B: 'Bot 5% 1000 sh', BAOALL_X: 'Scale-out 2/4/6%', BAOALL_R: '1-min reversal', BAOALL_M: 'Bot 500 + 2x100', BAOALL_ZR: 'Zone risk $250', BAOALL_1: 'One shot', BAOALL_LF: 'One piece filtered',
   SR_S5_08: 'S/R stop 5%', SR_R3_08: 'S/R room 3x', SR_S5_08H: 'S/R stop 5% HOD', SR_R3_08H: 'S/R room 3x HOD'};
 function rn(r) { return RULE_NAME[r] || r || ''; }
-var RULE_INFO = {
+var RULE_MORE = {
   SR_S5_08: 'intraday S/R: short a push into today\'s 5-min top above VWAP from 08:00, target the next low / VWAP (room 2x), stop level +5%, $100 risk',
   SR_R3_08: 'intraday S/R: the same with room 3x and stop level +3%',
   SR_S5_08H: 'S/R stop 5%, only retests of the high of the day (double top)',
@@ -1966,6 +1966,56 @@ var RULE_INFO = {
   LTWIN_BOT: 'the live ladder + your bot now: break-even AT the avg after the first TP (or 30c), trend exit on 2 green 2-min candles',
   BAOALL_ONE: 'one entry / one exit: TP avg - 10c, premarket-high stop, 30 min'
 };
+// Max 11-24 "I expected a simple description": short plain words; the full detail (RULE_MORE) shows on mouse-over
+var RULE_INFO = {
+  BAOALL_L: 'Short in 5 small pieces as it spikes up. Out at VWAP. No stop.',
+  BAOALL_LS: 'Same ladder, plus one hard stop 30% above.',
+  BAOALL_LM: 'Same ladder, plus your bot\'s max loss per trade.',
+  BAOALL_C: 'Same ladder, plus a 7% stop that must hold 3 seconds.',
+  BAOALL_X: 'Same ladder, take profit in 3 parts on the way down.',
+  BAOALL_R: 'Same ladder, all out when a 1-min candle breaks the last high.',
+  BAOALL_F: 'Short every new push, cover each dip.',
+  BAOALL_B: 'Your bot\'s rules: 500 sh + adds, 5% steps.',
+  BAOALL_M: 'Your bot\'s rules: 500 sh + two adds of 100.',
+  BAOALL_1: 'One short, one exit: 10c profit or stop at the premarket high.',
+  BAOALL_ONE: 'One short, one exit: 10c profit or stop at the premarket high.',
+  BAOALL_SP: 'Add a piece every 3% up, take profit every 3% down.',
+  BAOALL_SD: 'Add a piece every $ step up, take profit every step down.',
+  BAOALL_LF: 'One 500 sh short on a big spike well above VWAP. Out at VWAP.',
+  BAOALL_ZR: 'Short the spike inside the price zones. Stop just above the next zone. Risk $250. Out at VWAP.',
+  SR_S5_08: 'Short at today\'s resistance. Stop 5% above. Target the next support.',
+  SR_R3_08: 'Short at today\'s resistance. Stop 3% above. Needs 3x room to target.',
+  SR_S5_08H: 'Short a retest of the high of day. Stop 5% above.',
+  SR_R3_08H: 'Short a retest of the high of day. Stop 3% above.',
+  ZAP_LIMIT: 'Limit short waiting at the A+ price zone. Your bot exits.',
+  ZAP_RED: 'Short the first red candle inside the A+ zone. Your bot exits.',
+  CLAUDE_LH: 'Short a lower-high break after a big spike. Stop above the high. Risk $100.',
+  BAOX_C1: 'Short the top: 1 candle with no new high and less volume.',
+  BAOX_C2: 'Short the top: 2 candles with no new high and less volume.',
+  BAOX_M2: 'Short the top, confirmed on 2-min candles.',
+  BAOX_RED: 'Short the first red 1-min candle at the top.',
+  LTWIN_TODAY: 'Copy of the live ladder with today\'s live exits.',
+  LTWIN_C10: 'Live ladder copy: out on a 5-min close 10% above the average.',
+  LTWIN_C15: 'Live ladder copy: out on a 5-min close 15% above the average.',
+  LTWIN_B30: 'Live ladder copy: break-even after 30c profit.',
+  LTWIN_BTP: 'Live ladder copy: break-even after the first take-profit.',
+  LTWIN_BTR: 'Live ladder copy: break-even under VWAP and EMA9.',
+  LTWIN_BTF: 'Live ladder copy: break-even under the 2-min EMA9.',
+  LTWIN_BOT: 'Live ladder copy with your bot\'s exits.',
+  LIVE: 'The live ladder on your real account.',
+  SPIKE3: 'Short a $1-3 stock that ran 30% in 15 min. 3% steps.',
+  SPIKE5: 'Short a $1-3 stock that ran 30% in 15 min. 5% steps.',
+  SPIKE5R: 'SPIKE5, half out at first profit, rest rides the EMA9.',
+  SPIKE5G: 'SPIKE5, half out at first profit, rest out on 2 green candles.',
+  SPIKE5T: 'SPIKE5, half out at first profit, rest out at the EMA9.',
+  SPIKE5L: 'Short the spike in 5 small pieces, one stop above.',
+  FLUSH5: 'Short the breakdown after a spike gives back 25%.',
+  NB_FLUSH5: 'FLUSH5 on a stock IB could not lend.',
+  FIRST_RED: 'Short the first red candle after the high.',
+  LEVEL_ORDERS: 'Resting shorts at the daily resistance levels above.',
+  RED_DAY: 'Short the first red day after a big multi-day run.'
+};
+function ruleMore(r) { return RULE_MORE[r] || (r && RULE_MORE[r.replace(/^(NB_|SM_|S50_|PCT_|G2_)/, '')]) || ''; }
 // twins / side tests of a base rule: the prefix says how it differs (Max 11-05: no rule without a description)
 var RULE_PREFIX = {
   NB_: ['', ' - on a stock IB could not lend (simulated, needs a locate broker)'],
@@ -1995,7 +2045,9 @@ function buildRules() {                   // Max 11-24 "what it does": every rul
       tr.appendChild(el('td', {style: 'font-weight:700;white-space:nowrap;'}, o.rule));
       tr.appendChild(el('td', {style: 'white-space:nowrap;'}, RULE_NAME[o.rule] || ''));
       tr.appendChild(el('td', {style: 'white-space:nowrap;color:var(--t2);'}, TEST_NAME[o.test] || o.test || ''));
-      tr.appendChild(el('td', {style: 'white-space:normal;max-width:560px;font-size:12px;' + (o.info ? 'color:var(--t2);' : 'color:var(--red);')}, o.info || 'no description yet'));
+      var tdi = el('td', {style: 'white-space:normal;max-width:420px;font-size:13px;' + (o.info ? '' : 'color:var(--red);')}, o.info || 'no description yet');
+      if (ruleMore(o.rule)) { tdi.title = ruleMore(o.rule); tdi.appendChild(el('div', {style: 'color:var(--t3);font-size:11px;margin-top:2px;'}, 'details: hover')); }
+      tr.appendChild(tdi);
       tr.appendChild(el('td', {cls: 'r'}, o.list.length || ''));
       tr.appendChild(el('td', {cls: 'r ' + cls(s.net), title: 'net with the page filters (premarket only / new rules)'}, s.n ? money(s.net) : ''));
       tr.appendChild(el('td', {style: 'color:var(--t3);white-space:nowrap;'}, o.first));
@@ -2029,7 +2081,7 @@ function soFar(t) {                       // every day sent so far for this trad
     rows.forEach(function (rw) {
       var x = rw[1], big = rw[2].filter(function (y) { return (y.net || 0) <= BOT_LIMIT; }).length, tr = el('tr', rw[0] === t.rule ? {cls: 'sel'} : null);
       tr.appendChild(el('td', {style: 'font-weight:700;'}, rn(rw[0])));
-      tr.appendChild(el('td', {style: 'white-space:normal;min-width:150px;max-width:300px;color:var(--t2);font-size:12px;'}, ruleInfo(rw[0])));
+      var ti = el('td', {style: 'white-space:normal;min-width:150px;max-width:300px;color:var(--t2);font-size:12px;'}, ruleInfo(rw[0])); ti.title = ruleMore(rw[0]); tr.appendChild(ti);
       tr.appendChild(el('td', {cls: 'r'}, x.n));
       tr.appendChild(el('td', {cls: 'r ' + (x.n >= 60 ? 'pos' : '')}, x.n >= 60 ? 'READY' : x.n + '/60'));
       tr.appendChild(el('td', {cls: 'r'}, x.win + '%'));
